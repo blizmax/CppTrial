@@ -10,10 +10,9 @@ public:
 
 int main()
 {
-    typedef Allocator<A>  AAllocator;
-    A* ptr = AAllocator::Allocate();
-    std::cout << "A Alloc" << std::endl;
-    AAllocator::Construct(ptr);
+    Array<int> arr(5);
+    arr.Add(100);
+    std::cout << arr[0] << " , " << arr.size << std::endl;
 
     system("pause");
     return 0;

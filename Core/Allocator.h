@@ -20,6 +20,7 @@ public:
     template <typename... Args>
     static void Construct(T *ptr, Args &&... args);
     static void Destroy(T *ptr);
+    static void Destroy(T *ptr, size_t count);
 };
 
 template <typename T>
@@ -80,5 +81,16 @@ CT_INLINE void Allocator<T>::Destroy(T *ptr)
 {
     destroy(ptr);
 }
+
+template <typename T>
+CT_INLINE void Allocator<T>::Destroy(T *ptr, size_t count)
+{
+    for(; count > 0; --count)
+    {
+        destroy(ptr);
+        ++ptr;
+    }
+}
+
 
 CT_SCOPE_END

@@ -25,12 +25,12 @@ CT_INLINE void construct(T *ptr, Args &&... args)
 }
 
 template <typename T>
-CT_INLINE void destroyPrivate(T *ptr, std::true_type)
+CT_INLINE void destroy_private(T *ptr, std::true_type)
 {
 }
 
 template <typename T>
-CT_INLINE void destroyPrivate(T *ptr, std::false_type)
+CT_INLINE void destroy_private(T *ptr, std::false_type)
 {
     if (ptr != nullptr)
         ptr->~T();
@@ -39,7 +39,7 @@ CT_INLINE void destroyPrivate(T *ptr, std::false_type)
 template <typename T>
 CT_INLINE void destroy(T *ptr)
 {
-    destroyPrivate(ptr, std::is_trivially_destructible<T>{});
+    destroy_private(ptr, std::is_trivially_destructible<T>{});
 }
 
 CT_SCOPE_END
