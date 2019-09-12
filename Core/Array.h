@@ -1,13 +1,13 @@
 #pragma once
 
 #include "General.h"
+#include "Allocator.h"
 
-CPP_TRIAL_SCOPE_BEGIN
+CT_SCOPE_BEGIN
 
-template <typename Type, typename Allocator>
+template <typename Type, typename Alloc = Allocator<Type>>
 class Array
 {
-
 public:
     Array();
     explicit Array(const size_t cap);
@@ -20,6 +20,13 @@ public:
 
     bool operator==(const Array &arr) const;
     bool operator!=(const Array &arr) const;
+
+private:
+    size_t size;
+    size_t capacity;
+    Type* data;
 };
 
-CPP_TRIAL_SCOPE_END
+
+
+CT_SCOPE_END
