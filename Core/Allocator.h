@@ -1,7 +1,7 @@
 #pragma once
 
 #include "General.h"
-#include "Construct.h"
+#include "Memory.h"
 
 CT_SCOPE_BEGIN
 
@@ -54,32 +54,32 @@ CT_INLINE void Allocator<T>::Deallocate(T *ptr, size_t count)
 template <typename T>
 CT_INLINE void Allocator<T>::Construct(T *ptr)
 {
-    construct(ptr);
+    ThisScope::construct(ptr);
 }
 
 template <typename T>
 CT_INLINE void Allocator<T>::Construct(T *ptr, const T &value)
 {
-    construct(ptr, value);
+    ThisScope::construct(ptr, value);
 }
 
 template <typename T>
 CT_INLINE void Allocator<T>::Construct(T *ptr, T &&value)
 {
-    construct(ptr, std::move(value));
+    ThisScope::construct(ptr, std::move(value));
 }
 
 template <typename T>
 template <typename... Args>
 CT_INLINE void Allocator<T>::Construct(T *ptr, Args &&... args)
 {
-    construct(ptr, std::forward<Args>(args)...);
+    ThisScope::construct(ptr, std::forward<Args>(args)...);
 }
 
 template <typename T>
 CT_INLINE void Allocator<T>::Destroy(T *ptr)
 {
-    destroy(ptr);
+    ThisScope::destroy(ptr);
 }
 
 template <typename T>
@@ -87,7 +87,7 @@ CT_INLINE void Allocator<T>::Destroy(T *ptr, size_t count)
 {
     for(; count > 0; --count)
     {
-        destroy(ptr);
+        ThisScope::destroy(ptr);
         ++ptr;
     }
 }

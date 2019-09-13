@@ -22,15 +22,17 @@ int main()
     // arr.Reserve(8);
     // std::cout << arr.capacity << " , " << arr.size << std::endl;
 
-    Array<int> arr1 {1,2,3,4,5};
-    arr1.Insert(3, 350);
+    Array<int> arr1 = {1,2,3,4,5,6,7};
+    Array<int> arr2 = {1,2,3,4,5,6};
+    arr1 = arr2;
+
+    arr1.Reverse();
+
+    std::cout << arr1.Peek() << std::endl;
+    arr1.Pop();
+    std::cout << arr1.Peek() << std::endl;
+
     for(auto v : arr1)
-    {
-        std::cout << v << std::endl;
-    }
-    arr1.Remove(2);
-    arr1.Remove(2);
-    for (auto v : arr1)
     {
         std::cout << v << std::endl;
     }
