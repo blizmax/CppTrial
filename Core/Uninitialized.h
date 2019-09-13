@@ -72,7 +72,7 @@ CT_INLINE void uninitialized_move_private(T *src, size_t count, T *dst, std::fal
 {
     for (; count > 0; --count)
     {
-        construct(dst, std::move(*dst));
+        construct(dst, std::move(*src));
         ++src;
         ++dst;
     }
@@ -81,7 +81,7 @@ CT_INLINE void uninitialized_move_private(T *src, size_t count, T *dst, std::fal
 template <typename T>
 CT_INLINE void uninitialized_move(T *src, size_t count, T *dst)
 {
-    uninitialized_move_private(dst, count, dst, std::is_trivially_move_assignable<T>{});
+    uninitialized_move_private(src, count, dst, std::is_trivially_move_assignable<T>{});
 }
 
 CT_SCOPE_END
