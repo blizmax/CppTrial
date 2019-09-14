@@ -14,7 +14,7 @@
 #define USE_CT_SCOPE
 #endif
 
-#define CT_ALIGN(X_, A_) (((X_) + ((A_) - 1)) & ~((A_) - 1))
+#define CT_ALIGN(X_, A_) (((X_) + ((A_)-1)) & ~((A_)-1))
 
 #define CT_ASSERT(COND_) assert(COND_)
 
@@ -24,7 +24,6 @@ CT_SCOPE_BEGIN
 
 namespace ThisScope
 {
-
 }
 
 CT_SCOPE_END

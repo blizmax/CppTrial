@@ -393,12 +393,12 @@ public:
     }
 
 private:
-    void CheckRange(size_t index)
+    void CheckRange(size_t index) const
     {
-        CT_ASSERT(index < size && index >= 0);
+        CT_ASSERT(index >= 0 && index < size);
     }
 
-    size_t FixCapacity(size_t inputCapacity)
+    size_t FixCapacity(size_t inputCapacity) const
     {
         return (inputCapacity < 8) ? 8 : CT_ALIGN(inputCapacity, 8);
     }

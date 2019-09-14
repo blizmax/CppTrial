@@ -1,7 +1,7 @@
 #pragma once
 
-#include "General.h"
-#include "Memory.h"
+#include "Core/General.h"
+#include "Core/Memory.h"
 
 CT_SCOPE_BEGIN
 
@@ -85,12 +85,11 @@ CT_INLINE void Allocator<T>::Destroy(T *ptr)
 template <typename T>
 CT_INLINE void Allocator<T>::Destroy(T *ptr, size_t count)
 {
-    for(; count > 0; --count)
+    for (; count > 0; --count)
     {
         ThisScope::destroy(ptr);
         ++ptr;
     }
 }
-
 
 CT_SCOPE_END

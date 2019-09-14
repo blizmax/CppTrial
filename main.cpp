@@ -40,7 +40,10 @@ int main()
         std::cout << v << std::endl;
     }
 
-    String str(L"HHHHH");
+    String str = L"HHHHH";
+    String str2 = str;
+    String str3;
+    std::wcout << *str3 << std::endl;
 
     system("pause");
     return 0;
