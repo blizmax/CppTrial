@@ -1,7 +1,7 @@
 #pragma once
 
-#include "General.h"
-#include "Allocator.h"
+#include "Core/General.h"
+#include "Core/Allocator.h"
 
 CT_SCOPE_BEGIN
 
@@ -162,7 +162,20 @@ public:
             return;
 
         newCapacity = FixCapacity(newCapacity);
-        ReservePrivate(newCapacity);
+        if (newCapacity > capacity)
+        {
+            ReservePrivate(newCapacity);
+        }
+    }
+
+    void AppendUninitialized(size_t appendSize)
+    {
+        const size_t newSize = size + appendSize;
+        if (newSize > capacity)
+        {
+            Reserve(newSize);
+        }
+        size = newSize;
     }
 
     void Remove(size_t index)

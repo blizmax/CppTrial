@@ -8,6 +8,6 @@ set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG -D_DEBUG")
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -D_DEBUG")
 
 include_directories("${PROJECT_SOURCE_DIR}/")
-include_directories("${PROJECT_SOURCE_DIR}/Core")
+#include_directories("${PROJECT_SOURCE_DIR}/Core")
 
 add_executable(Main main.cpp)

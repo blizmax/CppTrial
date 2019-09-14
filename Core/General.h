@@ -6,13 +6,13 @@
 #define CT_SCOPE_BEGIN       \
     namespace CPP_TRIAL_NAME \
     {
-#define CT_TRIAL_SCOPE_END }
+#define CT_SCOPE_END }
+#define USE_CT_SCOPE using namespace CPP_TRIAL_NAME;
 #else
 #define CT_SCOPE_BEGIN
 #define CT_SCOPE_END
+#define USE_CT_SCOPE
 #endif
-
-#define this_scope 
 
 #define CT_ALIGN(X_, A_) (((X_) + ((A_) - 1)) & ~((A_) - 1))
 

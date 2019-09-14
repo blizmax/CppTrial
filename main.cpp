@@ -1,7 +1,10 @@
 #include <iostream>
 
-#include "Array.h"
+#include "Core/Array.h"
+#include "Core/String.h"
 #include <vector>
+
+USE_CT_SCOPE
 
 class A
 {
@@ -36,6 +39,8 @@ int main()
     {
         std::cout << v << std::endl;
     }
+
+    String str(L"HHHHH");
 
     system("pause");
     return 0;
