@@ -19,22 +19,9 @@ public:
 
 int main()
 {
-    // String str = L"123";
-    // str += L"45";
-    // String str1 = L"678";
-    // str += str1;
-
-    // str.Remove(1, 2);
-
-    // std::wcout << *str << std::endl;
-
-    Array<int> arr = {1,2,3,4,5};
-    int nums[] = {100, 101};
-    arr.Insert(2, nums, 2);
-    for(auto v : arr)
-    {
-        std::cout << v << std::endl;
-    }
+    String str = L"123";
+    String str1 = L"456";
+    std::cout << (str == L"123") << std::endl;
 
     system("pause");
     return 0;

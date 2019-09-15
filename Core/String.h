@@ -54,6 +54,11 @@ public:
         data.Clear();
     }
 
+    void Shrink()
+    {
+        data.Shrink();
+    }
+
     bool IsEmpty() const
     {
         return data.Size() <= 1;
@@ -69,6 +74,17 @@ public:
         return data.Size() ? data.Size() - 1 : 0;
     }
 
+    size_t Capacity() const
+    {
+        return data.Capacity();
+    }
+
+    const CharType* GetPtr() const
+    {
+        static CharType EMPTY[] = {0, 0};
+        return data.Size() ? data.GetData() : EMPTY;
+    }
+
     CharArray &GetCharArray()
     {
         return data;
@@ -79,61 +95,7 @@ public:
         return data;
     }
 
-    String &operator+=(const CharType *str)
-    {
-        if (str && *str)
-        {
-            size_t len = CharTraits::length(str);
-            if (len > 0)
-            {
-                const size_t curSize = data.Size();
-                data.AppendUninitialized(len + (curSize ? 0 : 1));
-                CharType *curPtr = data.GetData() + curSize - (curSize ? 1 : 0);
-                CharTraits::copy(curPtr, str, len);
-                *(curPtr + len) = 0;
-            }
-        }
-        return *this;
-    }
-
-    String &operator+=(CharType chr)
-    {
-        if (chr != 0)
-        {
-            const size_t curSize = data.Size();
-            data.AppendUninitialized(1 + (curSize ? 0 : 1));
-            CharType *curPtr = data.GetData() + curSize - (curSize ? 1 : 0);
-            *curPtr = chr;
-            *(curPtr + 1) = 0;
-        }
-        return *this;
-    }
-
-    String &operator+=(const String &str)
-    {
-        *this += *str;
-        return *this;
-    }
-
-    const CharType *operator*() const
-    {
-        static CharType EMPTY[] = {0, 0};
-        return data.Size() ? data.GetData() : EMPTY;
-    }
-
-    CharType &operator[](size_t index)
-    {
-        CheckRange(index);
-        return data.GetData()[index];
-    }
-
-    const CharType &operator[](size_t index) const
-    {
-        CheckRange(index);
-        return data.GetData()[index];
-    }
-
-    String &Append(CharType chr)
+    String &Append(const CharType chr)
     {
         *this += chr;
         return *this;
@@ -155,7 +117,7 @@ public:
         data.Remove(index, count);
     }
 
-    void Insert(size_t index, CharType chr)
+    void Insert(size_t index, const CharType chr)
     {
         if (chr != 0)
         {
@@ -170,10 +132,293 @@ public:
         }
     }
 
+    void Insert(size_t index, const String &str)
+    {
+        if (str.Length())
+        {
+            if (data.Size() == 0)
+            {
+                *this += str;
+            }
+            else
+            {
+                data.Insert(index, str.data.GetData(), str.Length());
+            }
+        }
+    }
+
+    //TODO
+    // String SubString(size_t index)
+    // {
+
+    // }
+
+    int Compare(const String &other) const
+    {
+        return ComparePrivate(GetPtr(), Length(), other.GetPtr(), other.Length());
+    }
+
+    int Compare(const CharType *other) const
+    {
+        size_t len = CharTraits::length(other);
+        return ComparePrivate(GetPtr(), Length(), other, len);
+    }
+
+public:
+    String &operator+=(const CharType *str)
+    {
+        if (str && *str)
+        {
+            size_t len = CharTraits::length(str);
+            if (len > 0)
+            {
+                const size_t curSize = data.Size();
+                data.AppendUninitialized(len + (curSize ? 0 : 1));
+                CharType *curPtr = data.GetData() + curSize - (curSize ? 1 : 0);
+                CharTraits::copy(curPtr, str, len);
+                *(curPtr + len) = 0;
+            }
+        }
+        return *this;
+    }
+
+    String &operator+=(const CharType chr)
+    {
+        if (chr != 0)
+        {
+            const size_t curSize = data.Size();
+            data.AppendUninitialized(1 + (curSize ? 0 : 1));
+            CharType *curPtr = data.GetData() + curSize - (curSize ? 1 : 0);
+            *curPtr = chr;
+            *(curPtr + 1) = 0;
+        }
+        return *this;
+    }
+
+    String &operator+=(const String &str)
+    {
+        *this += *str;
+        return *this;
+    }
+
+    const CharType *operator*() const {
+        return GetPtr();
+    }
+
+    CharType &
+    operator[](size_t index)
+    {
+        CheckRange(index);
+        return data.GetData()[index];
+    }
+
+    const CharType &operator[](size_t index) const
+    {
+        CheckRange(index);
+        return data.GetData()[index];
+    }
+
+    friend String operator+(const String &lhs, const CharType rhs)
+    {
+        String ret(lhs);
+        ret += rhs;
+        return ret;
+    }
+
+    friend String operator+(const CharType lhs, const String &rhs)
+    {
+        String ret;
+        ret += lhs;
+        ret += rhs;
+        return ret;
+    }
+
+    friend String operator+(String &&lhs, const CharType rhs)
+    {
+        String ret(std::move(lhs));
+        ret += rhs;
+        return ret;
+    }
+
+    friend String operator+(const CharType lhs, String &&rhs)
+    {
+        String ret;
+        ret += lhs;
+        ret += std::move(rhs);
+        return ret;
+    }
+
+    friend String operator+(const String &lhs, const CharType *rhs)
+    {
+        String ret(lhs);
+        ret += rhs;
+        return ret;
+    }
+
+    friend String operator+(const CharType *lhs, const String &rhs)
+    {
+        String ret(lhs);
+        ret += rhs;
+        return ret;
+    }
+
+    friend String operator+(String &&lhs, const CharType *rhs)
+    {
+        String ret(std::move(lhs));
+        ret += rhs;
+        return ret;
+    }
+
+    friend String operator+(const CharType *lhs, String &&rhs)
+    {
+        String ret(lhs);
+        ret += std::move(rhs);
+        return ret;
+    }
+
+    friend String operator+(const String &lhs, const String &rhs)
+    {
+        String ret(lhs);
+        ret += rhs;
+        return ret;
+    }
+
+    friend String operator+(const String &lhs, String &&rhs)
+    {
+        String ret(lhs);
+        ret += std::move(rhs);
+        return ret;
+    }
+
+    friend String operator+(String &&lhs, const String &rhs)
+    {
+        String ret(std::move(lhs));
+        ret += rhs;
+        return ret;
+    }
+
+    friend String operator+(String &&lhs, String &&rhs)
+    {
+        String ret(std::move(lhs));
+        ret += std::move(rhs);
+        return ret;
+    }
+
+    // op <=
+    friend bool operator<=(const String &lhs, const String &rhs)
+    {
+        return lhs.Compare(rhs) <= 0;
+    }
+
+    friend bool operator<=(const String &lhs, const CharType *rhs)
+    {
+        return lhs.Compare(rhs) <= 0;
+    }
+
+    friend bool operator<=(const CharType *lhs, const String &rhs)
+    {
+        return rhs.Compare(lhs) > 0;
+    }
+
+    // op <
+    friend bool operator<(const String &lhs, const String &rhs)
+    {
+        return lhs.Compare(rhs) < 0;
+    }
+
+    friend bool operator<(const String &lhs, const CharType *rhs)
+    {
+        return lhs.Compare(rhs) < 0;
+    }
+
+    friend bool operator<(const CharType *lhs, const String &rhs)
+    {
+        return rhs.Compare(lhs) >= 0;
+    }
+
+    // op >=
+    friend bool operator>=(const String &lhs, const String &rhs)
+    {
+        return lhs.Compare(rhs) >= 0;
+    }
+
+    friend bool operator>=(const String &lhs, const CharType *rhs)
+    {
+        return lhs.Compare(rhs) >= 0;
+    }
+
+    friend bool operator>=(const CharType *lhs, const String &rhs)
+    {
+        return rhs.Compare(lhs) < 0;
+    }
+
+    // op >
+    friend bool operator>(const String &lhs, const String &rhs)
+    {
+        return lhs.Compare(rhs) > 0;
+    }
+
+    friend bool operator>(const String &lhs, const CharType *rhs)
+    {
+        return lhs.Compare(rhs) > 0;
+    }
+
+    friend bool operator>(const CharType *lhs, const String &rhs)
+    {
+        return rhs.Compare(lhs) <= 0;
+    }
+
+    // op ==
+    friend bool operator==(const String &lhs, const String &rhs)
+    {
+        return lhs.Compare(rhs) == 0;
+    }
+
+    friend bool operator==(const String &lhs, const CharType *rhs)
+    {
+        return lhs.Compare(rhs) == 0;
+    }
+
+    friend bool operator==(const CharType *lhs, const String &rhs)
+    {
+        return rhs.Compare(lhs) == 0;
+    }
+
+    // op !=
+    friend bool operator!=(const String &lhs, const String &rhs)
+    {
+        return lhs.Compare(rhs) != 0;
+    }
+
+    friend bool operator!=(const String &lhs, const CharType *rhs)
+    {
+        return lhs.Compare(rhs) != 0;
+    }
+
+    friend bool operator!=(const CharType *lhs, const String &rhs)
+    {
+        return rhs.Compare(lhs) != 0;
+    }
+
 private:
     void CheckRange(size_t index) const
     {
-        CT_ASSERT(index >= 0 && index < Size());
+        CT_ASSERT(index >= 0 && index < Length());
+    }
+
+    int ComparePrivate(const CharType *ptr1, size_t len1, const CharType *ptr2, size_t len2) const
+    {
+        size_t len = std::min(len1, len2);
+        int ret = CharTraits::compare(ptr1, ptr2, len);
+        if (ret != 0)
+        {
+            return ret;
+        }
+        if (len1 != len2)
+        {
+            return len1 < len2 ? -1 : 1;
+        }
+        return 0;
     }
 
 public:
