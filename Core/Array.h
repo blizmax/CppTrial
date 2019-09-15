@@ -181,7 +181,14 @@ public:
     void Remove(size_t index)
     {
         CheckRange(index);
-        RemovePrivate(index);
+        RemovePrivate(index, 1);
+    }
+
+    void Remove(size_t index, size_t count)
+    {
+        CheckRange(index);
+        CheckRange(index + count - 1);
+        RemovePrivate(index, count);
     }
 
     void Add(const Type &value)
@@ -204,6 +211,15 @@ public:
     {
         CheckRange(index);
         InsertPrivate(index, std::move(value));
+    }
+
+    void Insert(size_t index, const Type *src, size_t count)
+    {
+        CheckRange(index);
+        if (count > 0)
+        {
+            InsertPrivate(index, src, count);
+        }
     }
 
     Type &First()
@@ -418,25 +434,26 @@ private:
         capacity = newCapacity;
     }
 
-    void RemovePrivate(size_t index)
+    void RemovePrivate(size_t index, size_t count)
     {
-        size_t count = size - 1 - index;
-        ThisScope::move(data + index + 1, count, data + index);
-        Alloc::Destroy(data + (--size));
+        const size_t moveCount = size - index - count;
+        size -= count;
+        ThisScope::move(data + index + count, moveCount, data + index);
+        Alloc::Destroy(data + size, count);
     }
 
     void InsertPrivate(size_t index, const Type &value)
     {
         const size_t oldSize = size++;
 
-        if (index == oldSize && oldSize < capacity)
+        if (index == oldSize && size <= capacity)
         {
             ThisScope::uninitialized_fill(data + size, 1, value);
         }
-        else if (oldSize < capacity)
+        else if (size <= capacity)
         {
-            size_t count = oldSize - index;
-            ThisScope::copy_backward(data + oldSize - 1, count, data + oldSize);
+            size_t moveCount = oldSize - index;
+            ThisScope::copy_backward(data + oldSize - 1, moveCount, data + oldSize);
             ThisScope::uninitialized_fill(data + index, 1, value);
         }
         else
@@ -456,14 +473,14 @@ private:
     {
         const size_t oldSize = size++;
 
-        if (index == oldSize && oldSize < capacity)
+        if (index == oldSize && size <= capacity)
         {
             Alloc::Construct(data + size, std::move(value));
         }
-        else if (oldSize < capacity)
+        else if (size <= capacity)
         {
-            size_t count = oldSize - index;
-            ThisScope::move_backward(data + oldSize - 1, count, data + oldSize);
+            size_t moveCount = oldSize - index;
+            ThisScope::move_backward(data + oldSize - 1, moveCount, data + oldSize);
             Alloc::Construct(data + index, std::move(value));
         }
         else
@@ -475,6 +492,34 @@ private:
             ThisScope::uninitialized_move(oldData, index, data);
             Alloc::Construct(data + index, std::move(value));
             ThisScope::uninitialized_move(oldData + index, oldSize - index, data + index + 1);
+            DestroyAndDeallocate(oldData, oldSize, oldCapacity);
+        }
+    }
+
+    void InsertPrivate(size_t index, const Type *src, size_t count)
+    {
+        const size_t oldSize = size;
+        size += count;
+
+        if (index == oldSize && size <= capacity)
+        {
+            ThisScope::uninitialized_copy(src, count, data + oldSize);
+        }
+        else if (size <= capacity)
+        {
+            size_t moveCount = oldSize - index;
+            ThisScope::move_backward(data + oldSize - 1, moveCount, data + oldSize + count - 1);
+            ThisScope::copy(src, count, data + index);
+        }
+        else
+        {
+            const size_t oldCapacity = capacity;
+            Type *oldData = data;
+            capacity = FixCapacity(oldCapacity * 2);
+            data = Alloc::Allocate(capacity);
+            ThisScope::uninitialized_move(oldData, index, data);
+            ThisScope::copy(src, count, data + index);
+            ThisScope::uninitialized_move(oldData + index, oldSize - index, data + index + count);
             DestroyAndDeallocate(oldData, oldSize, oldCapacity);
         }
     }

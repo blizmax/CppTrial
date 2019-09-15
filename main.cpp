@@ -19,31 +19,22 @@ public:
 
 int main()
 {
-    // A tmp;
-    // Array<A> arr(5);
-    // arr.Add(tmp);
-    // arr.Reserve(8);
-    // std::cout << arr.capacity << " , " << arr.size << std::endl;
+    // String str = L"123";
+    // str += L"45";
+    // String str1 = L"678";
+    // str += str1;
 
-    Array<int> arr1 = {1,2,3,4,5,6,7};
-    Array<int> arr2 = {1,2,3,4,5,6};
-    arr1 = arr2;
+    // str.Remove(1, 2);
 
-    arr1.Reverse();
+    // std::wcout << *str << std::endl;
 
-    std::cout << arr1.Peek() << std::endl;
-    arr1.Pop();
-    std::cout << arr1.Peek() << std::endl;
-
-    for(auto v : arr1)
+    Array<int> arr = {1,2,3,4,5};
+    int nums[] = {100, 101};
+    arr.Insert(2, nums, 2);
+    for(auto v : arr)
     {
         std::cout << v << std::endl;
     }
-
-    String str = L"HHHHH";
-    String str2 = str;
-    String str3;
-    std::wcout << *str3 << std::endl;
 
     system("pause");
     return 0;

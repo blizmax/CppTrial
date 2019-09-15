@@ -29,7 +29,7 @@ public:
             {
                 data.AppendUninitialized(len + 1);
                 CharTraits::copy(data.GetData(), str, len);
-                data[len] = 0;
+                data.GetData()[len] = 0;
             }
         }
     }
@@ -59,6 +59,11 @@ public:
         return data.Size() <= 1;
     }
 
+    size_t Length() const
+    {
+        return data.Size() ? data.Size() - 1 : 0;
+    }
+
     size_t Size() const
     {
         return data.Size() ? data.Size() - 1 : 0;
@@ -72,6 +77,42 @@ public:
     const CharArray &GetCharArray() const
     {
         return data;
+    }
+
+    String &operator+=(const CharType *str)
+    {
+        if (str && *str)
+        {
+            size_t len = CharTraits::length(str);
+            if (len > 0)
+            {
+                const size_t curSize = data.Size();
+                data.AppendUninitialized(len + (curSize ? 0 : 1));
+                CharType *curPtr = data.GetData() + curSize - (curSize ? 1 : 0);
+                CharTraits::copy(curPtr, str, len);
+                *(curPtr + len) = 0;
+            }
+        }
+        return *this;
+    }
+
+    String &operator+=(CharType chr)
+    {
+        if (chr != 0)
+        {
+            const size_t curSize = data.Size();
+            data.AppendUninitialized(1 + (curSize ? 0 : 1));
+            CharType *curPtr = data.GetData() + curSize - (curSize ? 1 : 0);
+            *curPtr = chr;
+            *(curPtr + 1) = 0;
+        }
+        return *this;
+    }
+
+    String &operator+=(const String &str)
+    {
+        *this += *str;
+        return *this;
     }
 
     const CharType *operator*() const
@@ -90,6 +131,43 @@ public:
     {
         CheckRange(index);
         return data.GetData()[index];
+    }
+
+    String &Append(CharType chr)
+    {
+        *this += chr;
+        return *this;
+    }
+
+    String &Append(const String &str)
+    {
+        *this += str;
+        return *this;
+    }
+
+    void Remove(size_t index)
+    {
+        data.Remove(index);
+    }
+
+    void Remove(size_t index, size_t count)
+    {
+        data.Remove(index, count);
+    }
+
+    void Insert(size_t index, CharType chr)
+    {
+        if (chr != 0)
+        {
+            if (data.Size() == 0)
+            {
+                *this += chr;
+            }
+            else
+            {
+                data.Insert(index, chr);
+            }
+        }
     }
 
 private:

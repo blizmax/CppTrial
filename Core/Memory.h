@@ -47,7 +47,7 @@ CT_INLINE void destroy(T *ptr)
 }
 
 template <typename T>
-CT_INLINE void copy_private(T *src, size_t count, T *dst, std::true_type)
+CT_INLINE void copy_private(const T *src, size_t count, T *dst, std::true_type)
 {
     if (count > 0)
     {
@@ -56,7 +56,7 @@ CT_INLINE void copy_private(T *src, size_t count, T *dst, std::true_type)
 }
 
 template <typename T>
-CT_INLINE void copy_private(T *src, size_t count, T *dst, std::false_type)
+CT_INLINE void copy_private(const T *src, size_t count, T *dst, std::false_type)
 {
     for (; count > 0; --count)
     {
@@ -67,13 +67,13 @@ CT_INLINE void copy_private(T *src, size_t count, T *dst, std::false_type)
 }
 
 template <typename T>
-CT_INLINE void copy(T *src, size_t count, T *dst)
+CT_INLINE void copy(const T *src, size_t count, T *dst)
 {
     copy_private(src, count, dst, std::is_trivially_copy_assignable<T>{});
 }
 
 template <typename T>
-CT_INLINE void copy_backward_private(T *src, size_t count, T *dst, std::true_type)
+CT_INLINE void copy_backward_private(const T *src, size_t count, T *dst, std::true_type)
 {
     if (count > 0)
     {
@@ -82,7 +82,7 @@ CT_INLINE void copy_backward_private(T *src, size_t count, T *dst, std::true_typ
 }
 
 template <typename T>
-CT_INLINE void copy_backward_private(T *src, size_t count, T *dst, std::false_type)
+CT_INLINE void copy_backward_private(const T *src, size_t count, T *dst, std::false_type)
 {
     for (; count > 0; --count)
     {
@@ -93,7 +93,7 @@ CT_INLINE void copy_backward_private(T *src, size_t count, T *dst, std::false_ty
 }
 
 template <typename T>
-CT_INLINE void copy_backward(T *src, size_t count, T *dst)
+CT_INLINE void copy_backward(const T *src, size_t count, T *dst)
 {
     copy_backward_private(src, count, dst, std::is_trivially_copy_assignable<T>{});
 }
@@ -151,7 +151,7 @@ CT_INLINE void move_backward(T *src, size_t count, T *dst)
 }
 
 template <typename T>
-CT_INLINE void uninitialized_copy_private(T *src, size_t count, T *dst, std::true_type)
+CT_INLINE void uninitialized_copy_private(const T *src, size_t count, T *dst, std::true_type)
 {
     if (count > 0)
     {
@@ -160,7 +160,7 @@ CT_INLINE void uninitialized_copy_private(T *src, size_t count, T *dst, std::tru
 }
 
 template <typename T>
-CT_INLINE void uninitialized_copy_private(T *src, size_t count, T *dst, std::false_type)
+CT_INLINE void uninitialized_copy_private(const T *src, size_t count, T *dst, std::false_type)
 {
     for (; count > 0; --count)
     {
@@ -171,7 +171,7 @@ CT_INLINE void uninitialized_copy_private(T *src, size_t count, T *dst, std::fal
 }
 
 template <typename T>
-CT_INLINE void uninitialized_copy(T *src, size_t count, T *dst)
+CT_INLINE void uninitialized_copy(const T *src, size_t count, T *dst)
 {
     uninitialized_copy_private(src, count, dst, std::is_trivially_copy_assignable<T>{});
 }
