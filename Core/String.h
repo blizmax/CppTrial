@@ -13,6 +13,8 @@ public:
     typedef std::char_traits<CharType> CharTraits;
     typedef Array<CharType> CharArray;
 
+    static constexpr size_t INDEX_NONE = static_cast<size_t>(-1);
+
 public:
     String() = default;
     String(const String &) = default;
@@ -250,6 +252,137 @@ public:
         return Replace(index, count, temp);
     }
 
+    String& Replace(const String& oldValue, const String& newValue)
+    {
+        CheckNonEmpty(oldValue);
+
+        size_t index = 0;
+        if (Find(oldValue, index))
+        {
+            Replace(index, oldValue.Length(), newValue);
+        }
+        return *this;
+    }
+
+    String& ReplaceAll(const String& oldValue, const String& newValue)
+    {
+        CheckNonEmpty(oldValue);
+
+        size_t pos1 = 0;
+        size_t pos2 = 0;
+        while(Find(oldValue, pos1, pos2))
+        {
+            Replace(pos1, oldValue.Length(), newValue);
+            pos1 = pos2 + newValue.Length() - oldValue.Length();
+        }
+        return *this;
+    }
+
+    bool Contains(CharType value) const
+    {
+        return Find(value);
+    }
+
+    bool Contains(const CharType* str) const
+    {
+        return Find(str);
+    }
+
+    bool Contains(const CharType* str, size_t count) const
+    {
+        return Find(str, 0, count, nullptr);
+    }
+
+    bool Contains(const String& str) const
+    {
+        return Find(str);
+    }
+
+    size_t IndexOf(CharType value) const
+    {
+        size_t ret = 0;
+        if(Find(value, ret))
+        {
+            return ret;
+        }
+        return INDEX_NONE;
+    }
+
+    size_t IndexOf(const CharType* str) const
+    {
+        size_t ret = 0;
+        if (Find(str, ret))
+        {
+            return ret;
+        }
+        return INDEX_NONE;
+    }
+
+    size_t IndexOf(const CharType *str, size_t count) const
+    {
+        size_t ret = 0;
+        if (Find(str, 0, count, ret))
+        {
+            return ret;
+        }
+        return INDEX_NONE;
+    }
+
+    size_t IndexOf(const String& str) const
+    {
+        size_t ret = 0;
+        if (Find(str, ret))
+        {
+            return ret;
+        }
+        return INDEX_NONE;
+    }
+
+    size_t LastIndexOf(CharType value) const
+    {
+        size_t ret = 0;
+        if (ReverseFind(value, ret))
+        {
+            return ret;
+        }
+        return INDEX_NONE;
+    }
+
+    size_t LastIndexOf(const CharType *str) const
+    {
+        size_t ret = 0;
+        if (ReverseFind(str, ret))
+        {
+            return ret;
+        }
+        return INDEX_NONE;
+    }
+
+    size_t LastIndexOf(const CharType *str, size_t count) const
+    {
+        size_t ret = 0;
+        if (ReverseFind(str, 0, count, ret))
+        {
+            return ret;
+        }
+        return INDEX_NONE;
+    }
+
+    size_t LastIndexOf(const String &str) const
+    {
+        size_t ret = 0;
+        if (ReverseFind(str, ret))
+        {
+            return ret;
+        }
+        return INDEX_NONE;
+    }
+
+    bool Find(CharType value) const
+    {
+        return Find(value, 0, nullptr);
+    }
+
     bool Find(CharType value, size_t &at) const
     {
         return Find(value, 0, &at);
@@ -260,7 +393,7 @@ public:
         return Find(value, startIndex, &at);
     }
 
-    bool Find(CharType value, size_t startIndex = 0, size_t *at = nullptr) const
+    bool Find(CharType value, size_t startIndex, size_t *at) const
     {
         const CharType *ptr = GetPtr();
         for (size_t i = startIndex; i < Length(); ++i)
@@ -280,39 +413,51 @@ public:
     bool Find(const CharType *str) const
     {
         const size_t len = CharTraits::length(str);
-        return Find(str, len, 0);
+        return Find(str, 0, len, nullptr);
+    }
+
+    bool Find(const CharType *str, size_t startIndex, size_t *at) const
+    {
+        const size_t len = CharTraits::length(str);
+        return Find(str, startIndex, len, at);
     }
 
     bool Find(const CharType *str, size_t &at) const
     {
         const size_t len = CharTraits::length(str);
-        return Find(str, len, 0, &at);
+        return Find(str, 0, len, &at);
     }
 
     bool Find(const CharType *str, size_t startIndex, size_t &at) const
     {
         const size_t len = CharTraits::length(str);
-        return Find(str, len, startIndex, &at);
+        return Find(str, startIndex, len, &at);
     }
 
-    bool Find(const CharType *str, size_t count, size_t startIndex, size_t &at) const
+    bool Find(const CharType *str, size_t startIndex, size_t count, size_t &at) const
     {
-        return Find(str, count, startIndex, &at);
+        return Find(str, startIndex, count, &at);
     }
 
-    bool Find(const CharType *str, size_t count, size_t startIndex, size_t *at = nullptr) const
+    bool Find(const CharType *str, size_t startIndex, size_t count, size_t *at) const
     {
+        const size_t len = Length();
+        const CharType *ptr = GetPtr();
+
         if (count == 0)
         {
-            return false;
+            if (at)
+            {
+                *at = startIndex;
+            }
+            return true;
         }
-        if (Length() - startIndex < count)
+        if (len - startIndex < count)
         {
             return false;
         }
 
-        const CharType *ptr = GetPtr();
-        for (size_t i = startIndex; i < Length(); ++i)
+        for (size_t i = startIndex; i < len; ++i)
         {
             if (*(ptr + i) == *(str))
             {
@@ -333,19 +478,212 @@ public:
         return false;
     }
 
-    //TODO
-    //bool Find(const String& str, size_t count, size_t startIndex = 0, size_t *at = nullptr) const
+    bool Find(const String& str) const
+    {
+        return Find(str, 0, str.Length(), nullptr);
+    }
 
-    // //TODO
-    // bool StartsWith(const String& str) const
-    // {
+    bool Find(const String& str, size_t startIndex, size_t *at) const
+    {
+        return Find(str, 0, str.Length(), at);
+    }
 
-    // }
+    bool Find(const String str, size_t &at) const
+    {
+        return Find(str, 0, str.Length(), &at);
+    }
 
-    // bool EndsWith(const String& str) const
-    // {
+    bool Find(const String &str, size_t startIndex, size_t &at) const
+    {
+        return Find(str, startIndex, str.Length(), &at);
+    }
 
-    // }
+    bool Find(const String &str, size_t startIndex, size_t count, size_t &at) const
+    {
+        return Find(str, startIndex, count, &at);
+    }
+
+    bool Find(const String& str, size_t startIndex, size_t count, size_t *at) const
+    {
+        return Find(str.GetPtr(), startIndex, count, at);
+    }
+
+    bool ReverseFind(CharType value, size_t &at) const
+    {
+        return ReverseFind(value, 0, &at);
+    }
+
+    bool ReverseFind(CharType value, size_t startIndex, size_t &at) const
+    {
+        return ReverseFind(value, startIndex, &at);
+    }
+
+    bool ReverseFind(CharType value, size_t startIndex, size_t *at) const
+    {
+        const CharType *ptr = GetPtr();
+        startIndex = startIndex >= Length() ? Length() - 1 : startIndex;
+        for (size_t i = startIndex + 1; i >= 1;)
+        {
+            if (ptr[--i] == value)
+            {
+                if (at)
+                {
+                    *at = i;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool ReverseFind(const CharType *str) const
+    {
+        const size_t len = CharTraits::length(str);
+        return ReverseFind(str, Length() - 1, len, nullptr);
+    }
+
+    bool ReverseFind(const CharType *str, size_t startIndex, size_t *at) const
+    {
+        const size_t len = CharTraits::length(str);
+        return ReverseFind(str, Length() - 1, len, at);
+    }
+
+    bool ReverseFind(const CharType *str, size_t &at) const
+    {
+        const size_t len = CharTraits::length(str);
+        return ReverseFind(str, Length() - 1, len, &at);
+    }
+
+    bool ReverseFind(const CharType *str, size_t startIndex, size_t &at) const
+    {
+        const size_t len = CharTraits::length(str);
+        return ReverseFind(str, startIndex, len, &at);
+    }
+
+    bool ReverseFind(const CharType *str, size_t startIndex, size_t count, size_t &at) const
+    {
+        return ReverseFind(str, startIndex, count, &at);
+    }
+
+    bool ReverseFind(const CharType *str, size_t startIndex, size_t count, size_t *at) const
+    {
+        const size_t len = Length();
+        const CharType *ptr = GetPtr();
+        startIndex = startIndex >= len ? len -1 : startIndex;
+
+        if (count == 0)
+        {
+            if(at) 
+            {
+                *at = startIndex;
+            }
+            return true;
+        }
+        if (startIndex < count - 1)
+        {
+            return false;
+        }
+
+        for (size_t i = startIndex + 1; i >= count;)
+        {
+            --i;
+            if (*(ptr + i) == *(str + count - 1))
+            {
+                for (size_t j = 1; j < count; ++j)
+                {
+                    if (*(ptr + i - j) != *(str + count - 1 - j))
+                    {
+                        return false;
+                    }
+                }
+                if (at)
+                {
+                    *at = i - count + 1;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool ReverseFind(const String &str) const
+    {
+        return ReverseFind(str, Length() - 1, str.Length(), nullptr);
+    }
+
+    bool ReverseFind(const String &str, size_t startIndex, size_t *at) const
+    {
+        return ReverseFind(str, Length() - 1, str.Length(), at);
+    }
+
+    bool ReverseFind(const String str, size_t &at) const
+    {
+        return ReverseFind(str, Length() - 1, str.Length(), &at);
+    }
+
+    bool ReverseFind(const String &str, size_t startIndex, size_t &at) const
+    {
+        return ReverseFind(str, startIndex, str.Length(), &at);
+    }
+
+    bool ReverseFind(const String &str, size_t startIndex, size_t count, size_t &at) const
+    {
+        return ReverseFind(str, startIndex, count, &at);
+    }
+
+    bool ReverseFind(const String &str, size_t startIndex, size_t count, size_t *at) const
+    {
+        return ReverseFind(str.GetPtr(), startIndex, count, at);
+    }
+
+    bool StartsWith(const String& str, size_t offset = 0) const
+    {
+        size_t pos = 0;
+        if (Find(str, offset, pos))
+        {
+            if(pos == offset)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool EndsWith(const String& str) const
+    {
+        size_t pos = 0;
+        if (ReverseFind(str, pos))
+        {
+            if (pos + str.Length() == Length())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Array<String> Split(const String& delim)
+    {
+        CheckNonEmpty(delim);
+
+        Array<String> arr;
+        size_t pos1 = 0;
+        size_t pos2 = 0;
+        while (Find(delim, pos1, pos2))
+        {
+            if(pos2 - pos1) // skip more than one delims
+            {
+                arr.Add(SubString(pos1, pos2 - pos1));
+            }
+            pos1 = pos2 + delim.Length();
+        }
+        if(pos1 != Length())
+        {
+            arr.Add(SubString(pos1));
+        }
+
+        return std::move(arr);
+    }
 
     int Compare(const String &other) const
     {
@@ -630,6 +968,11 @@ private:
     void CheckRange(size_t index) const
     {
         CT_ASSERT(index >= 0 && index < Length());
+    }
+
+    void CheckNonEmpty(const String& value) const
+    {
+        CT_ASSERT(!value.IsEmpty());
     }
 
     String &ReplacePrivate(size_t index, size_t count, const CharType *repStr, size_t repCount)

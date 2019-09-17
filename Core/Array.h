@@ -312,8 +312,9 @@ public:
 
     bool FindLast(const Type &value, size_t *at) const
     {
-        for (size_t i = size - 1; i >= 0; --i)
+        for (size_t i = size; i >= 1;)
         {
+            --i;
             if (data[i] == value)
             {
                 if (at)
@@ -333,9 +334,10 @@ public:
 
     template <typename Predicate>
     bool FindLast(Predicate pred, size_t *at = nullptr) const
-    {
-        for (size_t i = size - 1; i >= 0; --i)
+    { 
+        for (size_t i = size; i >= 1;)
         {
+            --i;
             if (pred(data[i]))
             {
                 if (at)

@@ -17,22 +17,34 @@ public:
     ~A() {std::cout << "A destructor" << std::endl;}
 };
 
+void add(int v)
+{
+    std::cout << "aaaaaa" << std::endl;
+}
+void add(int* r)
+{
+    std::cout << "bbbbbb" << std::endl;
+}
+
 int main()
 {
-    auto longCharArr = L"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    auto longCharArr = L" A B CDEFGHIJ KLMNOPQR  STUVWX YZ ";
 
     String shortStr = L'S';
     String temp = L"12345";
     temp.Replace(0, 2, L'Z', 3);
-    std::wcout << *temp << std::endl;
-
-    size_t pos = 0;
-    bool ok = temp.Find(L'P', 0, pos);
+    //std::wcout << *temp << std::endl;
 
     String str(longCharArr);
-    String str1 = L"PQR";
-    size_t pos1 = 0;
-    bool ret = str.Find(*str1, pos1);
+    Array<String> subs = str.Split(L" ");
+    for (auto sub : subs)
+    {
+        std::wcout << *sub << std::endl;
+    }
+    std::wcout << "========";
+
+    str.ReplaceAll(L" ", L"$");
+    std::wcout << *str;
 
     system("pause");
     return 0;
