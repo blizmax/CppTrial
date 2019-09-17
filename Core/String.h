@@ -34,7 +34,7 @@ public:
         }
     }
 
-    explicit String(const CharType* str, size_t count)
+    explicit String(const CharType *str, size_t count)
     {
         if (str && *str)
         {
@@ -94,7 +94,7 @@ public:
         return data.Capacity();
     }
 
-    const CharType* GetPtr() const
+    const CharType *GetPtr() const
     {
         static CharType EMPTY[] = {0, 0};
         return data.Size() ? data.GetData() : EMPTY;
@@ -110,9 +110,9 @@ public:
         return data;
     }
 
-    void Swap(String& other) noexcept
+    void Swap(String &other) noexcept
     {
-        if(this != &other)
+        if (this != &other)
         {
             data.Swap(other.data);
         }
@@ -182,10 +182,22 @@ public:
         return String(GetPtr() + index, count);
     }
 
-    String Replace(size_t index, size_t count, const String& str)
+    String &Replace(size_t index, size_t count, const String &str)
     {
         CheckRange(index);
         return ReplacePrivate(index, count, str.GetPtr(), str.Length());
+    }
+
+    String &Replace(size_t index, size_t count, const CharType *str)
+    {
+        CheckRange(index);
+        return ReplacePrivate(index, count, str, CharTraits::length(str));
+    }
+
+    String &Replace(size_t index, size_t count, const CharType *str, size_t repCount)
+    {
+        CheckRange(index);
+        return ReplacePrivate(index, count, str, repCount);
     }
 
     int Compare(const String &other) const
@@ -236,7 +248,8 @@ public:
         return *this;
     }
 
-    const CharType *operator*() const {
+    const CharType *operator*() const
+    {
         return GetPtr();
     }
 
@@ -434,17 +447,49 @@ public:
         return rhs.Compare(lhs) != 0;
     }
 
+    //===================== STL STYLE =========================
+public:
+    CharType *begin()
+    {
+        return data.begin();
+    }
+
+    const CharType *begin() const
+    {
+        return data.begin();
+    }
+
+    CharType *end()
+    {
+        auto ptr = data.end();
+        if (data.Size())
+        {
+            --ptr;
+        }
+        return ptr;
+    }
+
+    const CharType *end() const
+    {
+        auto ptr = data.end();
+        if (data.Size())
+        {
+            --ptr;
+        }
+        return ptr;
+    }
+
 private:
     void CheckRange(size_t index) const
     {
         CT_ASSERT(index >= 0 && index < Length());
     }
 
-    String& ReplacePrivate(size_t index, size_t count, const CharType* repStr, size_t repCount)
+    String &ReplacePrivate(size_t index, size_t count, const CharType *repStr, size_t repCount)
     {
-        CharType* ptr = data.GetData();
+        CharType *ptr = data.GetData();
 
-        if(!ptr)
+        if (!ptr)
         {
             String temp(repStr, repCount);
             Swap(temp);
@@ -454,12 +499,12 @@ private:
             const size_t len = Length();
             ptr += index;
 
-            if(index + count > len)
+            if (index + count > len)
             {
                 count = len - index;
             }
 
-            if(count >= repCount)
+            if (count >= repCount)
             {
                 CharTraits::move(ptr + repCount, ptr + count, len - index - count + 1);
                 CharTraits::copy(ptr, repStr, repCount);

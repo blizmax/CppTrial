@@ -11,7 +11,7 @@ class Array
 public:
     Array() = default;
 
-    explicit Array(const size_t capacity)
+    explicit Array(size_t capacity)
     {
         Reserve(capacity);
     }
@@ -170,7 +170,7 @@ public:
 
     void Resize(size_t newSize)
     {
-        if(newSize < size)
+        if (newSize < size)
         {
             RemovePrivate(newSize, size - newSize);
         }
@@ -412,12 +412,22 @@ public:
     // typedef Type *iterator;
     // typedef const Type *const_iterator;
 
-    Type *begin() noexcept
+    Type *begin()
     {
         return data;
     }
 
-    Type *end() noexcept
+    const Type *begin() const
+    {
+        return data;
+    }
+
+    Type *end()
+    {
+        return data ? data + size : nullptr;
+    }
+
+    const Type *end() const
     {
         return data ? data + size : nullptr;
     }
@@ -456,19 +466,20 @@ private:
         Alloc::Destroy(data + size, count);
     }
 
-    void InsertPrivate(size_t index, const Type &value)
+    void InsertPrivate(size_t index, const Type &value, size_t count = 1)
     {
-        const size_t oldSize = size++;
+        const size_t oldSize = size;
+        size += count;
 
         if (index == oldSize && size <= capacity)
         {
-            ThisScope::uninitialized_fill(data + size, 1, value);
+            ThisScope::uninitialized_fill(data + oldSize, count, value);
         }
         else if (size <= capacity)
         {
             size_t moveCount = oldSize - index;
-            ThisScope::copy_backward(data + oldSize - 1, moveCount, data + oldSize);
-            ThisScope::uninitialized_fill(data + index, 1, value);
+            ThisScope::move_backward(data + oldSize - 1, moveCount, data + oldSize + count - 1);
+            ThisScope::uninitialized_fill(data + index, count, value);
         }
         else
         {
@@ -477,8 +488,8 @@ private:
             capacity = FixCapacity(oldCapacity * 2);
             data = Alloc::Allocate(capacity);
             ThisScope::uninitialized_move(oldData, index, data);
-            ThisScope::uninitialized_fill(data + index, 1, value);
-            ThisScope::uninitialized_move(oldData + index, oldSize - index, data + index + 1);
+            ThisScope::uninitialized_fill(data + index, count, value);
+            ThisScope::uninitialized_move(oldData + index, oldSize - index, data + index + count);
             DestroyAndDeallocate(oldData, oldSize, oldCapacity);
         }
     }
@@ -489,7 +500,7 @@ private:
 
         if (index == oldSize && size <= capacity)
         {
-            Alloc::Construct(data + size, std::move(value));
+            Alloc::Construct(data + oldSize, std::move(value));
         }
         else if (size <= capacity)
         {

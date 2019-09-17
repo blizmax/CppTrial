@@ -28,8 +28,11 @@ int main()
     longStr.Replace(2, 3, L"ZZZZZZZZZZ");
 
     std::wcout << *longStr << std::endl;
+    std::wcout << "=============" << std::endl;
+    for(const auto c : longStr)
+        std::wcout << c;
 
-    
+
     system("pause");
     return 0;
 }
