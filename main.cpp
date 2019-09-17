@@ -20,18 +20,19 @@ public:
 int main()
 {
     auto longCharArr = L"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    String longStr = String(longCharArr);
-    String str = L"123";
-    String str1 = L"456";
-    String str2 = longStr.SubString(3);
-    longStr.Replace(2, longStr.Length(), L"000");
-    longStr.Replace(2, 3, L"ZZZZZZZZZZ");
 
-    std::wcout << *longStr << std::endl;
-    std::wcout << "=============" << std::endl;
-    for(const auto c : longStr)
-        std::wcout << c;
+    String shortStr = L'S';
+    String temp = L"12345";
+    temp.Replace(0, 2, L'Z', 3);
+    std::wcout << *temp << std::endl;
 
+    size_t pos = 0;
+    bool ok = temp.Find(L'P', 0, pos);
+
+    String str(longCharArr);
+    String str1 = L"PQR";
+    size_t pos1 = 0;
+    bool ret = str.Find(*str1, pos1);
 
     system("pause");
     return 0;

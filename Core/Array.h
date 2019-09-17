@@ -485,7 +485,7 @@ private:
         {
             const size_t oldCapacity = capacity;
             Type *oldData = data;
-            capacity = FixCapacity(oldCapacity * 2);
+            capacity = FixCapacity((oldCapacity * 2) >= size ? (oldCapacity * 2) : size);
             data = Alloc::Allocate(capacity);
             ThisScope::uninitialized_move(oldData, index, data);
             ThisScope::uninitialized_fill(data + index, count, value);
@@ -512,7 +512,7 @@ private:
         {
             const size_t oldCapacity = capacity;
             Type *oldData = data;
-            capacity = FixCapacity(oldCapacity * 2);
+            capacity = FixCapacity((oldCapacity * 2) >= size ? (oldCapacity * 2) : size);
             data = Alloc::Allocate(capacity);
             ThisScope::uninitialized_move(oldData, index, data);
             Alloc::Construct(data + index, std::move(value));
@@ -540,7 +540,7 @@ private:
         {
             const size_t oldCapacity = capacity;
             Type *oldData = data;
-            capacity = FixCapacity(oldCapacity * 2);
+            capacity = FixCapacity((oldCapacity * 2) >= size ? (oldCapacity * 2) : size);
             data = Alloc::Allocate(capacity);
             ThisScope::uninitialized_move(oldData, index, data);
             ThisScope::copy(src, count, data + index);

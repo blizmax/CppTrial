@@ -49,6 +49,19 @@ public:
         }
     }
 
+    String(CharType chr, size_t count = 1)
+    {
+        if (chr)
+        {
+            if (count > 0)
+            {
+                data.AppendUninitialized(count + 1);
+                ThisScope::uninitialized_fill(data.GetData(), count, chr);
+                data.GetData()[count] = 0;
+            }
+        }
+    }
+
     String &operator=(const CharType *str)
     {
         if (data.GetData() != str)
@@ -61,6 +74,13 @@ public:
                 CharTraits::copy(data.GetData(), str, len);
             }
         }
+        return *this;
+    }
+
+    String &operator=(CharType chr)
+    {
+        String temp(chr);
+        Swap(temp);
         return *this;
     }
 
@@ -118,7 +138,16 @@ public:
         }
     }
 
-    String &Append(const CharType chr)
+    void Reverse()
+    {
+        if (Length() > 0)
+        {
+            CharType *ptr = data.GetData();
+            ThisScope::reverse(ptr, ptr + Length() - 1);
+        }
+    }
+
+    String &Append(CharType chr)
     {
         *this += chr;
         return *this;
@@ -140,7 +169,7 @@ public:
         data.Remove(index, count);
     }
 
-    void Insert(size_t index, const CharType chr)
+    void Insert(size_t index, CharType chr)
     {
         if (chr != 0)
         {
@@ -188,6 +217,20 @@ public:
         return ReplacePrivate(index, count, str.GetPtr(), str.Length());
     }
 
+    String &Replace(size_t index, size_t count, const String &str, size_t strIndex)
+    {
+        CheckRange(index);
+        str.CheckRange(strIndex);
+        return ReplacePrivate(index, count, str.GetPtr() + strIndex, str.Length());
+    }
+
+    String &Replace(size_t index, size_t count, const String &str, size_t strIndex, size_t strCount)
+    {
+        CheckRange(index);
+        str.CheckRange(strIndex);
+        return ReplacePrivate(index, count, str.GetPtr() + strIndex, strCount);
+    }
+
     String &Replace(size_t index, size_t count, const CharType *str)
     {
         CheckRange(index);
@@ -199,6 +242,110 @@ public:
         CheckRange(index);
         return ReplacePrivate(index, count, str, repCount);
     }
+
+    String &Replace(size_t index, size_t count, CharType chr, size_t chrCount = 1)
+    {
+        CheckRange(index);
+        String temp(chr, chrCount);
+        return Replace(index, count, temp);
+    }
+
+    bool Find(CharType value, size_t &at) const
+    {
+        return Find(value, 0, &at);
+    }
+
+    bool Find(CharType value, size_t startIndex, size_t &at) const
+    {
+        return Find(value, startIndex, &at);
+    }
+
+    bool Find(CharType value, size_t startIndex = 0, size_t *at = nullptr) const
+    {
+        const CharType *ptr = GetPtr();
+        for (size_t i = startIndex; i < Length(); ++i)
+        {
+            if (ptr[i] == value)
+            {
+                if (at)
+                {
+                    *at = i;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool Find(const CharType *str) const
+    {
+        const size_t len = CharTraits::length(str);
+        return Find(str, len, 0);
+    }
+
+    bool Find(const CharType *str, size_t &at) const
+    {
+        const size_t len = CharTraits::length(str);
+        return Find(str, len, 0, &at);
+    }
+
+    bool Find(const CharType *str, size_t startIndex, size_t &at) const
+    {
+        const size_t len = CharTraits::length(str);
+        return Find(str, len, startIndex, &at);
+    }
+
+    bool Find(const CharType *str, size_t count, size_t startIndex, size_t &at) const
+    {
+        return Find(str, count, startIndex, &at);
+    }
+
+    bool Find(const CharType *str, size_t count, size_t startIndex, size_t *at = nullptr) const
+    {
+        if (count == 0)
+        {
+            return false;
+        }
+        if (Length() - startIndex < count)
+        {
+            return false;
+        }
+
+        const CharType *ptr = GetPtr();
+        for (size_t i = startIndex; i < Length(); ++i)
+        {
+            if (*(ptr + i) == *(str))
+            {
+                for (size_t j = 1; j < count; ++j)
+                {
+                    if (*(ptr + i + j) != *(str + j))
+                    {
+                        return false;
+                    }
+                }
+                if (at)
+                {
+                    *at = i;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //TODO
+    //bool Find(const String& str, size_t count, size_t startIndex = 0, size_t *at = nullptr) const
+
+    // //TODO
+    // bool StartsWith(const String& str) const
+    // {
+
+    // }
+
+    // bool EndsWith(const String& str) const
+    // {
+
+    // }
 
     int Compare(const String &other) const
     {
@@ -229,7 +376,7 @@ public:
         return *this;
     }
 
-    String &operator+=(const CharType chr)
+    String &operator+=(CharType chr)
     {
         if (chr != 0)
         {
@@ -265,14 +412,14 @@ public:
         return data.GetData()[index];
     }
 
-    friend String operator+(const String &lhs, const CharType rhs)
+    friend String operator+(const String &lhs, CharType rhs)
     {
         String ret(lhs);
         ret += rhs;
         return ret;
     }
 
-    friend String operator+(const CharType lhs, const String &rhs)
+    friend String operator+(CharType lhs, const String &rhs)
     {
         String ret;
         ret += lhs;
@@ -280,14 +427,14 @@ public:
         return ret;
     }
 
-    friend String operator+(String &&lhs, const CharType rhs)
+    friend String operator+(String &&lhs, CharType rhs)
     {
         String ret(std::move(lhs));
         ret += rhs;
         return ret;
     }
 
-    friend String operator+(const CharType lhs, String &&rhs)
+    friend String operator+(CharType lhs, String &&rhs)
     {
         String ret;
         ret += lhs;
