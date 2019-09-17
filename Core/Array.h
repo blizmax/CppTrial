@@ -168,6 +168,20 @@ public:
         }
     }
 
+    void Resize(size_t newSize)
+    {
+        if(newSize < size)
+        {
+            RemovePrivate(newSize, size - newSize);
+        }
+        else if (newSize > size)
+        {
+            AppendUninitialized(newSize - size);
+            //FIXME
+            //Init use default value Type() ?
+        }
+    }
+
     void AppendUninitialized(size_t appendSize)
     {
         const size_t newSize = size + appendSize;

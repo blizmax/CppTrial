@@ -34,6 +34,21 @@ public:
         }
     }
 
+    explicit String(const CharType* str, size_t count)
+    {
+        if (str && *str)
+        {
+            size_t len = CharTraits::length(str);
+            len = len < count ? len : count;
+            if (len > 0)
+            {
+                data.AppendUninitialized(len + 1);
+                CharTraits::copy(data.GetData(), str, len);
+                data.GetData()[len] = 0;
+            }
+        }
+    }
+
     String &operator=(const CharType *str)
     {
         if (data.GetData() != str)
@@ -95,6 +110,14 @@ public:
         return data;
     }
 
+    void Swap(String& other) noexcept
+    {
+        if(this != &other)
+        {
+            data.Swap(other.data);
+        }
+    }
+
     String &Append(const CharType chr)
     {
         *this += chr;
@@ -147,11 +170,23 @@ public:
         }
     }
 
-    //TODO
-    // String SubString(size_t index)
-    // {
+    String SubString(size_t index)
+    {
+        return SubString(index, Length());
+    }
 
-    // }
+    String SubString(size_t index, size_t count)
+    {
+        const size_t len = Length();
+        index = index < len ? index : len;
+        return String(GetPtr() + index, count);
+    }
+
+    String Replace(size_t index, size_t count, const String& str)
+    {
+        CheckRange(index);
+        return ReplacePrivate(index, count, str.GetPtr(), str.Length());
+    }
 
     int Compare(const String &other) const
     {
@@ -205,8 +240,7 @@ public:
         return GetPtr();
     }
 
-    CharType &
-    operator[](size_t index)
+    CharType &operator[](size_t index)
     {
         CheckRange(index);
         return data.GetData()[index];
@@ -406,9 +440,45 @@ private:
         CT_ASSERT(index >= 0 && index < Length());
     }
 
+    String& ReplacePrivate(size_t index, size_t count, const CharType* repStr, size_t repCount)
+    {
+        CharType* ptr = data.GetData();
+
+        if(!ptr)
+        {
+            String temp(repStr, repCount);
+            Swap(temp);
+        }
+        else
+        {
+            const size_t len = Length();
+            ptr += index;
+
+            if(index + count > len)
+            {
+                count = len - index;
+            }
+
+            if(count >= repCount)
+            {
+                CharTraits::move(ptr + repCount, ptr + count, len - index - count + 1);
+                CharTraits::copy(ptr, repStr, repCount);
+                data.Resize(data.Size() - count + repCount);
+            }
+            else
+            {
+                data.AppendUninitialized(repCount - count);
+                CharTraits::move(ptr + repCount, ptr + count, len - index - count + 1);
+                CharTraits::copy(ptr, repStr, repCount);
+            }
+        }
+
+        return *this;
+    }
+
     int ComparePrivate(const CharType *ptr1, size_t len1, const CharType *ptr2, size_t len2) const
     {
-        size_t len = std::min(len1, len2);
+        size_t len = len1 < len2 ? len1 : len2;
         int ret = CharTraits::compare(ptr1, ptr2, len);
         if (ret != 0)
         {
