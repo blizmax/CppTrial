@@ -13,8 +13,6 @@ public:
     typedef std::char_traits<CharType> CharTraits;
     typedef Array<CharType> CharArray;
 
-    static constexpr size_t INDEX_NONE = static_cast<size_t>(-1);
-
 public:
     String() = default;
     String(const String &) = default;

@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Core/Array.h"
+#include "Core/HashTable.h"
 #include "Core/String.h"
 #include <vector>
 
@@ -28,6 +29,8 @@ void add(int* r)
 
 int main()
 {
+    HashTable<int> hashTable;
+
     auto longCharArr = L" A B CDEFGHIJ KLMNOPQR  STUVWX YZ ";
 
     String shortStr = L'S';
@@ -45,6 +48,8 @@ int main()
 
     str.ReplaceAll(L" ", L"$");
     std::wcout << *str;
+
+    std::wcout << "========";
 
     system("pause");
     return 0;
