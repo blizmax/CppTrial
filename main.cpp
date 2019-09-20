@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "Core/Array.h"
-#include "Core/HashTable.h"
+#include "Core/HashSet.h"
 #include "Core/String.h"
 #include <vector>
 
@@ -20,20 +20,28 @@ public:
 
 int main()
 {
-    
-    HashTable<int> hashTable;
-    
+
+    HashSet<int> set;
+       
     for(int i = 50; i > 0; --i)
     {
-        hashTable.Put(i * 50 + 17);
+        set.Add(i * 50 + 17);
     }
 
-    size_t pos = hashTable.Find(50);
+    bool ret = set.Remove(67);
 
-    for(auto k : hashTable)
+    const HashSet<int> newSet = std::move(set);
+
+    HashSet<int> initSet = {1,77,150,77};
+    initSet = {99, 66};
+
+    for (const auto k : initSet)
     {
         std::cout << k << std::endl;
     }
+
+    HashSet<int> largeSet(5012);
+    largeSet.Shrink();
 
     system("pause");
     return 0;

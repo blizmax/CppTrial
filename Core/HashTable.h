@@ -2,99 +2,24 @@
 
 #include "Core/General.h"
 #include "Core/Allocator.h"
-#include <algorithm>
 
 CT_SCOPE_BEGIN
 
-template <typename Key, typename HashFunc = std::hash<Key>, typename KeyEqual = std::equal_to<Key>, template <typename T> class Alloc = Allocator>
+namespace HashTableInternal
+{
+template <typename T>
+struct KeyEqual
+{
+    bool operator()(const T &a, const T &b)
+    {
+        return a == b;
+    }
+};
+} // namespace HashTableInternal
+
+template <typename Key, typename HashFunc, typename KeyEqual, template <typename T> class Alloc>
 class HashTable
 {
-public:
-    friend class Iterator;
-
-    class Iterator
-    {
-    private:
-        HashTable &table;
-        size_t index;
-
-        void Step()
-        {
-            for (size_t i = index; i < table.capacity; ++i)
-            {
-                if (table.IsInited(table.indexData[i].flag))
-                {
-                    index = i;
-                    return;
-                }
-            }
-            index = INDEX_NONE;
-        }
-
-    public:
-        Iterator(HashTable &ht, size_t idx) : table(ht), index(idx)
-        {
-            Step();
-        }
-
-        Iterator(const Iterator &other) : table(other.table), index(other.index)
-        {
-        }
-
-        Iterator &operator++()
-        {
-            if (index != INDEX_NONE)
-            {
-                ++index;
-                Step();
-            }
-            return *this;
-        }
-
-        Iterator operator++(int)
-        {
-            Iterator temp(*this);
-            if (index != INDEX_NONE)
-            {
-                ++index;
-                Step();
-            }
-            return temp;
-        }
-
-        Key &operator*()
-        {
-            CT_ASSERT(index < table.capacity);
-            return table.data[index];
-        }
-
-        Key *operator->()
-        {
-            CT_ASSERT(index < table.capacity);
-            return &(table.data[index]);
-        }
-
-        bool operator==(const Iterator &other) const
-        {
-            return (&table == &other.table) && (index == other.index);
-        }
-
-        bool operator!=(const Iterator &other) const
-        {
-            return (&table != &other.table) || (index != other.index);
-        }
-    };
-
-    Iterator begin()
-    {
-        return Iterator(*this, 0);
-    }
-
-    Iterator end()
-    {
-        return Iterator(*this, INDEX_NONE);
-    }
-
 private:
     enum
     {
@@ -189,6 +114,21 @@ public:
         size = capacity = mask = 0;
     }
 
+    size_t Size() const
+    {
+        return size;
+    }
+
+    size_t Capacity() const
+    {
+        return capacity;
+    }
+
+    bool IsEmpty() const
+    {
+        return size == 0;
+    }
+
     bool IsFull() const
     {
         return size >= capacity * 0.9;
@@ -213,9 +153,26 @@ public:
         size = 0;
     }
 
+    void Shrink()
+    {
+        if (size != capacity)
+        {
+            size_t newCapacity = FixCapacity(size);
+            if (newCapacity < capacity)
+            {
+                RehashPrivate(newCapacity);
+            }
+        }
+    }
+
     size_t Find(const Key &key) const
     {
         return FindPrivate(HashKey(key), key);
+    }
+
+    bool Contains(const Key &key) const
+    {
+        return Find(key) != INDEX_NONE;
     }
 
     void Put(const Key &key)
@@ -237,7 +194,280 @@ public:
         }
     }
 
+    void Put(Key &&key)
+    {
+        auto hash = HashKey(key);
+        size_t pos = FindPrivate(hash, key);
+        if (pos != INDEX_NONE)
+        {
+            data[pos] = std::move(key);
+        }
+        else
+        {
+            if (IsFull())
+            {
+                RehashPrivate(FixCapacity(capacity * 2));
+            }
+            InsertPrivate(hash, std::move(key));
+            ++size;
+        }
+    }
+
+    bool Add(const Key &key)
+    {
+        auto hash = HashKey(key);
+        size_t pos = FindPrivate(hash, key);
+        if (pos == INDEX_NONE)
+        {
+            if (IsFull())
+            {
+                RehashPrivate(FixCapacity(capacity * 2));
+            }
+            InsertPrivate(hash, key);
+            ++size;
+            return true;
+        }
+        return false;
+    }
+
+    bool Add(Key &&key)
+    {
+        auto hash = HashKey(key);
+        size_t pos = FindPrivate(hash, key);
+        if (pos == INDEX_NONE)
+        {
+            if (IsFull())
+            {
+                RehashPrivate(FixCapacity(capacity * 2));
+            }
+            InsertPrivate(hash, std::move(key));
+            ++size;
+            return true;
+        }
+        return false;
+    }
+
+    Key &Get(const Key &key)
+    {
+        size_t pos = Find(key);
+        CheckRange(pos);
+        return data[pos];
+    }
+
+    const Key &Get(const Key &key) const
+    {
+        size_t pos = Find(key);
+        CheckRange(pos);
+        return data[pos];
+    }
+
+    bool Remove(const Key &key)
+    {
+        return RemovePrivate(key);
+    }
+
+    bool operator==(const HashTable &other) const
+    {
+        if (size != other.size)
+        {
+            return false;
+        }
+
+        for (size_t i = 0; i < capacity; ++i)
+        {
+            if (IsInited(indexData[i].flag))
+            {
+                if (!other.Contains(data[i]))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    bool operator!=(const HashTable &other) const
+    {
+        return !(*this == other);
+    }
+
+    //===================== STL STYLE =========================
+public:
+    friend class Iterator;
+    friend class ConstIterator;
+
+    class Iterator
+    {
+    private:
+        HashTable *table;
+        size_t index;
+
+        void Step()
+        {
+            for (size_t i = index; i < table->capacity; ++i)
+            {
+                if (table->IsInited(table->indexData[i].flag))
+                {
+                    index = i;
+                    return;
+                }
+            }
+            index = INDEX_NONE;
+        }
+
+    public:
+        Iterator(HashTable *ht, size_t idx) : table(ht), index(idx)
+        {
+            Step();
+        }
+
+        Iterator(const Iterator &other) : table(other.table), index(other.index)
+        {
+        }
+
+        Iterator &operator++()
+        {
+            if (index != INDEX_NONE)
+            {
+                ++index;
+                Step();
+            }
+            return *this;
+        }
+
+        Iterator operator++(int)
+        {
+            Iterator temp(*this);
+            if (index != INDEX_NONE)
+            {
+                ++index;
+                Step();
+            }
+            return temp;
+        }
+
+        Key &operator*()
+        {
+            table->CheckRange(index);
+            return table->data[index];
+        }
+
+        Key *operator->()
+        {
+            table->CheckRange(index);
+            return &(table->data[index]);
+        }
+
+        bool operator==(const Iterator &other) const
+        {
+            return (table == other.table) && (index == other.index);
+        }
+
+        bool operator!=(const Iterator &other) const
+        {
+            return (table != other.table) || (index != other.index);
+        }
+    };
+
+    class ConstIterator
+    {
+    private:
+        const HashTable *table;
+        size_t index;
+
+        void Step()
+        {
+            for (size_t i = index; i < table->capacity; ++i)
+            {
+                if (table->IsInited(table->indexData[i].flag))
+                {
+                    index = i;
+                    return;
+                }
+            }
+            index = INDEX_NONE;
+        }
+
+    public:
+        ConstIterator(const HashTable *ht, size_t idx) : table(ht), index(idx)
+        {
+            Step();
+        }
+
+        ConstIterator(const ConstIterator &other) : table(other.table), index(other.index)
+        {
+        }
+
+        ConstIterator &operator++()
+        {
+            if (index != INDEX_NONE)
+            {
+                ++index;
+                Step();
+            }
+            return *this;
+        }
+
+        ConstIterator operator++(int)
+        {
+            Iterator temp(*this);
+            if (index != INDEX_NONE)
+            {
+                ++index;
+                Step();
+            }
+            return temp;
+        }
+
+        const Key &operator*()
+        {
+            table->CheckRange(index);
+            return table->data[index];
+        }
+
+        const Key *operator->()
+        {
+            table->CheckRange(index);
+            return &(table->data[index]);
+        }
+
+        bool operator==(const ConstIterator &other) const
+        {
+            return (table == other.table) && (index == other.index);
+        }
+
+        bool operator!=(const ConstIterator &other) const
+        {
+            return (table != other.table) || (index != other.index);
+        }
+    };
+
+    Iterator begin()
+    {
+        return Iterator(this, 0);
+    }
+
+    ConstIterator begin() const
+    {
+        return ConstIterator(const_cast<HashTable *>(this), 0);
+    }
+
+    Iterator end()
+    {
+        return Iterator(this, INDEX_NONE);
+    }
+
+    ConstIterator end() const
+    {
+        return ConstIterator(const_cast<HashTable *>(this), INDEX_NONE);
+    }
+
 private:
+    void CheckRange(size_t index) const
+    {
+        CT_ASSERT(index < capacity);
+    }
+
     uint32 HashKey(const Key &key) const
     {
         static HashFunc hash;
@@ -356,7 +586,7 @@ private:
         {
             return false;
         }
-        KeyAlloc::Destroy(data[index]);
+        KeyAlloc::Destroy(data + index);
         indexData[index].flag |= DELETED;
         --size;
         return true;
@@ -464,7 +694,7 @@ private:
         Swap(temp);
     }
 
-public:
+private:
     size_t size = 0;
     size_t capacity = 0;
     size_t mask = 0;
