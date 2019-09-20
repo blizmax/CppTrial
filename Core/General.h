@@ -34,7 +34,7 @@ typedef uint64_t uint64;
 
 static constexpr size_t INDEX_NONE = static_cast<size_t>(-1);
 
-inline uint64 NextPowerOfTwo(uint64 value)
+CT_INLINE uint64 NextPowerOfTwo(uint64 value)
 {
     uint64 pos = 0;
     uint64 a = 1;
@@ -73,7 +73,7 @@ inline uint64 NextPowerOfTwo(uint64 value)
 }
 
 template <typename T>
-inline bool IsPowerOfTwo(T value)
+CT_INLINE bool IsPowerOfTwo(T value)
 {
     return ((value & (value - 1)) == (T)0);
 }

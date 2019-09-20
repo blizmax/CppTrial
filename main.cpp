@@ -18,40 +18,22 @@ public:
     ~A() {std::cout << "A destructor" << std::endl;}
 };
 
-void add(int v)
-{
-    std::cout << "aaaaaa" << std::endl;
-}
-void add(int* r)
-{
-    std::cout << "bbbbbb" << std::endl;
-}
-
 int main()
 {
+    
+    HashTable<int> hashTable;
+    
+    for(int i = 50; i > 0; --i)
     {
-        HashTable<int> hashTable;
+        hashTable.Put(i * 50 + 17);
     }
 
-    auto longCharArr = L" A B CDEFGHIJ KLMNOPQR  STUVWX YZ ";
+    size_t pos = hashTable.Find(50);
 
-    String shortStr = L'S';
-    String temp = L"12345";
-    temp.Replace(0, 2, L'Z', 3);
-    //std::wcout << *temp << std::endl;
-
-    String str(longCharArr);
-    Array<String> subs = str.Split(L" ");
-    for (auto sub : subs)
+    for(auto k : hashTable)
     {
-        std::wcout << *sub << std::endl;
+        std::cout << k << std::endl;
     }
-    std::wcout << "========";
-
-    str.ReplaceAll(L" ", L"$");
-    std::wcout << *str;
-
-    std::wcout << "========";
 
     system("pause");
     return 0;

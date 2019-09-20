@@ -151,6 +151,16 @@ CT_INLINE void move_backward(T *src, size_t count, T *dst)
 }
 
 template <typename T>
+CT_INLINE void fill(T *dst, size_t count, const T &value)
+{
+    for (; count > 0; --count)
+    {
+        *dst = value;
+        ++dst;
+    }
+}
+
+template <typename T>
 CT_INLINE void uninitialized_copy_private(const T *src, size_t count, T *dst, std::true_type)
 {
     if (count > 0)

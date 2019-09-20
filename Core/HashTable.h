@@ -9,6 +9,92 @@ CT_SCOPE_BEGIN
 template <typename Key, typename HashFunc = std::hash<Key>, typename KeyEqual = std::equal_to<Key>, template <typename T> class Alloc = Allocator>
 class HashTable
 {
+public:
+    friend class Iterator;
+
+    class Iterator
+    {
+    private:
+        HashTable &table;
+        size_t index;
+
+        void Step()
+        {
+            for (size_t i = index; i < table.capacity; ++i)
+            {
+                if (table.IsInited(table.indexData[i].flag))
+                {
+                    index = i;
+                    return;
+                }
+            }
+            index = INDEX_NONE;
+        }
+
+    public:
+        Iterator(HashTable &ht, size_t idx) : table(ht), index(idx)
+        {
+            Step();
+        }
+
+        Iterator(const Iterator &other) : table(other.table), index(other.index)
+        {
+        }
+
+        Iterator &operator++()
+        {
+            if (index != INDEX_NONE)
+            {
+                ++index;
+                Step();
+            }
+            return *this;
+        }
+
+        Iterator operator++(int)
+        {
+            Iterator temp(*this);
+            if (index != INDEX_NONE)
+            {
+                ++index;
+                Step();
+            }
+            return temp;
+        }
+
+        Key &operator*()
+        {
+            CT_ASSERT(index < table.capacity);
+            return table.data[index];
+        }
+
+        Key *operator->()
+        {
+            CT_ASSERT(index < table.capacity);
+            return &(table.data[index]);
+        }
+
+        bool operator==(const Iterator &other) const
+        {
+            return (&table == &other.table) && (index == other.index);
+        }
+
+        bool operator!=(const Iterator &other) const
+        {
+            return (&table != &other.table) || (index != other.index);
+        }
+    };
+
+    Iterator begin()
+    {
+        return Iterator(*this, 0);
+    }
+
+    Iterator end()
+    {
+        return Iterator(*this, INDEX_NONE);
+    }
+
 private:
     enum
     {
@@ -31,7 +117,7 @@ public:
 
     explicit HashTable(size_t initCapacity)
     {
-        if(initCapacity > 0)
+        if (initCapacity > 0)
         {
             capacity = FixCapacity(initCapacity);
             mask = capacity - 1;
@@ -41,22 +127,20 @@ public:
         }
     }
 
-    HashTable(const HashTable & other) : 
-        size(other.size), capacity(other.capacity), mask(other.mask)
+    HashTable(const HashTable &other) : size(other.size), capacity(other.capacity), mask(other.mask)
     {
-        if(capacity > 0)
+        if (capacity > 0)
         {
             data = KeyAlloc::Allocate(other.capacity);
             indexData = IndexAlloc::Allocate(other.capacity);
             FreeAllIndices();
-         
+
             CopyFrom(other);
         }
     }
 
-    HashTable(HashTable && other) noexcept : 
-        size(other.size), capacity(other.capacity), mask(other.mask), data(other.data), indexData(other.indexData)
-    {      
+    HashTable(HashTable &&other) noexcept : size(other.size), capacity(other.capacity), mask(other.mask), data(other.data), indexData(other.indexData)
+    {
         other.size = 0;
         other.capacity = 0;
         other.mask = 0;
@@ -66,7 +150,7 @@ public:
 
     HashTable &operator=(const HashTable &other)
     {
-        if(this != &other)
+        if (this != &other)
         {
             HashTable temp(other);
             Swap(temp);
@@ -76,7 +160,7 @@ public:
 
     HashTable &operator=(HashTable &&other) noexcept
     {
-        if(this != &other)
+        if (this != &other)
         {
             DestroyAllKeys();
             KeyAlloc::Deallocate(data, capacity);
@@ -110,9 +194,9 @@ public:
         return size >= capacity * 0.9;
     }
 
-    void Swap(HashTable& other)
+    void Swap(HashTable &other)
     {
-        if(this != &other)
+        if (this != &other)
         {
             std::swap(size, other.size);
             std::swap(capacity, other.capacity);
@@ -129,23 +213,23 @@ public:
         size = 0;
     }
 
-    size_t Find(const Key& key) const
+    size_t Find(const Key &key) const
     {
         return FindPrivate(HashKey(key), key);
     }
 
-    void Put(const Key& key)
+    void Put(const Key &key)
     {
         auto hash = HashKey(key);
         size_t pos = FindPrivate(hash, key);
-        if(pos != INDEX_NONE)
+        if (pos != INDEX_NONE)
         {
             data[pos] = key;
         }
         else
         {
-            if(IsFull())
-            {              
+            if (IsFull())
+            {
                 RehashPrivate(FixCapacity(capacity * 2));
             }
             InsertPrivate(hash, key);
@@ -169,6 +253,11 @@ private:
     bool IsDeleted(uint32 flag) const
     {
         return (flag >> 31) != 0;
+    }
+
+    bool IsInited(uint32 flag) const
+    {
+        return flag && !IsDeleted(flag);
     }
 
     size_t ProbeDistance(uint32 hash, size_t pos) const
@@ -203,14 +292,13 @@ private:
         std::memset(indexData, 0, sizeof(Index) * capacity);
     }
 
-    void CopyFrom(const HashTable& other)
+    void CopyFrom(const HashTable &other)
     {
-        if(other.size > 0)
+        if (other.size > 0)
         {
             for (size_t i = 0; i < other.capacity; ++i)
             {
-                const auto flag = other.indexData[i].flag;
-                if (flag && !IsDeleted(flag))
+                if (IsInited(other.indexData[i].flag))
                 {
                     InsertPrivate(other.indexData[i].hash, other.data[i]);
                 }
@@ -218,14 +306,13 @@ private:
         }
     }
 
-    void MoveFrom(HashTable&& other)
+    void MoveFrom(HashTable &&other)
     {
-        if(other.size > 0)
+        if (other.size > 0)
         {
             for (size_t i = 0; i < other.capacity; ++i)
             {
-                const auto flag = other.indexData[i].flag;
-                if (flag && !IsDeleted(flag))
+                if (IsInited(other.indexData[i].flag))
                 {
                     InsertPrivate(other.indexData[i].hash, std::move(other.data[i]));
                 }
@@ -233,23 +320,23 @@ private:
         }
     }
 
-    size_t FindPrivate(uint32 hash, const Key& key)
+    size_t FindPrivate(uint32 hash, const Key &key) const
     {
-        if(size == 0)
+        if (size == 0)
         {
             return INDEX_NONE;
         }
 
         size_t pos = static_cast<size_t>(hash) & mask;
         size_t dist = 0;
-        while(true)
+        while (true)
         {
             const auto flag = indexData[pos].flag;
-            if(flag == FREE)
+            if (flag == FREE)
             {
                 return INDEX_NONE;
             }
-            if(dist > ProbeDistance(indexData[pos].hash, pos))
+            if (dist > ProbeDistance(indexData[pos].hash, pos))
             {
                 return INDEX_NONE;
             }
@@ -262,10 +349,10 @@ private:
         }
     }
 
-    bool RemovePrivate(const Key& key)
+    bool RemovePrivate(const Key &key)
     {
         size_t index = Find(key);
-        if(index == INDEX_NONE)
+        if (index == INDEX_NONE)
         {
             return false;
         }
@@ -275,16 +362,15 @@ private:
         return true;
     }
 
-    void InsertPrivate(uint32 hash, const Key& key)
-    {  
+    void InsertPrivate(uint32 hash, const Key &key)
+    {
         size_t pos = static_cast<size_t>(hash) & mask;
         size_t dist = 0;
         Key *insertPtr = nullptr;
         Key *tempPtr = nullptr;
-        while(true)
+        while (true)
         {
-            const auto flag = indexData[pos].flag;
-            if (!flag || IsDeleted(flag))
+            if (!IsInited(indexData[pos].flag))
             {
                 break;
             }
@@ -295,7 +381,7 @@ private:
                 indexData[pos].flag = DEFAULT;
                 if (insertPtr)
                 {
-                    std::swap(data + pos, tempPtr);
+                    std::swap(*(data + pos), *tempPtr);
                 }
                 else
                 {
@@ -309,10 +395,10 @@ private:
             ++dist;
         }
 
-        if(tempPtr)
+        if (tempPtr)
         {
             ThisScope::uninitialized_move(tempPtr, 1, data + pos);
-            *insertPtr = key;            
+            *insertPtr = key;
         }
         else
         {
@@ -323,20 +409,62 @@ private:
         indexData[pos].flag = DEFAULT;
     }
 
-    void InsertPrivate(uint32 hash, Key&& key)
-    {  
-        //TODO
+    void InsertPrivate(uint32 hash, Key &&key)
+    {
+        size_t pos = static_cast<size_t>(hash) & mask;
+        size_t dist = 0;
+        Key *insertPtr = nullptr;
+        Key *tempPtr = nullptr;
+        while (true)
+        {
+            if (!IsInited(indexData[pos].flag))
+            {
+                break;
+            }
+            size_t existingDist = ProbeDistance(indexData[pos].hash, pos);
+            if (existingDist < dist)
+            {
+                std::swap(hash, indexData[pos].hash);
+                indexData[pos].flag = DEFAULT;
+                if (insertPtr)
+                {
+                    std::swap(*(data + pos), *tempPtr);
+                }
+                else
+                {
+                    insertPtr = data + pos;
+                }
+                tempPtr = data + pos;
+                dist = existingDist;
+            }
+
+            pos = (pos + 1) & mask;
+            ++dist;
+        }
+
+        if (tempPtr)
+        {
+            ThisScope::uninitialized_move(tempPtr, 1, data + pos);
+            *insertPtr = std::move(key);
+        }
+        else
+        {
+            KeyAlloc::Construct(data + pos, std::move(key));
+        }
+
+        indexData[pos].hash = hash;
+        indexData[pos].flag = DEFAULT;
     }
 
     void RehashPrivate(size_t newCapacity)
     {
         HashTable temp(newCapacity);
         temp.size = size;
-        MoveFrom(std::move(*this));
+        temp.MoveFrom(std::move(*this));
         Swap(temp);
     }
 
-private: 
+public:
     size_t size = 0;
     size_t capacity = 0;
     size_t mask = 0;

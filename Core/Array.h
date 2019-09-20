@@ -221,6 +221,15 @@ public:
         InsertPrivate(index, value);
     }
 
+    void Insert(size_t index, const Type &value, size_t count)
+    {
+        CheckRange(index);
+        if (count > 0)
+        {
+            InsertPrivate(index, value, count);
+        }
+    }
+
     void Insert(size_t index, Type &&value)
     {
         CheckRange(index);
@@ -334,7 +343,7 @@ public:
 
     template <typename Predicate>
     bool FindLast(Predicate pred, size_t *at = nullptr) const
-    { 
+    {
         for (size_t i = size; i >= 1;)
         {
             --i;
@@ -479,9 +488,19 @@ private:
         }
         else if (size <= capacity)
         {
-            size_t moveCount = oldSize - index;
-            ThisScope::move_backward(data + oldSize - 1, moveCount, data + oldSize + count - 1);
-            ThisScope::uninitialized_fill(data + index, count, value);
+            size_t moveNum = oldSize - index;
+            if (moveNum > count)
+            {
+                ThisScope::uninitialized_move(data + oldSize - count, count, data + oldSize);
+                ThisScope::move_backward(data + oldSize - count - 1, moveNum - count, data + oldSize - 1);
+                ThisScope::fill(data + index, count, value);
+            }
+            else
+            {
+                ThisScope::uninitialized_move(data + index, moveNum, data + index + count);
+                ThisScope::fill(data + index, moveNum, value);
+                ThisScope::uninitialized_fill(data + index + moveNum, count - moveNum, value);
+            }
         }
         else
         {
@@ -506,8 +525,9 @@ private:
         }
         else if (size <= capacity)
         {
-            size_t moveCount = oldSize - index;
-            ThisScope::move_backward(data + oldSize - 1, moveCount, data + oldSize);
+            size_t moveNum = oldSize - index;
+            ThisScope::uninitialized_move(data + oldSize - 1, 1, data + oldSize);
+            ThisScope::move_backward(data + oldSize - 2, moveNum - 1, data + oldSize - 1);
             Alloc::Construct(data + index, std::move(value));
         }
         else
@@ -534,9 +554,19 @@ private:
         }
         else if (size <= capacity)
         {
-            size_t moveCount = oldSize - index;
-            ThisScope::move_backward(data + oldSize - 1, moveCount, data + oldSize + count - 1);
-            ThisScope::copy(src, count, data + index);
+            size_t moveNum = oldSize - index;
+            if (moveNum > count)
+            {
+                ThisScope::uninitialized_move(data + oldSize - count, count, data + oldSize);
+                ThisScope::move_backward(data + oldSize - count - 1, moveNum - count, data + oldSize - 1);
+                ThisScope::copy(src, count, data + index);
+            }
+            else
+            {
+                ThisScope::uninitialized_move(data + index, moveNum, data + index + count);
+                ThisScope::copy(src, moveNum, data + index);
+                ThisScope::uninitialized_copy(src + moveNum, count - moveNum, data + index + moveNum);
+            }
         }
         else
         {
