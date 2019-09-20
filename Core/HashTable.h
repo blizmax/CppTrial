@@ -19,7 +19,7 @@ private:
 
     struct Index
     {
-        size_t hash;
+        uint32 hash;
         uint32 flag;
     };
 
@@ -29,11 +29,81 @@ private:
 public:
     HashTable() = default;
 
-    //TODO
-    // HashTable(const HashTable &) = default;
-    // HashTable(HashTable &&) = default;
-    // HashTable &operator=(const HashTable &) = default;
-    // HashTable &operator=(HashTable &&) = default;
+    explicit HashTable(size_t initCapacity)
+    {
+        if(initCapacity > 0)
+        {
+            capacity = FixCapacity(initCapacity);
+            mask = capacity - 1;
+            data = KeyAlloc::Allocate(capacity);
+            indexData = IndexAlloc::Allocate(capacity);
+            FreeAllIndices();
+        }
+    }
+
+    HashTable(const HashTable & other) : 
+        size(other.size), capacity(other.capacity), mask(other.mask)
+    {
+        if(capacity > 0)
+        {
+            data = KeyAlloc::Allocate(other.capacity);
+            indexData = IndexAlloc::Allocate(other.capacity);
+            FreeAllIndices();
+         
+            CopyFrom(other);
+        }
+    }
+
+    HashTable(HashTable && other) noexcept : 
+        size(other.size), capacity(other.capacity), mask(other.mask), data(other.data), indexData(other.indexData)
+    {      
+        other.size = 0;
+        other.capacity = 0;
+        other.mask = 0;
+        other.data = nullptr;
+        other.indexData = nullptr;
+    }
+
+    HashTable &operator=(const HashTable &other)
+    {
+        if(this != &other)
+        {
+            HashTable temp(other);
+            Swap(temp);
+        }
+        return *this;
+    }
+
+    HashTable &operator=(HashTable &&other) noexcept
+    {
+        if(this != &other)
+        {
+            DestroyAllKeys();
+            KeyAlloc::Deallocate(data, capacity);
+            IndexAlloc::Deallocate(indexData, capacity);
+            size = other.size;
+            capacity = other.capacity;
+            mask = other.mask;
+            data = other.data;
+            indexData = other.indexData;
+            other.size = 0;
+            other.capacity = 0;
+            other.mask = 0;
+            other.data = nullptr;
+            other.indexData = nullptr;
+        }
+        return *this;
+    }
+
+    ~HashTable()
+    {
+        DestroyAllKeys();
+        KeyAlloc::Deallocate(data, capacity);
+        IndexAlloc::Deallocate(indexData, capacity);
+        data = nullptr;
+        indexData = nullptr;
+        size = capacity = mask = 0;
+    }
 
     bool IsFull() const
     {
@@ -61,13 +131,116 @@ public:
 
     size_t Find(const Key& key) const
     {
+        return FindPrivate(HashKey(key), key);
+    }
+
+    void Put(const Key& key)
+    {
+        auto hash = HashKey(key);
+        size_t pos = FindPrivate(hash, key);
+        if(pos != INDEX_NONE)
+        {
+            data[pos] = key;
+        }
+        else
+        {
+            if(IsFull())
+            {              
+                RehashPrivate(FixCapacity(capacity * 2));
+            }
+            InsertPrivate(hash, key);
+            ++size;
+        }
+    }
+
+private:
+    uint32 HashKey(const Key &key) const
+    {
+        static HashFunc hash;
+        return hash(key);
+    }
+
+    bool IsEqual(const Key &key1, const Key &key2) const
+    {
+        static KeyEqual equal;
+        return equal(key1, key2);
+    }
+
+    bool IsDeleted(uint32 flag) const
+    {
+        return (flag >> 31) != 0;
+    }
+
+    size_t ProbeDistance(uint32 hash, size_t pos) const
+    {
+        size_t desiredPos = static_cast<size_t>(hash) & mask;
+        return (pos + capacity - desiredPos) & mask;
+    }
+
+    size_t FixCapacity(size_t newCapacity) const
+    {
+        newCapacity = newCapacity < 8 ? 8 : newCapacity;
+        if (IsPowerOfTwo(newCapacity))
+        {
+            return newCapacity;
+        }
+        return NextPowerOfTwo(newCapacity);
+    }
+
+    void DestroyAllKeys()
+    {
+        for (size_t i = 0; i < capacity; ++i)
+        {
+            if (indexData[i].flag == DEFAULT)
+            {
+                KeyAlloc::Destroy(data + i);
+            }
+        }
+    }
+
+    void FreeAllIndices()
+    {
+        std::memset(indexData, 0, sizeof(Index) * capacity);
+    }
+
+    void CopyFrom(const HashTable& other)
+    {
+        if(other.size > 0)
+        {
+            for (size_t i = 0; i < other.capacity; ++i)
+            {
+                const auto flag = other.indexData[i].flag;
+                if (flag && !IsDeleted(flag))
+                {
+                    InsertPrivate(other.indexData[i].hash, other.data[i]);
+                }
+            }
+        }
+    }
+
+    void MoveFrom(HashTable&& other)
+    {
+        if(other.size > 0)
+        {
+            for (size_t i = 0; i < other.capacity; ++i)
+            {
+                const auto flag = other.indexData[i].flag;
+                if (flag && !IsDeleted(flag))
+                {
+                    InsertPrivate(other.indexData[i].hash, std::move(other.data[i]));
+                }
+            }
+        }
+    }
+
+    size_t FindPrivate(uint32 hash, const Key& key)
+    {
         if(size == 0)
         {
             return INDEX_NONE;
         }
 
-        auto hash = HashKey(key);
-        size_t pos = hash & mask;
+        size_t pos = static_cast<size_t>(hash) & mask;
         size_t dist = 0;
         while(true)
         {
@@ -89,46 +262,6 @@ public:
         }
     }
 
-private:
-    size_t HashKey(const Key &key) const
-    {
-        static HashFunc hash;
-        return hash(key);
-    }
-
-    bool IsEqual(const Key &key1, const Key &key2) const
-    {
-        static KeyEqual equal;
-        return equal(key1, key2);
-    }
-
-    bool IsDeleted(uint32 flag) const
-    {
-        return (flag >> 31) != 0;
-    }
-
-    size_t ProbeDistance(size_t hash, size_t pos) const
-    {
-        auto desiredPos = hash & mask;
-        return (pos + capacity - desiredPos) & mask;
-    }
-
-    void DestroyAllKeys()
-    {
-        for (size_t i = 0; i < capacity; ++i)
-        {
-            if (indexData[i].flag == DEFAULT)
-            {
-                KeyAlloc::Destroy(data[i]);
-            }
-        }
-    }
-
-    void FreeAllIndices()
-    {
-        std::memset(indexData, 0, sizeof(Index) * capacity);
-    }
-
     bool RemovePrivate(const Key& key)
     {
         size_t index = Find(key);
@@ -142,9 +275,9 @@ private:
         return true;
     }
 
-    void InsertPrivate(size_t hash, const Key& key)
+    void InsertPrivate(uint32 hash, const Key& key)
     {  
-        size_t pos = hash & mask;
+        size_t pos = static_cast<size_t>(hash) & mask;
         size_t dist = 0;
         Key *insertPtr = nullptr;
         Key *tempPtr = nullptr;
@@ -188,30 +321,19 @@ private:
 
         indexData[pos].hash = hash;
         indexData[pos].flag = DEFAULT;
-        ++size;
+    }
+
+    void InsertPrivate(uint32 hash, Key&& key)
+    {  
+        //TODO
     }
 
     void RehashPrivate(size_t newCapacity)
     {
-        HashTable newTable;
-        newTable.data = KeyAlloc::Allocate(newCapacity);
-        newTable.indexData = IndexAlloc::Allocate(newCapacity);
-        newTable.FreeAllIndices();
-        newTable.capacity = newCapacity;
-        newTable.size = size;
-        newTable.mask = newCapacity - 1;
-
-        for (size_t i = 0; i < capacity; ++i)
-        {
-            const auto flag = indexData[i].flag;
-            if (flag && !IsDeleted(flag))
-            {
-                Key &key = data[i];
-                newTable.InsertPrivate(indexData[i].hash, std::move(key));
-            }
-        }
-
-        Swap(newTable);
+        HashTable temp(newCapacity);
+        temp.size = size;
+        MoveFrom(std::move(*this));
+        Swap(temp);
     }
 
 private: 

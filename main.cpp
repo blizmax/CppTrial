@@ -29,7 +29,9 @@ void add(int* r)
 
 int main()
 {
-    HashTable<int> hashTable;
+    {
+        HashTable<int> hashTable;
+    }
 
     auto longCharArr = L" A B CDEFGHIJ KLMNOPQR  STUVWX YZ ";
 
