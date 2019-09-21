@@ -13,10 +13,9 @@ template <typename Key,
 class HashMap
 {
 public:
-    //typedef std::pair<const Key, Value> PairType;
-    typedef std::pair<Key, Value> PairType;
-    typedef typename HashTableInternal::MapKeyTraits<PairType> KeyTriats;
-    typedef HashTable<PairType, HashFunc, KeyEqual, KeyTriats, Alloc> HashTableType;
+    typedef typename HashTableInternal::MapEntry<Key, Value> EntryType;
+    typedef typename HashTableInternal::MapKeyTraits<EntryType> KeyTriats;
+    typedef HashTable<EntryType, HashFunc, KeyEqual, KeyTriats, Alloc> HashTableType;
 
 public:
     HashMap() = default;
@@ -30,17 +29,17 @@ public:
     {
     }
 
-    HashMap(std::initializer_list<PairType> initList)
+    HashMap(std::initializer_list<EntryType> initList)
     {
         size_t initSize = initList.size();
         hashTable = HashTableType(initSize); // may make waste when has same keys
-        for (const PairType &pair : initList)
+        for (const EntryType &entry : initList)
         {
-            hashTable.Put(pair);
+            hashTable.Put(entry);
         }
     }
 
-    HashMap &operator=(std::initializer_list<PairType> initList)
+    HashMap &operator=(std::initializer_list<EntryType> initList)
     {
         HashMap temp(initList);
         Swap(temp);
@@ -90,37 +89,47 @@ public:
 
     void Put(const Key &key, const Value &value)
     {
-        hashTable.Put(std::make_pair(key, value));
+        hashTable.Put(EntryType(key, value));
     }
 
     void Put(const Key &key, Value &&value)
     {
-        hashTable.Put(std::make_pair(key, std::move(value)));
+        hashTable.Put(EntryType(key, std::move(value)));
     }
 
     void Put(Key &&key, const Value &value)
     {
-        hashTable.Put(std::make_pair(key, value));
+        hashTable.Put(EntryType(std::move(key), value));
     }
 
     void Put(Key &&key, Value &&value)
     {
-        hashTable.Put(std::make_pair(key, std::move(value)));
+        hashTable.Put(EntryType(std::move(key), std::move(value)));
     }
 
-    Key &Get(const Key &key)
+    Value &Get(const Key &key)
     {
-        return hashTable.GetByKey(key).first;
+        return hashTable.GetByKey(key).Value();
     }
 
-    const Key &Get(const Key &key) const
+    const Value &Get(const Key &key) const
     {
-        return hashTable.GetByKey(key).first;
+        return hashTable.GetByKey(key).Value();
     }
 
     bool Remove(const Key &key)
     {
         return hashTable.RemoveByKey(key);
+    }
+
+    Value &operator[](const Key &key)
+    {
+        return Get(key);
+    }
+
+    const Value &operator[](const Key &key) const
+    {
+        return Get(key);
     }
 
     bool operator==(const HashMap &other) const

@@ -2,7 +2,6 @@
 
 #include "Core/General.h"
 #include "Core/Allocator.h"
-#include <utility>
 
 CT_SCOPE_BEGIN
 
@@ -15,6 +14,56 @@ struct KeyEqual
     {
         return a == b;
     }
+};
+
+template <typename K, typename V>
+struct MapEntry
+{
+public:
+    typedef K KeyType;
+    typedef V ValueType;
+
+    MapEntry() = default;
+    MapEntry(const MapEntry &) = default;
+    MapEntry(MapEntry &&) noexcept = default;
+    MapEntry &operator=(const MapEntry &) = default;
+    MapEntry &operator=(MapEntry &&) noexcept = default;
+    ~MapEntry() = default;
+
+    MapEntry(const K &k, const V &v) : key(k), value(v)
+    {
+    }
+
+    MapEntry(const K &k, V &&v) : key(k), value(std::move(v))
+    {
+    }
+
+    MapEntry(K &&k, const V &v) : key(std::move(k)), value(v)
+    {
+    }
+
+    MapEntry(K &&k, V &&v) : key(std::move(k)), value(std::move(v))
+    {
+    }
+
+    const K &Key() const
+    {
+        return key;
+    }
+
+    V &Value()
+    {
+        return value;
+    }
+
+    const V &Value() const
+    {
+        return value;
+    }
+
+private:
+    K key;
+    V value;
 };
 
 template <typename T>
@@ -30,12 +79,13 @@ struct SetKeyTraits
 template <typename T>
 struct MapKeyTraits
 {
-    typedef typename std::remove_cv<typename T::first_type>::type KeyType;
+    typedef typename T::KeyType KeyType;
     static const KeyType &GetKey(const T &value)
     {
-        return value.first;
+        return value.Key();
     }
 };
+
 } // namespace HashTableInternal
 
 template <typename Type, typename HashFunc, typename KeyEqual, typename KeyTraits, template <typename T> class Alloc>
@@ -650,11 +700,10 @@ private:
         return true;
     }
 
-    void InsertPrivate(uint32 hash, const Type &value)
+    bool PreInsert(uint32 hash, Type *&insertPtr)
     {
         size_t pos = static_cast<size_t>(hash) & mask;
         size_t dist = 0;
-        Type *insertPtr = nullptr;
         Type *tempPtr = nullptr;
         while (true)
         {
@@ -683,65 +732,43 @@ private:
             ++dist;
         }
 
+        indexData[pos].hash = hash;
+        indexData[pos].flag = DEFAULT;
+
         if (tempPtr)
         {
             ThisScope::uninitialized_move(tempPtr, 1, data + pos);
+            return true;
+        }
+
+        insertPtr = data + pos;
+        return false;
+    }
+
+    void InsertPrivate(uint32 hash, const Type &value)
+    {
+        Type *insertPtr = nullptr;
+        if (PreInsert(hash, insertPtr))
+        {
             *insertPtr = value;
         }
         else
         {
-            ThisScope::uninitialized_fill(data + pos, 1, value);
+            ThisScope::uninitialized_fill(insertPtr, 1, value);
         }
-
-        indexData[pos].hash = hash;
-        indexData[pos].flag = DEFAULT;
     }
 
     void InsertPrivate(uint32 hash, Type &&value)
     {
-        size_t pos = static_cast<size_t>(hash) & mask;
-        size_t dist = 0;
         Type *insertPtr = nullptr;
-        Type *tempPtr = nullptr;
-        while (true)
+        if (PreInsert(hash, insertPtr))
         {
-            if (!IsInited(indexData[pos].flag))
-            {
-                break;
-            }
-            size_t existingDist = ProbeDistance(indexData[pos].hash, pos);
-            if (existingDist < dist)
-            {
-                std::swap(hash, indexData[pos].hash);
-                indexData[pos].flag = DEFAULT;
-                if (insertPtr)
-                {
-                    std::swap(*(data + pos), *tempPtr);
-                }
-                else
-                {
-                    insertPtr = data + pos;
-                }
-                tempPtr = data + pos;
-                dist = existingDist;
-            }
-
-            pos = (pos + 1) & mask;
-            ++dist;
-        }
-
-        if (tempPtr)
-        {
-            ThisScope::uninitialized_move(tempPtr, 1, data + pos);
             *insertPtr = std::move(value);
         }
         else
         {
-            DataAlloc::Construct(data + pos, std::move(value));
+            DataAlloc::Construct(insertPtr, std::move(value));
         }
-
-        indexData[pos].hash = hash;
-        indexData[pos].flag = DEFAULT;
     }
 
     void RehashPrivate(size_t newCapacity)

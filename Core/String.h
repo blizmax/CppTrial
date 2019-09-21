@@ -694,6 +694,18 @@ public:
         return ComparePrivate(GetPtr(), Length(), other, len);
     }
 
+    uint32 HashCode() const
+    {
+        uint32 seed = 131;
+        uint32 hash = 0;
+        const CharType *ptr = GetPtr();
+        while (*ptr)
+        {
+            hash = hash * seed + (*ptr++);
+        }
+        return (hash & 0x7FFFFFFF);
+    }
+
 public:
     String &operator+=(const CharType *str)
     {
@@ -1027,5 +1039,17 @@ private:
 public:
     CharArray data;
 };
+
+
+template<>
+class std::hash<String>
+{
+public:    
+    size_t operator()(const String &value) const
+    {
+        return value.HashCode();
+    }
+};
+
 
 CT_SCOPE_END

@@ -44,18 +44,32 @@ int main()
     // HashSet<int> largeSet(5012);
     // largeSet.Shrink();
 
-    HashMap<int, int> map;
+    // HashMap<int, int> map;
     
-    for(int i = 0; i < 100; ++i)
+    // for(int i = 0; i < 100; ++i)
+    // {
+    //     map.Put(i, i * 100);
+    // }
+
+    // map[1] = 999;
+
+    // for(auto e : map)
+    // {
+    //     std::cout << e.Key() << " : " << e.Value() << std::endl;
+    // }
+
+    HashMap<String, int> map2;
+    for (int i = 0; i < 60; ++i)
     {
-        map.Put(i, i * 100);
-    }
-    for(auto p : map)
-    {
-        std::cout << p.first << " : " << p.second << std::endl;
+        String str = String(L"string") + L'A' + i;
+        std::cout << str.HashCode() << std::endl;
+        map2.Put(str, i);
     }
 
-    std::cout << map.Contains(47) <<std::endl;
+    for(auto e : map2)
+    {
+        std::wcout << *e.Key() << " : " << e.Value() << std::endl;
+    }
 
     system("pause");
     return 0;
