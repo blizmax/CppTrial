@@ -121,7 +121,7 @@ CT_INLINE void move_private(T *src, size_t count, T *dst, std::false_type)
 template <typename T>
 CT_INLINE void move(T *src, size_t count, T *dst)
 {
-    copy_private(src, count, dst, std::is_trivially_move_assignable<T>{});
+    move_private(src, count, dst, std::is_trivially_move_assignable<T>{});
 }
 
 template <typename T>

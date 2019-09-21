@@ -2,6 +2,7 @@
 
 #include "Core/Array.h"
 #include "Core/HashSet.h"
+#include "Core/HashMap.h"
 #include "Core/String.h"
 #include <vector>
 
@@ -21,27 +22,40 @@ public:
 int main()
 {
 
-    HashSet<int> set;
+    // HashSet<int> set;
        
-    for(int i = 50; i > 0; --i)
+    // for(int i = 50; i > 0; --i)
+    // {
+    //     set.Add(i * 50 + 17);
+    // }
+
+    // bool ret = set.Remove(67);
+
+    // const HashSet<int> newSet = std::move(set);
+
+    // HashSet<int> initSet = {1,77,150,77};
+    // initSet = {99, 66};
+
+    // for (const auto k : initSet)
+    // {
+    //     std::cout << k << std::endl;
+    // }
+
+    // HashSet<int> largeSet(5012);
+    // largeSet.Shrink();
+
+    HashMap<int, int> map;
+    
+    for(int i = 0; i < 100; ++i)
     {
-        set.Add(i * 50 + 17);
+        map.Put(i, i * 100);
+    }
+    for(auto p : map)
+    {
+        std::cout << p.first << " : " << p.second << std::endl;
     }
 
-    bool ret = set.Remove(67);
-
-    const HashSet<int> newSet = std::move(set);
-
-    HashSet<int> initSet = {1,77,150,77};
-    initSet = {99, 66};
-
-    for (const auto k : initSet)
-    {
-        std::cout << k << std::endl;
-    }
-
-    HashSet<int> largeSet(5012);
-    largeSet.Shrink();
+    std::cout << map.Contains(47) <<std::endl;
 
     system("pause");
     return 0;

@@ -6,40 +6,43 @@
 CT_SCOPE_BEGIN
 
 template <typename Key,
+          typename Value,
           typename HashFunc = std::hash<Key>,
           typename KeyEqual = typename HashTableInternal::KeyEqual<Key>,
           template <typename T> class Alloc = Allocator>
-class HashSet
+class HashMap
 {
 public:
-    typedef typename HashTableInternal::SetKeyTraits<Key> KeyTriats;
-    typedef HashTable<Key, HashFunc, KeyEqual, KeyTriats, Alloc> HashTableType;
+    //typedef std::pair<const Key, Value> PairType;
+    typedef std::pair<Key, Value> PairType;
+    typedef typename HashTableInternal::MapKeyTraits<PairType> KeyTriats;
+    typedef HashTable<PairType, HashFunc, KeyEqual, KeyTriats, Alloc> HashTableType;
 
 public:
-    HashSet() = default;
-    HashSet(const HashSet &) = default;
-    HashSet(HashSet &&) noexcept = default;
-    HashSet &operator=(const HashSet &) = default;
-    HashSet &operator=(HashSet &&) noexcept = default;
-    ~HashSet() = default;
+    HashMap() = default;
+    HashMap(const HashMap &) = default;
+    HashMap(HashMap &&) noexcept = default;
+    HashMap &operator=(const HashMap &) = default;
+    HashMap &operator=(HashMap &&) noexcept = default;
+    ~HashMap() = default;
 
-    explicit HashSet(size_t initCapacity) : hashTable(HashTableType(initCapacity))
+    explicit HashMap(size_t initCapacity) : hashTable(HashTableType(initCapacity))
     {
     }
 
-    HashSet(std::initializer_list<Key> initList)
+    HashMap(std::initializer_list<PairType> initList)
     {
         size_t initSize = initList.size();
         hashTable = HashTableType(initSize); // may make waste when has same keys
-        for (const Key &key : initList)
+        for (const PairType &pair : initList)
         {
-            hashTable.Add(key);
+            hashTable.Put(pair);
         }
     }
 
-    HashSet &operator=(std::initializer_list<Key> initList)
+    HashMap &operator=(std::initializer_list<PairType> initList)
     {
-        HashSet temp(initList);
+        HashMap temp(initList);
         Swap(temp);
         return *this;
     }
@@ -65,7 +68,7 @@ public:
         return hashTable.IsFull();
     }
 
-    void Swap(HashSet &other)
+    void Swap(HashMap &other)
     {
         hashTable.Swap(other.hashTable);
     }
@@ -85,19 +88,34 @@ public:
         return hashTable.ContainsKey(key);
     }
 
-    bool Add(const Key &key)
+    void Put(const Key &key, const Value &value)
     {
-        return hashTable.Add(key);
+        hashTable.Put(std::make_pair(key, value));
     }
 
-    bool Add(Key &&key)
+    void Put(const Key &key, Value &&value)
     {
-        return hashTable.Add(std::move(key));
+        hashTable.Put(std::make_pair(key, std::move(value)));
+    }
+
+    void Put(Key &&key, const Value &value)
+    {
+        hashTable.Put(std::make_pair(key, value));
+    }
+
+    void Put(Key &&key, Value &&value)
+    {
+        hashTable.Put(std::make_pair(key, std::move(value)));
+    }
+
+    Key &Get(const Key &key)
+    {
+        return hashTable.GetByKey(key).first;
     }
 
     const Key &Get(const Key &key) const
     {
-        return hashTable.GetByKey(key);
+        return hashTable.GetByKey(key).first;
     }
 
     bool Remove(const Key &key)
@@ -105,12 +123,12 @@ public:
         return hashTable.RemoveByKey(key);
     }
 
-    bool operator==(const HashSet &other) const
+    bool operator==(const HashMap &other) const
     {
         return hashTable == other.hashTable;
     }
 
-    bool operator!=(const HashSet &other) const
+    bool operator!=(const HashMap &other) const
     {
         return !(*this == other);
     }

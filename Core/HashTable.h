@@ -2,6 +2,7 @@
 
 #include "Core/General.h"
 #include "Core/Allocator.h"
+#include <utility>
 
 CT_SCOPE_BEGIN
 
@@ -15,11 +16,34 @@ struct KeyEqual
         return a == b;
     }
 };
+
+template <typename T>
+struct SetKeyTraits
+{
+    typedef T KeyType;
+    static const KeyType &GetKey(const T &value)
+    {
+        return value;
+    }
+};
+
+template <typename T>
+struct MapKeyTraits
+{
+    typedef typename std::remove_cv<typename T::first_type>::type KeyType;
+    static const KeyType &GetKey(const T &value)
+    {
+        return value.first;
+    }
+};
 } // namespace HashTableInternal
 
-template <typename Key, typename HashFunc, typename KeyEqual, template <typename T> class Alloc>
+template <typename Type, typename HashFunc, typename KeyEqual, typename KeyTraits, template <typename T> class Alloc>
 class HashTable
 {
+public:
+    typedef typename KeyTraits::KeyType Key;
+
 private:
     enum
     {
@@ -34,7 +58,7 @@ private:
         uint32 flag;
     };
 
-    typedef Alloc<Key> KeyAlloc;
+    typedef Alloc<Type> DataAlloc;
     typedef Alloc<Index> IndexAlloc;
 
 public:
@@ -46,7 +70,7 @@ public:
         {
             capacity = FixCapacity(initCapacity);
             mask = capacity - 1;
-            data = KeyAlloc::Allocate(capacity);
+            data = DataAlloc::Allocate(capacity);
             indexData = IndexAlloc::Allocate(capacity);
             FreeAllIndices();
         }
@@ -56,7 +80,7 @@ public:
     {
         if (capacity > 0)
         {
-            data = KeyAlloc::Allocate(other.capacity);
+            data = DataAlloc::Allocate(other.capacity);
             indexData = IndexAlloc::Allocate(other.capacity);
             FreeAllIndices();
 
@@ -88,7 +112,7 @@ public:
         if (this != &other)
         {
             DestroyAllKeys();
-            KeyAlloc::Deallocate(data, capacity);
+            DataAlloc::Deallocate(data, capacity);
             IndexAlloc::Deallocate(indexData, capacity);
             size = other.size;
             capacity = other.capacity;
@@ -107,7 +131,7 @@ public:
     ~HashTable()
     {
         DestroyAllKeys();
-        KeyAlloc::Deallocate(data, capacity);
+        DataAlloc::Deallocate(data, capacity);
         IndexAlloc::Deallocate(indexData, capacity);
         data = nullptr;
         indexData = nullptr;
@@ -165,23 +189,35 @@ public:
         }
     }
 
-    size_t Find(const Key &key) const
+    size_t Find(const Type &value) const
+    {
+        const Key &key = KeyTraits::GetKey(value);
+        return FindPrivate(HashKey(key), key);
+    }
+
+    size_t FindByKey(const Key &key) const
     {
         return FindPrivate(HashKey(key), key);
     }
 
-    bool Contains(const Key &key) const
+    bool Contains(const Type &value) const
     {
-        return Find(key) != INDEX_NONE;
+        return Find(value) != INDEX_NONE;
     }
 
-    void Put(const Key &key)
+    bool ContainsKey(const Key &key) const
     {
+        return FindByKey(key) != INDEX_NONE;
+    }
+
+    void Put(const Type &value)
+    {
+        const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
         size_t pos = FindPrivate(hash, key);
         if (pos != INDEX_NONE)
         {
-            data[pos] = key;
+            data[pos] = value;
         }
         else
         {
@@ -189,18 +225,19 @@ public:
             {
                 RehashPrivate(FixCapacity(capacity * 2));
             }
-            InsertPrivate(hash, key);
+            InsertPrivate(hash, value);
             ++size;
         }
     }
 
-    void Put(Key &&key)
+    void Put(Type &&value)
     {
+        const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
         size_t pos = FindPrivate(hash, key);
         if (pos != INDEX_NONE)
         {
-            data[pos] = std::move(key);
+            data[pos] = std::move(value);
         }
         else
         {
@@ -208,13 +245,14 @@ public:
             {
                 RehashPrivate(FixCapacity(capacity * 2));
             }
-            InsertPrivate(hash, std::move(key));
+            InsertPrivate(hash, std::move(value));
             ++size;
         }
     }
 
-    bool Add(const Key &key)
+    bool Add(const Type &value)
     {
+        const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
         size_t pos = FindPrivate(hash, key);
         if (pos == INDEX_NONE)
@@ -223,15 +261,16 @@ public:
             {
                 RehashPrivate(FixCapacity(capacity * 2));
             }
-            InsertPrivate(hash, key);
+            InsertPrivate(hash, value);
             ++size;
             return true;
         }
         return false;
     }
 
-    bool Add(Key &&key)
+    bool Add(Type &&value)
     {
+        const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
         size_t pos = FindPrivate(hash, key);
         if (pos == INDEX_NONE)
@@ -240,28 +279,47 @@ public:
             {
                 RehashPrivate(FixCapacity(capacity * 2));
             }
-            InsertPrivate(hash, std::move(key));
+            InsertPrivate(hash, std::move(value));
             ++size;
             return true;
         }
         return false;
     }
 
-    Key &Get(const Key &key)
+    Type &Get(const Type &value)
     {
-        size_t pos = Find(key);
+        size_t pos = Find(value);
         CheckRange(pos);
         return data[pos];
     }
 
-    const Key &Get(const Key &key) const
+    const Type &Get(const Type &value) const
     {
-        size_t pos = Find(key);
+        size_t pos = Find(value);
         CheckRange(pos);
         return data[pos];
     }
 
-    bool Remove(const Key &key)
+    Type &GetByKey(const Key &key)
+    {
+        size_t pos = FindByKey(key);
+        CheckRange(pos);
+        return data[pos];
+    }
+
+    const Type &GetByKey(const Key &key) const
+    {
+        size_t pos = FindByKey(key);
+        CheckRange(pos);
+        return data[pos];
+    }
+
+    bool Remove(const Type &value)
+    {
+        return RemovePrivate(KeyTraits::GetKey(value));
+    }
+
+    bool RemoveByKey(const Key &key)
     {
         return RemovePrivate(key);
     }
@@ -346,13 +404,13 @@ public:
             return temp;
         }
 
-        Key &operator*()
+        Type &operator*()
         {
             table->CheckRange(index);
             return table->data[index];
         }
 
-        Key *operator->()
+        Type *operator->()
         {
             table->CheckRange(index);
             return &(table->data[index]);
@@ -419,13 +477,13 @@ public:
             return temp;
         }
 
-        const Key &operator*()
+        const Type &operator*()
         {
             table->CheckRange(index);
             return table->data[index];
         }
 
-        const Key *operator->()
+        const Type *operator->()
         {
             table->CheckRange(index);
             return &(table->data[index]);
@@ -512,7 +570,7 @@ private:
         {
             if (indexData[i].flag == DEFAULT)
             {
-                KeyAlloc::Destroy(data + i);
+                DataAlloc::Destroy(data + i);
             }
         }
     }
@@ -570,7 +628,7 @@ private:
             {
                 return INDEX_NONE;
             }
-            if (!IsDeleted(flag) && indexData[pos].hash == hash && IsEqual(data[pos], key))
+            if (!IsDeleted(flag) && indexData[pos].hash == hash && IsEqual(KeyTraits::GetKey(data[pos]), key))
             {
                 return pos;
             }
@@ -581,23 +639,23 @@ private:
 
     bool RemovePrivate(const Key &key)
     {
-        size_t index = Find(key);
+        size_t index = FindByKey(key);
         if (index == INDEX_NONE)
         {
             return false;
         }
-        KeyAlloc::Destroy(data + index);
+        DataAlloc::Destroy(data + index);
         indexData[index].flag |= DELETED;
         --size;
         return true;
     }
 
-    void InsertPrivate(uint32 hash, const Key &key)
+    void InsertPrivate(uint32 hash, const Type &value)
     {
         size_t pos = static_cast<size_t>(hash) & mask;
         size_t dist = 0;
-        Key *insertPtr = nullptr;
-        Key *tempPtr = nullptr;
+        Type *insertPtr = nullptr;
+        Type *tempPtr = nullptr;
         while (true)
         {
             if (!IsInited(indexData[pos].flag))
@@ -628,23 +686,23 @@ private:
         if (tempPtr)
         {
             ThisScope::uninitialized_move(tempPtr, 1, data + pos);
-            *insertPtr = key;
+            *insertPtr = value;
         }
         else
         {
-            ThisScope::uninitialized_fill(data + pos, 1, key);
+            ThisScope::uninitialized_fill(data + pos, 1, value);
         }
 
         indexData[pos].hash = hash;
         indexData[pos].flag = DEFAULT;
     }
 
-    void InsertPrivate(uint32 hash, Key &&key)
+    void InsertPrivate(uint32 hash, Type &&value)
     {
         size_t pos = static_cast<size_t>(hash) & mask;
         size_t dist = 0;
-        Key *insertPtr = nullptr;
-        Key *tempPtr = nullptr;
+        Type *insertPtr = nullptr;
+        Type *tempPtr = nullptr;
         while (true)
         {
             if (!IsInited(indexData[pos].flag))
@@ -675,11 +733,11 @@ private:
         if (tempPtr)
         {
             ThisScope::uninitialized_move(tempPtr, 1, data + pos);
-            *insertPtr = std::move(key);
+            *insertPtr = std::move(value);
         }
         else
         {
-            KeyAlloc::Construct(data + pos, std::move(key));
+            DataAlloc::Construct(data + pos, std::move(value));
         }
 
         indexData[pos].hash = hash;
@@ -698,7 +756,7 @@ private:
     size_t size = 0;
     size_t capacity = 0;
     size_t mask = 0;
-    Key *data = nullptr;
+    Type *data = nullptr;
     Index *indexData = nullptr;
 };
 
