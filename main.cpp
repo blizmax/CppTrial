@@ -4,6 +4,7 @@
 #include "Core/HashSet.h"
 #include "Core/HashMap.h"
 #include "Core/String.h"
+#include "Core/Sort.h"
 #include <vector>
 
 USE_CT_SCOPE
@@ -21,56 +22,15 @@ public:
 
 int main()
 {
+    Array<int> arr = {1, 98, 34, 25, 19, 34, 1, 98, 34, 77, 999, 27, 100, 6, 28, 1888, 89, 9, 130};
+    Algo::BubbleSort(arr.GetData(), arr.Size());
+    //Algo::QuickSort(arr.GetData(), arr.Size());
 
-    // HashSet<int> set;
-       
-    // for(int i = 50; i > 0; --i)
-    // {
-    //     set.Add(i * 50 + 17);
-    // }
-
-    // bool ret = set.Remove(67);
-
-    // const HashSet<int> newSet = std::move(set);
-
-    // HashSet<int> initSet = {1,77,150,77};
-    // initSet = {99, 66};
-
-    // for (const auto k : initSet)
-    // {
-    //     std::cout << k << std::endl;
-    // }
-
-    // HashSet<int> largeSet(5012);
-    // largeSet.Shrink();
-
-    // HashMap<int, int> map;
-    
-    // for(int i = 0; i < 100; ++i)
-    // {
-    //     map.Put(i, i * 100);
-    // }
-
-    // map[1] = 999;
-
-    // for(auto e : map)
-    // {
-    //     std::cout << e.Key() << " : " << e.Value() << std::endl;
-    // }
-
-    HashMap<String, int> map2;
-    for (int i = 0; i < 60; ++i)
+    for(auto v : arr)
     {
-        String str = String(L"string") + L'A' + i;
-        std::cout << str.HashCode() << std::endl;
-        map2.Put(str, i);
+        std::cout << v << ", ";
     }
-
-    for(auto e : map2)
-    {
-        std::wcout << *e.Key() << " : " << e.Value() << std::endl;
-    }
-
+  
     system("pause");
     return 0;
 }
