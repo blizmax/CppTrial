@@ -1,7 +1,7 @@
 #pragma once
 
-#include "General.h"
-#include "HashTable.h"
+#include "Core/General.h"
+#include "Core/HashTable.h"
 
 CT_SCOPE_BEGIN
 
