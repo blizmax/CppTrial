@@ -5,7 +5,7 @@
 #include "Core/HashSet.h"
 #include "Core/HashMap.h"
 #include "Core/String.h"
-#include "Core/Algorithmn.h"
+#include "Core/Algorithm.h"
 #include <vector>
 
 USE_CT_SCOPE
@@ -46,7 +46,7 @@ int main()
     // int v = arr[index];
 
     List<int> list;
-    for (int i = 100; i < 200; ++i)
+    for (int i = 100; i < 120; ++i)
     {
         list.Add(i);
     }
@@ -54,7 +54,9 @@ int main()
     list.Insert(3, 9999);
     List<int> copyList = list;
     List<int> list2 = {38, 49, 56, 777};
-    copyList = list2;
+    //copyList = list2;
+    auto node = copyList.FindNode(111);
+    copyList.RemoveNode(node);
 
     for (auto v : copyList)
     {

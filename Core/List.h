@@ -137,6 +137,11 @@ public:
         return size;
     }
 
+    bool IsEmpty() const
+    {
+        return size == 0;
+    }
+
     NodeType *GetHead() const
     {
         return head;
