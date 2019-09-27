@@ -6,6 +6,7 @@
 #include "Core/HashMap.h"
 #include "Core/String.h"
 #include "Core/Algorithm.h"
+#include "Core/StringConvert.h"
 #include <vector>
 
 USE_CT_SCOPE
@@ -45,23 +46,11 @@ int main()
     // size_t index = Algo::BinarySearch(arr.GetData(), arr.Size(), 77, &AlgoInternal::Less<int>);
     // int v = arr[index];
 
-    List<int> list;
-    for (int i = 100; i < 120; ++i)
-    {
-        list.Add(i);
-    }
-
-    list.Insert(3, 9999);
-    List<int> copyList = list;
-    List<int> list2 = {38, 49, 56, 777};
-    //copyList = list2;
-    auto node = copyList.FindNode(111);
-    copyList.RemoveNode(node);
-
-    for (auto v : copyList)
-    {
-        std::cout << v << std::endl;
-    }
+    uint32 uniCode[] = {0x4E25, 0};
+    uint8 buffer[4] = {0};
+    size_t count = StringConvert::UTF32ToUTF8(uniCode, uniCode + 1, buffer);
+    uint32 ret;
+    count = StringConvert::UTF8ToUTF32(buffer, buffer + count, &ret);
 
     system("pause");
     return 0;
