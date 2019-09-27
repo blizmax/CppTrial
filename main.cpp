@@ -46,12 +46,15 @@ int main()
     // size_t index = Algo::BinarySearch(arr.GetData(), arr.Size(), 77, &AlgoInternal::Less<int>);
     // int v = arr[index];
 
-    uint32 uniCode[] = {0x4E25, 0};
-    uint8 buffer[4] = {0};
-    size_t count = StringConvert::UTF32ToUTF8(uniCode, uniCode + 1, buffer);
-    uint32 ret;
-    count = StringConvert::UTF8ToUTF32(buffer, buffer + count, &ret);
+    // uint32 uniCode[] = {0x4E25, 0};
+    // uint8 buffer[4] = {0};
+    // size_t count = StringConvert::UTF32ToUTF8(uniCode, uniCode + 1, buffer);
+    // uint32 ret;
+    // count = StringConvert::UTF8ToUTF32(buffer, buffer + count, &ret);
 
+    String str1 = StringConvert::FromUTF8("ABCDEFG");
+    String str2 = String(L"ABCDEFG");
+    std::cout << (str1 == str2) << std::endl;
     system("pause");
     return 0;
 }

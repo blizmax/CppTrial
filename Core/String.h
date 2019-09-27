@@ -9,7 +9,7 @@ CT_SCOPE_BEGIN
 class String
 {
 public:
-    typedef wchar_t CharType;
+    typedef wchar CharType;
     typedef std::char_traits<CharType> CharTraits;
     typedef Array<CharType> CharArray;
 

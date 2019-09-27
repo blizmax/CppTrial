@@ -2,6 +2,7 @@
 
 #include "Core/General.h"
 #include "Core/Array.h"
+#include "Core/String.h"
 #include <locale>
 
 CT_SCOPE_BEGIN
@@ -20,13 +21,13 @@ namespace StringConvert
 {
 // Convert one unicode
 // return multibyte size, return 0 means convert failed
-CT_INLINE size_t UTF8ToUTF32(const uint8 *start, const uint8 *end, uint32 *output)
+CT_INLINE size_t UTF8ToUTF32(const char8 *start, const char8 *end, char32 *output)
 {
     if (start >= end)
         return 0;
 
     size_t byteNum = 0;
-    uint8 first = *start;
+    uint8 first = (uint8)*start;
 
     if (first < 192)
         byteNum = 1;
@@ -44,29 +45,32 @@ CT_INLINE size_t UTF8ToUTF32(const uint8 *start, const uint8 *end, uint32 *outpu
     if (start + byteNum > end)
         return 0;
 
-    uint32 temp = 0;
+    constexpr uint32 OFFSETS[6] = {0x00000000, 0x00003080, 0x000E2080, 0x03C82080, 0xFA082080, 0x82082080};
+    char32 temp = 0;
     size_t pos = 0;
+
     for (; pos < byteNum - 1; ++pos)
     {
-        temp += start[pos];
+        temp += (uint8)(start[pos]);
         temp <<= 6;
     }
-    temp += start[pos];
-
-    constexpr uint32 offsets[6] = {0x00000000, 0x00003080, 0x000E2080, 0x03C82080, 0xFA082080, 0x82082080};
-    temp -= offsets[byteNum - 1];
+    temp += (uint8)start[pos];
+    temp -= OFFSETS[byteNum - 1];
     *output = temp;
 
     return byteNum;
 }
 
-CT_INLINE size_t UTF32ToUTF8(const uint32 *start, const uint32 *end, uint8 *output)
+CT_INLINE size_t UTF32ToUTF8(const char32 *start, char8 *output)
 {
-    if (start >= end)
+    uint32 input = *start;
+    if (input > 0x0010FFFF)
+        return 0;
+    if (input >= 0xD800 && input <= 0xDBFF)
         return 0;
 
+    constexpr uint8 HEADERS[7] = {0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC};
     size_t byteNum = 0;
-    uint32 input = *start;
 
     if (input < 0x80)
         byteNum = 1;
@@ -77,26 +81,132 @@ CT_INLINE size_t UTF32ToUTF8(const uint32 *start, const uint32 *end, uint8 *outp
     else
         byteNum = 4;
 
-    constexpr uint8 headers[7] = {0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC};
-
     switch (byteNum)
     {
     case 4:
-        output[3] = (uint8)((input | 0x80) & 0xBF);
+        output[3] = (char8)((input | 0x80) & 0xBF);
         input >>= 6;
     case 3:
-        output[2] = (uint8)((input | 0x80) & 0xBF);
+        output[2] = (char8)((input | 0x80) & 0xBF);
         input >>= 6;
     case 2:
-        output[1] = (uint8)((input | 0x80) & 0xBF);
+        output[1] = (char8)((input | 0x80) & 0xBF);
         input >>= 6;
     case 1:
-        output[0] = (uint8)(input | headers[byteNum]);
+        output[0] = (char8)(input | HEADERS[byteNum]);
     default:
         break;
     }
 
     return byteNum;
+}
+
+CT_INLINE size_t UTF16ToUTF32(const char16 *start, const char16 *end, char32 *output)
+{
+    if (start >= end)
+        return 0;
+
+    uint32 first = *start;
+    if (first >= 0xD800 && first <= 0xDBFF)
+    {
+        if (start + 1 >= end)
+            return 0;
+
+        uint32 second = *(start + 1);
+        if (second >= 0xDC00 && second <= 0xDFFF)
+        {
+            *output = (char32)(((first - 0xD800) << 10) + (second - 0xDC00) + 0x0010000);
+            return 2;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    *output = (char32)first;
+    return 1;
+}
+
+CT_INLINE size_t UTF32ToUTF16(const char32 *start, char16 *output)
+{
+    uint32 input = *start;
+    if (input > 0x0010FFFF)
+        return 0;
+
+    if (input <= 0xFFFF)
+    {
+        if (input >= 0xD800 && input <= 0xDFFF)
+        {
+            return 0;
+        }
+        else
+        {
+            output[0] = (char16)input;
+            return 1;
+        }
+    }
+
+    input -= 0x0010000;
+    output[0] = (char16)((input >> 10) + 0xD800);
+    output[1] = (char16)((input & 0x3FF) + 0xDC00);
+    return 2;
+}
+
+CT_INLINE size_t WideToUTF32(const wchar *start, const wchar *end, char32 *output)
+{
+    if (start >= end)
+        return 0;
+
+    if (sizeof(wchar) == 4)
+    {
+        *output = (char32)*start;
+        return 1;
+    }
+
+    return UTF16ToUTF32((const char16 *)start, (const char16 *)end, output);
+}
+
+CT_INLINE size_t UTF32ToWide(const char32 *start, wchar *output)
+{
+    if (sizeof(wchar) == 4)
+    {
+        *output = (wchar)*start;
+        return 1;
+    }
+
+    char16 buffer[2] = {0};
+    size_t size = UTF32ToUTF16(start, buffer);
+    if (size > 0)
+        output[0] = (wchar)buffer[0];
+    if (size > 1)
+        output[1] = (wchar)buffer[1];
+    return size;
+}
+
+CT_INLINE String FromUTF8(const char8 *str)
+{
+    size_t len = strlen(str);
+    size_t pos = 0;
+    wchar buffer[2] = {0};
+    char32 curUTF32;
+    size_t size;
+    String ret;
+    while (true)
+    {
+        size = UTF8ToUTF32(str + pos, str + len, &curUTF32);
+        if (size == 0)
+            break;
+        pos += size;
+        size = UTF32ToWide(&curUTF32, buffer);
+        if (size == 0)
+            break;
+        while (size)
+        {
+            ret += buffer[--size];
+        }
+    }
+    return ret;
 }
 
 } // namespace StringConvert

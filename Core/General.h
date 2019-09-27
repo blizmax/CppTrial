@@ -31,6 +31,10 @@ typedef uint8_t uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
 typedef uint64_t uint64;
+typedef char char8;
+typedef char16_t char16;
+typedef char32_t char32;
+typedef wchar_t wchar;
 
 static constexpr size_t INDEX_NONE = static_cast<size_t>(-1);
 
