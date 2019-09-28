@@ -63,7 +63,7 @@ CT_INLINE size_t UTF8ToUTF32(const char8 *start, const char8 *end, char32 *outpu
 
 CT_INLINE size_t UTF32ToUTF8(const char32 *start, char8 *output)
 {
-    uint32 input = *start;
+    uint32 input = (uint32)*start;
     if (input > 0x0010FFFF)
         return 0;
     if (input >= 0xD800 && input <= 0xDBFF)
@@ -106,13 +106,13 @@ CT_INLINE size_t UTF16ToUTF32(const char16 *start, const char16 *end, char32 *ou
     if (start >= end)
         return 0;
 
-    uint32 first = *start;
+    uint32 first = (uint32)*start;
     if (first >= 0xD800 && first <= 0xDBFF)
     {
         if (start + 1 >= end)
             return 0;
 
-        uint32 second = *(start + 1);
+        uint32 second = (uint32) * (start + 1);
         if (second >= 0xDC00 && second <= 0xDFFF)
         {
             *output = (char32)(((first - 0xD800) << 10) + (second - 0xDC00) + 0x0010000);
@@ -130,7 +130,7 @@ CT_INLINE size_t UTF16ToUTF32(const char16 *start, const char16 *end, char32 *ou
 
 CT_INLINE size_t UTF32ToUTF16(const char32 *start, char16 *output)
 {
-    uint32 input = *start;
+    uint32 input = (uint32)*start;
     if (input > 0x0010FFFF)
         return 0;
 
@@ -184,29 +184,58 @@ CT_INLINE size_t UTF32ToWide(const char32 *start, wchar *output)
     return size;
 }
 
-CT_INLINE String FromUTF8(const char8 *str)
+CT_INLINE String FromUTF8(const char8 *cstr)
 {
-    size_t len = strlen(str);
+    size_t len = strlen(cstr);
     size_t pos = 0;
-    wchar buffer[2] = {0};
-    char32 curUTF32;
     size_t size;
-    String ret;
+    char32 charUTF32;
+    wchar buffer[2] = {0};
+    String str;
+
     while (true)
     {
-        size = UTF8ToUTF32(str + pos, str + len, &curUTF32);
+        size = UTF8ToUTF32(cstr + pos, cstr + len, &charUTF32);
         if (size == 0)
             break;
         pos += size;
-        size = UTF32ToWide(&curUTF32, buffer);
+        size = UTF32ToWide(&charUTF32, buffer);
         if (size == 0)
             break;
-        while (size)
+        for (size_t i = 0; i < size; ++i)
         {
-            ret += buffer[--size];
+            str += buffer[i];
         }
     }
-    return ret;
+    return str;
+}
+
+CT_INLINE Array<char8> ToUTF8(String &str)
+{
+    size_t len = str.Length();
+    size_t pos = 0;
+    size_t size;
+    const wchar *cstr = str.GetPtr();
+    char32 charUTF32;
+    char8 buffer[6] = {0};
+    Array<char8> arr;
+
+    while (true)
+    {
+        size = WideToUTF32(cstr + pos, cstr + len, &charUTF32);
+        if (size == 0)
+            break;
+        pos += size;
+        size = UTF32ToUTF8(&charUTF32, buffer);
+        if (size == 0)
+            break;
+        for (size_t i = 0; i < size; ++i)
+        {
+            arr.Add(buffer[i]);
+        }
+    }
+    arr.Add(0);
+    return arr;
 }
 
 } // namespace StringConvert

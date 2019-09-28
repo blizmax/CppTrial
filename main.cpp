@@ -52,8 +52,9 @@ int main()
     // uint32 ret;
     // count = StringConvert::UTF8ToUTF32(buffer, buffer + count, &ret);
 
-    String str1 = StringConvert::FromUTF8("ABCDEFG");
-    String str2 = String(L"ABCDEFG");
+    String str1 = StringConvert::FromUTF8("😊😡/(ㄒoㄒ)/~~🐷");
+    String str2 = String(L"😊😡/(ㄒoㄒ)/~~🐷");
+
     std::cout << (str1 == str2) << std::endl;
     system("pause");
     return 0;
