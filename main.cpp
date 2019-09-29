@@ -6,7 +6,9 @@
 #include "Core/HashMap.h"
 #include "Core/String.h"
 #include "Core/Algorithm.h"
-#include "Core/StringConvert.h"
+#include "Core/String/StringEncode.h"
+#include "Core/String/StringConvert.h"
+#include "Core/String/StringFormat.h"
 #include <vector>
 
 USE_CT_SCOPE
@@ -31,6 +33,14 @@ public:
     ~A() { std::cout << "A destructor" << std::endl; }
 };
 
+void TestStringEncode()
+{
+    String str1 = StringEncode::FromUTF8("😊😡/(ㄒoㄒ)/~~🐷");
+    String str2 = String(L"😊😡/(ㄒoㄒ)/~~🐷");
+
+    std::cout << (str1 == str2) << std::endl;
+}
+
 int main()
 {
     // Array<int> arr = {1, 98, 34, 25, 19, 34, 1, 98, 34, 77, 999, 27, 100, 6, 28, 1888, 89, 9, 130};
@@ -52,10 +62,9 @@ int main()
     // uint32 ret;
     // count = StringConvert::UTF8ToUTF32(buffer, buffer + count, &ret);
 
-    String str1 = StringConvert::FromUTF8("😊😡/(ㄒoㄒ)/~~🐷");
-    String str2 = String(L"😊😡/(ㄒoㄒ)/~~🐷");
+    String str = StringFormat::Format(L"", String(L"String1"), String(L"-2"));
+    std::wcout << *str << std::endl;
 
-    std::cout << (str1 == str2) << std::endl;
     system("pause");
     return 0;
 }

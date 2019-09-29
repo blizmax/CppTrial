@@ -2,15 +2,15 @@
 
 #include "Core/General.h"
 #include "Core/Array.h"
-#include <string>
+#include "Core/CString.h"
 
 CT_SCOPE_BEGIN
 
 class String
 {
 public:
-    typedef wchar CharType;
-    typedef std::char_traits<CharType> CharTraits;
+    using CharType = CString::CharType;
+    using CharTraits = CString::CharTraits;
     typedef Array<CharType> CharArray;
 
 public:

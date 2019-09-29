@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Core/General.h"
-#include "Core/Array.h"
 #include "Core/String.h"
-#include <locale>
+//#include <locale>
 
 CT_SCOPE_BEGIN
 
@@ -17,10 +16,8 @@ CT_SCOPE_BEGIN
     00200000 - 03FFFFFF | 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
     04000000 - 7FFFFFFF | 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 
     */
-namespace StringConvert
+namespace StringEncode
 {
-// Convert one unicode
-// return multibyte size, return 0 means convert failed
 CT_INLINE size_t UTF8ToUTF32(const char8 *start, const char8 *end, char32 *output)
 {
     if (start >= end)
@@ -238,6 +235,6 @@ CT_INLINE Array<char8> ToUTF8(String &str)
     return arr;
 }
 
-} // namespace StringConvert
+} // namespace StringEncode
 
 CT_SCOPE_END
