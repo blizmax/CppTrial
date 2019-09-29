@@ -41,6 +41,12 @@ void TestStringEncode()
     std::cout << (str1 == str2) << std::endl;
 }
 
+void TestStringConvert()
+{
+    float ret;
+    bool ok = StringConvert::TryParseFloat(L"-.50", ret);
+}
+
 int main()
 {
     // Array<int> arr = {1, 98, 34, 25, 19, 34, 1, 98, 34, 77, 999, 27, 100, 6, 28, 1888, 89, 9, 130};
@@ -62,7 +68,7 @@ int main()
     // uint32 ret;
     // count = StringConvert::UTF8ToUTF32(buffer, buffer + count, &ret);
 
-    String str = StringFormat::Format(L"", String(L"String1"), String(L"-2"));
+    String str = StringFormat::Format(L"{}{0}and{1}", String(L"String1"), sizeof(double));
     std::wcout << *str << std::endl;
 
     system("pause");
