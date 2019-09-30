@@ -250,7 +250,7 @@ public:
         return Replace(index, count, temp);
     }
 
-    String& Replace(const String& oldValue, const String& newValue)
+    String &Replace(const String &oldValue, const String &newValue)
     {
         CheckNonEmpty(oldValue);
 
@@ -262,13 +262,13 @@ public:
         return *this;
     }
 
-    String& ReplaceAll(const String& oldValue, const String& newValue)
+    String &ReplaceAll(const String &oldValue, const String &newValue)
     {
         CheckNonEmpty(oldValue);
 
         size_t pos1 = 0;
         size_t pos2 = 0;
-        while(Find(oldValue, pos1, pos2))
+        while (Find(oldValue, pos1, pos2))
         {
             Replace(pos1, oldValue.Length(), newValue);
             pos1 = pos2 + newValue.Length() - oldValue.Length();
@@ -281,17 +281,17 @@ public:
         return Find(value);
     }
 
-    bool Contains(const CharType* str) const
+    bool Contains(const CharType *str) const
     {
         return Find(str);
     }
 
-    bool Contains(const CharType* str, size_t count) const
+    bool Contains(const CharType *str, size_t count) const
     {
         return Find(str, 0, count, nullptr);
     }
 
-    bool Contains(const String& str) const
+    bool Contains(const String &str) const
     {
         return Find(str);
     }
@@ -299,14 +299,14 @@ public:
     size_t IndexOf(CharType value) const
     {
         size_t ret = 0;
-        if(Find(value, ret))
+        if (Find(value, ret))
         {
             return ret;
         }
         return INDEX_NONE;
     }
 
-    size_t IndexOf(const CharType* str) const
+    size_t IndexOf(const CharType *str) const
     {
         size_t ret = 0;
         if (Find(str, ret))
@@ -326,7 +326,7 @@ public:
         return INDEX_NONE;
     }
 
-    size_t IndexOf(const String& str) const
+    size_t IndexOf(const String &str) const
     {
         size_t ret = 0;
         if (Find(str, ret))
@@ -476,12 +476,12 @@ public:
         return false;
     }
 
-    bool Find(const String& str) const
+    bool Find(const String &str) const
     {
         return Find(str, 0, str.Length(), nullptr);
     }
 
-    bool Find(const String& str, size_t startIndex, size_t *at) const
+    bool Find(const String &str, size_t startIndex, size_t *at) const
     {
         return Find(str, 0, str.Length(), at);
     }
@@ -501,7 +501,7 @@ public:
         return Find(str, startIndex, count, &at);
     }
 
-    bool Find(const String& str, size_t startIndex, size_t count, size_t *at) const
+    bool Find(const String &str, size_t startIndex, size_t count, size_t *at) const
     {
         return Find(str.GetPtr(), startIndex, count, at);
     }
@@ -567,11 +567,11 @@ public:
     {
         const size_t len = Length();
         const CharType *ptr = GetPtr();
-        startIndex = startIndex >= len ? len -1 : startIndex;
+        startIndex = startIndex >= len ? len - 1 : startIndex;
 
         if (count == 0)
         {
-            if(at) 
+            if (at)
             {
                 *at = startIndex;
             }
@@ -634,12 +634,12 @@ public:
         return ReverseFind(str.GetPtr(), startIndex, count, at);
     }
 
-    bool StartsWith(const String& str, size_t offset = 0) const
+    bool StartsWith(const String &str, size_t offset = 0) const
     {
         size_t pos = 0;
         if (Find(str, offset, pos))
         {
-            if(pos == offset)
+            if (pos == offset)
             {
                 return true;
             }
@@ -647,7 +647,7 @@ public:
         return false;
     }
 
-    bool EndsWith(const String& str) const
+    bool EndsWith(const String &str) const
     {
         size_t pos = 0;
         if (ReverseFind(str, pos))
@@ -660,7 +660,7 @@ public:
         return false;
     }
 
-    Array<String> Split(const String& delim)
+    Array<String> Split(const String &delim)
     {
         CheckNonEmpty(delim);
 
@@ -669,13 +669,13 @@ public:
         size_t pos2 = 0;
         while (Find(delim, pos1, pos2))
         {
-            if(pos2 - pos1) // skip more than one delims
+            if (pos2 - pos1) // skip more than one delims
             {
                 arr.Add(SubString(pos1, pos2 - pos1));
             }
             pos1 = pos2 + delim.Length();
         }
-        if(pos1 != Length())
+        if (pos1 != Length())
         {
             arr.Add(SubString(pos1));
         }
@@ -705,6 +705,10 @@ public:
         }
         return (hash & 0x7FFFFFFF);
     }
+
+public:
+    template <typename... Args>
+    static String Format(const String &src, Args &&... args);
 
 public:
     String &operator+=(const CharType *str)
@@ -980,7 +984,7 @@ private:
         CT_ASSERT(index >= 0 && index < Length());
     }
 
-    void CheckNonEmpty(const String& value) const
+    void CheckNonEmpty(const String &value) const
     {
         CT_ASSERT(!value.IsEmpty());
     }
@@ -1036,20 +1040,26 @@ private:
         return 0;
     }
 
-public:
+private:
     CharArray data;
 };
 
-
-template<>
+template <>
 class std::hash<String>
 {
-public:    
+public:
     size_t operator()(const String &value) const
     {
         return value.HashCode();
     }
 };
 
+#include "Core/String/StringFormat.h"
+
+template <typename... Args>
+CT_INLINE String String::Format(const String &src, Args &&... args)
+{
+    return StringFormat::Format(src, std::forward<Args>(args)...);
+}
 
 CT_SCOPE_END

@@ -2,6 +2,7 @@
 
 #include "Core/General.h"
 #include "Core/Allocator.h"
+#include <initializer_list>
 
 CT_SCOPE_BEGIN
 

@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "Core/Array.h"
 #include "Core/List.h"
 #include "Core/HashSet.h"
@@ -8,10 +6,11 @@
 #include "Core/Algorithm.h"
 #include "Core/String/StringEncode.h"
 #include "Core/String/StringConvert.h"
-#include "Core/String/StringFormat.h"
-#include <vector>
+#include "Core/Log.h"
 
 USE_CT_SCOPE
+
+Log logger = Log(L"Main");
 
 class A
 {
@@ -32,6 +31,15 @@ public:
     }
     ~A() { std::cout << "A destructor" << std::endl; }
 };
+
+void TestHashMap()
+{
+    HashMap<String, int> map1;
+    map1.Put(L'A', 100);
+
+    HashMap<int, int> map2;
+    map2.Put(100, 100);
+}
 
 void TestStringEncode()
 {
@@ -68,8 +76,11 @@ int main()
     // uint32 ret;
     // count = StringConvert::UTF8ToUTF32(buffer, buffer + count, &ret);
 
-    String str = StringFormat::Format(L"{}{0}and{1}", String(L"String1"), sizeof(double));
-    std::wcout << *str << std::endl;
+    TestHashMap();
+
+    logger.SetLevel(LogLevel::Info);
+    logger.Info(L"IIIIII");
+    logger.Error(L"{}{0}and{1}", String(L"String1"), sizeof(double));
 
     system("pause");
     return 0;

@@ -1,19 +1,20 @@
 #pragma once
 
 #include "Core/General.h"
-#include "Core/HashTable.h"
+#include "Core/Hash.h"
+#include "Core/Hash/HashTable.h"
 
 CT_SCOPE_BEGIN
 
 template <typename Key,
-          typename HashFunc = std::hash<Key>,
-          typename KeyEqual = typename HashTableInternal::KeyEqual<Key>,
+          typename Hasher = HashFunc<Key>,
+          typename KeyEqual = EqualTo<Key>,
           template <typename T> class Alloc = Allocator>
 class HashSet
 {
 public:
-    typedef typename HashTableInternal::SetKeyTraits<Key> KeyTriats;
-    typedef HashTable<Key, HashFunc, KeyEqual, KeyTriats, Alloc> HashTableType;
+    typedef typename HashInternal::SetKeyTraits<Key> KeyTriats;
+    typedef HashTable<Key, Hasher, KeyEqual, KeyTriats, Alloc> HashTableType;
 
 public:
     HashSet() = default;

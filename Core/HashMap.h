@@ -1,21 +1,22 @@
 #pragma once
 
 #include "Core/General.h"
-#include "Core/HashTable.h"
+#include "Core/Hash.h"
+#include "Core/Hash/HashTable.h"
 
 CT_SCOPE_BEGIN
 
 template <typename Key,
           typename Value,
-          typename HashFunc = std::hash<Key>,
-          typename KeyEqual = typename HashTableInternal::KeyEqual<Key>,
+          typename Hasher = HashFunc<Key>,
+          typename KeyEqual = EqualTo<Key>,
           template <typename T> class Alloc = Allocator>
 class HashMap
 {
 public:
-    typedef typename HashTableInternal::MapEntry<Key, Value> EntryType;
-    typedef typename HashTableInternal::MapKeyTraits<EntryType> KeyTriats;
-    typedef HashTable<EntryType, HashFunc, KeyEqual, KeyTriats, Alloc> HashTableType;
+    typedef typename HashInternal::MapEntry<Key, Value> EntryType;
+    typedef typename HashInternal::MapKeyTraits<EntryType> KeyTriats;
+    typedef HashTable<EntryType, Hasher, KeyEqual, KeyTriats, Alloc> HashTableType;
 
 public:
     HashMap() = default;

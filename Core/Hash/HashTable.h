@@ -5,17 +5,8 @@
 
 CT_SCOPE_BEGIN
 
-namespace HashTableInternal
+namespace HashInternal
 {
-template <typename T>
-struct KeyEqual
-{
-    bool operator()(const T &a, const T &b)
-    {
-        return a == b;
-    }
-};
-
 template <typename K, typename V>
 struct MapEntry
 {
@@ -85,10 +76,9 @@ struct MapKeyTraits
         return value.Key();
     }
 };
+} // namespace HashInternal
 
-} // namespace HashTableInternal
-
-template <typename Type, typename HashFunc, typename KeyEqual, typename KeyTraits, template <typename T> class Alloc>
+template <typename Type, typename Hasher, typename KeyEqual, typename KeyTraits, template <typename T> class Alloc>
 class HashTable
 {
 public:
@@ -578,7 +568,7 @@ private:
 
     uint32 HashKey(const Key &key) const
     {
-        static HashFunc hash;
+        static Hasher hash;
         return hash(key);
     }
 

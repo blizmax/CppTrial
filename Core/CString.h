@@ -9,6 +9,9 @@ CT_SCOPE_BEGIN
 namespace CString
 {
 
+#define CTCHR(CHAR_) (L##CHAR_)
+#define CTSTR(STR_) (L##STR_)
+
 typedef wchar CharType;
 typedef std::char_traits<CharType> CharTraits;
 

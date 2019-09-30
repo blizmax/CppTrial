@@ -67,8 +67,8 @@ CT_INLINE bool FastCheckIsUIntPrivate(const String &str)
 CT_INLINE bool FastCheckIsFloatPrivate(const String &str)
 {
     return (str.Length() > 0 && CString::IsDigit(str[0])) ||
-           (str.Length() > 1 && (str[0] == L'-' || str[0] == L'.') && CString::IsDigit(str[1])) ||
-           (str.Length() > 2 && str[0] == L'-' && str[1] == L'.' && CString::IsDigit(str[2]));
+           (str.Length() > 1 && (str[0] == L'-' || str[0] == L'.' && CString::IsDigit(str[1])) ||
+            (str.Length() > 2 && str[0] == L'-' && str[1] == L'.') && CString::IsDigit(str[2]));
 }
 
 CT_INLINE bool TryParseInt32(const String &str, int32 &ret)
