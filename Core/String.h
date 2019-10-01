@@ -3,6 +3,7 @@
 #include "Core/General.h"
 #include "Core/Array.h"
 #include "Core/CString.h"
+#include "Core/Hash.h"
 
 CT_SCOPE_BEGIN
 
@@ -705,14 +706,8 @@ public:
 
     uint32 HashCode() const
     {
-        uint32 seed = 131;
-        uint32 hash = 0;
         const CharType *ptr = GetPtr();
-        while (*ptr)
-        {
-            hash = hash * seed + (*ptr++);
-        }
-        return (hash & 0x7FFFFFFF);
+        return Hash::HashValue(ptr);
     }
 
 public:

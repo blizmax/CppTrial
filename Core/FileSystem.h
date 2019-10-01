@@ -5,6 +5,8 @@
 
 CT_SCOPE_BEGIN
 
+namespace FileSystem
+{
 class Path
 {
 public:
@@ -116,7 +118,7 @@ private:
     {
         pathStr.ReplaceAll(L'\\', L'/');
 
-        //TODO change to lower case
+        //TODO Case sensitive?
     }
 
     void AppendPrivate(const String &appendPath)
@@ -138,5 +140,17 @@ private:
 private:
     String pathStr;
 };
+
+
+bool Exists(const Path& path);
+
+bool IsFile(const Path& path);
+
+bool IsDirectory(const Path& path);
+
+
+
+
+} // namespace FileSystem
 
 CT_SCOPE_END

@@ -1,17 +1,12 @@
 #pragma once
 
 #include "Core/General.h"
+#include "Core/Functional.h"
 
 CT_SCOPE_BEGIN
 
 namespace AlgoInternal
 {
-
-template <typename T>
-bool Less(const T &a, const T &b)
-{
-    return a < b;
-}
 
 template <typename T, typename Compare>
 void BubbleSort(T *ptr, size_t count, Compare compare)
@@ -87,7 +82,7 @@ void SimpleSort(T *ptr, size_t count, Compare compare)
 template <typename T>
 void SimpleSort(T *ptr, size_t count)
 {
-    SimpleSort(ptr, count, &AlgoInternal::Less<T>);
+    SimpleSort(ptr, count, Less<T>());
 }
 
 template <typename T, typename Compare>
@@ -129,7 +124,7 @@ void QuickSort(T *ptr, size_t count, Compare compare)
 template <typename T>
 void QuickSort(T *ptr, size_t count)
 {
-    QuickSort(ptr, count, &AlgoInternal::Less<T>);
+    QuickSort(ptr, count, Less<T>());
 }
 
 } // namespace Algo

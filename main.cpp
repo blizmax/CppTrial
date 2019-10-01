@@ -1,4 +1,3 @@
-#include "Core/FileSystem.h"
 #include "Core/Array.h"
 #include "Core/List.h"
 #include "Core/HashSet.h"
@@ -8,6 +7,7 @@
 #include "Core/String/StringEncode.h"
 #include "Core/String/StringConvert.h"
 #include "Core/Log.h"
+#include "Core/FileSystem.h"
 
 USE_CT_SCOPE
 
@@ -33,6 +33,20 @@ public:
     ~A() { std::cout << "A destructor" << std::endl; }
 };
 
+void TestArraySort()
+{
+    Array<int> arr = {1, 98, 34, 25, 19, 34, 1, 98, 34, 77, 999, 27, 100, 6, 28, 1888, 89, 9, 130};
+    //AlgoInternal::BubbleSort(arr.GetData(), arr.Size(), &AlgoInternal::Less<decltype(arr.First())>);
+    //AlgoInternal::SelectionSort(arr.GetData(), arr.Size(), &AlgoInternal::Less<>);
+    Algo::QuickSort(arr.GetData(), arr.Size());
+
+    for(auto v : arr)
+    {
+        std::cout << v << ", ";
+    }
+    std::cout << std::endl;
+}
+
 void TestHashMap()
 {
     HashMap<String, int> map1;
@@ -40,6 +54,19 @@ void TestHashMap()
 
     HashMap<int, int> map2;
     map2.Put(100, 100);
+
+    HashMap<size_t, int> map3;
+    map3.Put(100, 100);
+
+    HashMap<float, int> map4;
+    map4.Put(12.10f, 100);
+
+    HashMap<const char8*, int> map5;
+    map5.Put("abc", 1);
+
+    A* a = new A();
+    HashMap<A *, int> map6;
+    map6.Put(a, 1);
 }
 
 void TestStringEncode()
@@ -65,16 +92,6 @@ void TestLogger()
 
 int main()
 {
-    // Array<int> arr = {1, 98, 34, 25, 19, 34, 1, 98, 34, 77, 999, 27, 100, 6, 28, 1888, 89, 9, 130};
-    // //AlgoInternal::BubbleSort(arr.GetData(), arr.Size(), &AlgoInternal::Less<decltype(arr.First())>);
-    // //AlgoInternal::SelectionSort(arr.GetData(), arr.Size(), &AlgoInternal::Less<>);
-    // Algo::QuickSort(arr.GetData(), arr.Size());
-
-    // for(auto v : arr)
-    // {
-    //     std::cout << v << ", ";
-    // }
-
     // size_t index = Algo::BinarySearch(arr.GetData(), arr.Size(), 77, &AlgoInternal::Less<int>);
     // int v = arr[index];
 
@@ -84,10 +101,11 @@ int main()
     // uint32 ret;
     // count = StringConvert::UTF8ToUTF32(buffer, buffer + count, &ret);
 
+    TestArraySort();
     TestHashMap();
 
-    Path path = Path(L"D:Parent");
-    path.Append(Path(L"pic1.jpg"));
+    FileSystem::Path path = FileSystem::Path(L"D:Parent");
+    path.Append(FileSystem::Path(L"pic1.jpg"));
     logger.Info(path.GetExtension());
     logger.Info(path.GetFileNameWithoutExtension());
     logger.Info(path.GetFileName());
