@@ -33,7 +33,7 @@ template <typename T>
 CT_INLINE uint32 HashValue(const T &value, typename std::enable_if<!std::is_class<T>::value || !HasHashCode<T>::Value>::type * = nullptr)
 {
     static std::hash<T> hasher;
-    return hasher(value);
+    return static_cast<uint32>(hasher(value));
 }
 
 template <typename T>

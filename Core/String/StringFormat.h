@@ -47,7 +47,6 @@ CT_INLINE String FormatImpl(const String &src, Args &&... args)
 
     size_t pos0 = 0, pos1 = 0, pos2 = 0;
     auto cstr = src.GetPtr();
-    //TODO use StringBuilder instead
     String output;
 
     while (cstr[pos1])

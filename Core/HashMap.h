@@ -14,9 +14,7 @@ template <typename Key,
 class HashMap
 {
 public:
-    typedef typename HashInternal::MapEntry<Key, Value> EntryType;
-    typedef typename HashInternal::MapKeyTraits<EntryType> KeyTriats;
-    typedef HashTable<EntryType, Hasher, KeyEqual, KeyTriats, Alloc> HashTableType;
+    typedef typename Hash::MapEntry<Key, Value> EntryType;
 
 public:
     HashMap() = default;
@@ -166,6 +164,9 @@ public:
     }
 
 private:
+    typedef typename Hash::MapKeyTraits<EntryType> KeyTriats;
+    typedef HashTable<EntryType, Hasher, KeyEqual, KeyTriats, Alloc> HashTableType;
+
     HashTableType hashTable;
 };
 

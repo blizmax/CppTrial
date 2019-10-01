@@ -1,3 +1,4 @@
+#include "Core/FileSystem.h"
 #include "Core/Array.h"
 #include "Core/List.h"
 #include "Core/HashSet.h"
@@ -55,6 +56,13 @@ void TestStringConvert()
     bool ok = StringConvert::TryParseFloat(L"-.50", ret);
 }
 
+void TestLogger()
+{
+    logger.SetLevel(LogLevel::Info);
+    logger.Info(L"IIIIII");
+    logger.Error(L"{}{0}and{1}", String(L"String1"), sizeof(double));
+}
+
 int main()
 {
     // Array<int> arr = {1, 98, 34, 25, 19, 34, 1, 98, 34, 77, 999, 27, 100, 6, 28, 1888, 89, 9, 130};
@@ -78,9 +86,13 @@ int main()
 
     TestHashMap();
 
-    logger.SetLevel(LogLevel::Info);
-    logger.Info(L"IIIIII");
-    logger.Error(L"{}{0}and{1}", String(L"String1"), sizeof(double));
+    Path path = Path(L"D:Parent");
+    path.Append(Path(L"pic1.jpg"));
+    logger.Info(path.GetExtension());
+    logger.Info(path.GetFileNameWithoutExtension());
+    logger.Info(path.GetFileName());
+    logger.Info(path.GetFullPath());
+
 
     system("pause");
     return 0;

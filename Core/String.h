@@ -116,7 +116,7 @@ public:
 
     const CharType *GetPtr() const
     {
-        static CharType EMPTY[] = {0, 0};
+        constexpr static CharType EMPTY[] = {0, 0};
         return data.Size() ? data.GetData() : EMPTY;
     }
 
@@ -199,12 +199,12 @@ public:
         }
     }
 
-    String SubString(size_t index)
+    String SubString(size_t index) const
     {
         return SubString(index, Length());
     }
 
-    String SubString(size_t index, size_t count)
+    String SubString(size_t index, size_t count) const
     {
         const size_t len = Length();
         index = index < len ? index : len;
@@ -508,7 +508,7 @@ public:
 
     bool ReverseFind(CharType value, size_t &at) const
     {
-        return ReverseFind(value, 0, &at);
+        return ReverseFind(value, Length() - 1, &at);
     }
 
     bool ReverseFind(CharType value, size_t startIndex, size_t &at) const
@@ -518,6 +518,11 @@ public:
 
     bool ReverseFind(CharType value, size_t startIndex, size_t *at) const
     {
+        if (Length() == 0)
+        {
+            return false;
+        }
+
         const CharType *ptr = GetPtr();
         startIndex = startIndex >= Length() ? Length() - 1 : startIndex;
         for (size_t i = startIndex + 1; i >= 1;)
@@ -565,9 +570,13 @@ public:
 
     bool ReverseFind(const CharType *str, size_t startIndex, size_t count, size_t *at) const
     {
-        const size_t len = Length();
+        if (Length() == 0)
+        {
+            return false;
+        }
+
         const CharType *ptr = GetPtr();
-        startIndex = startIndex >= len ? len - 1 : startIndex;
+        startIndex = startIndex >= Length() ? Length() - 1 : startIndex;
 
         if (count == 0)
         {

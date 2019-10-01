@@ -13,10 +13,6 @@ template <typename Key,
 class HashSet
 {
 public:
-    typedef typename HashInternal::SetKeyTraits<Key> KeyTriats;
-    typedef HashTable<Key, Hasher, KeyEqual, KeyTriats, Alloc> HashTableType;
-
-public:
     HashSet() = default;
     HashSet(const HashSet &) = default;
     HashSet(HashSet &&) noexcept = default;
@@ -139,6 +135,9 @@ public:
     }
 
 private:
+    typedef typename Hash::SetKeyTraits<Key> KeyTriats;
+    typedef HashTable<Key, Hasher, KeyEqual, KeyTriats, Alloc> HashTableType;
+
     HashTableType hashTable;
 };
 

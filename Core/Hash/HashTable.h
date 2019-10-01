@@ -5,7 +5,7 @@
 
 CT_SCOPE_BEGIN
 
-namespace HashInternal
+namespace Hash
 {
 template <typename K, typename V>
 struct MapEntry
@@ -76,7 +76,7 @@ struct MapKeyTraits
         return value.Key();
     }
 };
-} // namespace HashInternal
+} // namespace Hash
 
 template <typename Type, typename Hasher, typename KeyEqual, typename KeyTraits, template <typename T> class Alloc>
 class HashTable

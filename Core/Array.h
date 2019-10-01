@@ -361,7 +361,7 @@ public:
     }
 
     template <typename Predicate>
-    bool FindLast(Predicate pred, size_t &at = nullptr) const
+    bool FindLast(Predicate pred, size_t &at) const
     {
         return FindLast(pred, &at);
     }
