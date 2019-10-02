@@ -107,21 +107,29 @@ CT_INLINE uint32 HashValue(uint64 value)
 
 CT_INLINE uint32 HashValue(float value)
 {
-    union{uint32 i; float f;} u;
+    union 
+    {
+        uint32 i;
+        float f;
+    } u;
     u.f = value;
     return u.i;
 }
 
 CT_INLINE uint32 HashValue(double value)
 {
-    union{uint64 i; double d;} u;
+    union 
+    {
+        uint64 i;
+        double d;
+    } u;
     u.d = value;
     return HashValue(u.i);
 }
 
 //TODO Use enableif check is char type
 template <typename CharT>
-CT_INLINE uint32 HashValue(const CharT* ptr)
+CT_INLINE uint32 HashValue(const CharT *ptr)
 {
     uint32 seed = 131;
     uint32 hash = 0;
@@ -133,7 +141,7 @@ CT_INLINE uint32 HashValue(const CharT* ptr)
 }
 
 template <typename T>
-CT_INLINE uint32 HashValue(T* ptr)
+CT_INLINE uint32 HashValue(T *ptr)
 {
     return HashValue(reinterpret_cast<size_t>(ptr));
 }

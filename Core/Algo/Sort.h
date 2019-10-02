@@ -46,22 +46,6 @@ void SelectionSort(T *ptr, size_t count, Compare compare)
 }
 
 template <typename T, typename Compare>
-void IntroSortPrivate(T *ptr, size_t count, Compare compare)
-{
-    //TODO
-}
-
-template <typename T, typename Compare>
-void StableSort(T *ptr, size_t count)
-{
-    //TODO
-}
-
-} // namespace AlgoInternal
-
-namespace Algo
-{
-template <typename T, typename Compare>
 void SimpleSort(T *ptr, size_t count, Compare compare)
 {
     T *end = ptr + count - 1;
@@ -79,14 +63,8 @@ void SimpleSort(T *ptr, size_t count, Compare compare)
     }
 }
 
-template <typename T>
-void SimpleSort(T *ptr, size_t count)
-{
-    SimpleSort(ptr, count, Less<T>());
-}
-
 template <typename T, typename Compare>
-void QuickSortPrivate(T *ptr, size_t first, size_t last, Compare compare)
+size_t QuickSortPrivate(T *ptr, size_t first, size_t last, Compare compare)
 {
     std::swap(ptr[first], ptr[(first + last) / 2]);
     T *lower = ptr + first + 1;
@@ -104,27 +82,126 @@ void QuickSortPrivate(T *ptr, size_t first, size_t last, Compare compare)
             break;
     }
     std::swap(*upper, *bound);
-
-    size_t pos = upper - ptr;
-    if (pos - 1 > first)
-        QuickSortPrivate(ptr, first, pos - 1, compare);
-    if (pos + 1 < last)
-        QuickSortPrivate(ptr, pos + 1, last, compare);
+    return upper - ptr;
 }
 
+template <typename T, typename Compare>
+void QuickSort(T *ptr, size_t first, size_t last, Compare compare)
+{
+    size_t pos = QuickSortPrivate(ptr, first, last, compare);
+    if (pos > first + 1)
+        QuickSort(ptr, first, pos - 1, compare);
+    if (pos + 1 < last)
+        QuickSort(ptr, pos + 1, last, compare);
+}
+
+template <typename T, typename Compare>
+void IntroSort(T *ptr, size_t count, Compare compare)
+{
+    if (count < 2)
+        return;
+
+    struct Stack
+    {
+        T *min;
+        T *max;
+        uint32 depth;
+    };
+    const uint32 MAX_DEPTH = 64;
+
+    Stack sortStacks[MAX_DEPTH] = {{ptr, ptr + count - 1, 0}};
+    Stack current;
+    for (Stack *top = sortStacks; top >= sortStacks; --top)
+    {
+        current = *top;
+
+    LOOP:
+        size_t num = current.max - current.min + 1;
+        if (current.depth >= MAX_DEPTH)
+        {
+            //TODO heapsort
+            continue;
+        }
+        if (num <= 8)
+        {
+            SimpleSort(current.min, num, compare);
+        }
+        else
+        {
+            size_t pos = QuickSortPrivate(current.min, 0, num - 1, compare);
+            ++current.depth;
+            if (num - pos < pos)
+            {
+                if (pos > 1)
+                {
+                    top->min = current.min;
+                    top->max = current.min + pos - 1;
+                    top->depth = current.depth;
+                    ++top;
+                }
+                if (pos + 2 < num)
+                {
+                    current.min = current.min + pos + 1;
+                    goto LOOP;
+                }
+            }
+            else
+            {
+                if (pos + 2 < num)
+                {
+                    top->min = current.min + pos + 1;
+                    top->max = current.max;
+                    top->depth = current.depth;
+                    ++top;
+                }
+                if (pos > 1)
+                {
+                    current.max = current.min + pos - 1;
+                    goto LOOP;
+                }
+            }
+        }
+    }
+}
+
+template <typename T, typename Compare>
+void StableSort(T *ptr, size_t count)
+{
+    //TODO
+}
+
+} // namespace AlgoInternal
+
+namespace Algo
+{
 template <typename T, typename Compare>
 void QuickSort(T *ptr, size_t count, Compare compare)
 {
     if (count < 2)
         return;
 
-    QuickSortPrivate(ptr, 0, count - 1, compare);
+    AlgoInternal::QuickSort(ptr, 0, count - 1, compare);
 }
 
 template <typename T>
 void QuickSort(T *ptr, size_t count)
 {
     QuickSort(ptr, count, Less<T>());
+}
+
+template <typename T, typename Compare>
+void IntroSort(T *ptr, size_t count, Compare compare)
+{
+    if (count < 2)
+        return;
+
+    AlgoInternal::IntroSort(ptr, count, compare);
+}
+
+template <typename T>
+void IntroSort(T *ptr, size_t count)
+{
+    IntroSort(ptr, count, Less<T>());
 }
 
 } // namespace Algo
