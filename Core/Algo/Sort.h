@@ -2,6 +2,7 @@
 
 #include "Core/General.h"
 #include "Core/Functional.h"
+#include "Core/Algo/BinaryHeap.h"
 
 CT_SCOPE_BEGIN
 
@@ -105,11 +106,20 @@ void IntroSort(T *ptr, size_t count, Compare compare)
     {
         T *min;
         T *max;
-        uint32 depth;
+        uint32 maxDepth;
     };
-    const uint32 MAX_DEPTH = 64;
 
-    Stack sortStacks[MAX_DEPTH] = {{ptr, ptr + count - 1, 0}};
+    auto CalcMaxDepth = [](size_t n) -> uint32 {
+        uint32 depth = 0;
+        while (n > 0)
+        {
+            ++depth;
+            n >>= 1;
+        }
+        return depth;
+    };
+
+    Stack sortStacks[64] = {{ptr, ptr + count - 1, CalcMaxDepth(count)}};
     Stack current;
     for (Stack *top = sortStacks; top >= sortStacks; --top)
     {
@@ -117,9 +127,9 @@ void IntroSort(T *ptr, size_t count, Compare compare)
 
     LOOP:
         size_t num = current.max - current.min + 1;
-        if (current.depth >= MAX_DEPTH)
+        if (current.maxDepth == 0)
         {
-            //TODO heapsort
+            HeapSort(current.min, num, compare);
             continue;
         }
         if (num <= 8)
@@ -129,14 +139,14 @@ void IntroSort(T *ptr, size_t count, Compare compare)
         else
         {
             size_t pos = QuickSortPrivate(current.min, 0, num - 1, compare);
-            ++current.depth;
+            --current.maxDepth;
             if (num - pos < pos)
             {
                 if (pos > 1)
                 {
                     top->min = current.min;
                     top->max = current.min + pos - 1;
-                    top->depth = current.depth;
+                    top->maxDepth = current.maxDepth;
                     ++top;
                 }
                 if (pos + 2 < num)
@@ -151,7 +161,7 @@ void IntroSort(T *ptr, size_t count, Compare compare)
                 {
                     top->min = current.min + pos + 1;
                     top->max = current.max;
-                    top->depth = current.depth;
+                    top->maxDepth = current.maxDepth;
                     ++top;
                 }
                 if (pos > 1)
@@ -202,6 +212,21 @@ template <typename T>
 void IntroSort(T *ptr, size_t count)
 {
     IntroSort(ptr, count, Less<T>());
+}
+
+template <typename T, typename Compare>
+void Sort(T *ptr, size_t count, Compare compare)
+{
+    if (count < 2)
+        return;
+
+    AlgoInternal::IntroSort(ptr, count, compare);
+}
+
+template <typename T>
+void Sort(T *ptr, size_t count)
+{
+    Sort(ptr, count, Less<T>());
 }
 
 } // namespace Algo

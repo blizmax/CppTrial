@@ -2,6 +2,7 @@
 
 #include "Core/General.h"
 #include "Core/Allocator.h"
+#include "Core/Algo/Sort.h"
 #include <initializer_list>
 
 CT_SCOPE_BEGIN
@@ -371,6 +372,26 @@ public:
         return Find(value);
     }
 
+    size_t IndexOf(const Type &value) const
+    {
+        size_t ret = 0;
+        if (Find(value, ret))
+        {
+            return ret;
+        }
+        return INDEX_NONE;
+    }
+
+    size_t LastIndexOf(const Type &value) const
+    {
+        size_t ret = 0;
+        if (FindLast(value, ret))
+        {
+            return ret;
+        }
+        return INDEX_NONE;
+    }
+
     Type &At(size_t index)
     {
         CheckRange(index);
@@ -381,6 +402,17 @@ public:
     {
         CheckRange(index);
         return data[index];
+    }
+
+    void Sort()
+    {
+        Algo::Sort(data, size, Less<Type>());
+    }
+
+    template <typename Compare>
+    void Sort(Compare compare)
+    {
+        Algo::Sort(data, size, compare);
     }
 
     Type &operator[](size_t index)
@@ -417,13 +449,6 @@ public:
 
     //===================== STL STYLE =========================
 public:
-    // typedef Type value_type;
-    // typedef Type &reference;
-    // typedef const Type &const_reference;
-    // typedef size_t size_type;
-    // typedef Type *iterator;
-    // typedef const Type *const_iterator;
-
     Type *begin()
     {
         return data;

@@ -36,8 +36,7 @@ public:
 void TestArraySort()
 {
     Array<int> arr = {1, 98, 34, 25, 19, 34, 1, 98, 34, 77, 999, 27, 100, 6, 28, 1888, 89, 9, 130};
-
-    for(int i = 10000; i >= 0; --i)
+    for (int i = 10000; i >= 0; --i)
     {
         arr.Add(i);
     }
@@ -45,7 +44,7 @@ void TestArraySort()
     //AlgoInternal::BubbleSort(arr.GetData(), arr.Size(), &AlgoInternal::Less<decltype(arr.First())>);
     //AlgoInternal::SelectionSort(arr.GetData(), arr.Size(), &AlgoInternal::Less<>);
     //Algo::QuickSort(arr.GetData(), arr.Size());
-    Algo::IntroSort(arr.GetData(), arr.Size());
+    arr.Sort();
 
     for(auto v : arr)
     {
