@@ -143,7 +143,7 @@ CT_INLINE uint32 HashValue(const CharT *ptr)
 template <typename T>
 CT_INLINE uint32 HashValue(T *ptr)
 {
-    return HashValue(reinterpret_cast<size_t>(ptr));
+    return HashValue(reinterpret_cast<SizeType>(ptr));
 }
 
 template <typename T>

@@ -75,7 +75,7 @@ CT_INLINE bool TryParseInt32(const String &str, int32 &ret)
 {
     if (FastCheckIsIntPrivate(str))
     {
-        CString::CharType *end;
+        CharType *end;
         ret = CString::ToInt32(str.GetPtr(), end);
         if (end - str.GetPtr() == str.Length())
         {
@@ -89,7 +89,7 @@ CT_INLINE bool TryParseUInt32(const String &str, uint32 &ret)
 {
     if (FastCheckIsUIntPrivate(str))
     {
-        CString::CharType *end;
+        CharType *end;
         ret = CString::ToUInt32(str.GetPtr(), end);
         if (end - str.GetPtr() == str.Length())
         {
@@ -103,7 +103,7 @@ CT_INLINE bool TryParseFloat(const String &str, float &ret)
 {
     if (FastCheckIsFloatPrivate(str))
     {
-        CString::CharType *end;
+        CharType *end;
         ret = CString::ToFloat(str.GetPtr(), end);
         if (end - str.GetPtr() == str.Length())
         {

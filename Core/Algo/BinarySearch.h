@@ -7,15 +7,15 @@ CT_SCOPE_BEGIN
 namespace AlgoInternal
 {
 template <typename T, typename Compare>
-size_t LowerBound(T *ptr, size_t count, const T &value, Compare compare)
+SizeType LowerBound(T *ptr, SizeType count, const T &value, Compare compare)
 {
-    size_t start = 0;
-    size_t size = count;
+    SizeType start = 0;
+    SizeType size = count;
     while (size > 0)
     {
-        size_t remain = size % 2;
+        SizeType remain = size % 2;
         size = size / 2;
-        size_t cur = start + size;
+        SizeType cur = start + size;
         start = compare(ptr[cur], value) ? (cur + remain) : start;
     }
     return start;
@@ -25,9 +25,9 @@ size_t LowerBound(T *ptr, size_t count, const T &value, Compare compare)
 namespace Algo
 {
 template <typename T, typename Compare>
-size_t BinarySearch(T *ptr, size_t count, const T &value, Compare compare)
+SizeType BinarySearch(T *ptr, SizeType count, const T &value, Compare compare)
 {
-    size_t index = AlgoInternal::LowerBound(ptr, count, value, compare);
+    SizeType index = AlgoInternal::LowerBound(ptr, count, value, compare);
     if (index < count)
     {
         if (!compare(value, ptr[index]))

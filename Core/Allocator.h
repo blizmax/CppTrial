@@ -10,9 +10,9 @@ class Allocator
 {
 public:
     static T *Allocate();
-    static T *Allocate(size_t count);
+    static T *Allocate(SizeType count);
     static void Deallocate(T *ptr);
-    static void Deallocate(T *ptr, size_t count);
+    static void Deallocate(T *ptr, SizeType count);
 
     static void Construct(T *ptr);
     static void Construct(T *ptr, const T &value);
@@ -20,7 +20,7 @@ public:
     template <typename... Args>
     static void Construct(T *ptr, Args &&... args);
     static void Destroy(T *ptr);
-    static void Destroy(T *ptr, size_t count);
+    static void Destroy(T *ptr, SizeType count);
 };
 
 template <typename T>
@@ -30,7 +30,7 @@ CT_INLINE T *Allocator<T>::Allocate()
 }
 
 template <typename T>
-CT_INLINE T *Allocator<T>::Allocate(size_t count)
+CT_INLINE T *Allocator<T>::Allocate(SizeType count)
 {
     if (count == 0)
         return nullptr;
@@ -46,7 +46,7 @@ CT_INLINE void Allocator<T>::Deallocate(T *ptr)
 }
 
 template <typename T>
-CT_INLINE void Allocator<T>::Deallocate(T *ptr, size_t count)
+CT_INLINE void Allocator<T>::Deallocate(T *ptr, SizeType count)
 {
     Allocator<T>::Deallocate(ptr);
 }
@@ -83,7 +83,7 @@ CT_INLINE void Allocator<T>::Destroy(T *ptr)
 }
 
 template <typename T>
-CT_INLINE void Allocator<T>::Destroy(T *ptr, size_t count)
+CT_INLINE void Allocator<T>::Destroy(T *ptr, SizeType count)
 {
     for (; count > 0; --count)
     {

@@ -13,14 +13,14 @@ class Array
 public:
     Array() = default;
 
-    explicit Array(size_t capacity)
+    explicit Array(SizeType capacity)
     {
         Reserve(capacity);
     }
 
     Array(std::initializer_list<Type> initList)
     {
-        size_t minCapacity = initList.size();
+        SizeType minCapacity = initList.size();
         Reserve(minCapacity);
         for (const Type &value : initList)
         {
@@ -30,7 +30,7 @@ public:
 
     Array(const Array &other)
     {
-        size_t minCapacity = other.size;
+        SizeType minCapacity = other.size;
         Reserve(minCapacity);
         ThisScope::uninitialized_copy(other.data, other.size, data);
         size = other.size;
@@ -107,12 +107,12 @@ public:
         return data;
     }
 
-    size_t Size() const
+    SizeType Size() const
     {
         return size;
     }
 
-    size_t Capacity() const
+    SizeType Capacity() const
     {
         return capacity;
     }
@@ -142,7 +142,7 @@ public:
     {
         if (size != capacity)
         {
-            size_t newCapacity = FixCapacity(size);
+            SizeType newCapacity = FixCapacity(size);
             if (newCapacity < capacity)
             {
                 ReservePrivate(newCapacity);
@@ -158,7 +158,7 @@ public:
         }
     }
 
-    void Reserve(size_t newCapacity)
+    void Reserve(SizeType newCapacity)
     {
         if (newCapacity <= capacity)
             return;
@@ -170,7 +170,7 @@ public:
         }
     }
 
-    void Resize(size_t newSize)
+    void Resize(SizeType newSize)
     {
         if (newSize < size)
         {
@@ -184,9 +184,9 @@ public:
         }
     }
 
-    void AppendUninitialized(size_t appendSize)
+    void AppendUninitialized(SizeType appendSize)
     {
-        const size_t newSize = size + appendSize;
+        const SizeType newSize = size + appendSize;
         if (newSize > capacity)
         {
             Reserve(newSize);
@@ -194,13 +194,13 @@ public:
         size = newSize;
     }
 
-    void Remove(size_t index)
+    void Remove(SizeType index)
     {
         CheckRange(index);
         RemovePrivate(index, 1);
     }
 
-    void Remove(size_t index, size_t count)
+    void Remove(SizeType index, SizeType count)
     {
         CheckRange(index);
         CheckRange(index + count - 1);
@@ -217,13 +217,13 @@ public:
         InsertPrivate(size, std::move(value));
     }
 
-    void Insert(size_t index, const Type &value)
+    void Insert(SizeType index, const Type &value)
     {
         CheckRange(index);
         InsertPrivate(index, value);
     }
 
-    void Insert(size_t index, const Type &value, size_t count)
+    void Insert(SizeType index, const Type &value, SizeType count)
     {
         CheckRange(index);
         if (count > 0)
@@ -232,13 +232,13 @@ public:
         }
     }
 
-    void Insert(size_t index, Type &&value)
+    void Insert(SizeType index, Type &&value)
     {
         CheckRange(index);
         InsertPrivate(index, std::move(value));
     }
 
-    void Insert(size_t index, const Type *src, size_t count)
+    void Insert(SizeType index, const Type *src, SizeType count)
     {
         CheckRange(index);
         if (count > 0)
@@ -277,9 +277,9 @@ public:
         Alloc::Destroy(data + (--size));
     }
 
-    bool Find(const Type &value, size_t *at = nullptr) const
+    bool Find(const Type &value, SizeType *at = nullptr) const
     {
-        for (size_t i = 0; i < size; ++i)
+        for (SizeType i = 0; i < size; ++i)
         {
             if (data[i] == value)
             {
@@ -293,15 +293,15 @@ public:
         return false;
     }
 
-    bool Find(const Type &value, size_t &at) const
+    bool Find(const Type &value, SizeType &at) const
     {
         return Find(value, &at);
     }
 
     template <typename Predicate>
-    bool Find(Predicate pred, size_t *at = nullptr) const
+    bool Find(Predicate pred, SizeType *at = nullptr) const
     {
-        for (size_t i = 0; i < size; ++i)
+        for (SizeType i = 0; i < size; ++i)
         {
             if (pred(data[i]))
             {
@@ -316,14 +316,14 @@ public:
     }
 
     template <typename Predicate>
-    bool Find(Predicate pred, size_t &at) const
+    bool Find(Predicate pred, SizeType &at) const
     {
         return Find(pred, &at);
     }
 
-    bool FindLast(const Type &value, size_t *at) const
+    bool FindLast(const Type &value, SizeType *at) const
     {
-        for (size_t i = size; i >= 1;)
+        for (SizeType i = size; i >= 1;)
         {
             --i;
             if (data[i] == value)
@@ -338,15 +338,15 @@ public:
         return false;
     }
 
-    bool FindLast(const Type &value, size_t &at) const
+    bool FindLast(const Type &value, SizeType &at) const
     {
         return Find(value, &at);
     }
 
     template <typename Predicate>
-    bool FindLast(Predicate pred, size_t *at = nullptr) const
+    bool FindLast(Predicate pred, SizeType *at = nullptr) const
     {
-        for (size_t i = size; i >= 1;)
+        for (SizeType i = size; i >= 1;)
         {
             --i;
             if (pred(data[i]))
@@ -362,7 +362,7 @@ public:
     }
 
     template <typename Predicate>
-    bool FindLast(Predicate pred, size_t &at) const
+    bool FindLast(Predicate pred, SizeType &at) const
     {
         return FindLast(pred, &at);
     }
@@ -372,9 +372,9 @@ public:
         return Find(value);
     }
 
-    size_t IndexOf(const Type &value) const
+    SizeType IndexOf(const Type &value) const
     {
-        size_t ret = 0;
+        SizeType ret = 0;
         if (Find(value, ret))
         {
             return ret;
@@ -382,9 +382,9 @@ public:
         return INDEX_NONE;
     }
 
-    size_t LastIndexOf(const Type &value) const
+    SizeType LastIndexOf(const Type &value) const
     {
-        size_t ret = 0;
+        SizeType ret = 0;
         if (FindLast(value, ret))
         {
             return ret;
@@ -392,13 +392,13 @@ public:
         return INDEX_NONE;
     }
 
-    Type &At(size_t index)
+    Type &At(SizeType index)
     {
         CheckRange(index);
         return data[index];
     }
 
-    const Type &At(size_t index) const
+    const Type &At(SizeType index) const
     {
         CheckRange(index);
         return data[index];
@@ -415,13 +415,13 @@ public:
         Algo::Sort(data, size, compare);
     }
 
-    Type &operator[](size_t index)
+    Type &operator[](SizeType index)
     {
         CheckRange(index);
         return data[index];
     }
 
-    const Type &operator[](size_t index) const
+    const Type &operator[](SizeType index) const
     {
         CheckRange(index);
         return data[index];
@@ -434,7 +434,7 @@ public:
             return false;
         }
 
-        for (size_t i = 0; i < size; ++i)
+        for (SizeType i = 0; i < size; ++i)
         {
             if (data[i] != other.data[i])
                 return false;
@@ -470,23 +470,23 @@ public:
     }
 
 private:
-    void CheckRange(size_t index) const
+    void CheckRange(SizeType index) const
     {
         CT_ASSERT(index >= 0 && index < size);
     }
 
-    size_t FixCapacity(size_t inputCapacity) const
+    SizeType FixCapacity(SizeType inputCapacity) const
     {
         return (inputCapacity < 8) ? 8 : CT_ALIGN(inputCapacity, 8);
     }
 
-    void DestroyAndDeallocate(Type *ptr, size_t destroySize, size_t deallocSize)
+    void DestroyAndDeallocate(Type *ptr, SizeType destroySize, SizeType deallocSize)
     {
         Alloc::Destroy(ptr, destroySize);
         Alloc::Deallocate(ptr, deallocSize);
     }
 
-    void ReservePrivate(size_t newCapacity)
+    void ReservePrivate(SizeType newCapacity)
     {
         Type *newData = Alloc::Allocate(newCapacity);
         ThisScope::uninitialized_move(data, size, newData);
@@ -495,17 +495,17 @@ private:
         capacity = newCapacity;
     }
 
-    void RemovePrivate(size_t index, size_t count)
+    void RemovePrivate(SizeType index, SizeType count)
     {
-        const size_t moveCount = size - index - count;
+        const SizeType moveCount = size - index - count;
         size -= count;
         ThisScope::move(data + index + count, moveCount, data + index);
         Alloc::Destroy(data + size, count);
     }
 
-    void InsertPrivate(size_t index, const Type &value, size_t count = 1)
+    void InsertPrivate(SizeType index, const Type &value, SizeType count = 1)
     {
-        const size_t oldSize = size;
+        const SizeType oldSize = size;
         size += count;
 
         if (index == oldSize && size <= capacity)
@@ -514,7 +514,7 @@ private:
         }
         else if (size <= capacity)
         {
-            size_t moveNum = oldSize - index;
+            SizeType moveNum = oldSize - index;
             if (moveNum > count)
             {
                 ThisScope::uninitialized_move(data + oldSize - count, count, data + oldSize);
@@ -530,7 +530,7 @@ private:
         }
         else
         {
-            const size_t oldCapacity = capacity;
+            const SizeType oldCapacity = capacity;
             Type *oldData = data;
             capacity = FixCapacity((oldCapacity * 2) >= size ? (oldCapacity * 2) : size);
             data = Alloc::Allocate(capacity);
@@ -541,9 +541,9 @@ private:
         }
     }
 
-    void InsertPrivate(size_t index, Type &&value)
+    void InsertPrivate(SizeType index, Type &&value)
     {
-        const size_t oldSize = size++;
+        const SizeType oldSize = size++;
 
         if (index == oldSize && size <= capacity)
         {
@@ -551,14 +551,14 @@ private:
         }
         else if (size <= capacity)
         {
-            size_t moveNum = oldSize - index;
+            SizeType moveNum = oldSize - index;
             ThisScope::uninitialized_move(data + oldSize - 1, 1, data + oldSize);
             ThisScope::move_backward(data + oldSize - 2, moveNum - 1, data + oldSize - 1);
             Alloc::Construct(data + index, std::move(value));
         }
         else
         {
-            const size_t oldCapacity = capacity;
+            const SizeType oldCapacity = capacity;
             Type *oldData = data;
             capacity = FixCapacity((oldCapacity * 2) >= size ? (oldCapacity * 2) : size);
             data = Alloc::Allocate(capacity);
@@ -569,9 +569,9 @@ private:
         }
     }
 
-    void InsertPrivate(size_t index, const Type *src, size_t count)
+    void InsertPrivate(SizeType index, const Type *src, SizeType count)
     {
-        const size_t oldSize = size;
+        const SizeType oldSize = size;
         size += count;
 
         if (index == oldSize && size <= capacity)
@@ -580,7 +580,7 @@ private:
         }
         else if (size <= capacity)
         {
-            size_t moveNum = oldSize - index;
+            SizeType moveNum = oldSize - index;
             if (moveNum > count)
             {
                 ThisScope::uninitialized_move(data + oldSize - count, count, data + oldSize);
@@ -596,7 +596,7 @@ private:
         }
         else
         {
-            const size_t oldCapacity = capacity;
+            const SizeType oldCapacity = capacity;
             Type *oldData = data;
             capacity = FixCapacity((oldCapacity * 2) >= size ? (oldCapacity * 2) : size);
             data = Alloc::Allocate(capacity);
@@ -608,8 +608,8 @@ private:
     }
 
 private:
-    size_t size = 0;
-    size_t capacity = 0;
+    SizeType size = 0;
+    SizeType capacity = 0;
     Type *data = nullptr;
 };
 

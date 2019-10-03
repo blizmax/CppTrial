@@ -133,7 +133,7 @@ public:
         Clear();
     }
 
-    size_t Size() const
+    SizeType Size() const
     {
         return size;
     }
@@ -197,7 +197,7 @@ public:
     }
 
     // since NodeType may only support forward link, always search from head
-    NodeType *FindNode(size_t index)
+    NodeType *FindNode(SizeType index)
     {
         if (index >= size)
         {
@@ -338,7 +338,7 @@ public:
         }
     }
 
-    void Insert(size_t index, const Type &value)
+    void Insert(SizeType index, const Type &value)
     {
         Insert(FindNode(index), value);
     }
@@ -493,7 +493,7 @@ private:
 private:
     NodeType *head = nullptr;
     NodeType *tail = nullptr;
-    size_t size = 0;
+    SizeType size = 0;
 };
 
 CT_SCOPE_END

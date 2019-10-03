@@ -123,7 +123,7 @@ private:
 
     void AppendPrivate(const String &appendPath)
     {
-        size_t len = pathStr.Length();
+        SizeType len = pathStr.Length();
         const wchar *cstr = pathStr.GetPtr();
         if (len > 0)
         {

@@ -10,7 +10,7 @@ namespace AlgoInternal
 {
 
 template <typename T, typename Compare>
-void BubbleSort(T *ptr, size_t count, Compare compare)
+void BubbleSort(T *ptr, SizeType count, Compare compare)
 {
     T *end = ptr + count - 1;
     while (end > ptr)
@@ -28,7 +28,7 @@ void BubbleSort(T *ptr, size_t count, Compare compare)
 }
 
 template <typename T, typename Compare>
-void SelectionSort(T *ptr, size_t count, Compare compare)
+void SelectionSort(T *ptr, SizeType count, Compare compare)
 {
     T *start = ptr;
     T *end = ptr + count - 1;
@@ -47,7 +47,7 @@ void SelectionSort(T *ptr, size_t count, Compare compare)
 }
 
 template <typename T, typename Compare>
-void SimpleSort(T *ptr, size_t count, Compare compare)
+void SimpleSort(T *ptr, SizeType count, Compare compare)
 {
     T *end = ptr + count - 1;
     while (end > ptr)
@@ -65,7 +65,7 @@ void SimpleSort(T *ptr, size_t count, Compare compare)
 }
 
 template <typename T, typename Compare>
-size_t QuickSortPrivate(T *ptr, size_t first, size_t last, Compare compare)
+SizeType QuickSortPrivate(T *ptr, SizeType first, SizeType last, Compare compare)
 {
     std::swap(ptr[first], ptr[(first + last) / 2]);
     T *lower = ptr + first + 1;
@@ -87,9 +87,9 @@ size_t QuickSortPrivate(T *ptr, size_t first, size_t last, Compare compare)
 }
 
 template <typename T, typename Compare>
-void QuickSort(T *ptr, size_t first, size_t last, Compare compare)
+void QuickSort(T *ptr, SizeType first, SizeType last, Compare compare)
 {
-    size_t pos = QuickSortPrivate(ptr, first, last, compare);
+    SizeType pos = QuickSortPrivate(ptr, first, last, compare);
     if (pos > first + 1)
         QuickSort(ptr, first, pos - 1, compare);
     if (pos + 1 < last)
@@ -97,7 +97,7 @@ void QuickSort(T *ptr, size_t first, size_t last, Compare compare)
 }
 
 template <typename T, typename Compare>
-void IntroSort(T *ptr, size_t count, Compare compare)
+void IntroSort(T *ptr, SizeType count, Compare compare)
 {
     if (count < 2)
         return;
@@ -109,7 +109,7 @@ void IntroSort(T *ptr, size_t count, Compare compare)
         uint32 maxDepth;
     };
 
-    auto CalcMaxDepth = [](size_t n) -> uint32 {
+    auto CalcMaxDepth = [](SizeType n) -> uint32 {
         uint32 depth = 0;
         while (n > 0)
         {
@@ -126,7 +126,7 @@ void IntroSort(T *ptr, size_t count, Compare compare)
         current = *top;
 
     LOOP:
-        size_t num = current.max - current.min + 1;
+        SizeType num = current.max - current.min + 1;
         if (current.maxDepth == 0)
         {
             HeapSort(current.min, num, compare);
@@ -138,7 +138,7 @@ void IntroSort(T *ptr, size_t count, Compare compare)
         }
         else
         {
-            size_t pos = QuickSortPrivate(current.min, 0, num - 1, compare);
+            SizeType pos = QuickSortPrivate(current.min, 0, num - 1, compare);
             --current.maxDepth;
             if (num - pos < pos)
             {
@@ -175,7 +175,7 @@ void IntroSort(T *ptr, size_t count, Compare compare)
 }
 
 template <typename T, typename Compare>
-void StableSort(T *ptr, size_t count)
+void StableSort(T *ptr, SizeType count)
 {
     //TODO
 }
@@ -185,7 +185,7 @@ void StableSort(T *ptr, size_t count)
 namespace Algo
 {
 template <typename T, typename Compare>
-void QuickSort(T *ptr, size_t count, Compare compare)
+void QuickSort(T *ptr, SizeType count, Compare compare)
 {
     if (count < 2)
         return;
@@ -194,13 +194,13 @@ void QuickSort(T *ptr, size_t count, Compare compare)
 }
 
 template <typename T>
-void QuickSort(T *ptr, size_t count)
+void QuickSort(T *ptr, SizeType count)
 {
     QuickSort(ptr, count, Less<T>());
 }
 
 template <typename T, typename Compare>
-void IntroSort(T *ptr, size_t count, Compare compare)
+void IntroSort(T *ptr, SizeType count, Compare compare)
 {
     if (count < 2)
         return;
@@ -209,13 +209,13 @@ void IntroSort(T *ptr, size_t count, Compare compare)
 }
 
 template <typename T>
-void IntroSort(T *ptr, size_t count)
+void IntroSort(T *ptr, SizeType count)
 {
     IntroSort(ptr, count, Less<T>());
 }
 
 template <typename T, typename Compare>
-void Sort(T *ptr, size_t count, Compare compare)
+void Sort(T *ptr, SizeType count, Compare compare)
 {
     if (count < 2)
         return;
@@ -224,7 +224,7 @@ void Sort(T *ptr, size_t count, Compare compare)
 }
 
 template <typename T>
-void Sort(T *ptr, size_t count)
+void Sort(T *ptr, SizeType count)
 {
     Sort(ptr, count, Less<T>());
 }

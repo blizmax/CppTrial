@@ -18,12 +18,12 @@ CT_SCOPE_BEGIN
     */
 namespace StringEncode
 {
-CT_INLINE size_t UTF8ToUTF32(const char8 *start, const char8 *end, char32 *output)
+CT_INLINE SizeType UTF8ToUTF32(const char8 *start, const char8 *end, char32 *output)
 {
     if (start >= end)
         return 0;
 
-    size_t byteNum = 0;
+    SizeType byteNum = 0;
     uint8 first = (uint8)*start;
 
     if (first < 192)
@@ -44,7 +44,7 @@ CT_INLINE size_t UTF8ToUTF32(const char8 *start, const char8 *end, char32 *outpu
 
     constexpr uint32 OFFSETS[6] = {0x00000000, 0x00003080, 0x000E2080, 0x03C82080, 0xFA082080, 0x82082080};
     char32 temp = 0;
-    size_t pos = 0;
+    SizeType pos = 0;
 
     for (; pos < byteNum - 1; ++pos)
     {
@@ -58,7 +58,7 @@ CT_INLINE size_t UTF8ToUTF32(const char8 *start, const char8 *end, char32 *outpu
     return byteNum;
 }
 
-CT_INLINE size_t UTF32ToUTF8(const char32 *start, char8 *output)
+CT_INLINE SizeType UTF32ToUTF8(const char32 *start, char8 *output)
 {
     uint32 input = (uint32)*start;
     if (input > 0x0010FFFF)
@@ -67,7 +67,7 @@ CT_INLINE size_t UTF32ToUTF8(const char32 *start, char8 *output)
         return 0;
 
     constexpr uint8 HEADERS[7] = {0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC};
-    size_t byteNum = 0;
+    SizeType byteNum = 0;
 
     if (input < 0x80)
         byteNum = 1;
@@ -98,7 +98,7 @@ CT_INLINE size_t UTF32ToUTF8(const char32 *start, char8 *output)
     return byteNum;
 }
 
-CT_INLINE size_t UTF16ToUTF32(const char16 *start, const char16 *end, char32 *output)
+CT_INLINE SizeType UTF16ToUTF32(const char16 *start, const char16 *end, char32 *output)
 {
     if (start >= end)
         return 0;
@@ -125,7 +125,7 @@ CT_INLINE size_t UTF16ToUTF32(const char16 *start, const char16 *end, char32 *ou
     return 1;
 }
 
-CT_INLINE size_t UTF32ToUTF16(const char32 *start, char16 *output)
+CT_INLINE SizeType UTF32ToUTF16(const char32 *start, char16 *output)
 {
     uint32 input = (uint32)*start;
     if (input > 0x0010FFFF)
@@ -150,7 +150,7 @@ CT_INLINE size_t UTF32ToUTF16(const char32 *start, char16 *output)
     return 2;
 }
 
-CT_INLINE size_t WideToUTF32(const wchar *start, const wchar *end, char32 *output)
+CT_INLINE SizeType WideToUTF32(const wchar *start, const wchar *end, char32 *output)
 {
     if (start >= end)
         return 0;
@@ -164,7 +164,7 @@ CT_INLINE size_t WideToUTF32(const wchar *start, const wchar *end, char32 *outpu
     return UTF16ToUTF32((const char16 *)start, (const char16 *)end, output);
 }
 
-CT_INLINE size_t UTF32ToWide(const char32 *start, wchar *output)
+CT_INLINE SizeType UTF32ToWide(const char32 *start, wchar *output)
 {
     if (sizeof(wchar) == 4)
     {
@@ -173,7 +173,7 @@ CT_INLINE size_t UTF32ToWide(const char32 *start, wchar *output)
     }
 
     char16 buffer[2] = {0};
-    size_t size = UTF32ToUTF16(start, buffer);
+    SizeType size = UTF32ToUTF16(start, buffer);
     if (size > 0)
         output[0] = (wchar)buffer[0];
     if (size > 1)
@@ -183,9 +183,9 @@ CT_INLINE size_t UTF32ToWide(const char32 *start, wchar *output)
 
 CT_INLINE String FromUTF8(const char8 *cstr)
 {
-    size_t len = strlen(cstr);
-    size_t pos = 0;
-    size_t size;
+    SizeType len = strlen(cstr);
+    SizeType pos = 0;
+    SizeType size;
     char32 charUTF32;
     wchar buffer[2] = {0};
     String str;
@@ -199,7 +199,7 @@ CT_INLINE String FromUTF8(const char8 *cstr)
         size = UTF32ToWide(&charUTF32, buffer);
         if (size == 0)
             break;
-        for (size_t i = 0; i < size; ++i)
+        for (SizeType i = 0; i < size; ++i)
         {
             str += buffer[i];
         }
@@ -209,9 +209,9 @@ CT_INLINE String FromUTF8(const char8 *cstr)
 
 CT_INLINE Array<char8> ToUTF8(String &str)
 {
-    size_t len = str.Length();
-    size_t pos = 0;
-    size_t size;
+    SizeType len = str.Length();
+    SizeType pos = 0;
+    SizeType size;
     const wchar *cstr = str.GetPtr();
     char32 charUTF32;
     char8 buffer[6] = {0};
@@ -226,7 +226,7 @@ CT_INLINE Array<char8> ToUTF8(String &str)
         size = UTF32ToUTF8(&charUTF32, buffer);
         if (size == 0)
             break;
-        for (size_t i = 0; i < size; ++i)
+        for (SizeType i = 0; i < size; ++i)
         {
             arr.Add(buffer[i]);
         }

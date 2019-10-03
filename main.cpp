@@ -8,6 +8,8 @@
 #include "Core/String/StringConvert.h"
 #include "Core/Log.h"
 #include "Core/FileSystem.h"
+#include "Core/Threading.h"
+#include "Core/Time.h"
 
 USE_CT_SCOPE
 
@@ -52,7 +54,7 @@ void TestArraySort()
     }
     std::cout << std::endl;
 
-    for(size_t i = 1; i < arr.Size(); ++i)
+    for(SizeType i = 1; i < arr.Size(); ++i)
     {
         if(arr[i - 1] > arr[i])
         {
@@ -69,7 +71,7 @@ void TestHashMap()
     HashMap<int, int> map2;
     map2.Put(100, 100);
 
-    HashMap<size_t, int> map3;
+    HashMap<SizeType, int> map3;
     map3.Put(100, 100);
 
     HashMap<float, int> map4;
@@ -104,26 +106,48 @@ void TestLogger()
     logger.Error(L"{}{0}and{1}", String(L"String1"), sizeof(double));
 }
 
-int main()
+void TestPath()
 {
-    // size_t index = Algo::BinarySearch(arr.GetData(), arr.Size(), 77, &AlgoInternal::Less<int>);
-    // int v = arr[index];
-
-    // uint32 uniCode[] = {0x4E25, 0};
-    // uint8 buffer[4] = {0};
-    // size_t count = StringConvert::UTF32ToUTF8(uniCode, uniCode + 1, buffer);
-    // uint32 ret;
-    // count = StringConvert::UTF8ToUTF32(buffer, buffer + count, &ret);
-
-    TestArraySort();
-    TestHashMap();
-
     FileSystem::Path path = FileSystem::Path(L"D:Parent");
     path.Append(FileSystem::Path(L"pic1.jpg"));
     logger.Info(path.GetExtension());
     logger.Info(path.GetFileNameWithoutExtension());
     logger.Info(path.GetFileName());
     logger.Info(path.GetFullPath());
+}
+
+void TestTimeUtils()
+{
+    logger.Info(L"Now: {0}", Time::NanoTime() / 1000000000);
+    std::this_thread::sleep_for(Time::Seconds(1));
+    logger.Info(L"Now: {0}", Time::MilliTime() / 1000);
+    logger.Info(L"Next: {0}", Time::MilliTime(Time::Now() + Time::Seconds(1)) / 1000);
+}
+
+int main()
+{
+    // SizeType index = Algo::BinarySearch(arr.GetData(), arr.Size(), 77, &AlgoInternal::Less<int>);
+    // int v = arr[index];
+
+    // uint32 uniCode[] = {0x4E25, 0};
+    // uint8 buffer[4] = {0};
+    // SizeType count = StringConvert::UTF32ToUTF8(uniCode, uniCode + 1, buffer);
+    // uint32 ret;
+    // count = StringConvert::UTF8ToUTF32(buffer, buffer + count, &ret);
+
+    // TestArraySort();
+    // TestHashMap();
+
+    TestTimeUtils();
+
+    // std::thread thread1 = std::thread([](){
+    //     Log log1 = Log(L"Thread1");
+    //     log1.Info(L"Thread start.");
+
+    //     log1.Info(L"Thread finish.");
+    // });
+    // thread1.join();
+
 
 
     system("pause");

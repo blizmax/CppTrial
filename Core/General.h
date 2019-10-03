@@ -36,7 +36,10 @@ typedef char16_t char16;
 typedef char32_t char32;
 typedef wchar_t wchar;
 
-static constexpr size_t INDEX_NONE = static_cast<size_t>(-1);
+typedef wchar CharType;
+typedef size_t SizeType;
+
+static constexpr SizeType INDEX_NONE = static_cast<SizeType>(-1);
 
 CT_INLINE uint64 NextPowerOfTwo(uint64 value)
 {

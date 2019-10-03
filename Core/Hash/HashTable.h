@@ -104,7 +104,7 @@ private:
 public:
     HashTable() = default;
 
-    explicit HashTable(size_t initCapacity)
+    explicit HashTable(SizeType initCapacity)
     {
         if (initCapacity > 0)
         {
@@ -178,12 +178,12 @@ public:
         size = capacity = mask = 0;
     }
 
-    size_t Size() const
+    SizeType Size() const
     {
         return size;
     }
 
-    size_t Capacity() const
+    SizeType Capacity() const
     {
         return capacity;
     }
@@ -221,7 +221,7 @@ public:
     {
         if (size != capacity)
         {
-            size_t newCapacity = FixCapacity(size);
+            SizeType newCapacity = FixCapacity(size);
             if (newCapacity < capacity)
             {
                 RehashPrivate(newCapacity);
@@ -229,13 +229,13 @@ public:
         }
     }
 
-    size_t Find(const Type &value) const
+    SizeType Find(const Type &value) const
     {
         const Key &key = KeyTraits::GetKey(value);
         return FindPrivate(HashKey(key), key);
     }
 
-    size_t FindByKey(const Key &key) const
+    SizeType FindByKey(const Key &key) const
     {
         return FindPrivate(HashKey(key), key);
     }
@@ -254,7 +254,7 @@ public:
     {
         const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
-        size_t pos = FindPrivate(hash, key);
+        SizeType pos = FindPrivate(hash, key);
         if (pos != INDEX_NONE)
         {
             data[pos] = value;
@@ -274,7 +274,7 @@ public:
     {
         const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
-        size_t pos = FindPrivate(hash, key);
+        SizeType pos = FindPrivate(hash, key);
         if (pos != INDEX_NONE)
         {
             data[pos] = std::move(value);
@@ -294,7 +294,7 @@ public:
     {
         const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
-        size_t pos = FindPrivate(hash, key);
+        SizeType pos = FindPrivate(hash, key);
         if (pos == INDEX_NONE)
         {
             if (IsFull())
@@ -312,7 +312,7 @@ public:
     {
         const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
-        size_t pos = FindPrivate(hash, key);
+        SizeType pos = FindPrivate(hash, key);
         if (pos == INDEX_NONE)
         {
             if (IsFull())
@@ -328,28 +328,28 @@ public:
 
     Type &Get(const Type &value)
     {
-        size_t pos = Find(value);
+        SizeType pos = Find(value);
         CheckRange(pos);
         return data[pos];
     }
 
     const Type &Get(const Type &value) const
     {
-        size_t pos = Find(value);
+        SizeType pos = Find(value);
         CheckRange(pos);
         return data[pos];
     }
 
     Type &GetByKey(const Key &key)
     {
-        size_t pos = FindByKey(key);
+        SizeType pos = FindByKey(key);
         CheckRange(pos);
         return data[pos];
     }
 
     const Type &GetByKey(const Key &key) const
     {
-        size_t pos = FindByKey(key);
+        SizeType pos = FindByKey(key);
         CheckRange(pos);
         return data[pos];
     }
@@ -371,7 +371,7 @@ public:
             return false;
         }
 
-        for (size_t i = 0; i < capacity; ++i)
+        for (SizeType i = 0; i < capacity; ++i)
         {
             if (IsInited(indexData[i].flag))
             {
@@ -398,11 +398,11 @@ public:
     {
     private:
         HashTable *table;
-        size_t index;
+        SizeType index;
 
         void Step()
         {
-            for (size_t i = index; i < table->capacity; ++i)
+            for (SizeType i = index; i < table->capacity; ++i)
             {
                 if (table->IsInited(table->indexData[i].flag))
                 {
@@ -414,7 +414,7 @@ public:
         }
 
     public:
-        Iterator(HashTable *ht, size_t idx) : table(ht), index(idx)
+        Iterator(HashTable *ht, SizeType idx) : table(ht), index(idx)
         {
             Step();
         }
@@ -471,11 +471,11 @@ public:
     {
     private:
         const HashTable *table;
-        size_t index;
+        SizeType index;
 
         void Step()
         {
-            for (size_t i = index; i < table->capacity; ++i)
+            for (SizeType i = index; i < table->capacity; ++i)
             {
                 if (table->IsInited(table->indexData[i].flag))
                 {
@@ -487,7 +487,7 @@ public:
         }
 
     public:
-        ConstIterator(const HashTable *ht, size_t idx) : table(ht), index(idx)
+        ConstIterator(const HashTable *ht, SizeType idx) : table(ht), index(idx)
         {
             Step();
         }
@@ -561,7 +561,7 @@ public:
     }
 
 private:
-    void CheckRange(size_t index) const
+    void CheckRange(SizeType index) const
     {
         CT_ASSERT(index < capacity);
     }
@@ -588,13 +588,13 @@ private:
         return flag && !IsDeleted(flag);
     }
 
-    size_t ProbeDistance(uint32 hash, size_t pos) const
+    SizeType ProbeDistance(uint32 hash, SizeType pos) const
     {
-        size_t desiredPos = static_cast<size_t>(hash) & mask;
+        SizeType desiredPos = static_cast<SizeType>(hash) & mask;
         return (pos + capacity - desiredPos) & mask;
     }
 
-    size_t FixCapacity(size_t newCapacity) const
+    SizeType FixCapacity(SizeType newCapacity) const
     {
         newCapacity = newCapacity < 8 ? 8 : newCapacity;
         if (IsPowerOfTwo(newCapacity))
@@ -606,7 +606,7 @@ private:
 
     void DestroyAllKeys()
     {
-        for (size_t i = 0; i < capacity; ++i)
+        for (SizeType i = 0; i < capacity; ++i)
         {
             if (indexData[i].flag == DEFAULT)
             {
@@ -624,7 +624,7 @@ private:
     {
         if (other.size > 0)
         {
-            for (size_t i = 0; i < other.capacity; ++i)
+            for (SizeType i = 0; i < other.capacity; ++i)
             {
                 if (IsInited(other.indexData[i].flag))
                 {
@@ -638,7 +638,7 @@ private:
     {
         if (other.size > 0)
         {
-            for (size_t i = 0; i < other.capacity; ++i)
+            for (SizeType i = 0; i < other.capacity; ++i)
             {
                 if (IsInited(other.indexData[i].flag))
                 {
@@ -648,15 +648,15 @@ private:
         }
     }
 
-    size_t FindPrivate(uint32 hash, const Key &key) const
+    SizeType FindPrivate(uint32 hash, const Key &key) const
     {
         if (size == 0)
         {
             return INDEX_NONE;
         }
 
-        size_t pos = static_cast<size_t>(hash) & mask;
-        size_t dist = 0;
+        SizeType pos = static_cast<SizeType>(hash) & mask;
+        SizeType dist = 0;
         while (true)
         {
             const auto flag = indexData[pos].flag;
@@ -679,7 +679,7 @@ private:
 
     bool RemovePrivate(const Key &key)
     {
-        size_t index = FindByKey(key);
+        SizeType index = FindByKey(key);
         if (index == INDEX_NONE)
         {
             return false;
@@ -692,8 +692,8 @@ private:
 
     bool PreInsert(uint32 hash, Type *&insertPtr)
     {
-        size_t pos = static_cast<size_t>(hash) & mask;
-        size_t dist = 0;
+        SizeType pos = static_cast<SizeType>(hash) & mask;
+        SizeType dist = 0;
         Type *tempPtr = nullptr;
         while (true)
         {
@@ -701,7 +701,7 @@ private:
             {
                 break;
             }
-            size_t existingDist = ProbeDistance(indexData[pos].hash, pos);
+            SizeType existingDist = ProbeDistance(indexData[pos].hash, pos);
             if (existingDist < dist)
             {
                 std::swap(hash, indexData[pos].hash);
@@ -761,7 +761,7 @@ private:
         }
     }
 
-    void RehashPrivate(size_t newCapacity)
+    void RehashPrivate(SizeType newCapacity)
     {
         HashTable temp(newCapacity);
         temp.size = size;
@@ -770,9 +770,9 @@ private:
     }
 
 private:
-    size_t size = 0;
-    size_t capacity = 0;
-    size_t mask = 0;
+    SizeType size = 0;
+    SizeType capacity = 0;
+    SizeType mask = 0;
     Type *data = nullptr;
     Index *indexData = nullptr;
 };

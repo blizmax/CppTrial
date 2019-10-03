@@ -24,13 +24,13 @@ public:
     HashMap &operator=(HashMap &&) noexcept = default;
     ~HashMap() = default;
 
-    explicit HashMap(size_t initCapacity) : hashTable(HashTableType(initCapacity))
+    explicit HashMap(SizeType initCapacity) : hashTable(HashTableType(initCapacity))
     {
     }
 
     HashMap(std::initializer_list<EntryType> initList)
     {
-        size_t initSize = initList.size();
+        SizeType initSize = initList.size();
         hashTable = HashTableType(initSize); // may make waste when has same keys
         for (const EntryType &entry : initList)
         {
@@ -46,12 +46,12 @@ public:
     }
 
 public:
-    size_t Size() const
+    SizeType Size() const
     {
         return hashTable.Size();
     }
 
-    size_t Capacity() const
+    SizeType Capacity() const
     {
         return hashTable.Capacity();
     }

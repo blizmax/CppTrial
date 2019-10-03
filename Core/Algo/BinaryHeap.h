@@ -7,29 +7,29 @@ CT_SCOPE_BEGIN
 namespace AlgoInternal
 {
 
-CT_INLINE size_t LeftChildIndex(size_t index)
+CT_INLINE SizeType LeftChildIndex(SizeType index)
 {
     return index * 2 + 1;
 }
 
-CT_INLINE size_t ParentIndex(size_t index)
+CT_INLINE SizeType ParentIndex(SizeType index)
 {
     return (index - 1) / 2;
 }
 
-CT_INLINE bool IsLeaf(size_t index, size_t count)
+CT_INLINE bool IsLeaf(SizeType index, SizeType count)
 {
     return LeftChildIndex(index) >= count;
 }
 
 template <typename T, typename Compare>
-CT_INLINE void SiftDown(T *heap, size_t count, size_t index, Compare compare)
+CT_INLINE void SiftDown(T *heap, SizeType count, SizeType index, Compare compare)
 {
     while (!IsLeaf(index, count))
     {
-        const size_t left = LeftChildIndex(index);
-        const size_t right = left + 1;
-        size_t max = left;
+        const SizeType left = LeftChildIndex(index);
+        const SizeType right = left + 1;
+        SizeType max = left;
         if (right < count && compare(heap[left], heap[right]))
         {
             max = right;
@@ -44,11 +44,11 @@ CT_INLINE void SiftDown(T *heap, size_t count, size_t index, Compare compare)
 }
 
 template <typename T, typename Compare>
-CT_INLINE size_t SiftUp(T *heap, size_t count, size_t index, Compare compare)
+CT_INLINE SizeType SiftUp(T *heap, SizeType count, SizeType index, Compare compare)
 {
     while (index > 0)
     {
-        size_t parent = ParentIndex(index);
+        SizeType parent = ParentIndex(index);
         if (!compare(heap[index], heap[parent]))
         {
             break;
@@ -61,18 +61,18 @@ CT_INLINE size_t SiftUp(T *heap, size_t count, size_t index, Compare compare)
 }
 
 template <typename T, typename Compare>
-void HeapSort(T *ptr, size_t count, Compare compare)
+void HeapSort(T *ptr, SizeType count, Compare compare)
 {
     if (count < 2)
         return;
 
-    for (size_t index = ParentIndex(count - 1) + 1; index > 0;)
+    for (SizeType index = ParentIndex(count - 1) + 1; index > 0;)
     {
         --index;
         SiftDown(ptr, count, index, compare);
     }
 
-    for (size_t range = count - 1; range > 0; --range)
+    for (SizeType range = count - 1; range > 0; --range)
     {
         std::swap(ptr[0], ptr[range]);
         SiftDown(ptr, range, 0, compare);

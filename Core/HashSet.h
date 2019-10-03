@@ -20,13 +20,13 @@ public:
     HashSet &operator=(HashSet &&) noexcept = default;
     ~HashSet() = default;
 
-    explicit HashSet(size_t initCapacity) : hashTable(HashTableType(initCapacity))
+    explicit HashSet(SizeType initCapacity) : hashTable(HashTableType(initCapacity))
     {
     }
 
     HashSet(std::initializer_list<Key> initList)
     {
-        size_t initSize = initList.size();
+        SizeType initSize = initList.size();
         hashTable = HashTableType(initSize); // may make waste when has same keys
         for (const Key &key : initList)
         {
@@ -42,12 +42,12 @@ public:
     }
 
 public:
-    size_t Size() const
+    SizeType Size() const
     {
         return hashTable.Size();
     }
 
-    size_t Capacity() const
+    SizeType Capacity() const
     {
         return hashTable.Capacity();
     }
