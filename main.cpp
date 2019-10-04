@@ -11,6 +11,7 @@
 #include "Core/FileSystem.h"
 #include "Core/Threading.h"
 #include "Core/Time.h"
+#include "Math/Random.h"
 
 CT_SCOPE_USING
 
@@ -38,9 +39,23 @@ public:
 
 void TestMath()
 {
-    float v = Math::Abs(-5.0);
-    int iv = Math::Abs(-15);
-    float ev = Math::Exp(1.0);
+    int i1 = Math::TruncToInt(-5.6f);
+    float f1 = Math::Abs(-5.0);
+    int i2 = Math::Abs(-15);
+    float f2 = Math::Exp(1.0);
+    float f3 = Math::Fmod(100, 99.5f);
+    float f4 = Math::Log2(1024.0f);
+    double f5 = Math::Pow(5.0, 4.0);
+    float f6 = Math::Exp2(8.0f);
+    float f7 = Math::Round(3.3f);
+    float f8 = Math::Round(3.5f);
+    auto min = Math::Min(100, 10, -5.0, 22, -33.5f);
+    auto clamp = Math::Clamp(50.0, 77.0, 80.0);
+
+    for(int32 i = 0; i < 100; ++i)
+    {
+        logger.Info(L"Random value: {0}", Math::RandInt(-30, -20));
+    }
 }
 
 void TestArraySort()

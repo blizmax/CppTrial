@@ -10,7 +10,7 @@ set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -D_DEBUG")
 include_directories("${PROJECT_SOURCE_DIR}/")
 #include_directories("${PROJECT_SOURCE_DIR}/Core")
 
-# add_subdirectory(Core)
-# target_link_libraries(Core)
+add_subdirectory(Math)
 
 add_executable(Main main.cpp)
+target_link_libraries(Main Math)
