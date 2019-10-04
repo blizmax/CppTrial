@@ -1,3 +1,4 @@
+#include "Core/Math.h"
 #include "Core/Array.h"
 #include "Core/List.h"
 #include "Core/HashSet.h"
@@ -11,7 +12,7 @@
 #include "Core/Threading.h"
 #include "Core/Time.h"
 
-USE_CT_SCOPE
+CT_SCOPE_USING
 
 Log logger = Log(L"Main");
 
@@ -35,32 +36,40 @@ public:
     ~A() { std::cout << "A destructor" << std::endl; }
 };
 
+void TestMath()
+{
+    float v = Math::Abs(-5.0);
+    int iv = Math::Abs(-15);
+    float ev = Math::Exp(1.0);
+}
+
 void TestArraySort()
 {
     Array<int> arr = {1, 98, 34, 25, 19, 34, 1, 98, 34, 77, 999, 27, 100, 6, 28, 1888, 89, 9, 130};
-    for (int i = 10000; i >= 0; --i)
+    for (int i = 5'000'000; i >= 0; --i)
     {
         arr.Add(i);
     }
 
+    int64 startTime = Time::MilliTime();
+
     //AlgoInternal::BubbleSort(arr.GetData(), arr.Size(), &AlgoInternal::Less<decltype(arr.First())>);
-    //AlgoInternal::SelectionSort(arr.GetData(), arr.Size(), &AlgoInternal::Less<>);
+    //AlgoInternal::SelectionSort(arr.GetData(), arr.Size(), Less<int>());
+    //AlgoInternal::HeapSort(arr.GetData(), arr.Size(), Less<int>());
     //Algo::QuickSort(arr.GetData(), arr.Size());
+    //Algo::IntroSort(arr.GetData(), arr.Size());
+    //std::sort(arr.begin(), arr.end(), Less<int>());
     arr.Sort();
 
-    for(auto v : arr)
-    {
-        std::cout << v << ", ";
-    }
-    std::cout << std::endl;
-
-    for(SizeType i = 1; i < arr.Size(); ++i)
+    for (SizeType i = 1; i < arr.Size(); ++i)
     {
         if(arr[i - 1] > arr[i])
         {
             logger.Error(L"Sort error at pos {0}, value is {1}", i, arr[i]);
         }
     }
+
+    logger.Info(L"Total used milliseconds: {0}", (Time::MilliTime() - startTime));
 }
 
 void TestHashMap()
@@ -96,7 +105,8 @@ void TestStringEncode()
 void TestStringConvert()
 {
     float ret;
-    bool ok = StringConvert::TryParseFloat(L"-.50", ret);
+    bool ok;
+    ok = StringConvert::TryParseFloat(L"-.50", ret);
 }
 
 void TestLogger()
@@ -116,7 +126,7 @@ void TestPath()
     logger.Info(path.GetFullPath());
 }
 
-void TestTimeUtils()
+void TestTime()
 {
     logger.Info(L"Now: {0}", Time::NanoTime() / 1000000000);
     std::this_thread::sleep_for(Time::Seconds(1));
@@ -135,10 +145,11 @@ int main()
     // uint32 ret;
     // count = StringConvert::UTF8ToUTF32(buffer, buffer + count, &ret);
 
-    // TestArraySort();
+    TestMath();
+    //TestArraySort();
     // TestHashMap();
 
-    TestTimeUtils();
+   
 
     // std::thread thread1 = std::thread([](){
     //     Log log1 = Log(L"Thread1");

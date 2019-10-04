@@ -689,7 +689,7 @@ public:
             arr.Add(SubString(pos1));
         }
 
-        return std::move(arr);
+        return arr;
     }
 
     int Compare(const String &other) const
@@ -1046,7 +1046,6 @@ private:
 private:
     CharArray data;
 };
-
 
 #include "Core/String/StringFormat.h"
 

@@ -3,16 +3,18 @@
 #include <cassert>
 #include <cstdint>
 
+//#define CPP_TRIAL_NAME CppTrial
+
 #ifdef CPP_TRIAL_NAME
 #define CT_SCOPE_BEGIN       \
     namespace CPP_TRIAL_NAME \
     {
 #define CT_SCOPE_END }
-#define USE_CT_SCOPE using namespace CPP_TRIAL_NAME;
+#define CT_SCOPE_USING using namespace CPP_TRIAL_NAME;
 #else
 #define CT_SCOPE_BEGIN
 #define CT_SCOPE_END
-#define USE_CT_SCOPE
+#define CT_SCOPE_USING
 #endif
 
 #define CT_ALIGN(X_, A_) (((X_) + ((A_)-1)) & ~((A_)-1))

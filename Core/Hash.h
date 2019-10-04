@@ -170,3 +170,5 @@ struct HashFunc
         return Hash::HashValue(value);
     }
 };
+
+CT_SCOPE_END

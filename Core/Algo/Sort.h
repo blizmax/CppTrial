@@ -109,7 +109,7 @@ void IntroSort(T *ptr, SizeType count, Compare compare)
         uint32 maxDepth;
     };
 
-    auto CalcMaxDepth = [](SizeType n) -> uint32 {
+    constexpr auto CalcMaxDepth = [](SizeType n) -> uint32 {
         uint32 depth = 0;
         while (n > 0)
         {
