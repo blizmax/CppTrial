@@ -13,6 +13,11 @@ static std::mt19937 &RandomGenerator()
 namespace Math
 {
 
+uint32 Rand()
+{
+    return RandomGenerator()();
+}
+
 int32 RandInt(int32 bound)
 {
     bound = bound < 0 ? 0 : bound;
@@ -38,6 +43,11 @@ float Rand01()
 {
     static std::uniform_real_distribution<float> dist(0.0f, 1.0f);
     return dist(RandomGenerator());
+}
+
+void RandSeed(uint32 seed)
+{
+    RandomGenerator().seed(seed);
 }
 
 } // namespace Math

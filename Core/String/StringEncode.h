@@ -15,7 +15,7 @@ CT_SCOPE_BEGIN
     00010000 - 001FFFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
     00200000 - 03FFFFFF | 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
     04000000 - 7FFFFFFF | 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 
-    */
+*/
 namespace StringEncode
 {
 CT_INLINE SizeType UTF8ToUTF32(const char8 *start, const char8 *end, char32 *output)

@@ -12,6 +12,7 @@
 #include "Core/Threading.h"
 #include "Core/Time.h"
 #include "Math/Random.h"
+#include "Math/UUID.h"
 
 CT_SCOPE_USING
 
@@ -54,8 +55,12 @@ void TestMath()
 
     for(int32 i = 0; i < 100; ++i)
     {
-        logger.Info(L"Random value: {0}", Math::RandInt(-30, -20));
+        logger.Info(L"Random value: {0}", Math::Rand());
     }
+
+    auto uuid = UUID();
+   
+
 }
 
 void TestArraySort()

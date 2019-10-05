@@ -246,8 +246,8 @@ CT_INLINE double Fmod(double a, double b)
     return std::fmod(a, b);
 }
 
-// Return the frac part of the number, and use a ptr to receive the int part 
-CT_INLINE float Modf(float value, float* intPart)
+// Return the frac part of the number, and use a ptr to receive the int part
+CT_INLINE float Modf(float value, float *intPart)
 {
     return std::modf(value, intPart);
 }
@@ -274,7 +274,7 @@ template <typename T1, typename... T2>
 CT_INLINE auto Max(T1 a, T2... b)
 {
     auto max = Max(b...);
-    return (max < a) ? a : max; 
+    return (max < a) ? a : max;
 }
 
 template <typename T>
