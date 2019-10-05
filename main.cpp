@@ -53,14 +53,17 @@ void TestMath()
     auto min = Math::Min(100, 10, -5.0, 22, -33.5f);
     auto clamp = Math::Clamp(50.0, 77.0, 80.0);
 
-    for(int32 i = 0; i < 100; ++i)
+    // for(int32 i = 0; i < 100; ++i)
+    // {
+    //     logger.Info(L"Random value: {0}", Math::Rand());
+    // }
+
+    for(int32 i = 0; i < 10; ++i)
     {
-        logger.Info(L"Random value: {0}", Math::Rand());
+        auto uuid = UUID();
+        logger.Info(L"UUID{0}: {1}", i, uuid);
     }
-
-    auto uuid = UUID();
    
-
 }
 
 void TestArraySort()

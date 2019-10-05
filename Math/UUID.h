@@ -27,18 +27,58 @@ public:
     UUID &operator=(UUID &&other) = default;
     ~UUID() = default;
 
-    void Swap(UUID& other);
+    void Swap(UUID &other)
+    {
+        std::swap(data, other.data);
+    }
+
     bool IsValid() const;
     String ToString() const;
     uint32 HashCode() const;
 
-    bool operator==(const UUID &other) const;
-    bool operator!=(const UUID &other) const;
-    bool operator<(const UUID &other) const;
+    bool operator==(const UUID &other) const
+    {
+        if (data.Size() != other.data.Size())
+        {
+            return false;
+        }
+        for (SizeType i = 0; i < data.Size(); ++i)
+        {
+            if (data[i] != other.data[i])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool operator!=(const UUID &other) const
+    {
+        return !(*this == other);
+    }
+
+    bool operator<(const UUID &other) const
+    {
+        if (data.Size() < other.data.Size())
+        {
+            return true;
+        }
+        if (data.Size() > other.data.Size())
+        {
+            return false;
+        }
+        for (SizeType i = 0; i < data.Size(); ++i)
+        {
+            if (other.data[i] < data[i])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 
 private:
-    Array<uint8> data = Array<uint8>(16); 
- 
+    Array<uint8> data = Array<uint8>(16);
 };
 
 CT_SCOPE_END
