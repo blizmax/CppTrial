@@ -7,151 +7,126 @@
 
 CT_SCOPE_BEGIN
 
-namespace ThisScope
+namespace Memory
 {
 
 template <typename T>
-CT_INLINE void construct(T *ptr)
+CT_INLINE void Construct(T *ptr)
 {
     ::new ((void *)ptr) T();
 }
 
 template <typename T, typename V>
-CT_INLINE void construct(T *ptr, const V &value)
+CT_INLINE void Construct(T *ptr, const V &value)
 {
     ::new ((void *)ptr) T(value);
 }
 
 template <typename T, typename... Args>
-CT_INLINE void construct(T *ptr, Args &&... args)
+CT_INLINE void Construct(T *ptr, Args &&... args)
 {
     ::new ((void *)ptr) T(std::forward<Args>(args)...);
 }
 
 template <typename T>
-CT_INLINE void destroy_private(T *ptr, std::true_type)
+CT_INLINE void Destroy(T *ptr)
 {
-}
-
-template <typename T>
-CT_INLINE void destroy_private(T *ptr, std::false_type)
-{
-    if (ptr != nullptr)
-        ptr->~T();
-}
-
-template <typename T>
-CT_INLINE void destroy(T *ptr)
-{
-    destroy_private(ptr, std::is_trivially_destructible<T>{});
-}
-
-template <typename T>
-CT_INLINE void copy_private(const T *src, SizeType count, T *dst, std::true_type)
-{
-    if (count > 0)
+    if constexpr (std::is_trivially_destructible<T>::value)
     {
-        std::memmove(dst, src, count * sizeof(T));
+    }
+    else
+    {
+        if (ptr != nullptr)
+            ptr->~T();
     }
 }
 
 template <typename T>
-CT_INLINE void copy_private(const T *src, SizeType count, T *dst, std::false_type)
+CT_INLINE void Copy(const T *src, SizeType count, T *dst)
 {
-    for (; count > 0; --count)
+    if constexpr (std::is_trivially_copy_assignable<T>::value)
     {
-        *dst = *src;
-        ++src;
-        ++dst;
+        if (count > 0)
+        {
+            std::memmove(dst, src, count * sizeof(T));
+        }
+    }
+    else
+    {
+        for (; count > 0; --count)
+        {
+            *dst = *src;
+            ++src;
+            ++dst;
+        }
     }
 }
 
 template <typename T>
-CT_INLINE void copy(const T *src, SizeType count, T *dst)
+CT_INLINE void CopyBackward(const T *src, SizeType count, T *dst)
 {
-    copy_private(src, count, dst, std::is_trivially_copy_assignable<T>{});
-}
-
-template <typename T>
-CT_INLINE void copy_backward_private(const T *src, SizeType count, T *dst, std::true_type)
-{
-    if (count > 0)
+    if constexpr (std::is_trivially_copy_assignable<T>::value)
     {
-        std::memmove(dst - count + 1, src - count + 1, count * sizeof(T));
+        if (count > 0)
+        {
+            std::memmove(dst - count + 1, src - count + 1, count * sizeof(T));
+        }
+    }
+    else
+    {
+        for (; count > 0; --count)
+        {
+            *dst = *src;
+            --src;
+            --dst;
+        }
     }
 }
 
 template <typename T>
-CT_INLINE void copy_backward_private(const T *src, SizeType count, T *dst, std::false_type)
+CT_INLINE void Move(T *src, SizeType count, T *dst)
 {
-    for (; count > 0; --count)
+    if constexpr (std::is_trivially_move_assignable<T>::value)
     {
-        *dst = *src;
-        --src;
-        --dst;
+        if (count > 0)
+        {
+            std::memmove(dst, src, count * sizeof(T));
+        }
+    }
+    else
+    {
+        for (; count > 0; --count)
+        {
+            *dst = std::move(*src);
+            ++src;
+            ++dst;
+        }
     }
 }
 
 template <typename T>
-CT_INLINE void copy_backward(const T *src, SizeType count, T *dst)
+CT_INLINE void MoveBackward(T *src, SizeType count, T *dst)
 {
-    copy_backward_private(src, count, dst, std::is_trivially_copy_assignable<T>{});
-}
-
-template <typename T>
-CT_INLINE void move_private(T *src, SizeType count, T *dst, std::true_type)
-{
-    if (count > 0)
+    if constexpr (std::is_trivially_move_assignable<T>::value)
     {
-        std::memmove(dst, src, count * sizeof(T));
+        if (count > 0)
+        {
+            std::memmove(dst - count + 1, src - count + 1, count * sizeof(T));
+        }
+    }
+    else
+    {
+        for (; count > 0; --count)
+        {
+            *dst = std::move(*src);
+            --src;
+            --dst;
+        }
     }
 }
 
 template <typename T>
-CT_INLINE void move_private(T *src, SizeType count, T *dst, std::false_type)
-{
-    for (; count > 0; --count)
-    {
-        *dst = std::move(*src);
-        ++src;
-        ++dst;
-    }
-}
-
-template <typename T>
-CT_INLINE void move(T *src, SizeType count, T *dst)
-{
-    move_private(src, count, dst, std::is_trivially_move_assignable<T>{});
-}
-
-template <typename T>
-CT_INLINE void move_backward_private(T *src, SizeType count, T *dst, std::true_type)
-{
-    if (count > 0)
-    {
-        std::memmove(dst - count + 1, src - count + 1, count * sizeof(T));
-    }
-}
-
-template <typename T>
-CT_INLINE void move_backward_private(T *src, SizeType count, T *dst, std::false_type)
-{
-    for (; count > 0; --count)
-    {
-        *dst = std::move(*src);
-        --src;
-        --dst;
-    }
-}
-
-template <typename T>
-CT_INLINE void move_backward(T *src, SizeType count, T *dst)
-{
-    move_backward_private(src, count, dst, std::is_trivially_move_assignable<T>{});
-}
-
-template <typename T>
-CT_INLINE void fill(T *dst, SizeType count, const T &value)
+CT_INLINE void Fill(T *dst, SizeType count, const T &value)
 {
     for (; count > 0; --count)
     {
@@ -161,88 +136,73 @@ CT_INLINE void fill(T *dst, SizeType count, const T &value)
 }
 
 template <typename T>
-CT_INLINE void uninitialized_copy_private(const T *src, SizeType count, T *dst, std::true_type)
+CT_INLINE void UninitializedCopy(const T *src, SizeType count, T *dst)
 {
-    if (count > 0)
+    if constexpr (std::is_trivially_copy_assignable<T>::value)
     {
-        std::memcpy(dst, src, count * sizeof(T));
+        if (count > 0)
+        {
+            std::memcpy(dst, src, count * sizeof(T));
+        }
+    }
+    else
+    {
+        for (; count > 0; --count)
+        {
+            Construct(dst, *src);
+            ++dst;
+            ++src;
+        }
     }
 }
 
 template <typename T>
-CT_INLINE void uninitialized_copy_private(const T *src, SizeType count, T *dst, std::false_type)
+CT_INLINE void UninitializedFill(T *dst, SizeType count, const T &value)
 {
-    for (; count > 0; --count)
+    if constexpr (std::is_trivially_copy_assignable<T>::value)
     {
-        construct(dst, *src);
-        ++dst;
-        ++src;
+        for (; count > 0; --count)
+        {
+            *dst = value;
+            ++dst;
+        }
+    }
+    else
+    {
+        for (; count > 0; --count)
+        {
+            Construct(dst, value);
+            ++dst;
+        }
     }
 }
 
 template <typename T>
-CT_INLINE void uninitialized_copy(const T *src, SizeType count, T *dst)
+CT_INLINE void UninitializedMove(T *src, SizeType count, T *dst)
 {
-    uninitialized_copy_private(src, count, dst, std::is_trivially_copy_assignable<T>{});
-}
-
-template <typename T>
-CT_INLINE void uninitialized_fill_private(T *dst, SizeType count, const T &value, std::true_type)
-{
-    for (; count > 0; --count)
+    if constexpr (std::is_trivially_move_assignable<T>::value)
     {
-        *dst = value;
-        ++dst;
+        for (; count > 0; --count)
+        {
+            *dst = std::move(*src);
+            ++src;
+            ++dst;
+        }
     }
-}
-
-template <typename T>
-CT_INLINE void uninitialized_fill_private(T *dst, SizeType count, const T &value, std::false_type)
-{
-    for (; count > 0; --count)
+    else
     {
-        construct(dst, value);
-        ++dst;
+        for (; count > 0; --count)
+        {
+            Construct(dst, std::move(*src));
+            ++src;
+            ++dst;
+        }
     }
-}
-
-template <typename T>
-CT_INLINE void uninitialized_fill(T *dst, SizeType count, const T &value)
-{
-    uninitialized_fill_private(dst, count, value, std::is_trivially_copy_assignable<T>{});
-}
-
-template <typename T>
-CT_INLINE void uninitialized_move_private(T *src, SizeType count, T *dst, std::true_type)
-{
-    for (; count > 0; --count)
-    {
-        *dst = std::move(*src);
-        ++src;
-        ++dst;
-    }
-}
-
-template <typename T>
-CT_INLINE void uninitialized_move_private(T *src, SizeType count, T *dst, std::false_type)
-{
-    for (; count > 0; --count)
-    {
-        construct(dst, std::move(*src));
-        ++src;
-        ++dst;
-    }
-}
-
-template <typename T>
-CT_INLINE void uninitialized_move(T *src, SizeType count, T *dst)
-{
-    uninitialized_move_private(src, count, dst, std::is_trivially_move_assignable<T>{});
 }
 
 // reverse range [first, last)
 template <typename T>
-CT_INLINE void reverse(T *first, T *last)
+CT_INLINE void Reverse(T *first, T *last)
 {
     while (first < last)
     {
@@ -252,6 +212,6 @@ CT_INLINE void reverse(T *first, T *last)
     }
 }
 
-} // namespace ThisScope
+} // namespace Memory
 
 CT_SCOPE_END

@@ -48,7 +48,7 @@ public:
         auto index = pathStr.LastIndexOf(L'/');
         if (index != INDEX_NONE)
         {
-            return pathStr.SubString(index + 1);
+            return pathStr.Substring(index + 1);
         }
         return pathStr;
     }
@@ -59,7 +59,7 @@ public:
         auto index = fileName.LastIndexOf(L'.');
         if (index != INDEX_NONE)
         {
-            return fileName.SubString(0, index);
+            return fileName.Substring(0, index);
         }
         return fileName;
     }
@@ -70,7 +70,7 @@ public:
         auto index = fileName.LastIndexOf(L'.');
         if (index != INDEX_NONE)
         {
-            return fileName.SubString(index);
+            return fileName.Substring(index);
         }
 
         return String();

@@ -135,8 +135,8 @@ public:
     }
 
 private:
-    typedef typename Hash::SetKeyTraits<Key> KeyTriats;
-    typedef HashTable<Key, Hasher, KeyEqual, KeyTriats, Alloc> HashTableType;
+    using KeyTriats = Hash::SetKeyTraits<Key>;
+    using HashTableType = HashTable<Key, Hasher, KeyEqual, KeyTriats, Alloc>;
 
     HashTableType hashTable;
 };

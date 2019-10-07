@@ -11,7 +11,7 @@ class String
 {
 public:
     using CharTraits = CString::CharTraits;
-    typedef Array<CharType> CharArray;
+    using CharArray = Array<CharType>;
 
 public:
     String() = default;
@@ -56,7 +56,7 @@ public:
             if (count > 0)
             {
                 data.AppendUninitialized(count + 1);
-                ThisScope::uninitialized_fill(data.GetData(), count, chr);
+                Memory::UninitializedFill(data.GetData(), count, chr);
                 data.GetData()[count] = 0;
             }
         }
@@ -143,7 +143,7 @@ public:
         if (Length() > 0)
         {
             CharType *ptr = data.GetData();
-            ThisScope::reverse(ptr, ptr + Length() - 1);
+            Memory::Reverse(ptr, ptr + Length() - 1);
         }
     }
 
@@ -199,12 +199,12 @@ public:
         }
     }
 
-    String SubString(SizeType index) const
+    String Substring(SizeType index) const
     {
-        return SubString(index, Length());
+        return Substring(index, Length());
     }
 
-    String SubString(SizeType index, SizeType count) const
+    String Substring(SizeType index, SizeType count) const
     {
         const SizeType len = Length();
         index = index < len ? index : len;
@@ -680,13 +680,13 @@ public:
         {
             if (pos2 - pos1) // skip more than one delims
             {
-                arr.Add(SubString(pos1, pos2 - pos1));
+                arr.Add(Substring(pos1, pos2 - pos1));
             }
             pos1 = pos2 + delim.Length();
         }
         if (pos1 != Length())
         {
-            arr.Add(SubString(pos1));
+            arr.Add(Substring(pos1));
         }
 
         return arr;
@@ -1047,7 +1047,9 @@ private:
     CharArray data;
 };
 
+#include "Core/String/StringConvert.h"
 #include "Core/String/StringFormat.h"
+#include "Core/String/StringEncode.h"
 
 template <typename... Args>
 CT_INLINE String String::Format(const String &src, Args &&... args)

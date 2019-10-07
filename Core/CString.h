@@ -9,7 +9,7 @@ CT_SCOPE_BEGIN
 namespace CString
 {
 
-typedef std::char_traits<CharType> CharTraits;
+using CharTraits = std::char_traits<CharType>;
 
 CT_INLINE bool IsDigit(CharType input)
 {

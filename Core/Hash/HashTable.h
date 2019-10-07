@@ -11,8 +11,8 @@ template <typename K, typename V>
 struct MapEntry
 {
 public:
-    typedef K KeyType;
-    typedef V ValueType;
+    using KeyType = K;
+    using ValueType = V;
 
     MapEntry() = default;
     MapEntry(const MapEntry &) = default;
@@ -60,7 +60,7 @@ private:
 template <typename T>
 struct SetKeyTraits
 {
-    typedef T KeyType;
+    using KeyType = T;
     static const KeyType &GetKey(const T &value)
     {
         return value;
@@ -70,7 +70,7 @@ struct SetKeyTraits
 template <typename T>
 struct MapKeyTraits
 {
-    typedef typename T::KeyType KeyType;
+    using KeyType = typename T::KeyType;
     static const KeyType &GetKey(const T &value)
     {
         return value.Key();
@@ -78,12 +78,9 @@ struct MapKeyTraits
 };
 } // namespace Hash
 
-template <typename Type, typename Hasher, typename KeyEqual, typename KeyTraits, template <typename T> class Alloc>
+template <typename Element, typename Hasher, typename KeyEqual, typename KeyTraits, template <typename> class Alloc>
 class HashTable
 {
-public:
-    typedef typename KeyTraits::KeyType Key;
-
 private:
     enum
     {
@@ -98,10 +95,9 @@ private:
         uint32 flag;
     };
 
-    typedef Alloc<Type> DataAlloc;
-    typedef Alloc<Index> IndexAlloc;
-
 public:
+    using Key = typename KeyTraits::KeyType;
+
     HashTable() = default;
 
     explicit HashTable(SizeType initCapacity)
@@ -229,7 +225,7 @@ public:
         }
     }
 
-    SizeType Find(const Type &value) const
+    SizeType Find(const Element &value) const
     {
         const Key &key = KeyTraits::GetKey(value);
         return FindPrivate(HashKey(key), key);
@@ -240,7 +236,7 @@ public:
         return FindPrivate(HashKey(key), key);
     }
 
-    bool Contains(const Type &value) const
+    bool Contains(const Element &value) const
     {
         return Find(value) != INDEX_NONE;
     }
@@ -250,7 +246,7 @@ public:
         return FindByKey(key) != INDEX_NONE;
     }
 
-    void Put(const Type &value)
+    void Put(const Element &value)
     {
         const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
@@ -270,7 +266,7 @@ public:
         }
     }
 
-    void Put(Type &&value)
+    void Put(Element &&value)
     {
         const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
@@ -290,7 +286,7 @@ public:
         }
     }
 
-    bool Add(const Type &value)
+    bool Add(const Element &value)
     {
         const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
@@ -308,7 +304,7 @@ public:
         return false;
     }
 
-    bool Add(Type &&value)
+    bool Add(Element &&value)
     {
         const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
@@ -326,35 +322,35 @@ public:
         return false;
     }
 
-    Type &Get(const Type &value)
+    Element &Get(const Element &value)
     {
         SizeType pos = Find(value);
         CheckRange(pos);
         return data[pos];
     }
 
-    const Type &Get(const Type &value) const
+    const Element &Get(const Element &value) const
     {
         SizeType pos = Find(value);
         CheckRange(pos);
         return data[pos];
     }
 
-    Type &GetByKey(const Key &key)
+    Element &GetByKey(const Key &key)
     {
         SizeType pos = FindByKey(key);
         CheckRange(pos);
         return data[pos];
     }
 
-    const Type &GetByKey(const Key &key) const
+    const Element &GetByKey(const Key &key) const
     {
         SizeType pos = FindByKey(key);
         CheckRange(pos);
         return data[pos];
     }
 
-    bool Remove(const Type &value)
+    bool Remove(const Element &value)
     {
         return RemovePrivate(KeyTraits::GetKey(value));
     }
@@ -444,13 +440,13 @@ public:
             return temp;
         }
 
-        Type &operator*()
+        Element &operator*()
         {
             table->CheckRange(index);
             return table->data[index];
         }
 
-        Type *operator->()
+        Element *operator->()
         {
             table->CheckRange(index);
             return &(table->data[index]);
@@ -517,13 +513,13 @@ public:
             return temp;
         }
 
-        const Type &operator*()
+        const Element &operator*()
         {
             table->CheckRange(index);
             return table->data[index];
         }
 
-        const Type *operator->()
+        const Element *operator->()
         {
             table->CheckRange(index);
             return &(table->data[index]);
@@ -690,11 +686,11 @@ private:
         return true;
     }
 
-    bool PreInsert(uint32 hash, Type *&insertPtr)
+    bool PreInsert(uint32 hash, Element *&insertPtr)
     {
         SizeType pos = static_cast<SizeType>(hash) & mask;
         SizeType dist = 0;
-        Type *tempPtr = nullptr;
+        Element *tempPtr = nullptr;
         while (true)
         {
             if (!IsInited(indexData[pos].flag))
@@ -727,7 +723,7 @@ private:
 
         if (tempPtr)
         {
-            ThisScope::uninitialized_move(tempPtr, 1, data + pos);
+            Memory::UninitializedMove(tempPtr, 1, data + pos);
             return true;
         }
 
@@ -735,22 +731,22 @@ private:
         return false;
     }
 
-    void InsertPrivate(uint32 hash, const Type &value)
+    void InsertPrivate(uint32 hash, const Element &value)
     {
-        Type *insertPtr = nullptr;
+        Element *insertPtr = nullptr;
         if (PreInsert(hash, insertPtr))
         {
             *insertPtr = value;
         }
         else
         {
-            ThisScope::uninitialized_fill(insertPtr, 1, value);
+            Memory::UninitializedFill(insertPtr, 1, value);
         }
     }
 
-    void InsertPrivate(uint32 hash, Type &&value)
+    void InsertPrivate(uint32 hash, Element &&value)
     {
-        Type *insertPtr = nullptr;
+        Element *insertPtr = nullptr;
         if (PreInsert(hash, insertPtr))
         {
             *insertPtr = std::move(value);
@@ -770,10 +766,13 @@ private:
     }
 
 private:
+    using DataAlloc = Alloc<Element>;
+    using IndexAlloc = Alloc<Index>;
+
     SizeType size = 0;
     SizeType capacity = 0;
     SizeType mask = 0;
-    Type *data = nullptr;
+    Element *data = nullptr;
     Index *indexData = nullptr;
 };
 

@@ -54,32 +54,32 @@ CT_INLINE void Allocator<T>::Deallocate(T *ptr, SizeType count)
 template <typename T>
 CT_INLINE void Allocator<T>::Construct(T *ptr)
 {
-    ThisScope::construct(ptr);
+    Memory::Construct(ptr);
 }
 
 template <typename T>
 CT_INLINE void Allocator<T>::Construct(T *ptr, const T &value)
 {
-    ThisScope::construct(ptr, value);
+    Memory::Construct(ptr, value);
 }
 
 template <typename T>
 CT_INLINE void Allocator<T>::Construct(T *ptr, T &&value)
 {
-    ThisScope::construct(ptr, std::move(value));
+    Memory::Construct(ptr, std::move(value));
 }
 
 template <typename T>
 template <typename... Args>
 CT_INLINE void Allocator<T>::Construct(T *ptr, Args &&... args)
 {
-    ThisScope::construct(ptr, std::forward<Args>(args)...);
+    Memory::Construct(ptr, std::forward<Args>(args)...);
 }
 
 template <typename T>
 CT_INLINE void Allocator<T>::Destroy(T *ptr)
 {
-    ThisScope::destroy(ptr);
+    Memory::Destroy(ptr);
 }
 
 template <typename T>
@@ -87,7 +87,7 @@ CT_INLINE void Allocator<T>::Destroy(T *ptr, SizeType count)
 {
     for (; count > 0; --count)
     {
-        ThisScope::destroy(ptr);
+        Memory::Destroy(ptr);
         ++ptr;
     }
 }

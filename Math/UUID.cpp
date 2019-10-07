@@ -96,8 +96,6 @@ String UUID::ToString() const
         output[i * 2 + 5] = HEX_TO_CHAR[data[i] & 0xF];
     }
 
-    CharType r = output[22];
-
     return String(output);
 }
 

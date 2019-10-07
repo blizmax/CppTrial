@@ -6,7 +6,7 @@
 
 CT_SCOPE_BEGIN
 
-template <typename Type, typename Alloc = Allocator<Type>>
+template <typename Element, typename Alloc = Allocator<Element>>
 class Array
 {
 public:
@@ -17,13 +17,13 @@ public:
         Reserve(capacity);
     }
 
-    Array(std::initializer_list<Type> initList)
+    Array(std::initializer_list<Element> initList)
     {
         SizeType minCapacity = initList.size();
         Reserve(minCapacity);
-        for (const Type &value : initList)
+        for (const Element &value : initList)
         {
-            ThisScope::uninitialized_fill((data + size++), 1, value);
+            Memory::UninitializedFill((data + size++), 1, value);
         }
     }
 
@@ -31,7 +31,7 @@ public:
     {
         SizeType minCapacity = other.size;
         Reserve(minCapacity);
-        ThisScope::uninitialized_copy(other.data, other.size, data);
+        Memory::UninitializedCopy(other.data, other.size, data);
         size = other.size;
     }
 
@@ -53,14 +53,14 @@ public:
             }
             else if (size > other.size)
             {
-                ThisScope::copy(other.data, other.size, data);
+                Memory::Copy(other.data, other.size, data);
                 Alloc::Destroy(data + other.size, size - other.size);
                 size = other.size;
             }
             else
             {
-                ThisScope::copy(other.data, size, data);
-                ThisScope::uninitialized_copy(other.data + size, other.size - size, data + size);
+                Memory::Copy(other.data, size, data);
+                Memory::UninitializedCopy(other.data + size, other.size - size, data + size);
                 size = other.size;
             }
         }
@@ -82,7 +82,7 @@ public:
         return *this;
     }
 
-    Array &operator=(std::initializer_list<Type> initList)
+    Array &operator=(std::initializer_list<Element> initList)
     {
         Array temp(initList);
         Swap(temp);
@@ -96,12 +96,12 @@ public:
         size = capacity = 0;
     }
 
-    Type *GetData()
+    Element *GetData()
     {
         return data;
     }
 
-    const Type *GetData() const
+    const Element *GetData() const
     {
         return data;
     }
@@ -153,7 +153,7 @@ public:
     {
         if (size > 1)
         {
-            ThisScope::reverse(data, data + size);
+            Memory::Reverse(data, data + size);
         }
     }
 
@@ -179,7 +179,7 @@ public:
         {
             AppendUninitialized(newSize - size);
             //FIXME
-            //Init use default value Type() ?
+            //Init use default value Element() ?
         }
     }
 
@@ -206,23 +206,23 @@ public:
         RemovePrivate(index, count);
     }
 
-    void Add(const Type &value)
+    void Add(const Element &value)
     {
         InsertPrivate(size, value);
     }
 
-    void Add(Type &&value)
+    void Add(Element &&value)
     {
         InsertPrivate(size, std::move(value));
     }
 
-    void Insert(SizeType index, const Type &value)
+    void Insert(SizeType index, const Element &value)
     {
         CheckRange(index);
         InsertPrivate(index, value);
     }
 
-    void Insert(SizeType index, const Type &value, SizeType count)
+    void Insert(SizeType index, const Element &value, SizeType count)
     {
         CheckRange(index);
         if (count > 0)
@@ -231,13 +231,13 @@ public:
         }
     }
 
-    void Insert(SizeType index, Type &&value)
+    void Insert(SizeType index, Element &&value)
     {
         CheckRange(index);
         InsertPrivate(index, std::move(value));
     }
 
-    void Insert(SizeType index, const Type *src, SizeType count)
+    void Insert(SizeType index, const Element *src, SizeType count)
     {
         CheckRange(index);
         if (count > 0)
@@ -246,25 +246,25 @@ public:
         }
     }
 
-    Type &First()
+    Element &First()
     {
         CheckRange(0);
         return data[0];
     }
 
-    const Type &First() const
+    const Element &First() const
     {
         CheckRange(0);
         return data[0];
     }
 
-    Type &Peek()
+    Element &Peek()
     {
         CheckRange(size - 1);
         return data[size - 1];
     }
 
-    const Type &Peek() const
+    const Element &Peek() const
     {
         CheckRange(size - 1);
         return data[size - 1];
@@ -276,7 +276,7 @@ public:
         Alloc::Destroy(data + (--size));
     }
 
-    bool Find(const Type &value, SizeType *at = nullptr) const
+    bool Find(const Element &value, SizeType *at = nullptr) const
     {
         for (SizeType i = 0; i < size; ++i)
         {
@@ -292,7 +292,7 @@ public:
         return false;
     }
 
-    bool Find(const Type &value, SizeType &at) const
+    bool Find(const Element &value, SizeType &at) const
     {
         return Find(value, &at);
     }
@@ -320,7 +320,7 @@ public:
         return Find(pred, &at);
     }
 
-    bool FindLast(const Type &value, SizeType *at) const
+    bool FindLast(const Element &value, SizeType *at) const
     {
         for (SizeType i = size; i >= 1;)
         {
@@ -337,7 +337,7 @@ public:
         return false;
     }
 
-    bool FindLast(const Type &value, SizeType &at) const
+    bool FindLast(const Element &value, SizeType &at) const
     {
         return Find(value, &at);
     }
@@ -366,12 +366,12 @@ public:
         return FindLast(pred, &at);
     }
 
-    bool Contains(const Type &value) const
+    bool Contains(const Element &value) const
     {
         return Find(value);
     }
 
-    SizeType IndexOf(const Type &value) const
+    SizeType IndexOf(const Element &value) const
     {
         SizeType ret = 0;
         if (Find(value, ret))
@@ -381,7 +381,7 @@ public:
         return INDEX_NONE;
     }
 
-    SizeType LastIndexOf(const Type &value) const
+    SizeType LastIndexOf(const Element &value) const
     {
         SizeType ret = 0;
         if (FindLast(value, ret))
@@ -391,13 +391,13 @@ public:
         return INDEX_NONE;
     }
 
-    Type &At(SizeType index)
+    Element &At(SizeType index)
     {
         CheckRange(index);
         return data[index];
     }
 
-    const Type &At(SizeType index) const
+    const Element &At(SizeType index) const
     {
         CheckRange(index);
         return data[index];
@@ -405,7 +405,7 @@ public:
 
     void Sort()
     {
-        Algo::Sort(data, size, Less<Type>());
+        Algo::Sort(data, size, Less<Element>());
     }
 
     template <typename Compare>
@@ -414,13 +414,13 @@ public:
         Algo::Sort(data, size, compare);
     }
 
-    Type &operator[](SizeType index)
+    Element &operator[](SizeType index)
     {
         CheckRange(index);
         return data[index];
     }
 
-    const Type &operator[](SizeType index) const
+    const Element &operator[](SizeType index) const
     {
         CheckRange(index);
         return data[index];
@@ -448,22 +448,22 @@ public:
 
     //===================== STL STYLE =========================
 public:
-    Type *begin()
+    Element *begin()
     {
         return data;
     }
 
-    const Type *begin() const
+    const Element *begin() const
     {
         return data;
     }
 
-    Type *end()
+    Element *end()
     {
         return data ? data + size : nullptr;
     }
 
-    const Type *end() const
+    const Element *end() const
     {
         return data ? data + size : nullptr;
     }
@@ -479,7 +479,7 @@ private:
         return (inputCapacity < 8) ? 8 : CT_ALIGN(inputCapacity, 8);
     }
 
-    void DestroyAndDeallocate(Type *ptr, SizeType destroySize, SizeType deallocSize)
+    void DestroyAndDeallocate(Element *ptr, SizeType destroySize, SizeType deallocSize)
     {
         Alloc::Destroy(ptr, destroySize);
         Alloc::Deallocate(ptr, deallocSize);
@@ -487,8 +487,8 @@ private:
 
     void ReservePrivate(SizeType newCapacity)
     {
-        Type *newData = Alloc::Allocate(newCapacity);
-        ThisScope::uninitialized_move(data, size, newData);
+        Element *newData = Alloc::Allocate(newCapacity);
+        Memory::UninitializedMove(data, size, newData);
         DestroyAndDeallocate(data, size, capacity);
         data = newData;
         capacity = newCapacity;
@@ -498,49 +498,49 @@ private:
     {
         const SizeType moveCount = size - index - count;
         size -= count;
-        ThisScope::move(data + index + count, moveCount, data + index);
+        Memory::Move(data + index + count, moveCount, data + index);
         Alloc::Destroy(data + size, count);
     }
 
-    void InsertPrivate(SizeType index, const Type &value, SizeType count = 1)
+    void InsertPrivate(SizeType index, const Element &value, SizeType count = 1)
     {
         const SizeType oldSize = size;
         size += count;
 
         if (index == oldSize && size <= capacity)
         {
-            ThisScope::uninitialized_fill(data + oldSize, count, value);
+            Memory::UninitializedFill(data + oldSize, count, value);
         }
         else if (size <= capacity)
         {
             SizeType moveNum = oldSize - index;
             if (moveNum > count)
             {
-                ThisScope::uninitialized_move(data + oldSize - count, count, data + oldSize);
-                ThisScope::move_backward(data + oldSize - count - 1, moveNum - count, data + oldSize - 1);
-                ThisScope::fill(data + index, count, value);
+                Memory::UninitializedMove(data + oldSize - count, count, data + oldSize);
+                Memory::MoveBackward(data + oldSize - count - 1, moveNum - count, data + oldSize - 1);
+                Memory::Fill(data + index, count, value);
             }
             else
             {
-                ThisScope::uninitialized_move(data + index, moveNum, data + index + count);
-                ThisScope::fill(data + index, moveNum, value);
-                ThisScope::uninitialized_fill(data + index + moveNum, count - moveNum, value);
+                Memory::UninitializedMove(data + index, moveNum, data + index + count);
+                Memory::Fill(data + index, moveNum, value);
+                Memory::UninitializedFill(data + index + moveNum, count - moveNum, value);
             }
         }
         else
         {
             const SizeType oldCapacity = capacity;
-            Type *oldData = data;
+            Element *oldData = data;
             capacity = FixCapacity((oldCapacity * 2) >= size ? (oldCapacity * 2) : size);
             data = Alloc::Allocate(capacity);
-            ThisScope::uninitialized_move(oldData, index, data);
-            ThisScope::uninitialized_fill(data + index, count, value);
-            ThisScope::uninitialized_move(oldData + index, oldSize - index, data + index + count);
+            Memory::UninitializedMove(oldData, index, data);
+            Memory::UninitializedFill(data + index, count, value);
+            Memory::UninitializedMove(oldData + index, oldSize - index, data + index + count);
             DestroyAndDeallocate(oldData, oldSize, oldCapacity);
         }
     }
 
-    void InsertPrivate(SizeType index, Type &&value)
+    void InsertPrivate(SizeType index, Element &&value)
     {
         const SizeType oldSize = size++;
 
@@ -551,57 +551,57 @@ private:
         else if (size <= capacity)
         {
             SizeType moveNum = oldSize - index;
-            ThisScope::uninitialized_move(data + oldSize - 1, 1, data + oldSize);
-            ThisScope::move_backward(data + oldSize - 2, moveNum - 1, data + oldSize - 1);
+            Memory::UninitializedMove(data + oldSize - 1, 1, data + oldSize);
+            Memory::MoveBackward(data + oldSize - 2, moveNum - 1, data + oldSize - 1);
             Alloc::Construct(data + index, std::move(value));
         }
         else
         {
             const SizeType oldCapacity = capacity;
-            Type *oldData = data;
+            Element *oldData = data;
             capacity = FixCapacity((oldCapacity * 2) >= size ? (oldCapacity * 2) : size);
             data = Alloc::Allocate(capacity);
-            ThisScope::uninitialized_move(oldData, index, data);
+            Memory::UninitializedMove(oldData, index, data);
             Alloc::Construct(data + index, std::move(value));
-            ThisScope::uninitialized_move(oldData + index, oldSize - index, data + index + 1);
+            Memory::UninitializedMove(oldData + index, oldSize - index, data + index + 1);
             DestroyAndDeallocate(oldData, oldSize, oldCapacity);
         }
     }
 
-    void InsertPrivate(SizeType index, const Type *src, SizeType count)
+    void InsertPrivate(SizeType index, const Element *src, SizeType count)
     {
         const SizeType oldSize = size;
         size += count;
 
         if (index == oldSize && size <= capacity)
         {
-            ThisScope::uninitialized_copy(src, count, data + oldSize);
+            Memory::UninitializedCopy(src, count, data + oldSize);
         }
         else if (size <= capacity)
         {
             SizeType moveNum = oldSize - index;
             if (moveNum > count)
             {
-                ThisScope::uninitialized_move(data + oldSize - count, count, data + oldSize);
-                ThisScope::move_backward(data + oldSize - count - 1, moveNum - count, data + oldSize - 1);
-                ThisScope::copy(src, count, data + index);
+                Memory::UninitializedMove(data + oldSize - count, count, data + oldSize);
+                Memory::MoveBackward(data + oldSize - count - 1, moveNum - count, data + oldSize - 1);
+                Memory::Copy(src, count, data + index);
             }
             else
             {
-                ThisScope::uninitialized_move(data + index, moveNum, data + index + count);
-                ThisScope::copy(src, moveNum, data + index);
-                ThisScope::uninitialized_copy(src + moveNum, count - moveNum, data + index + moveNum);
+                Memory::UninitializedMove(data + index, moveNum, data + index + count);
+                Memory::Copy(src, moveNum, data + index);
+                Memory::UninitializedCopy(src + moveNum, count - moveNum, data + index + moveNum);
             }
         }
         else
         {
             const SizeType oldCapacity = capacity;
-            Type *oldData = data;
+            Element *oldData = data;
             capacity = FixCapacity((oldCapacity * 2) >= size ? (oldCapacity * 2) : size);
             data = Alloc::Allocate(capacity);
-            ThisScope::uninitialized_move(oldData, index, data);
-            ThisScope::copy(src, count, data + index);
-            ThisScope::uninitialized_move(oldData + index, oldSize - index, data + index + count);
+            Memory::UninitializedMove(oldData, index, data);
+            Memory::Copy(src, count, data + index);
+            Memory::UninitializedMove(oldData + index, oldSize - index, data + index + count);
             DestroyAndDeallocate(oldData, oldSize, oldCapacity);
         }
     }
@@ -609,7 +609,7 @@ private:
 private:
     SizeType size = 0;
     SizeType capacity = 0;
-    Type *data = nullptr;
+    Element *data = nullptr;
 };
 
 CT_SCOPE_END

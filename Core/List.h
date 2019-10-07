@@ -62,18 +62,14 @@ private:
 };
 } // namespace ListInternal
 
-template <typename Type,
+template <typename Element,
           template <typename T> class Node = ListInternal::Node,
           template <typename T> class Alloc = Allocator>
 class List
 {
 public:
-    typedef Node<Type> NodeType;
+    using NodeType = Node<Element>;
 
-private:
-    typedef Alloc<NodeType> NodeAlloc;
-
-public:
     List() = default;
 
     List(const List &other)
@@ -92,7 +88,7 @@ public:
         other.size = 0;
     }
 
-    List(std::initializer_list<Type> initList)
+    List(std::initializer_list<Element> initList)
     {
         for (auto v : initList)
         {
@@ -120,7 +116,7 @@ public:
         return *this;
     }
 
-    List &operator=(std::initializer_list<Type> initList)
+    List &operator=(std::initializer_list<Element> initList)
     {
         List temp(initList);
         Swap(temp);
@@ -176,12 +172,12 @@ public:
         size = 0;
     }
 
-    bool Contains(const Type &value)
+    bool Contains(const Element &value)
     {
         return FindNode(value) != nullptr;
     }
 
-    NodeType *FindNode(const Type &value)
+    NodeType *FindNode(const Element &value)
     {
         NodeType *node = head;
         while (node)
@@ -280,7 +276,7 @@ public:
         --size;
     }
 
-    void AddFirst(const Type &value)
+    void AddFirst(const Element &value)
     {
         NodeType *node = CreateNode(value);
         if (head)
@@ -296,12 +292,12 @@ public:
         ++size;
     }
 
-    void AddLast(const Type &value)
+    void AddLast(const Element &value)
     {
         Add(value);
     }
 
-    void Add(const Type &value)
+    void Add(const Element &value)
     {
         NodeType *node = CreateNode(value);
         if (tail)
@@ -317,7 +313,7 @@ public:
         ++size;
     }
 
-    void Insert(NodeType *before, const Type &value)
+    void Insert(NodeType *before, const Element &value)
     {
         if (before == nullptr || before == head)
         {
@@ -337,7 +333,7 @@ public:
         }
     }
 
-    void Insert(SizeType index, const Type &value)
+    void Insert(SizeType index, const Element &value)
     {
         Insert(FindNode(index), value);
     }
@@ -378,13 +374,13 @@ public:
             return temp;
         }
 
-        Type &operator*()
+        Element &operator*()
         {
             CT_ASSERT(current);
             return current->GetValue();
         }
 
-        Type *operator->()
+        Element *operator->()
         {
             CT_ASSERT(current);
             return &(current->GetValue());
@@ -432,13 +428,13 @@ public:
             return temp;
         }
 
-        const Type &operator*()
+        const Element &operator*()
         {
             CT_ASSERT(current);
             return current->GetValue();
         }
 
-        const Type *operator->()
+        const Element *operator->()
         {
             CT_ASSERT(current);
             return &(current->GetValue());
@@ -476,7 +472,7 @@ public:
     }
 
 private:
-    NodeType *CreateNode(const Type &value)
+    NodeType *CreateNode(const Element &value)
     {
         NodeType *node = NodeAlloc::Allocate(1);
         NodeAlloc::Construct(node, value);
@@ -490,6 +486,8 @@ private:
     }
 
 private:
+    using NodeAlloc = Alloc<NodeType>;
+
     NodeType *head = nullptr;
     NodeType *tail = nullptr;
     SizeType size = 0;

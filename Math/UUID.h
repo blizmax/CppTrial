@@ -29,7 +29,7 @@ public:
 
     void Swap(UUID &other)
     {
-        std::swap(data, other.data);
+        data.Swap(other.data);
     }
 
     bool IsValid() const;
