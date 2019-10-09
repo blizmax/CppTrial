@@ -11,7 +11,9 @@ protected:
     String name;
     const Type* baseType;
 
-    
+public:
+    String& GetName() const;
+        
 
 };
 

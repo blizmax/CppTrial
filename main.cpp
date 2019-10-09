@@ -11,6 +11,7 @@
 #include "Core/FileSystem.h"
 #include "Core/Threading.h"
 #include "Core/Time.h"
+#include "Core/Template.h"
 #include "Math/Random.h"
 #include "Math/UUID.h"
 
@@ -157,6 +158,18 @@ void TestTime()
     logger.Info(L"Next: {0}", Time::MilliTime(Time::Now() + Time::Seconds(1)) / 1000);
 }
 
+void TestTemplate()
+{
+    int32 i = 100;
+    const int32* ptr = &i;
+    Hash::HashValue(ptr);
+    const char8* cstr = "HHHH";
+    Hash::HashValue(cstr);
+
+    UUID uuid;
+    Hash::HashValue(uuid);
+}
+
 int main()
 {
     // SizeType index = Algo::BinarySearch(arr.GetData(), arr.Size(), 77, &AlgoInternal::Less<int>);
@@ -168,10 +181,11 @@ int main()
     // uint32 ret;
     // count = StringConvert::UTF8ToUTF32(buffer, buffer + count, &ret);
 
-    TestMath();
+    // TestMath();
     // TestArraySort();
     // TestHashMap();
     // TestTime();
+    TestTemplate();
    
 
     // std::thread thread1 = std::thread([](){

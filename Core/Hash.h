@@ -2,43 +2,12 @@
 
 #include "Core/General.h"
 #include "Core/Functional.h"
-#include <type_traits>
+#include "Core/Template.h"
 
 CT_SCOPE_BEGIN
 
 namespace Hash
 {
-
-#ifdef CT_USE_STD_HASH
-#include <functional>
-
-template <typename T>
-struct HasHashCode
-{
-    template <typename U>
-    static auto Check(U) -> typename std::decay<decltype(U::HashCode)>::type;
-    static void Check(...);
-    using Type = decltype(Check(std::declval<T>()));
-    enum
-    {
-        Value = !std::is_void<Type>::value
-    };
-};
-
-template <typename T>
-CT_INLINE uint32 HashValue(const T &value, typename std::enable_if<std::is_class<T>::value && HasHashCode<T>::Value>::type * = nullptr)
-{
-    return value.HashCode();
-}
-
-template <typename T>
-CT_INLINE uint32 HashValue(const T &value, typename std::enable_if<!std::is_class<T>::value || !HasHashCode<T>::Value>::type * = nullptr)
-{
-    static std::hash<T> hasher;
-    return static_cast<uint32>(hasher(value));
-}
-
-#else
 
 CT_INLINE uint32 HashValue(bool value)
 {
@@ -127,8 +96,7 @@ CT_INLINE uint32 HashValue(double value)
     return HashValue(u.i);
 }
 
-//TODO Use enableif check is char type
-template <typename CharT>
+template <typename CharT, typename = typename TEnableIf<TIsCharType<CharT>::value, CharT>::type>
 CT_INLINE uint32 HashValue(const CharT *ptr)
 {
     uint32 seed = 131;
@@ -146,13 +114,11 @@ CT_INLINE uint32 HashValue(T *ptr)
     return HashValue(reinterpret_cast<SizeType>(ptr));
 }
 
-template <typename T>
+template <typename T, typename = typename TEnableIf<THasHashCode<T>::value, T>::type>
 CT_INLINE uint32 HashValue(const T &value)
 {
     return value.HashCode();
 }
-
-#endif
 
 template <typename T>
 CT_INLINE void HashCombine(uint32 &hash, const T &value)

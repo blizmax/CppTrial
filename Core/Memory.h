@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Core/General.h"
+#include "Core/Template.h"
 #include <cstring>
 #include <new>
-#include <type_traits>
 
 CT_SCOPE_BEGIN
 
@@ -31,7 +31,7 @@ CT_INLINE void Construct(T *ptr, Args &&... args)
 template <typename T>
 CT_INLINE void Destroy(T *ptr)
 {
-    if constexpr (std::is_trivially_destructible<T>::value)
+    if constexpr (TIsTriviallyDestructible<T>::value)
     {
     }
     else
@@ -44,7 +44,7 @@ CT_INLINE void Destroy(T *ptr)
 template <typename T>
 CT_INLINE void Copy(const T *src, SizeType count, T *dst)
 {
-    if constexpr (std::is_trivially_copy_assignable<T>::value)
+    if constexpr (TIsTriviallyCopyAssignable<T>::value)
     {
         if (count > 0)
         {
@@ -65,7 +65,7 @@ CT_INLINE void Copy(const T *src, SizeType count, T *dst)
 template <typename T>
 CT_INLINE void CopyBackward(const T *src, SizeType count, T *dst)
 {
-    if constexpr (std::is_trivially_copy_assignable<T>::value)
+    if constexpr (TIsTriviallyCopyAssignable<T>::value)
     {
         if (count > 0)
         {
@@ -86,7 +86,7 @@ CT_INLINE void CopyBackward(const T *src, SizeType count, T *dst)
 template <typename T>
 CT_INLINE void Move(T *src, SizeType count, T *dst)
 {
-    if constexpr (std::is_trivially_move_assignable<T>::value)
+    if constexpr (TIsTriviallyMoveAssignable<T>::value)
     {
         if (count > 0)
         {
@@ -107,7 +107,7 @@ CT_INLINE void Move(T *src, SizeType count, T *dst)
 template <typename T>
 CT_INLINE void MoveBackward(T *src, SizeType count, T *dst)
 {
-    if constexpr (std::is_trivially_move_assignable<T>::value)
+    if constexpr (TIsTriviallyMoveAssignable<T>::value)
     {
         if (count > 0)
         {
@@ -138,7 +138,7 @@ CT_INLINE void Fill(T *dst, SizeType count, const T &value)
 template <typename T>
 CT_INLINE void UninitializedCopy(const T *src, SizeType count, T *dst)
 {
-    if constexpr (std::is_trivially_copy_assignable<T>::value)
+    if constexpr (TIsTriviallyCopyAssignable<T>::value)
     {
         if (count > 0)
         {
@@ -159,7 +159,7 @@ CT_INLINE void UninitializedCopy(const T *src, SizeType count, T *dst)
 template <typename T>
 CT_INLINE void UninitializedFill(T *dst, SizeType count, const T &value)
 {
-    if constexpr (std::is_trivially_copy_assignable<T>::value)
+    if constexpr (TIsTriviallyCopyAssignable<T>::value)
     {
         for (; count > 0; --count)
         {
@@ -180,7 +180,7 @@ CT_INLINE void UninitializedFill(T *dst, SizeType count, const T &value)
 template <typename T>
 CT_INLINE void UninitializedMove(T *src, SizeType count, T *dst)
 {
-    if constexpr (std::is_trivially_move_assignable<T>::value)
+    if constexpr (TIsTriviallyMoveAssignable<T>::value)
     {
         for (; count > 0; --count)
         {
