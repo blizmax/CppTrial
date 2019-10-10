@@ -159,10 +159,13 @@ void TestTime()
     logger.Info(L"Next: {0}", Time::MilliTime(Time::Now() + Time::Seconds(1)) / 1000);
 }
 
-template<typename T, typename = typename TEnableIf<TNot<TIsTriviallyDestructible<T>::value>::value, TTrueType>::type>
-void TestNot(const T& v)
+void TestVariant()
 {
-
+    Variant var(100);
+    int32 intValue = var.GetValue<int32>();
+    var = String(L"ABCD");
+    String strValue = var.GetValue<String>();
+    logger.Info(L"String value : {0}", strValue);
 }
 
 void TestTemplate()
@@ -175,9 +178,6 @@ void TestTemplate()
 
     UUID uuid;
     Hash::HashValue(uuid);
-
-    A a;
-    TestNot(a);
 }
 
 int main()
@@ -195,7 +195,9 @@ int main()
     // TestArraySort();
     // TestHashMap();
     // TestTime();
-    TestTemplate();
+    TestVariant();
+
+    //TestTemplate();
    
 
     // std::thread thread1 = std::thread([](){

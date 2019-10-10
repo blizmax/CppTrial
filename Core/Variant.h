@@ -28,203 +28,183 @@ enum class VariantType
 namespace VariantInternal
 {
 
-template<typename T>
-CT_INLINE void WriteBytes(Array<uint8>& bytes, T value)
+template <typename T>
+struct VariantTypeTraits;
+
+template <>
+struct VariantTypeTraits<bool>
+{
+    static VariantType GetType()
+    {
+        return VariantType::Bool;
+    }
+};
+
+template <>
+struct VariantTypeTraits<int8>
+{
+    static VariantType GetType()
+    {
+        return VariantType::Int8;
+    }
+};
+
+template <>
+struct VariantTypeTraits<int16>
+{
+    static VariantType GetType()
+    {
+        return VariantType::Int16;
+    }
+};
+
+template <>
+struct VariantTypeTraits<int32>
+{
+    static VariantType GetType()
+    {
+        return VariantType::Int32;
+    }
+};
+
+template <>
+struct VariantTypeTraits<int64>
+{
+    static VariantType GetType()
+    {
+        return VariantType::Int64;
+    }
+};
+
+template <>
+struct VariantTypeTraits<uint8>
+{
+    static VariantType GetType()
+    {
+        return VariantType::UInt8;
+    }
+};
+
+template <>
+struct VariantTypeTraits<uint16>
+{
+    static VariantType GetType()
+    {
+        return VariantType::UInt16;
+    }
+};
+
+template <>
+struct VariantTypeTraits<uint32>
+{
+    static VariantType GetType()
+    {
+        return VariantType::UInt32;
+    }
+};
+
+template <>
+struct VariantTypeTraits<uint64>
+{
+    static VariantType GetType()
+    {
+        return VariantType::UInt64;
+    }
+};
+
+template <>
+struct VariantTypeTraits<char8>
+{
+    static VariantType GetType()
+    {
+        return VariantType::Char;
+    }
+};
+
+template <>
+struct VariantTypeTraits<wchar>
+{
+    static VariantType GetType()
+    {
+        return VariantType::WChar;
+    }
+};
+
+template <>
+struct VariantTypeTraits<float>
+{
+    static VariantType GetType()
+    {
+        return VariantType::Float;
+    }
+};
+
+template <>
+struct VariantTypeTraits<double>
+{
+    static VariantType GetType()
+    {
+        return VariantType::Double;
+    }
+};
+
+template <>
+struct VariantTypeTraits<String>
+{
+    static VariantType GetType()
+    {
+        return VariantType::String;
+    }
+};
+
+template <typename T>
+CT_INLINE void WriteBytes(Array<uint8> &bytes, const T &value)
 {
     bytes.AppendUninitialized(sizeof(T));
     std::memcpy(bytes.GetData(), &value, sizeof(T));
 }
 
-template<typename T>
-CT_INLINE bool ReadBytes(Array<uint8>& bytes, T& value)
+CT_INLINE void WriteBytes(Array<uint8> &bytes, const String &value)
 {
-    if(bytes.Size() >= sizeof(T))
-    {
-        std::memcpy(&value, bytes.GetData(), sizeof(T));
-        return true;
-    }
-    return false;
-}
-
-CT_INLINE VariantType ToVariant(Array<uint8>& bytes, bool value)
-{
-    WriteBytes(bytes, value);
-    return VariantType::Bool;
-}
-
-CT_INLINE VariantType ToVariant(Array<uint8>& bytes, int8 value)
-{
-    WriteBytes(bytes, value);
-    return VariantType::Int8;
-}
-
-CT_INLINE VariantType ToVariant(Array<uint8>& bytes, int16 value)
-{
-    WriteBytes(bytes, value);
-    return VariantType::Int16;
-}
-
-CT_INLINE VariantType ToVariant(Array<uint8>& bytes, int32 value)
-{
-    WriteBytes(bytes, value);
-    return VariantType::Int32;
-}
-
-CT_INLINE VariantType ToVariant(Array<uint8>& bytes, int64 value)
-{
-    WriteBytes(bytes, value);
-    return VariantType::Int64;
-}
-
-CT_INLINE VariantType ToVariant(Array<uint8>& bytes, uint8 value)
-{
-    WriteBytes(bytes, value);
-    return VariantType::UInt8;
-}
-
-CT_INLINE VariantType ToVariant(Array<uint8>& bytes, uint16 value)
-{
-    WriteBytes(bytes, value);
-    return VariantType::UInt16;
-}
-
-CT_INLINE VariantType ToVariant(Array<uint8>& bytes, uint32 value)
-{
-    WriteBytes(bytes, value);
-    return VariantType::UInt32;
-}
-
-CT_INLINE VariantType ToVariant(Array<uint8>& bytes, uint64 value)
-{
-    WriteBytes(bytes, value);
-    return VariantType::UInt64;
-}
-
-CT_INLINE VariantType ToVariant(Array<uint8>& bytes, char8 value)
-{
-    WriteBytes(bytes, value);
-    return VariantType::Char;
-}
-
-CT_INLINE VariantType ToVariant(Array<uint8>& bytes, wchar value)
-{
-    WriteBytes(bytes, value);
-    return VariantType::WChar;
-}
-
-CT_INLINE VariantType ToVariant(Array<uint8>& bytes, float value)
-{
-    WriteBytes(bytes, value);
-    return VariantType::Float;
-}
-
-CT_INLINE VariantType ToVariant(Array<uint8>& bytes, double value)
-{
-    WriteBytes(bytes, value);
-    return VariantType::Double;
-}
-
-CT_INLINE VariantType ToVariant(Array<uint8>& bytes, const String& value)
-{
-    SizeType byteNum = sizeof(CharType) * value.Length();
+    auto strArr = value.GetCharArray();
+    SizeType byteNum = sizeof(CharType) * strArr.Size();
     bytes.AppendUninitialized(byteNum);
-    std::memcpy(bytes.GetData(), value.GetPtr(), byteNum);
-    return VariantType::String;
+    std::memcpy(bytes.GetData(), strArr.GetData(), byteNum);
 }
 
-CT_INLINE bool FromVariant(Array<uint8>& bytes, bool& value)
+template <typename T>
+CT_INLINE void ReadBytes(const Array<uint8> &bytes, T &value)
 {
-    return ReadBytes(bytes, value);
+    std::memcpy(&value, bytes.GetData(), sizeof(T));
 }
 
-CT_INLINE bool FromVariant(Array<uint8>& bytes, int8& value)
-{
-    return ReadBytes(bytes, value);
-}
-
-CT_INLINE bool FromVariant(Array<uint8>& bytes, int16& value)
-{
-    return ReadBytes(bytes, value);
-}
-
-CT_INLINE bool FromVariant(Array<uint8>& bytes, int32& value)
-{
-    return ReadBytes(bytes, value);
-}
-
-CT_INLINE bool FromVariant(Array<uint8>& bytes, int64& value)
-{
-    return ReadBytes(bytes, value);
-}
-
-CT_INLINE bool FromVariant(Array<uint8>& bytes, uint8& value)
-{
-    return ReadBytes(bytes, value);
-}
-
-CT_INLINE bool FromVariant(Array<uint8>& bytes, uint16& value)
-{
-    return ReadBytes(bytes, value);
-}
-
-CT_INLINE bool FromVariant(Array<uint8>& bytes, uint32& value)
-{
-    return ReadBytes(bytes, value);
-}
-
-CT_INLINE bool FromVariant(Array<uint8>& bytes, uint64& value)
-{
-    return ReadBytes(bytes, value);
-}
-
-CT_INLINE bool FromVariant(Array<uint8>& bytes, char8& value)
-{
-    return ReadBytes(bytes, value);
-}
-
-CT_INLINE bool FromVariant(Array<uint8>& bytes, wchar& value)
-{
-    return ReadBytes(bytes, value);
-}
-
-CT_INLINE bool FromVariant(Array<uint8>& bytes, float& value)
-{
-    return ReadBytes(bytes, value);
-}
-
-CT_INLINE bool FromVariant(Array<uint8>& bytes, double& value)
-{
-    return ReadBytes(bytes, value);
-}
-
-CT_INLINE bool FromVariant(Array<uint8>& bytes, String& value)
+CT_INLINE void ReadBytes(const Array<uint8> &bytes, String &value)
 {
     SizeType charNum = bytes.Size() / sizeof(CharType);
     Array<CharType> temp;
     temp.AppendUninitialized(charNum);
     std::memcpy(temp.GetData(), bytes.GetData(), bytes.Size());
-    value = temp.GetData();
-    return true;
+    value = std::move(temp.GetData());
 }
 
-}
+} // namespace VariantInternal
 
 class Variant
 {
 public:
     Variant() = default;
-    Variant(const Variant&) = default;
-    Variant& operator=(const Variant&) = default;
+    Variant(const Variant &) = default;
+    Variant &operator=(const Variant &) = default;
     ~Variant() = default;
 
-    Variant(Variant&& other) : type(other.type), data(std::move(other.data))
+    Variant(Variant &&other) : type(other.type), data(std::move(other.data))
     {
         other.type = VariantType::Empty;
     }
 
-    Variant& operator=(Variant&& other)
+    Variant &operator=(Variant &&other)
     {
-        if(this != &other)
+        if (this != &other)
         {
             type = other.type;
             data = std::move(other.data);
@@ -233,21 +213,22 @@ public:
         return *this;
     }
 
-    template<typename T>
-    Variant(T&& value)
+    template <typename T>
+    Variant(T value)
     {
-        type = VariantInternal::ToVariant(data, std::forward(value));
+        VariantInternal::WriteBytes(data, value);
+        type = VariantInternal::VariantTypeTraits<T>::GetType();
     }
 
-    template<typename T>
-    Variant& operator=(T&& value)
+    template <typename T>
+    Variant &operator=(T &&value)
     {
         Variant temp(value);
         Swap(temp);
         return *this;
     }
 
-    void Swap(Variant& other)
+    void Swap(Variant &other)
     {
         std::swap(type, other.type);
         std::swap(data, other.data);
@@ -269,20 +250,21 @@ public:
         return type;
     }
 
-    template<typename T>
+    template <typename T>
     T GetValue() const
     {
+        CT_ASSERT(VariantInternal::VariantTypeTraits<T>::GetType() == type);
         T ret;
-        VariantInternal::FromVariant(data, ret);
+        VariantInternal::ReadBytes(data, ret);
         return ret;
     }
 
-    bool operator==(const Variant& other) const
+    bool operator==(const Variant &other) const
     {
         return (type == other.type) && (data == other.data);
     }
-    
-    bool operator!=(const Variant& other) const
+
+    bool operator!=(const Variant &other) const
     {
         return !(*this == other);
     }
@@ -290,7 +272,6 @@ public:
 private:
     VariantType type = VariantType::Empty;
     Array<uint8> data;
-
 };
 
 CT_SCOPE_END

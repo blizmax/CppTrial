@@ -76,8 +76,7 @@ CT_INLINE uint32 HashValue(uint64 value)
 
 CT_INLINE uint32 HashValue(float value)
 {
-    union 
-    {
+    union {
         uint32 i;
         float f;
     } u;
@@ -87,8 +86,7 @@ CT_INLINE uint32 HashValue(float value)
 
 CT_INLINE uint32 HashValue(double value)
 {
-    union 
-    {
+    union {
         uint64 i;
         double d;
     } u;
@@ -114,7 +112,7 @@ CT_INLINE uint32 HashValue(T *ptr)
     return HashValue(reinterpret_cast<SizeType>(ptr));
 }
 
-template <typename T, typename = typename TEnableIf<THasHashCode<T>::value, T>::type>
+template <typename T>
 CT_INLINE uint32 HashValue(const T &value)
 {
     return value.HashCode();
