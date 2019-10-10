@@ -12,6 +12,7 @@
 #include "Core/Threading.h"
 #include "Core/Time.h"
 #include "Core/Template.h"
+#include "Core/Variant.h"
 #include "Math/Random.h"
 #include "Math/UUID.h"
 
@@ -158,6 +159,12 @@ void TestTime()
     logger.Info(L"Next: {0}", Time::MilliTime(Time::Now() + Time::Seconds(1)) / 1000);
 }
 
+template<typename T, typename = typename TEnableIf<TNot<TIsTriviallyDestructible<T>::value>::value, TTrueType>::type>
+void TestNot(const T& v)
+{
+
+}
+
 void TestTemplate()
 {
     int32 i = 100;
@@ -168,6 +175,9 @@ void TestTemplate()
 
     UUID uuid;
     Hash::HashValue(uuid);
+
+    A a;
+    TestNot(a);
 }
 
 int main()
