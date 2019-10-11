@@ -2,7 +2,6 @@
 
 #include "Core/General.h"
 #include "Core/Array.h"
-#include <variant>
 
 CT_SCOPE_BEGIN
 
@@ -29,10 +28,13 @@ namespace VariantInternal
 {
 
 template <typename T>
-struct VariantTypeTraits;
+struct VariantTypeTraits : public TFalseType
+{
+
+};
 
 template <>
-struct VariantTypeTraits<bool>
+struct VariantTypeTraits<bool> : public TTrueType
 {
     static VariantType GetType()
     {
@@ -41,7 +43,7 @@ struct VariantTypeTraits<bool>
 };
 
 template <>
-struct VariantTypeTraits<int8>
+struct VariantTypeTraits<int8> : public TTrueType
 {
     static VariantType GetType()
     {
@@ -50,7 +52,7 @@ struct VariantTypeTraits<int8>
 };
 
 template <>
-struct VariantTypeTraits<int16>
+struct VariantTypeTraits<int16> : public TTrueType
 {
     static VariantType GetType()
     {
@@ -59,7 +61,7 @@ struct VariantTypeTraits<int16>
 };
 
 template <>
-struct VariantTypeTraits<int32>
+struct VariantTypeTraits<int32> : public TTrueType
 {
     static VariantType GetType()
     {
@@ -68,7 +70,7 @@ struct VariantTypeTraits<int32>
 };
 
 template <>
-struct VariantTypeTraits<int64>
+struct VariantTypeTraits<int64> : public TTrueType
 {
     static VariantType GetType()
     {
@@ -77,7 +79,7 @@ struct VariantTypeTraits<int64>
 };
 
 template <>
-struct VariantTypeTraits<uint8>
+struct VariantTypeTraits<uint8> : public TTrueType
 {
     static VariantType GetType()
     {
@@ -86,7 +88,7 @@ struct VariantTypeTraits<uint8>
 };
 
 template <>
-struct VariantTypeTraits<uint16>
+struct VariantTypeTraits<uint16> : public TTrueType
 {
     static VariantType GetType()
     {
@@ -95,7 +97,7 @@ struct VariantTypeTraits<uint16>
 };
 
 template <>
-struct VariantTypeTraits<uint32>
+struct VariantTypeTraits<uint32> : public TTrueType
 {
     static VariantType GetType()
     {
@@ -104,7 +106,7 @@ struct VariantTypeTraits<uint32>
 };
 
 template <>
-struct VariantTypeTraits<uint64>
+struct VariantTypeTraits<uint64> : public TTrueType
 {
     static VariantType GetType()
     {
@@ -113,7 +115,7 @@ struct VariantTypeTraits<uint64>
 };
 
 template <>
-struct VariantTypeTraits<char8>
+struct VariantTypeTraits<char8> : public TTrueType
 {
     static VariantType GetType()
     {
@@ -122,7 +124,7 @@ struct VariantTypeTraits<char8>
 };
 
 template <>
-struct VariantTypeTraits<wchar>
+struct VariantTypeTraits<wchar> : public TTrueType
 {
     static VariantType GetType()
     {
@@ -131,7 +133,7 @@ struct VariantTypeTraits<wchar>
 };
 
 template <>
-struct VariantTypeTraits<float>
+struct VariantTypeTraits<float> : public TTrueType
 {
     static VariantType GetType()
     {
@@ -140,7 +142,7 @@ struct VariantTypeTraits<float>
 };
 
 template <>
-struct VariantTypeTraits<double>
+struct VariantTypeTraits<double> : public TTrueType
 {
     static VariantType GetType()
     {
@@ -149,7 +151,7 @@ struct VariantTypeTraits<double>
 };
 
 template <>
-struct VariantTypeTraits<String>
+struct VariantTypeTraits<String> : public TTrueType
 {
     static VariantType GetType()
     {
@@ -184,10 +186,18 @@ CT_INLINE void ReadBytes(const Array<uint8> &bytes, String &value)
     Array<CharType> temp;
     temp.AppendUninitialized(charNum);
     std::memcpy(temp.GetData(), bytes.GetData(), bytes.Size());
-    value = std::move(temp.GetData());
+    value = temp.GetData();
 }
 
 } // namespace VariantInternal
+
+
+template <typename T>
+struct TIsVariantType : public TConditional<VariantInternal::VariantTypeTraits<T>::value, TTrueType, TFalseType>::type
+{
+
+};
+
 
 class Variant
 {
