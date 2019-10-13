@@ -169,6 +169,16 @@ void TestVariant()
     logger.Info(L"String value : {0}", strValue);
 }
 
+void TestAny()
+{
+    Any any(100LL);
+    int32* ptr = any.Cast<int32>();
+    logger.Info(L"Cast int32 : {0}", *ptr);
+    int32& ref = any.RefCast<int32>();
+    ref = 300;
+    logger.Info(L"RefCast int64 : {0}", any.RefCast<int64>());
+}
+
 void TestTemplate()
 {
     int32 i = 100;
@@ -196,7 +206,8 @@ int main()
     // TestArraySort();
     // TestHashMap();
     // TestTime();
-    TestVariant();
+    // TestVariant();
+    TestAny();
 
     //TestTemplate();
    

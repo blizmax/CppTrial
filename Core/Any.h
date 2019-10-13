@@ -106,9 +106,31 @@ public:
     }
 
     template <typename T>
-    T GetValue() const
+    T *Cast()
     {
-        return static_cast<AnyInternal::DynamicData<T> *>(data)->value;
+        if (data)
+            return &static_cast<AnyInternal::DynamicData<T> *>(data)->value;
+        return nullptr;
+    }
+
+    template <typename T>
+    const T *Cast() const
+    {
+        if (data)
+            return &static_cast<AnyInternal::DynamicData<T> *>(data)->value;
+        return nullptr;
+    }
+
+    template <typename T>
+    T &RefCast()
+    {
+        return *Cast<T>();
+    }
+
+    template <typename T>
+    const T &RefCast() const
+    {
+        return *Cast<T>();
     }
 
 private:
