@@ -709,8 +709,8 @@ private:
                 else
                 {
                     insertPtr = data + pos;
+                    tempPtr = data + pos;
                 }
-                tempPtr = data + pos;
                 dist = existingDist;
             }
 
