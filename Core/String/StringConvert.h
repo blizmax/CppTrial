@@ -6,11 +6,6 @@
 CT_SCOPE_BEGIN
 namespace StringConvert
 {
-template <typename T>
-CT_INLINE String ToString(const T &value)
-{
-    return value.ToString();
-}
 
 CT_INLINE String ToString(int32 value)
 {
@@ -51,6 +46,19 @@ CT_INLINE String ToString(double value)
 CT_INLINE String ToString(const String &value)
 {
     return value;
+}
+
+template <typename T>
+CT_INLINE String ToString(const T &value)
+{
+    return value.ToString();
+}
+
+template <typename T>
+CT_INLINE String ToString(const T *value)
+{
+    uint64 addr = value ? reinterpret_cast<uint64>(value) : 0;
+    return ToString(addr);
 }
 
 CT_INLINE bool FastCheckIsIntPrivate(const String &str)

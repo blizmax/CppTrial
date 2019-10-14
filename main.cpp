@@ -15,7 +15,8 @@
 #include "Core/Variant.h"
 #include "Core/Any.h"
 #include "Math/Random.h"
-#include "Math/UUID.h"
+#include "Utils/UUID.h"
+#include "Utils/Name.h"
 
 CT_SCOPE_USING
 
@@ -67,6 +68,62 @@ void TestMath()
         logger.Info(L"UUID{0}: {1}", i, uuid);
     }
    
+}
+
+void TestName()
+{
+    // auto runnable = [](){
+    //     for(uint32 i = 0; i < 1000; ++i)
+    //     {
+    //         Name name(StringConvert::ToString(i));
+    //         //logger.Info(L"addr : {0}", data);
+    //     }
+    // };
+
+    // Array<std::thread> threads;
+
+    // for(uint32 i = 0; i < 5; ++i)
+    // {
+    //     threads.Add(std::thread(runnable));
+    // }
+
+    // for(auto& t : threads)
+    // {
+    //     t.join();
+    // }
+
+    // auto nameDatas = Name::DumpNameMap();
+    // for(const auto& data: nameDatas)
+    // {
+    //     logger.Info(L"Name :{0}", data->string);
+    // }
+
+    // logger.Info(L"Count : {0}", nameDatas.Size());
+
+    HashMap<String, int> map;
+
+    for(uint32 i = 1; i < 2; ++i)
+    {
+        for(uint32 j = 100; j < 10050; ++j)
+        {
+            map.Put(StringConvert::ToString(j), j);
+        }
+    }
+
+    for(uint32 j = 100; j < 10050; ++j)
+    {
+        if(!map.Contains(StringConvert::ToString(j)))
+        {
+            int x = 0;
+        }
+    }
+
+    for(const auto& e: map)
+    {
+        logger.Info(L"Key : {0}, Value : {1}", e.Key(), e.Value());
+    }
+
+    logger.Info(L"Count : {0}", map.Size());
 }
 
 void TestArraySort()
@@ -207,7 +264,9 @@ int main()
     // TestHashMap();
     // TestTime();
     // TestVariant();
-    TestAny();
+    //TestAny();
+
+    TestName();
 
     //TestTemplate();
    

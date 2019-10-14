@@ -11,6 +11,8 @@ include_directories("${PROJECT_SOURCE_DIR}/")
 #include_directories("${PROJECT_SOURCE_DIR}/Core")
 
 add_subdirectory(Math)
+add_subdirectory(Utils)
 
 add_executable(Main main.cpp)
 target_link_libraries(Main Math)
+target_link_libraries(Main Utils)

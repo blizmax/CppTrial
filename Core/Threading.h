@@ -2,6 +2,8 @@
 
 #include "Core/General.h"
 #include <thread>
+#include <atomic>
+#include <mutex>
 
 CT_SCOPE_BEGIN
 

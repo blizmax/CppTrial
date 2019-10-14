@@ -2,7 +2,7 @@
 #include "Core/Threading.h"
 #include "Core/Hash.h"
 #include "Core/Time.h"
-#include "Math/UUID.h"
+#include "Utils/UUID.h"
 #include "Math/Random.h"
 
 CT_SCOPE_BEGIN

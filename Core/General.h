@@ -18,6 +18,10 @@
 #define CT_SCOPE_USING
 #endif
 
+#ifdef _DEBUG
+#define CT_DEBUG 1
+#endif
+
 #define CT_ALIGN(X_, A_) (((X_) + ((A_)-1)) & ~((A_)-1))
 
 #define CT_ASSERT(COND_) assert(COND_)
