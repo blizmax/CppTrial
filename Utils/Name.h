@@ -2,45 +2,42 @@
 
 #include "Core/General.h"
 #include "Core/String.h"
-#include "Core/HashMap.h"
-#include "Core/Threading.h"
 
 CT_SCOPE_BEGIN
+
+namespace NameInternal
+{
+struct Data
+{
+    int32 hash;
+    String string;
+};
+} // namespace NameInternal
 
 class Name
 {
 public:
-    struct Data
-    {
-        int32 hash;
-        String string;
-    };
+    using Data = NameInternal::Data;
 
-public:
     Name() = default;
-    ~Name() = default;   // So no need to remove existing name.
+    ~Name() = default; // So no need to remove existing name.
 
-    Name(const Name& other);
-    Name(Name&& other);
-    Name& operator=(const Name& other);
-    Name& operator=(Name&& other);
+    Name(const Name &other);
+    Name(Name &&other);
+    Name &operator=(const Name &other);
+    Name &operator=(Name &&other);
 
-    Name(const String& str);
-    Name(const CharType* cstr);
+    Name(const String &value);
+    Name(const CharType *value);
 
     bool IsEmpty() const
     {
         return data == nullptr;
     }
 
-    void Swap(Name& other)
+    void Swap(Name &other)
     {
         std::swap(data, other.data);
-    }
-
-    const Data* GetData() const
-    {
-        return data;
     }
 
     String ToString() const
@@ -53,30 +50,29 @@ public:
         return data ? data->hash : 0;
     }
 
-    bool operator==(const Name& other) const
+    bool operator==(const Name &other) const
     {
-        if(data)
+        if (data)
             return data == other.data;
         return other.data == nullptr;
     }
 
-    bool operator!=(const Name& other) const
+    bool operator!=(const Name &other) const
     {
         return *this == other;
     }
 
+    static const Data *Find(const String &value);
+
 #ifdef CT_DEBUG
-    static Array<Data*> DumpNameMap();
+    static Array<Data *> DebugDumpNameMap();
 #endif
 
 private:
-    void Construct(const String& str);
+    void Construct(const String &value);
 
 private:
-    Data* data = nullptr;
-
-    static std::mutex mutex;
-    static HashMap<String, Data*> nameMap;
+    Data *data = nullptr;
 };
 
 CT_SCOPE_END

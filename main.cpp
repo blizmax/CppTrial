@@ -9,7 +9,7 @@
 #include "Core/String/StringConvert.h"
 #include "Core/Log.h"
 #include "Core/FileSystem.h"
-#include "Core/Threading.h"
+#include "Core/Thread.h"
 #include "Core/Time.h"
 #include "Core/Template.h"
 #include "Core/Variant.h"
@@ -92,7 +92,7 @@ void TestName()
         t.join();
     }
 
-    auto nameDatas = Name::DumpNameMap();
+    auto nameDatas = Name::DebugDumpNameMap();
     for(const auto& data: nameDatas)
     {
         logger.Info(L"Name :{0}", data->string);

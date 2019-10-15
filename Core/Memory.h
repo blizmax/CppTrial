@@ -41,6 +41,52 @@ CT_INLINE void Destroy(T *ptr)
     }
 }
 
+CT_INLINE void *Alloc(SizeType size)
+{
+    return ::operator new(size);
+}
+
+CT_INLINE void Free(void *ptr)
+{
+    ::operator delete(ptr);
+}
+
+template <typename T, typename... Args>
+CT_INLINE T *New(Args... args)
+{
+    T *ptr = static_cast<T *>(Alloc(sizeof(T)));
+    Construct(ptr, std::forward<Args>(args)...);
+    return ptr;
+}
+
+template <typename T>
+CT_INLINE void Delete(T *ptr)
+{
+    Destroy(ptr);
+    Free(static_cast<void *>(ptr));
+}
+
+template <typename T>
+CT_INLINE T *ArrayNew(SizeType count)
+{
+    T *ptr = static_cast<T *>(Alloc(sizeof(T) * count));
+    for (SizeType i = 0; i < count; ++i)
+    {
+        Construct(ptr + i);
+    }
+    return ptr;
+}
+
+template <typename T>
+CT_INLINE void ArrayDelete(T *ptr, SizeType count)
+{
+    for (SizeType i = 0; i < count; ++i)
+    {
+        Destory(ptr + i);
+    }
+    Free(ptr);
+}
+
 template <typename T>
 CT_INLINE void Copy(const T *src, SizeType count, T *dst)
 {

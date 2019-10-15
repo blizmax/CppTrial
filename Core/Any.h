@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/General.h"
+#include "Core/Memory.h"
 
 CT_SCOPE_BEGIN
 
@@ -29,7 +30,7 @@ public:
 
     IDynamicData *Clone() const override
     {
-        return ::new DynamicData(value);
+        return Memory::New<DynamicData>(value);
     }
 };
 } // namespace AnyInternal
@@ -71,7 +72,7 @@ public:
     }
 
     template <typename T>
-    Any(T &&value) : data(new AnyInternal::DynamicData<T>(std::forward<T>(value)))
+    Any(T &&value) : data(Memory::New<AnyInternal::DynamicData<T>>(std::forward<T>(value)))
     {
     }
 
@@ -101,7 +102,7 @@ public:
     void Clear()
     {
         if (data)
-            delete data;
+            Memory::Delete(data);
         data = nullptr;
     }
 

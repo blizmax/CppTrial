@@ -2,6 +2,7 @@
 
 #include "Core/General.h"
 #include "Core/Allocator.h"
+#include "Core/Math.h"
 
 CT_SCOPE_BEGIN
 
@@ -593,11 +594,11 @@ private:
     SizeType FixCapacity(SizeType newCapacity) const
     {
         newCapacity = newCapacity < 8 ? 8 : newCapacity;
-        if (IsPowerOfTwo(newCapacity))
+        if (Math::IsPowerOfTwo(newCapacity))
         {
             return newCapacity;
         }
-        return NextPowerOfTwo(newCapacity);
+        return Math::NextPowerOfTwo(newCapacity);
     }
 
     void DestroyAllKeys()

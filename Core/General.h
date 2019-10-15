@@ -48,50 +48,6 @@ typedef size_t SizeType;
 
 static constexpr SizeType INDEX_NONE = static_cast<SizeType>(-1);
 
-CT_INLINE uint64 NextPowerOfTwo(uint64 value)
-{
-    uint64 pos = 0;
-    uint64 a = 1;
-    if (value >= a << 32)
-    {
-        value = value >> 32;
-        pos += 32;
-    }
-    if (value >= a << 16)
-    {
-        value = value >> 16;
-        pos += 16;
-    }
-    if (value >= a << 8)
-    {
-        value = value >> 8;
-        pos += 8;
-    }
-    if (value >= a << 4)
-    {
-        value = value >> 4;
-        pos += 4;
-    }
-    if (value >= a << 2)
-    {
-        value = value >> 2;
-        pos += 2;
-    }
-    if (value >= a << 1)
-    {
-        pos += 1;
-    }
-
-    ++pos;
-    return pos == 1 ? 2 : a << pos;
-}
-
-template <typename T>
-CT_INLINE bool IsPowerOfTwo(T value)
-{
-    return ((value & (value - 1)) == (T)0);
-}
-
 namespace ThisScope
 {
 }

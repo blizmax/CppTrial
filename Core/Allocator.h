@@ -92,4 +92,7 @@ CT_INLINE void Allocator<T>::Destroy(T *ptr, SizeType count)
     }
 }
 
+template <typename T>
+using BasicAlloc = Allocator<T>;
+
 CT_SCOPE_END

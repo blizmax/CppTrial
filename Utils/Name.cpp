@@ -1,63 +1,64 @@
 #include "Name.h"
+#include "Core/Memory.h"
 #include "Core/HashMap.h"
-#include "Core/Threading.h"
+#include "Core/Thread.h"
 
 CT_SCOPE_BEGIN
 
-std::mutex Name::mutex;
-HashMap<String, Name::Data*> Name::nameMap(2048);
+static std::mutex mutex;
+static HashMap<String, Name::Data *> nameMap(2048);
 
-Name::Name(const Name& other) : data(other.data)
+Name::Name(const Name &other) : data(other.data)
 {
 }
 
-Name::Name(Name&& other) : data(other.data)
+Name::Name(Name &&other) : data(other.data)
 {
     other.data = nullptr;
 }
 
-Name& Name::operator=(const Name& other)
+Name &Name::operator=(const Name &other)
 {
-    if(this != &other)
+    if (this != &other)
     {
         Name temp(other);
         Swap(temp);
-    }   
+    }
     return *this;
 }
 
-Name& Name::operator=(Name&& other)
+Name &Name::operator=(Name &&other)
 {
-    if(this != &other)
+    if (this != &other)
     {
         Name temp(std::move(other));
         Swap(temp);
-    }   
+    }
     return *this;
 }
 
-Name::Name(const String& str)
+Name::Name(const String &value)
 {
-    Construct(str);
+    Construct(value);
 }
 
-Name::Name(const CharType* cstr)
+Name::Name(const CharType *value)
 {
-    Construct(String(cstr));
+    Construct(String(value));
 }
 
-void Name::Construct(const String& str)
+void Name::Construct(const String &str)
 {
     std::unique_lock<std::mutex> lock(mutex);
 
     if (nameMap.Contains(str))
     {
-        Data* mapData = nameMap.Get(str);
+        Data *mapData = nameMap.Get(str);
         data = mapData;
     }
     else
     {
-        Data* mapData = new Data;
+        Data *mapData = Memory::New<Data>();
         mapData->hash = Hash::HashValue(str);
         mapData->string = str;
         nameMap.Put(str, mapData);
@@ -65,20 +66,30 @@ void Name::Construct(const String& str)
     }
 }
 
-#ifdef CT_DEBUG
-    Array<Name::Data*> Name::DumpNameMap()
+const Name::Data *Name::Find(const String &value)
+{
+    std::unique_lock<std::mutex> lock(mutex);
+
+    if (nameMap.Contains(value))
     {
-        Array<Data*> names;
-
-        std::unique_lock<std::mutex> lock(mutex);
-
-        for(const auto& e : nameMap)
-        {
-            names.Add(e.Value());
-        }
-        return names;
+        return nameMap.Get(value);
     }
-#endif
+    return nullptr;
+}
 
+#ifdef CT_DEBUG
+Array<Name::Data *> Name::DebugDumpNameMap()
+{
+    Array<Data *> names;
+
+    std::unique_lock<std::mutex> lock(mutex);
+
+    for (const auto &e : nameMap)
+    {
+        names.Add(e.Value());
+    }
+    return names;
+}
+#endif
 
 CT_SCOPE_END
