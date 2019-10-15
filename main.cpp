@@ -17,6 +17,7 @@
 #include "Math/Random.h"
 #include "Utils/UUID.h"
 #include "Utils/Name.h"
+#include "Reflection/Test.h"
 
 CT_SCOPE_USING
 

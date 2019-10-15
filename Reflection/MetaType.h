@@ -4,6 +4,7 @@
 #include "Core/String.h"
 #include "Core/Array.h"
 #include "Core/HashMap.h"
+#include "Utils/Name.h"
 
 CT_SCOPE_BEGIN
 
@@ -11,13 +12,13 @@ class MetaData
 {
 public:
 protected:
-    HashMap<String, String> dataMap;
+    HashMap<Name, String> dataMap;
 };
 
 class MetaType
 {
 protected:
-    String name;
+    Name name;
     MetaData metaData;
 };
 
