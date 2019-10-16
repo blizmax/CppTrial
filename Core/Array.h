@@ -206,6 +206,15 @@ public:
         RemovePrivate(index, count);
     }
 
+    void RemoveValue(const Element &value)
+    {
+        auto index = IndexOf(value);
+        if (index != INDEX_NONE)
+        {
+            Remove(index);
+        }
+    }
+
     void Add(const Element &value)
     {
         InsertPrivate(size, value);

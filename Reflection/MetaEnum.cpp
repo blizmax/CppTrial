@@ -17,7 +17,7 @@ bool MetaEnum::IsValidIndex(SizeType index) const
     return index <= elements.Size();
 }
 
-bool MetaEnum::IsValidName(const Name& name) const
+bool MetaEnum::IsValidName(const Name &name) const
 {
     return GetIndexByName(name) != INDEX_NONE;
 }
@@ -29,9 +29,9 @@ bool MetaEnum::IsValidValue(int64 value) const
 
 SizeType MetaEnum::GetIndexByName(const Name &name) const
 {
-    for(SizeType i = 0; i < elements.Size(); ++i)
+    for (SizeType i = 0; i < elements.Size(); ++i)
     {
-        if(elements[i].name == name)
+        if (elements[i].name == name)
         {
             return i;
         }
@@ -51,7 +51,7 @@ SizeType MetaEnum::GetIndexByValue(int64 value) const
     return INDEX_NONE;
 }
 
-int64 MetaEnum::GetValueByName(const Name& name) const
+int64 MetaEnum::GetValueByName(const Name &name) const
 {
     SizeType index = GetIndexByName(name);
     CheckRange(index);

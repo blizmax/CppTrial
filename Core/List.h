@@ -276,6 +276,15 @@ public:
         --size;
     }
 
+    void RemoveValue(const Element &value)
+    {
+        auto node = FindNode(value);
+        if (node)
+        {
+            RemoveNode(node);
+        }
+    }
+
     void AddFirst(const Element &value)
     {
         NodeType *node = CreateNode(value);
