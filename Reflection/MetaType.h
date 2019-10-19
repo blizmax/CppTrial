@@ -1,23 +1,16 @@
 #pragma once
 
-#include "Core/General.h"
-#include "Core/String.h"
-#include "Core/Array.h"
-#include "Core/HashMap.h"
-#include "Utils/Name.h"
+#include "Reflection/.Pakage.h"
 
 CT_SCOPE_BEGIN
 
-class MetaData
-{
-public:
-protected:
-    HashMap<Name, String> dataMap;
-};
-
 class MetaType
 {
-protected:
+public:
+    MetaType(const Name &name) : name(name)
+    {
+    }
+
     Name name;
     MetaData metaData;
 };
