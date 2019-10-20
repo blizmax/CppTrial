@@ -5,6 +5,7 @@
 #include "Core/Array.h"
 #include "Core/HashMap.h"
 #include "Core/Template.h"
+#include "Core/Any.h"
 #include "Utils/Name.h"
 
 CT_SCOPE_BEGIN
@@ -17,8 +18,29 @@ public:
     HashMap<Name, String> dataMap;
 };
 
+class MetaBase
+{
+public:
+    MetaBase() = default;
+
+    MetaBase(const Name &name) : name(name)
+    {
+    }
+
+    Name GetName() const
+    {
+        return name;
+    }
+
+protected:
+    Name name;
+    MetaData metaData;
+};
+
+namespace ReflectionInternal
+{
 template <typename T>
-struct ReflectTraits
+struct TypeTraits
 {
     static const Type *GetType()
     {
@@ -27,18 +49,19 @@ struct ReflectTraits
 };
 
 template <>
-struct ReflectTraits<std::nullptr_t>
+struct TypeTraits<std::nullptr_t>
 {
     static const Type *GetType()
     {
         return nullptr;
     }
 };
+}
 
 template <typename T>
-CT_INLINE Type *TypeOf()
+CT_INLINE const Type *TypeOf()
 {
-    return ReflectTraits<T>::GetType();
+    return ReflectionInternal::TypeTraits<T>::GetType();
 }
 
 CT_SCOPE_END

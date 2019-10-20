@@ -23,6 +23,8 @@ using TIsSame = std::is_same<T1, T2>;
 template <typename T>
 using TDecay = std::decay<T>;
 
+template <typename T, typename... Args>
+using TIsConstructible = std::is_constructible<T, Args...>;
 template <typename T>
 using TIsTriviallyDestructible = std::is_trivially_destructible<T>;
 template <typename T>

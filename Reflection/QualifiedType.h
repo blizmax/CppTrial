@@ -120,10 +120,12 @@ protected:
     uint32 pointerCount = 0;
 };
 
+namespace ReflectionInternal
+{
 template <typename T>
 struct QualifiedTypeTraits
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
         return TypeOf<T>();
     }
@@ -132,142 +134,143 @@ struct QualifiedTypeTraits
 template <typename T>
 struct QualifiedTypeTraits<T &>
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
-        return QualifiedType(TypeOf<T>(), false, false, false, true, false);
+        return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, false, false, true, false);
     }
 };
 
 template <typename T>
 struct QualifiedTypeTraits<T &&>
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
-        return QualifiedType(TypeOf<T>(), false, false, false, false, true);
+        return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, false, false, false, true);
     }
 };
 
 template <typename T>
 struct QualifiedTypeTraits<T *>
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
-        return QualifiedType(TypeOf<T>(), true, false, false, false, false);
+        return QualifiedType(QualifiedTypeTraits<T>::GetType(), true, false, false, false, false);
     }
 };
 
 template <typename T>
 struct QualifiedTypeTraits<const T>
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
-        return QualifiedType(TypeOf<T>(), false, true, false, false, false);
+        return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, true, false, false, false);
     }
 };
 
 template <typename T>
 struct QualifiedTypeTraits<const T &>
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
-        return QualifiedType(TypeOf<T>(), false, true, false, true, false);
+        return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, true, false, true, false);
     }
 };
 
 template <typename T>
 struct QualifiedTypeTraits<const T &&>
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
-        return QualifiedType(TypeOf<T>(), false, true, false, false, true);
+        return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, true, false, false, true);
     }
 };
 
 template <typename T>
 struct QualifiedTypeTraits<const T *>
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
-        return QualifiedType(TypeOf<T>(), true, true, false, false, false);
+        return QualifiedType(QualifiedTypeTraits<T>::GetType(), true, true, false, false, false);
     }
 };
 
 template <typename T>
 struct QualifiedTypeTraits<volatile T>
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
-        return QualifiedType(TypeOf<T>(), false, false, true, false, false);
+        return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, false, true, false, false);
     }
 };
 
 template <typename T>
 struct QualifiedTypeTraits<volatile T &>
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
-        return QualifiedType(TypeOf<T>(), false, false, true, true, false);
+        return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, false, true, true, false);
     }
 };
 
 template <typename T>
 struct QualifiedTypeTraits<volatile T &&>
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
-        return QualifiedType(TypeOf<T>(), false, false, true, false, true);
+        return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, false, true, false, true);
     }
 };
 
 template <typename T>
 struct QualifiedTypeTraits<volatile T *>
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
-        return QualifiedType(TypeOf<T>(), true, false, true, false, false);
+        return QualifiedType(QualifiedTypeTraits<T>::GetType(), true, false, true, false, false);
     }
 };
 
 template <typename T>
 struct QualifiedTypeTraits<const volatile T>
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
-        return QualifiedType(TypeOf<T>(), false, true, true, false, false);
+        return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, true, true, false, false);
     }
 };
 
 template <typename T>
 struct QualifiedTypeTraits<const volatile T &>
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
-        return QualifiedType(TypeOf<T>(), false, true, true, true, false);
+        return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, true, true, true, false);
     }
 };
 
 template <typename T>
 struct QualifiedTypeTraits<const volatile T &&>
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
-        return QualifiedType(TypeOf<T>(), false, true, true, false, true);
+        return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, true, true, false, true);
     }
 };
 
 template <typename T>
 struct QualifiedTypeTraits<const volatile T *>
 {
-    static const QualifiedType Value()
+    static const QualifiedType GetType()
     {
-        return QualifiedType(TypeOf<T>(), true, true, true, false, false);
+        return QualifiedType(QualifiedTypeTraits<T>::GetType(), true, true, true, false, false);
     }
 };
+} // namespace ReflectionInternal
 
 template <typename T>
 CT_INLINE QualifiedType GetQualifiedType()
 {
-    return QualifiedTypeTraits<T>::Value();
+    return ReflectionInternal::QualifiedTypeTraits<T>::GetType();
 }
 
 CT_SCOPE_END

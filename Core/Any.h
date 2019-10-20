@@ -107,31 +107,33 @@ public:
     }
 
     template <typename T>
-    T *Cast()
+    T Cast() const
     {
-        if (data)
-            return &static_cast<AnyInternal::DynamicData<T> *>(data)->value;
-        return nullptr;
-    }
-
-    template <typename T>
-    const T *Cast() const
-    {
-        if (data)
-            return &static_cast<AnyInternal::DynamicData<T> *>(data)->value;
-        return nullptr;
+        if (!data)
+            CT_THROW("Invalid to cast an empty any.");
+        return static_cast<AnyInternal::DynamicData<T> *>(data)->value;
     }
 
     template <typename T>
     T &RefCast()
     {
-        return *Cast<T>();
+        if (!data)
+            CT_THROW("Invalid to cast an empty any.");
+        return static_cast<AnyInternal::DynamicData<T> *>(data)->value;
     }
 
     template <typename T>
     const T &RefCast() const
     {
-        return *Cast<T>();
+        if (!data)
+            CT_THROW("Invalid to cast an empty any.");
+        return static_cast<AnyInternal::DynamicData<T> *>(data)->value;
+    }
+
+    template <typename T>
+    operator T() const
+    {
+        return Cast<T>();
     }
 
 private:

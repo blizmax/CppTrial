@@ -205,8 +205,8 @@ void TestVariant()
 void TestAny()
 {
     Any any(100LL);
-    int32* ptr = any.Cast<int32>();
-    logger.Info(L"Cast int32 : {0}", *ptr);
+    int32 val = any.Cast<int32>();
+    logger.Info(L"Cast int32 : {0}", val);
     int32& ref = any.RefCast<int32>();
     ref = 300;
     logger.Info(L"RefCast int64 : {0}", any.RefCast<int64>());
@@ -242,9 +242,11 @@ int main()
     // TestVariant();
     //TestAny();
 
-    TestName();
+    //TestName();
 
     //TestTemplate();
+
+    ReflectionInternal::TestConstructor();
    
 
     // std::thread thread1 = std::thread([](){

@@ -26,6 +26,12 @@
 
 #define CT_ASSERT(COND_) assert(COND_)
 
+#ifdef CT_EXCEPTION
+#define CT_THROW(MSG_) throw MSG_
+#else
+#define CT_THROW(...) CT_ASSERT(false)
+#endif
+
 #define CT_INLINE inline
 
 CT_SCOPE_BEGIN
