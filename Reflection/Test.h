@@ -9,6 +9,7 @@ class TestClass1
 public:
     String name = L"None";
     int32 num = 0;
+    int32 *numPtr = nullptr;
 
 public:
     TestClass1() = default;
@@ -21,9 +22,15 @@ public:
     {
     }
 
+    TestClass1(const String &name, int32 num, int32 *numPtr) : name(name), num(num), numPtr(numPtr)
+    {
+    }
+
     void Print() const
     {
         std::wcout << L"TestClass1 Name: " << *name << L" Num: " << num << std::endl;
+        if (numPtr)
+            std::wcout << L"Has ptr value: " << *numPtr << std::endl;
     }
 
     static const Type *GetType()
@@ -46,5 +53,11 @@ void TestConstructor()
     auto constructor3 = Constructor<TestClass1, const String &, int32>();
     TestClass1 *ptr3 = constructor3.Invoke(String(L"Obj3"), 100);
     ptr3->Print();
+
+    int32 ptrValue = 20;
+    auto constructor4 = Constructor<TestClass1, const String &, int32, int32 *>();
+    TestClass1 *ptr4 = constructor4.Invoke(String(L"Obj4"), 100, &ptrValue);
+    ptr4->Print();
+
 }
 } // namespace ReflectionInternal

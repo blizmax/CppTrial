@@ -3,7 +3,7 @@
 
 CT_SCOPE_BEGIN
 
-class Field : public MetaBase
+class Property : public MetaBase
 {
 
 };

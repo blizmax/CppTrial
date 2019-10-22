@@ -34,13 +34,16 @@ using TIsTriviallyMoveAssignable = std::is_trivially_move_assignable<T>;
 
 struct TNullType;
 
-template<bool T>
+template <bool T>
 struct TBoolType;
-template<>
-struct TBoolType<true> : public TTrueType{};
-template<>
-struct TBoolType<false> : public TFalseType{};
-
+template <>
+struct TBoolType<true> : public TTrueType
+{
+};
+template <>
+struct TBoolType<false> : public TFalseType
+{
+};
 
 template <typename T>
 struct TIsValid : public TTrueType
@@ -89,15 +92,13 @@ struct TOr<B1, B2, B3, Bn...> : public TConditional<B1::value, B1, TOr<B2, B3, B
 {
 };
 
-template<bool B>
+template <bool B>
 struct TNot : public TFalseType
 {
 };
-template<>
+template <>
 struct TNot<false> : public TTrueType
 {
 };
-
-
 
 CT_SCOPE_END
