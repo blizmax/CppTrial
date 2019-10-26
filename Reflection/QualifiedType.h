@@ -1,8 +1,11 @@
 #pragma once
 
-#include "Reflection/.Pakage.h"
+#include "Reflection/.Package.h"
 
 CT_SCOPE_BEGIN
+
+namespace Reflection
+{
 
 class QualifiedType
 {
@@ -120,8 +123,6 @@ protected:
     uint32 pointerCount = 0;
 };
 
-namespace ReflectionInternal
-{
 template <typename T>
 struct QualifiedTypeTraits
 {
@@ -265,12 +266,13 @@ struct QualifiedTypeTraits<const volatile T *>
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), true, true, true, false, false);
     }
 };
-} // namespace ReflectionInternal
 
 template <typename T>
 CT_INLINE QualifiedType GetQualifiedType()
 {
-    return ReflectionInternal::QualifiedTypeTraits<T>::GetType();
+    return QualifiedTypeTraits<T>::GetType();
 }
+
+} // namespace Reflection
 
 CT_SCOPE_END

@@ -1,14 +1,18 @@
-#include "Reflection/.Pakage.h"
+#pragma once
+
+#include "Reflection/.Package.h"
 #include "Reflection/QualifiedType.h"
 
 CT_SCOPE_BEGIN
 
+namespace Reflection
+{
+
 class ParamInfo : public MetaBase
 {
 public:
-    ParamInfo(const QualifiedType& type, uint32 index) : type(type), index(index)
+    ParamInfo(const QualifiedType &type, uint32 index) : type(type), index(index)
     {
-
     }
 
     QualifiedType GetType() const
@@ -36,5 +40,7 @@ protected:
     uint32 index;
     Any defaultValue;
 };
+
+} // namespace Reflection
 
 CT_SCOPE_END

@@ -1,7 +1,12 @@
-#include "Reflection/.Pakage.h"
+#pragma once
+
+#include "Reflection/.Package.h"
 #include "Reflection/ParamInfo.h"
 
 CT_SCOPE_BEGIN
+
+namespace Reflection
+{
 
 class ConstructorBase : public MetaBase
 {
@@ -86,7 +91,7 @@ class Constructor : public ConstructorBase
 public:
     Constructor() : ConstructorBase(TypeOf<T>(), {GetQualifiedType<Args>()...})
     {
-        static_assert(TIsConstructible<T, Args...>::value, "Attemp to define an undeclared constructor.");
+        static_assert(TIsConstructible<T, Args...>::value, "Attempt to define an undeclared constructor.");
     }
 
     virtual Any Invoke(typename TAsType<Args, Any>::value... args) const override
@@ -94,5 +99,7 @@ public:
         return (Any)Memory::New<T>(std::forward<Args>((Args)args)...);
     }
 };
+
+} // namespace Reflection
 
 CT_SCOPE_END

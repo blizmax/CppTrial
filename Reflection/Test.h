@@ -1,8 +1,12 @@
+#pragma once
+
 #include "Reflection/QualifiedType.h"
 #include "Reflection/Constructor.h"
+#include "Reflection/Property.h"
+#include "Reflection/Method.h"
 #include "Reflection/Type.h"
 
-namespace ReflectionInternal
+namespace Reflection
 {
 class TestClass1
 {
@@ -58,6 +62,5 @@ void TestConstructor()
     auto constructor4 = Constructor<TestClass1, const String &, int32, int32 *>();
     TestClass1 *ptr4 = constructor4.Invoke(String(L"Obj4"), 100, &ptrValue);
     ptr4->Print();
-
 }
-} // namespace ReflectionInternal
+} // namespace Reflection

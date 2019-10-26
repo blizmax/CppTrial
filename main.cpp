@@ -246,7 +246,7 @@ int main()
 
     //TestTemplate();
 
-    ReflectionInternal::TestConstructor();
+    Reflection::TestConstructor();
    
 
     // std::thread thread1 = std::thread([](){

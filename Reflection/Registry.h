@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Reflection/MetaType.h"
 
 CT_SCOPE_BEGIN

@@ -1,18 +1,17 @@
-#include "Reflection/.Pakage.h"
+#pragma once
+
+#include "Reflection/.Package.h"
 #include "Reflection/QualifiedType.h"
 
 CT_SCOPE_BEGIN
 
+namespace Reflection
+{
+
 class Type : public MetaBase
 {
-
 };
 
-
-
-//TODO
-namespace ReflectionInternal
-{
 template <>
 struct TypeTraits<int32>
 {
@@ -32,6 +31,7 @@ struct TypeTraits<String>
         return &type;
     }
 };
-}
+
+} // namespace Reflection
 
 CT_SCOPE_END

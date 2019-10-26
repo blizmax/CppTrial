@@ -10,6 +10,9 @@
 
 CT_SCOPE_BEGIN
 
+namespace Reflection
+{
+
 class Type;
 
 class MetaData
@@ -37,8 +40,6 @@ protected:
     MetaData metaData;
 };
 
-namespace ReflectionInternal
-{
 template <typename T>
 struct TypeTraits
 {
@@ -56,12 +57,13 @@ struct TypeTraits<std::nullptr_t>
         return nullptr;
     }
 };
-}
 
 template <typename T>
 CT_INLINE const Type *TypeOf()
 {
-    return ReflectionInternal::TypeTraits<T>::GetType();
+    return Reflection::TypeTraits<T>::GetType();
 }
+
+} // namespace Reflection
 
 CT_SCOPE_END

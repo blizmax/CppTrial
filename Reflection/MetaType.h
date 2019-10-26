@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Reflection/.Pakage.h"
+#include "Reflection/.Package.h"
 
 CT_SCOPE_BEGIN
 
@@ -12,7 +12,7 @@ public:
     }
 
     Name name;
-    MetaData metaData;
+    Reflection::MetaData metaData;
 };
 
 class MetaTypeRegistrar
