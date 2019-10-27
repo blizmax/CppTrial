@@ -8,12 +8,10 @@ CT_SCOPE_BEGIN
 namespace Reflection
 {
 
-class ConstructorBase : public MetaBase
+class Constructor : public MetaBase
 {
 protected:
-    ConstructorBase() = delete;
-
-    ConstructorBase(const Type *type, std::initializer_list<QualifiedType> paramTypes) : type(type)
+    Constructor(Type *ownerType, std::initializer_list<QualifiedType> paramTypes) : ownerType(ownerType)
     {
         uint32 index = 0;
         for (const auto &paramType : paramTypes)
@@ -23,9 +21,9 @@ protected:
     }
 
 public:
-    const Type *GetType() const
+    Type *GetOwnerType() const
     {
-        return type;
+        return ownerType;
     }
 
     SizeType GetParamCount() const
@@ -81,15 +79,15 @@ public:
     }
 
 protected:
-    const Type *type;
+    Type *ownerType;
     Array<ParamInfo> paramInfos;
 };
 
 template <typename T, typename... Args>
-class Constructor : public ConstructorBase
+class ConstructorImpl : public Constructor
 {
 public:
-    Constructor() : ConstructorBase(TypeOf<T>(), {GetQualifiedType<Args>()...})
+    ConstructorImpl() : Constructor(TypeOf<T>(), {GetQualifiedType<Args>()...})
     {
         static_assert(TIsConstructible<T, Args...>::value, "Attempt to define an undeclared constructor.");
     }

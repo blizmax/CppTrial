@@ -126,7 +126,7 @@ protected:
 template <typename T>
 struct QualifiedTypeTraits
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return TypeOf<T>();
     }
@@ -135,7 +135,7 @@ struct QualifiedTypeTraits
 template <typename T>
 struct QualifiedTypeTraits<T &>
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, false, false, true, false);
     }
@@ -144,7 +144,7 @@ struct QualifiedTypeTraits<T &>
 template <typename T>
 struct QualifiedTypeTraits<T &&>
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, false, false, false, true);
     }
@@ -153,7 +153,7 @@ struct QualifiedTypeTraits<T &&>
 template <typename T>
 struct QualifiedTypeTraits<T *>
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), true, false, false, false, false);
     }
@@ -162,7 +162,7 @@ struct QualifiedTypeTraits<T *>
 template <typename T>
 struct QualifiedTypeTraits<const T>
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, true, false, false, false);
     }
@@ -171,7 +171,7 @@ struct QualifiedTypeTraits<const T>
 template <typename T>
 struct QualifiedTypeTraits<const T &>
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, true, false, true, false);
     }
@@ -180,7 +180,7 @@ struct QualifiedTypeTraits<const T &>
 template <typename T>
 struct QualifiedTypeTraits<const T &&>
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, true, false, false, true);
     }
@@ -189,7 +189,7 @@ struct QualifiedTypeTraits<const T &&>
 template <typename T>
 struct QualifiedTypeTraits<const T *>
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), true, true, false, false, false);
     }
@@ -198,7 +198,7 @@ struct QualifiedTypeTraits<const T *>
 template <typename T>
 struct QualifiedTypeTraits<volatile T>
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, false, true, false, false);
     }
@@ -207,7 +207,7 @@ struct QualifiedTypeTraits<volatile T>
 template <typename T>
 struct QualifiedTypeTraits<volatile T &>
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, false, true, true, false);
     }
@@ -216,7 +216,7 @@ struct QualifiedTypeTraits<volatile T &>
 template <typename T>
 struct QualifiedTypeTraits<volatile T &&>
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, false, true, false, true);
     }
@@ -225,7 +225,7 @@ struct QualifiedTypeTraits<volatile T &&>
 template <typename T>
 struct QualifiedTypeTraits<volatile T *>
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), true, false, true, false, false);
     }
@@ -234,7 +234,7 @@ struct QualifiedTypeTraits<volatile T *>
 template <typename T>
 struct QualifiedTypeTraits<const volatile T>
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, true, true, false, false);
     }
@@ -243,7 +243,7 @@ struct QualifiedTypeTraits<const volatile T>
 template <typename T>
 struct QualifiedTypeTraits<const volatile T &>
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, true, true, true, false);
     }
@@ -252,7 +252,7 @@ struct QualifiedTypeTraits<const volatile T &>
 template <typename T>
 struct QualifiedTypeTraits<const volatile T &&>
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), false, true, true, false, true);
     }
@@ -261,7 +261,7 @@ struct QualifiedTypeTraits<const volatile T &&>
 template <typename T>
 struct QualifiedTypeTraits<const volatile T *>
 {
-    static const QualifiedType GetType()
+    static QualifiedType GetType()
     {
         return QualifiedType(QualifiedTypeTraits<T>::GetType(), true, true, true, false, false);
     }

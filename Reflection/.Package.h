@@ -43,7 +43,7 @@ protected:
 template <typename T>
 struct TypeTraits
 {
-    static const Type *GetType()
+    static Type *GetType()
     {
         return T::GetType();
     }
@@ -52,14 +52,14 @@ struct TypeTraits
 template <>
 struct TypeTraits<std::nullptr_t>
 {
-    static const Type *GetType()
+    static Type *GetType()
     {
         return nullptr;
     }
 };
 
 template <typename T>
-CT_INLINE const Type *TypeOf()
+CT_INLINE Type *TypeOf()
 {
     return Reflection::TypeTraits<T>::GetType();
 }

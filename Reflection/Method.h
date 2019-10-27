@@ -11,7 +11,7 @@ namespace Reflection
 class Method : public MetaBase
 {
 protected:
-    Method(const Name &name, const Type *ownerType, const QualifiedType returnType, std::initializer_list<QualifiedType> paramTypes, bool isStatic = false)
+    Method(const Name &name, Type *ownerType, const QualifiedType returnType, std::initializer_list<QualifiedType> paramTypes, bool isStatic = false)
         : MetaBase(name), ownerType(ownerType), returnType(returnType), isStatic(isStatic)
     {
         uint32 index = 0;
@@ -22,12 +22,12 @@ protected:
     }
 
 public:
-    const Type *GetOwnerType() const
+    Type *GetOwnerType() const
     {
         return ownerType;
     }
 
-    const QualifiedType GetReturnType() const
+    QualifiedType GetReturnType() const
     {
         return returnType;
     }
@@ -90,8 +90,8 @@ public:
     }
 
 protected:
-    const Type *ownerType;
-    const QualifiedType returnType;
+    Type *ownerType;
+    QualifiedType returnType;
     Array<ParamInfo> paramInfos;
     bool isStatic;
 };

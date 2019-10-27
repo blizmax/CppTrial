@@ -11,18 +11,18 @@ namespace Reflection
 class Property : public MetaBase
 {
 protected:
-    Property(const Name &name, const Type *ownerType, const QualifiedType type, bool isStatic = false)
+    Property(const Name &name, Type *ownerType, const QualifiedType type, bool isStatic = false)
         : MetaBase(name), ownerType(ownerType), type(type), isStatic(isStatic)
     {
     }
 
 public:
-    const Type *GetOwnerType() const
+    Type *GetOwnerType() const
     {
         return ownerType;
     }
 
-    const QualifiedType GetType() const
+    QualifiedType GetType() const
     {
         return type;
     }
@@ -49,8 +49,8 @@ public:
     }
 
 protected:
-    const Type *ownerType;
-    const QualifiedType type;
+    Type *ownerType;
+    QualifiedType type;
     bool isStatic;
 };
 
