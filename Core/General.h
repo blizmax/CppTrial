@@ -33,6 +33,7 @@
 #endif
 
 #define CT_INLINE inline
+#define CT_TEXT(TEXT_) L##TEXT_
 
 CT_SCOPE_BEGIN
 

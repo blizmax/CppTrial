@@ -15,6 +15,11 @@ class Method;
 class Type : public MetaBase
 {
 public:
+    Type(const Name& name, Type *baseType, SizeType size) :
+        MetaBase(name), baseType(baseType), size(size)
+    {
+    }
+
     bool IsTemplate() const; //TODO
 
     bool IsEnum() const
@@ -107,25 +112,29 @@ protected:
     bool isEnum = false;
 };
 
-template <>
-struct TypeTraits<int32>
+class TemplatedType : public Type
 {
-    static Type *GetType()
-    {
-        static Type type;
-        return &type;
-    }
+
+protected:
+    Array<QualifiedType> templates;
+    Type* templateType;
+
 };
 
-template <>
-struct TypeTraits<String>
-{
-    static Type *GetType()
-    {
-        static Type type;
-        return &type;
-    }
+
+#define CT_REFLECTION_BUILTIN_TYPE_TRAITS(TYPE_)\
+template<>\
+struct TypeTraits<TYPE_>\
+{\
+    static Type *GetType()\
+    {\
+        static Type type = Type(CT_TEXT(#TYPE_), nullptr, sizeof(TYPE_));\
+        return &type;\
+    }\
 };
+
+CT_REFLECTION_BUILTIN_TYPE_TRAITS(int8);
+
 
 } // namespace Reflection
 

@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Reflection/MetaType.h"
+#include "Reflection/Type.h"
 
 CT_SCOPE_BEGIN
 
+namespace Reflection
+{
 class Registry
 {
 private:
@@ -13,16 +15,17 @@ private:
 public:
     static Registry *GetInstance();
 
-    bool RegisterType(const MetaType *type);
-    void UnregisterType(const MetaType *type);
+    bool RegisterType(Type *type);
+    void UnregisterType(Type *type);
 
-    const MetaType *GetMetaType(const Name &name) const;
+    // const MetaType *GetMetaType(const Name &name) const;
 
-    template <typename T>
-    const MetaType *GetMetaType();
+    // template <typename T>
+    // const MetaType *GetMetaType();
 
 private:
-    HashMap<Name, MetaType *> typeMap;
+    HashMap<Name, Type *> typeMap;
 };
+}
 
 CT_SCOPE_END
