@@ -246,6 +246,7 @@ int main()
 
     //TestTemplate();
 
+    Reflection::TestBuiltinType();
     Reflection::TestConstructor();
    
 

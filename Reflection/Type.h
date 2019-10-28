@@ -15,12 +15,15 @@ class Method;
 class Type : public MetaBase
 {
 public:
-    Type(const Name& name, Type *baseType, SizeType size) :
-        MetaBase(name), baseType(baseType), size(size)
+    Type(const Name &name, Type *baseType, SizeType size)
+        : MetaBase(name), baseType(baseType), size(size)
     {
     }
 
-    bool IsTemplate() const; //TODO
+    Type(const Name &name, Type *baseType, SizeType size, const Array<QualifiedType> &templates)
+        : MetaBase(name), baseType(baseType), size(size), templates(templates)
+    {
+    }
 
     bool IsEnum() const
     {
@@ -81,7 +84,15 @@ public:
         return derivedTypes;
     }
 
-    //virtual const Array<QualifiedType>& GetTemplates() const; //TODO
+    bool IsTemplate() const
+    {
+        return templates.Size() > 1;
+    }
+
+    const Array<QualifiedType> &GetTemplates() const
+    {
+        return templates;
+    }
 
     Array<Constructor *> GetConstructors() const;
     Array<Property *> GetProperties() const;
@@ -101,40 +112,17 @@ protected:
 
     static bool MatchParams(const Array<ParamInfo> &params, const Array<QualifiedType> &types);
 
+protected:
     Type *baseType = nullptr;
     Type *underlyingType = nullptr;
     Array<Type *> derivedTypes;
     Array<Constructor *> constructors;
     Array<Property *> properties;
     Array<Method *> methods;
-
+    Array<QualifiedType> templates;
     SizeType size;
     bool isEnum = false;
 };
-
-class TemplatedType : public Type
-{
-
-protected:
-    Array<QualifiedType> templates;
-    Type* templateType;
-
-};
-
-
-#define CT_REFLECTION_BUILTIN_TYPE_TRAITS(TYPE_)\
-template<>\
-struct TypeTraits<TYPE_>\
-{\
-    static Type *GetType()\
-    {\
-        static Type type = Type(CT_TEXT(#TYPE_), nullptr, sizeof(TYPE_));\
-        return &type;\
-    }\
-};
-
-CT_REFLECTION_BUILTIN_TYPE_TRAITS(int8);
-
 
 } // namespace Reflection
 
