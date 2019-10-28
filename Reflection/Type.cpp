@@ -2,11 +2,17 @@
 #include "Reflection/Constructor.h"
 #include "Reflection/Property.h"
 #include "Reflection/Method.h"
+#include "Reflection/Enum.h"
 
 CT_SCOPE_BEGIN
 
 namespace Reflection
 {
+
+Type::Type(Enum *enumType)
+    : MetaBase(enumType->GetName()), isEnum(true)
+{
+}
 
 bool Type::MatchParams(const Array<ParamInfo> &params, const Array<QualifiedType> &types)
 {
@@ -117,6 +123,18 @@ Method *Type::GetMethod(const Name &name, const Array<QualifiedType> &typeList) 
     {
         return baseType->GetMethod(name, typeList);
     }
+    return nullptr;
+}
+
+Enum *Type::GetEnum() const
+{
+    //TODO
+    return nullptr;
+}
+
+Type *Type::GetType(const Name &name)
+{
+    //TODO
     return nullptr;
 }
 

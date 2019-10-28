@@ -11,6 +11,7 @@ namespace Reflection
 class Constructor;
 class Property;
 class Method;
+class Enum;
 
 class Type : public MetaBase
 {
@@ -24,6 +25,8 @@ public:
         : MetaBase(name), baseType(baseType), size(size), templates(templates)
     {
     }
+
+    explicit Type(Enum *enumType);
 
     bool IsEnum() const
     {
@@ -74,11 +77,6 @@ public:
         return baseType;
     }
 
-    Type *GetUnderlyingType() const
-    {
-        return underlyingType;
-    }
-
     Array<Type *> GetDerivedTypes() const
     {
         return derivedTypes;
@@ -103,7 +101,9 @@ public:
     Method *GetMethod(const Name &name) const;
     Method *GetMethod(const Name &name, const Array<QualifiedType> &typeList) const;
 
-    static Type *GetType(const Name &name); //TODO
+    Enum *GetEnum() const;
+
+    static Type *GetType(const Name &name);
 
 protected:
     Type *SetConstructors(const Array<Constructor *> value);
@@ -113,14 +113,13 @@ protected:
     static bool MatchParams(const Array<ParamInfo> &params, const Array<QualifiedType> &types);
 
 protected:
-    Type *baseType = nullptr;
-    Type *underlyingType = nullptr;
     Array<Type *> derivedTypes;
     Array<Constructor *> constructors;
     Array<Property *> properties;
     Array<Method *> methods;
     Array<QualifiedType> templates;
-    SizeType size;
+    Type *baseType = nullptr;
+    SizeType size = 0;
     bool isEnum = false;
 };
 

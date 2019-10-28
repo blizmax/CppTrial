@@ -1,33 +1,31 @@
-#include "Reflection/MetaEnum.h"
+#include "Reflection/Enum.h"
 
 CT_SCOPE_BEGIN
 
-void MetaEnum::SetElements(Array<Element> &value)
+namespace Reflection
 {
-    elements = value;
-}
 
-SizeType MetaEnum::GetElementSize() const
+SizeType Enum::GetElementSize() const
 {
     return elements.Size();
 }
 
-bool MetaEnum::IsValidIndex(SizeType index) const
+bool Enum::IsValidIndex(SizeType index) const
 {
     return index <= elements.Size();
 }
 
-bool MetaEnum::IsValidName(const Name &name) const
+bool Enum::IsValidName(const Name &name) const
 {
     return GetIndexByName(name) != INDEX_NONE;
 }
 
-bool MetaEnum::IsValidValue(int64 value) const
+bool Enum::IsValidValue(int64 value) const
 {
     return GetIndexByValue(value) != INDEX_NONE;
 }
 
-SizeType MetaEnum::GetIndexByName(const Name &name) const
+SizeType Enum::GetIndexByName(const Name &name) const
 {
     for (SizeType i = 0; i < elements.Size(); ++i)
     {
@@ -39,7 +37,7 @@ SizeType MetaEnum::GetIndexByName(const Name &name) const
     return INDEX_NONE;
 }
 
-SizeType MetaEnum::GetIndexByValue(int64 value) const
+SizeType Enum::GetIndexByValue(int64 value) const
 {
     for (SizeType i = 0; i < elements.Size(); ++i)
     {
@@ -51,35 +49,36 @@ SizeType MetaEnum::GetIndexByValue(int64 value) const
     return INDEX_NONE;
 }
 
-int64 MetaEnum::GetValueByName(const Name &name) const
+int64 Enum::GetValueByName(const Name &name) const
 {
     SizeType index = GetIndexByName(name);
     CheckRange(index);
     return elements[index].value;
 }
 
-int64 MetaEnum::GetValueByIndex(SizeType index) const
+int64 Enum::GetValueByIndex(SizeType index) const
 {
     CheckRange(index);
     return elements[index].value;
 }
 
-Name MetaEnum::GetNameByValue(int64 value) const
+Name Enum::GetNameByValue(int64 value) const
 {
     SizeType index = GetIndexByValue(value);
     CheckRange(index);
     return elements[index].name;
 }
 
-Name MetaEnum::GetNameByIndex(SizeType index) const
+Name Enum::GetNameByIndex(SizeType index) const
 {
     CheckRange(index);
     return elements[index].name;
 }
 
-void MetaEnum::CheckRange(SizeType index) const
+void Enum::CheckRange(SizeType index) const
 {
     CT_ASSERT(IsValidIndex(index));
 }
+} // namespace Reflection
 
 CT_SCOPE_END
