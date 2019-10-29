@@ -72,7 +72,17 @@ public:
     }
 
     template <typename T>
-    Any(T &&value) : data(Memory::New<AnyInternal::DynamicData<T>>(std::forward<T>(value)))
+    Any(T *value) : data(Memory::New<AnyInternal::DynamicData<typename TDecay<T *>::type>>(value))
+    {
+    }
+
+    template <typename T, typename = typename TEnableIf<!TIsPointer<T>::value, T>::type>
+    Any(const T &value) : data(Memory::New<AnyInternal::DynamicData<typename TDecay<T>::type>>(value))
+    {
+    }
+
+    template <typename T>
+    Any(T &value) : data(Memory::New<AnyInternal::DynamicData<typename TDecay<T>::type>>(value))
     {
     }
 

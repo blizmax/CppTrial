@@ -13,7 +13,7 @@ Registry::~Registry()
 {
 }
 
-Registry* Registry::GetInstance()
+Registry *Registry::GetInstance()
 {
     static Registry instance;
     return &instance;
@@ -21,7 +21,7 @@ Registry* Registry::GetInstance()
 
 bool Registry::RegisterType(Type *type)
 {
-    if(!typeMap.Contains(type->GetName()))
+    if (!typeMap.Contains(type->GetName()))
     {
         typeMap.Put(type->GetName(), type);
         return true;
@@ -34,6 +34,33 @@ void Registry::UnregisterType(Type *type)
     typeMap.Remove(type->GetName());
 }
 
+Type *Registry::GetType(const Name& name)
+{
+    if(typeMap.Contains(name))
+    {
+        return typeMap[name];
+    }
+    return nullptr;
 }
+
+void Registry::PopulateType(Type *type)
+{
+    if (populatorMap.Contains(type->GetName()))
+    {
+        populatorMap[type->GetName()]->Populate();
+    }
+}
+
+bool Registry::RegisterPopulator(const Name &name, ITypePopulator *populator)
+{
+    if (!populatorMap.Contains(name))
+    {
+        populatorMap.Put(name, populator);
+        return true;
+    }
+    return false;
+}
+
+} // namespace Reflection
 
 CT_SCOPE_END

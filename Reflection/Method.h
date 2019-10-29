@@ -100,7 +100,7 @@ template <typename OwnerType, typename ReturnType, typename... Args>
 class MemberMethod : public Method
 {
 public:
-    using FuncPtr = ReturnType (*)(Args...);
+    using FuncPtr = ReturnType (OwnerType::*)(Args...);
 
     MemberMethod(const Name &name, FuncPtr func)
         : Method(name, TypeOf<OwnerType>(), GetQualifiedType<ReturnType>(), {GetQualifiedType<Args>()...}), funcPtr(func)
@@ -120,7 +120,7 @@ template <typename OwnerType, typename... Args>
 class MemberMethod<OwnerType, void, Args...> : public Method
 {
 public:
-    using FuncPtr = void (*)(Args...);
+    using FuncPtr = void (OwnerType::*)(Args...);
 
     MemberMethod(const Name &name, FuncPtr func)
         : Method(name, TypeOf<OwnerType>(), GetQualifiedType<void>(), {GetQualifiedType<Args>()...}), funcPtr(func)

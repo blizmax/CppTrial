@@ -2,6 +2,10 @@
 
 #include "Reflection/.Package.h"
 #include "Reflection/ParamInfo.h"
+#include "Reflection/Constructor.h"
+#include "Reflection/Property.h"
+#include "Reflection/Method.h"
+#include "Reflection/Enum.h"
 
 CT_SCOPE_BEGIN
 
@@ -15,6 +19,8 @@ class Enum;
 
 class Type : public MetaBase
 {
+    template<typename T>
+    friend class TypeRegistrar;
 public:
     Type(const Name &name, Type *baseType, SizeType size)
         : MetaBase(name), baseType(baseType), size(size)

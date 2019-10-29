@@ -1,8 +1,4 @@
 #include "Reflection/Type.h"
-#include "Reflection/Constructor.h"
-#include "Reflection/Property.h"
-#include "Reflection/Method.h"
-#include "Reflection/Enum.h"
 
 CT_SCOPE_BEGIN
 

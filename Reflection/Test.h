@@ -7,10 +7,12 @@
 #include "Reflection/Type.h"
 #include "Reflection/Registry.h"
 
-namespace Reflection
-{
+CT_SCOPE_BEGIN
+
 class TestClass1
 {
+    CT_TYPE_DECLARE(TestClass1, std::nullptr_t);
+
 public:
     String name = L"None";
     int32 num = 0;
@@ -38,40 +40,69 @@ public:
             std::wcout << L"Has ptr value: " << *numPtr << std::endl;
     }
 
-    static Type *GetType()
+    void IncNum(int32 inc)
     {
-        static Type type(L"TestClass1", nullptr, sizeof(TestClass1));
-        return &type;
+        num += inc;
+    }
+
+    const String& GetName() const
+    {
+        return name;
     }
 };
 
+CT_TYPE_DEFINE(TestClass1)
+{
+    Reflection::TypeRegistrar<TestClass1>()
+    .AddConstructor<>()
+    .AddConstructor<const String&>()
+    .AddConstructor<const String&, int32>()
+    .AddConstructor<const String&, int32, int32*>()
+    .AddProperty<String>(CT_TEXT("name"), &TestClass1::name)
+    .AddProperty<int32>(CT_TEXT("num"), &TestClass1::num)
+    .AddMethod<void>(CT_TEXT("Print"), &TestClass1::Print)
+    .AddMethod<void, int32>(CT_TEXT("IncNum"), &TestClass1::IncNum)
+    .AddMethod<const String&>(CT_TEXT("GetName"), &TestClass1::GetName)
+    .Apply();
+}
+
+namespace Reflection
+{
 void TestBuiltinType()
 {
-    Type* type = TypeOf<int32>();
-    if(type)
-    {
-        auto name = type->GetName();
-        std::wcout << L"Type Name: " << *(name.ToString()) << std::endl;
-    }
+    // Type *type = TypeOf<int32>();
+    // if (type)
+    // {
+    //     auto name = type->GetName();
+    //     std::wcout << L"Type Name: " << *(name.ToString()) << std::endl;
+    // }
 }
 
-void TestConstructor()
+void TestTypeMacro()
 {
-    auto constructor1 = ConstructorImpl<TestClass1>();
-    TestClass1 *ptr1 = constructor1.Invoke();
-    ptr1->Print();
+    Type *type = TypeOf<TestClass1>();
+    auto ctor = type->GetConstructor();
+    for(const auto prop : type->GetProperties())
+    {
+        std::wcout << L"property name: " << *prop->GetName().ToString() << std::endl;
+    }
+    for(const auto method : type->GetMethods())
+    {
+        std::wcout << L"method name: " << *method->GetName().ToString() << std::endl;
+    }
 
-    auto constructor2 = ConstructorImpl<TestClass1, const String &>();
-    TestClass1 *ptr2 = constructor2.Invoke(String(L"Obj2"));
-    ptr2->Print();
+    TestClass1 *c1 = ctor->Invoke();
+    auto nameProp = type->GetProperty(CT_TEXT("name"));
+    nameProp->Set(c1, String(CT_TEXT("Hello")));
+    auto incNumMethod = type->GetMethod(CT_TEXT("IncNum"));
+    incNumMethod->Invoke(c1, 100);
+    auto printMethod = type->GetMethod(CT_TEXT("Print"));
+    printMethod->Invoke(c1);
+}
 
-    auto constructor3 = ConstructorImpl<TestClass1, const String &, int32>();
-    TestClass1 *ptr3 = constructor3.Invoke(String(L"Obj3"), 100);
-    ptr3->Print();
-
-    int32 ptrValue = 20;
-    auto constructor4 = ConstructorImpl<TestClass1, const String &, int32, int32 *>();
-    TestClass1 *ptr4 = constructor4.Invoke(String(L"Obj4"), 100, &ptrValue);
-    ptr4->Print();
+void Test()
+{
+   TestTypeMacro();
 }
 } // namespace Reflection
+CT_SCOPE_END
