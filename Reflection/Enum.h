@@ -31,7 +31,7 @@ public:
     };
 
 public:
-    Enum(const Name &name, Type *underlyingType, const Array<Element> &elements)
+    Enum(const Name &name, Type *underlyingType, const Array<Element> &elements = {})
         : MetaBase(name), underlyingType(underlyingType), elements(elements)
     {
     }

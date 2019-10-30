@@ -10,6 +10,10 @@ void TestClass1::Print() const
         std::wcout << L"Has ptr value: " << *numPtr << std::endl;
 }
 
+CT_ENUM_DEFINE(TestEnum1)
+{
+}
+
 CT_TYPE_DEFINE(TestClass1)
 {
     using namespace Reflection;
@@ -59,6 +63,12 @@ void Reflection::TestTypeMacro()
     }
     auto printMethod = type->GetMethod(CT_TEXT("Print"));
     printMethod->Invoke(c1);
+
+    Type *enumType = TypeOf<TestEnum1>();
+    std::wcout << L"TestEnum1 is enum? :" << enumType->IsEnum() << std::endl;
+
+    Type *nestedEnumType = TypeOf<TestClass1::TestNestedEnum>();
+    std::wcout << L"TestNestedEnum is enum? :" << enumType->IsEnum() << std::endl;
 }
 
 void Reflection::Test()

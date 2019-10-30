@@ -14,22 +14,21 @@ struct ITypePopulator
 
 struct IOption
 {
-
 };
 
 struct MetaData : public IOption
 {
     Name name;
     String value;
-    MetaData(const Name& name, const String& value) : name(name), value(value)
+    MetaData(const Name &name, const String &value) : name(name), value(value)
     {
     }
 
-    MetaData(const Name& name, String&& value) : name(name), value(std::move(value))
+    MetaData(const Name &name, String &&value) : name(name), value(std::move(value))
     {
     }
 
-    void Apply(MetaBase* metaBase)
+    void Apply(MetaBase *metaBase)
     {
         metaBase->SetMetaData(name, std::move(value));
     }
@@ -41,39 +40,43 @@ struct Parameter : public IOption
     Name name;
     Any value;
 
-    Parameter(uint32 index, const Name& name) : index(index), name(name)
+    Parameter(uint32 index, const Name &name) : index(index), name(name)
     {
     }
 
-    Parameter(uint32 index, const Name& name, const Any& value) : index(index), name(name), value(value)
+    Parameter(uint32 index, const Name &name, const Any &value) : index(index), name(name), value(value)
     {
     }
 
-    Parameter(uint32 index, const Name& name, Any&& value) : index(index), name(name), value(std::move(value))
+    Parameter(uint32 index, const Name &name, Any &&value) : index(index), name(name), value(std::move(value))
     {
     }
 
-    void Apply(MetaBase* metaBase)
+    void Apply(MetaBase *metaBase)
     {
-        if(dynamic_cast<Constructor*>(metaBase))
+        if (dynamic_cast<Constructor *>(metaBase))
         {
-            const ParamInfo& param = dynamic_cast<Constructor*>(metaBase)->GetParamInfos()[index];
-            const_cast<ParamInfo&>(param).name = name;
-            if(!value.IsEmpty())
+            const ParamInfo &param = dynamic_cast<Constructor *>(metaBase)->GetParamInfos()[index];
+            const_cast<ParamInfo &>(param).name = name;
+            if (!value.IsEmpty())
             {
-                const_cast<ParamInfo&>(param).defaultValue = std::move(value);
+                const_cast<ParamInfo &>(param).defaultValue = std::move(value);
             }
         }
-        else if (dynamic_cast<Method*>(metaBase))
+        else if (dynamic_cast<Method *>(metaBase))
         {
-            const ParamInfo& param = dynamic_cast<Method*>(metaBase)->GetParamInfos()[index];
-            const_cast<ParamInfo&>(param).name = name;
-            if(!value.IsEmpty())
+            const ParamInfo &param = dynamic_cast<Method *>(metaBase)->GetParamInfos()[index];
+            const_cast<ParamInfo &>(param).name = name;
+            if (!value.IsEmpty())
             {
-                const_cast<ParamInfo&>(param).defaultValue = std::move(value);
+                const_cast<ParamInfo &>(param).defaultValue = std::move(value);
             }
         }
     }
+};
+
+struct EnumValue : public IOption
+{
 };
 
 template <typename T>
@@ -83,24 +86,18 @@ public:
     class OptionBuilder
     {
     public:
-        OptionBuilder(TypeRegistrar *registrar, MetaBase *metaBase) 
+        OptionBuilder(TypeRegistrar *registrar, MetaBase *metaBase)
             : registrar(registrar), metaBase(metaBase)
         {
         }
 
-        // Option& AddMetaData(const Name& name, const String& value)
-        // {
-        //     metaBase->SetMetaData(name, value);
-        //     return *this;
-        // }
-
-        TypeRegistrar& operator()()
+        TypeRegistrar &operator()()
         {
             return *registrar;
         }
 
-        template<typename OptionType, typename... Args>
-        TypeRegistrar& operator()(OptionType&& option, Args&&...args)
+        template <typename OptionType, typename... Args>
+        TypeRegistrar &operator()(OptionType &&option, Args &&... args)
         {
             option.Apply(metaBase);
             return (*this)(std::forward<Args>(args)...);
@@ -117,6 +114,7 @@ public:
     Array<Constructor *> constructors;
     Array<Property *> properties;
     Array<Method *> methods;
+    Array<Enum *> enums;
 
     explicit TypeRegistrar()
     {
@@ -194,8 +192,26 @@ public:
         return *this;
     }
 
+    template <typename EnumType>
+    TypeRegistrar &AddEnum(const Name &name)
+    {
+        Enum *e = Memory::New<Enum>(name, TypeOf<std::underlying_type<EnumType>::type>());
+        enums.Add(e);
+        metaBase = e;
+        return *this;
+    }
+
+    TypeRegistrar &AddEnum(const Name &name)
+    {
+        Enum *e = Memory::New<Enum>(name, TypeOf<uint32>());
+        enums.Add(e);
+        metaBase = e;
+        return *this;
+    }
+
     OptionBuilder Options()
     {
+        CT_ASSERT(metaBase != nullptr);
         return OptionBuilder(this, metaBase);
     }
 };
@@ -301,6 +317,45 @@ private:
     };                                                                                     \
     static const TYPE_##TypePopulator _populator##TYPE_;                                   \
     static void _Populate##TYPE_()
+
+#define CT_ENUM_DECLARE(ENUM_)                                                                                                            \
+    template <>                                                                                                                           \
+    struct Reflection::TypeTraits<ENUM_>                                                                                                  \
+    {                                                                                                                                     \
+        static Reflection::Type *                                                                                                         \
+        GetType()                                                                                                                         \
+        {                                                                                                                                 \
+            static Reflection::Type *type = nullptr;                                                                                      \
+            if (!type)                                                                                                                    \
+            {                                                                                                                             \
+                Enum *e = Memory::New<Reflection::Enum>(CT_TEXT(#ENUM_), Reflection::Type::GetType<std::underlying_type<ENUM_>::type>()); \
+                type = Memory::New<Reflection::Type>(e);                                                                                  \
+                Reflection::Registry::GetInstance()->RegisterType(type);                                                                  \
+                Reflection::Registry::GetInstance()->PopulateType(type);                                                                  \
+            }                                                                                                                             \
+            return type;                                                                                                                  \
+        }                                                                                                                                 \
+    };
+
+#define CT_ENUM_DEFINE(ENUM_) CT_TYPE_DEFINE(ENUM_)
+
+#define CT_NESTED_ENUM_DECLARE(ENUM_)                                                                                                     \
+    template <>                                                                                                                           \
+    struct Reflection::TypeTraits<ENUM_>                                                                                                  \
+    {                                                                                                                                     \
+        static Reflection::Type *                                                                                                         \
+        GetType()                                                                                                                         \
+        {                                                                                                                                 \
+            static Reflection::Type *type = nullptr;                                                                                      \
+            if (!type)                                                                                                                    \
+            {                                                                                                                             \
+                Enum *e = Memory::New<Reflection::Enum>(CT_TEXT(#ENUM_), Reflection::Type::GetType<std::underlying_type<ENUM_>::type>()); \
+                type = Memory::New<Reflection::Type>(e);                                                                                  \
+                Reflection::Registry::GetInstance()->RegisterType(type);                                                                  \
+            }                                                                                                                             \
+            return type;                                                                                                                  \
+        }                                                                                                                                 \
+    };
 
 } // namespace Reflection
 

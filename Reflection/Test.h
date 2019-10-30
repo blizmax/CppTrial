@@ -9,9 +9,27 @@
 
 CT_SCOPE_BEGIN
 
+enum TestEnum1
+{
+    E_A,
+    E_B,
+    E_C,
+    E_D
+};
+
+CT_ENUM_DECLARE(TestEnum1);
+
 class TestClass1
 {
     CT_TYPE_DECLARE(TestClass1, std::nullptr_t);
+
+public:
+    enum class TestNestedEnum
+    {
+        VA,
+        VB,
+        VC
+    };
 
 public:
     String name = L"None";
@@ -47,6 +65,8 @@ public:
         return name;
     }
 };
+
+CT_NESTED_ENUM_DECLARE(TestClass1::TestNestedEnum);
 
 namespace Reflection
 {

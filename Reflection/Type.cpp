@@ -6,9 +6,9 @@ CT_SCOPE_BEGIN
 namespace Reflection
 {
 
-Type::Type(Enum *enumType)
-    : MetaBase(enumType->GetName()), isEnum(true)
+Type::Type(Enum* e) : MetaBase(e->GetName()), isEnum(true)
 {
+    enums.Add(e);
 }
 
 bool Type::MatchParams(const Array<ParamInfo> &params, const Array<QualifiedType> &types)
@@ -45,6 +45,12 @@ Type *Type::SetMethods(const Array<Method *> value)
     return this;
 }
 
+Type *Type::SetEnums(const Array<Enum *> value)
+{
+    enums = value;
+    return this;
+}
+
 Array<Constructor *> Type::GetConstructors() const
 {
     return constructors;
@@ -58,6 +64,11 @@ Array<Property *> Type::GetProperties() const
 Array<Method *> Type::GetMethods() const
 {
     return methods;
+}
+
+Array<Enum *> Type::GetEnums() const
+{
+    return enums;
 }
 
 Constructor *Type::GetConstructor(const Array<QualifiedType> &typeList) const
@@ -123,9 +134,20 @@ Method *Type::GetMethod(const Name &name, const Array<QualifiedType> &typeList) 
     return nullptr;
 }
 
-Enum *Type::GetEnum() const
+Enum *Type::GetEnum(const Name& name) const
 {
-    //TODO
+    for (const auto v : enums)
+    {
+        if (v->GetName() == name)
+        {
+            return v;
+        }
+    }
+
+    if (baseType)
+    {
+        return baseType->GetEnum(name);
+    }
     return nullptr;
 }
 

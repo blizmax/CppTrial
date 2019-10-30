@@ -17,9 +17,9 @@ public:
 
     MapEntry() = default;
     MapEntry(const MapEntry &) = default;
-    MapEntry(MapEntry &&) noexcept = default;
+    MapEntry(MapEntry &&) = default;
     MapEntry &operator=(const MapEntry &) = default;
-    MapEntry &operator=(MapEntry &&) noexcept = default;
+    MapEntry &operator=(MapEntry &&) = default;
     ~MapEntry() = default;
 
     MapEntry(const K &k, const V &v) : key(k), value(v)
