@@ -35,12 +35,7 @@ public:
     {
     }
 
-    void Print() const
-    {
-        std::wcout << L"TestClass1 Name: " << *name << L" Num: " << num << std::endl;
-        if (numPtr)
-            std::wcout << L"Has ptr value: " << *numPtr << std::endl;
-    }
+    void Print() const;
 
     void IncNum(int32 inc)
     {
@@ -53,58 +48,14 @@ public:
     }
 };
 
-CT_TYPE_DEFINE(TestClass1)
-{
-    Reflection::TypeRegistrar<TestClass1>()
-        .AddConstructor<>()
-        .AddConstructor<const String &>()
-        .AddConstructor<const String &, int32>()
-        .AddConstructor<const String &, int32, int32 *>()
-        .AddProperty<String>(CT_TEXT("name"), &TestClass1::name)
-        .AddProperty<int32>(CT_TEXT("num"), &TestClass1::num)
-        .AddMethod<void>(CT_TEXT("Print"), &TestClass1::Print)
-        .AddMethod<void, int32>(CT_TEXT("IncNum"), &TestClass1::IncNum)
-        .AddMethod<const String &>(CT_TEXT("GetName"), &TestClass1::GetName)
-        .Apply();
-}
-
 namespace Reflection
 {
-void TestBuiltinType()
-{
-    // Type *type = TypeOf<int32>();
-    // if (type)
-    // {
-    //     auto name = type->GetName();
-    //     std::wcout << L"Type Name: " << *(name.ToString()) << std::endl;
-    // }
-}
 
-void TestTypeMacro()
-{
-    Type *type = TypeOf<TestClass1>();
-    auto ctor = type->GetConstructor();
-    for (const auto prop : type->GetProperties())
-    {
-        std::wcout << L"property name: " << *prop->GetName().ToString() << std::endl;
-    }
-    for (const auto method : type->GetMethods())
-    {
-        std::wcout << L"method name: " << *method->GetName().ToString() << std::endl;
-    }
+void TestBuiltinType();
 
-    TestClass1 *c1 = ctor->Invoke();
-    auto nameProp = type->GetProperty(CT_TEXT("name"));
-    nameProp->Set(c1, String(CT_TEXT("Hello")));
-    auto incNumMethod = type->GetMethod(CT_TEXT("IncNum"));
-    incNumMethod->Invoke(c1, 100);
-    auto printMethod = type->GetMethod(CT_TEXT("Print"));
-    printMethod->Invoke(c1);
-}
+void TestTypeMacro();
 
-void Test()
-{
-    TestTypeMacro();
-}
+void Test();
+
 } // namespace Reflection
 CT_SCOPE_END

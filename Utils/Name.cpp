@@ -6,7 +6,6 @@
 CT_SCOPE_BEGIN
 
 static std::mutex mutex;
-static HashMap<String, Name::Data *> nameMap(2048);
 
 Name::Name(const Name &other) : data(other.data)
 {
@@ -47,13 +46,19 @@ Name::Name(const CharType *value)
     Construct(String(value));
 }
 
+static HashMap<String, Name::Data *>& NameMap()
+{
+    static HashMap<String, Name::Data *> nameMap(2048);
+    return nameMap;
+}
+
 void Name::Construct(const String &str)
 {
     std::unique_lock<std::mutex> lock(mutex);
 
-    if (nameMap.Contains(str))
+    if (NameMap().Contains(str))
     {
-        Data *mapData = nameMap.Get(str);
+        Data *mapData = NameMap().Get(str);
         data = mapData;
     }
     else
@@ -61,7 +66,7 @@ void Name::Construct(const String &str)
         Data *mapData = Memory::New<Data>();
         mapData->hash = Hash::HashValue(str);
         mapData->string = str;
-        nameMap.Put(str, mapData);
+        NameMap().Put(str, mapData);
         data = mapData;
     }
 }
@@ -70,9 +75,9 @@ const Name::Data *Name::Find(const String &value)
 {
     std::unique_lock<std::mutex> lock(mutex);
 
-    if (nameMap.Contains(value))
+    if (NameMap().Contains(value))
     {
-        return nameMap.Get(value);
+        return NameMap().Get(value);
     }
     return nullptr;
 }
@@ -84,7 +89,7 @@ Array<Name::Data *> Name::DebugDumpNameMap()
 
     std::unique_lock<std::mutex> lock(mutex);
 
-    for (const auto &e : nameMap)
+    for (const auto &e : NameMap())
     {
         names.Add(e.Value());
     }

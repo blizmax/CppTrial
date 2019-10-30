@@ -12,27 +12,98 @@ struct ITypePopulator
     virtual void Populate() const = 0;
 };
 
+struct IOption
+{
+
+};
+
+struct MetaData : public IOption
+{
+    Name name;
+    String value;
+    MetaData(const Name& name, const String& value) : name(name), value(value)
+    {
+    }
+
+    MetaData(const Name& name, String&& value) : name(name), value(std::move(value))
+    {
+    }
+
+    void Apply(MetaBase* metaBase)
+    {
+        metaBase->SetMetaData(name, std::move(value));
+    }
+};
+
+struct Parameter : public IOption
+{
+    uint32 index;
+    Name name;
+    Any value;
+
+    Parameter(uint32 index, const Name& name) : index(index), name(name)
+    {
+    }
+
+    Parameter(uint32 index, const Name& name, const Any& value) : index(index), name(name), value(value)
+    {
+    }
+
+    Parameter(uint32 index, const Name& name, Any&& value) : index(index), name(name), value(std::move(value))
+    {
+    }
+
+    void Apply(MetaBase* metaBase)
+    {
+        if(dynamic_cast<Constructor*>(metaBase))
+        {
+            const ParamInfo& param = dynamic_cast<Constructor*>(metaBase)->GetParamInfos()[index];
+            const_cast<ParamInfo&>(param).name = name;
+            if(!value.IsEmpty())
+            {
+                const_cast<ParamInfo&>(param).defaultValue = std::move(value);
+            }
+        }
+        else if (dynamic_cast<Method*>(metaBase))
+        {
+            const ParamInfo& param = dynamic_cast<Method*>(metaBase)->GetParamInfos()[index];
+            const_cast<ParamInfo&>(param).name = name;
+            if(!value.IsEmpty())
+            {
+                const_cast<ParamInfo&>(param).defaultValue = std::move(value);
+            }
+        }
+    }
+};
+
 template <typename T>
 class TypeRegistrar
 {
 public:
-    class Option
+    class OptionBuilder
     {
     public:
-        Option(TypeRegistrar *registrar, MetaBase *metaBase) 
+        OptionBuilder(TypeRegistrar *registrar, MetaBase *metaBase) 
             : registrar(registrar), metaBase(metaBase)
         {
         }
 
-        Option& AddMetaData(const Name& name, const String& value)
-        {
-            metaBase->SetMetaData(name, value);
-            return *this;
-        }
+        // Option& AddMetaData(const Name& name, const String& value)
+        // {
+        //     metaBase->SetMetaData(name, value);
+        //     return *this;
+        // }
 
         TypeRegistrar& operator()()
         {
             return *registrar;
+        }
+
+        template<typename OptionType, typename... Args>
+        TypeRegistrar& operator()(OptionType&& option, Args&&...args)
+        {
+            option.Apply(metaBase);
+            return (*this)(std::forward<Args>(args)...);
         }
 
     private:
@@ -123,9 +194,9 @@ public:
         return *this;
     }
 
-    Option operator()()
+    OptionBuilder Options()
     {
-        return Option(this, metaBase);
+        return OptionBuilder(this, metaBase);
     }
 };
 

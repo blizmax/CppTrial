@@ -10,6 +10,7 @@ namespace Reflection
 
 class ParamInfo : public MetaBase
 {
+    friend class Parameter;
 public:
     ParamInfo(const QualifiedType &type, uint32 index) : type(type), index(index)
     {
