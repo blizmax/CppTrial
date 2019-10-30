@@ -34,7 +34,7 @@ void Registry::UnregisterType(Type *type)
     typeMap.Remove(type->GetName());
 }
 
-Type *Registry::GetType(const Name& name)
+Type *Registry::GetTypeByName(const Name& name)
 {
     if(typeMap.Contains(name))
     {

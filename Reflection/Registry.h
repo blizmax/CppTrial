@@ -16,8 +16,33 @@ template <typename T>
 class TypeRegistrar
 {
 public:
+    class Option
+    {
+    public:
+        Option(TypeRegistrar *registrar, MetaBase *metaBase) 
+            : registrar(registrar), metaBase(metaBase)
+        {
+        }
+
+        Option& AddMetaData(const Name& name, const String& value)
+        {
+            metaBase->SetMetaData(name, value);
+            return *this;
+        }
+
+        TypeRegistrar& operator()()
+        {
+            return *registrar;
+        }
+
+    private:
+        TypeRegistrar *registrar;
+        MetaBase *metaBase;
+    };
+
+public:
     Type *type;
-    MetaBase *curMetaObject;
+    MetaBase *metaBase;
     Array<Constructor *> constructors;
     Array<Property *> properties;
     Array<Method *> methods;
@@ -39,6 +64,7 @@ public:
     {
         Constructor *ctor = Memory::New<ConstructorImpl<T, Args...>>();
         constructors.Add(ctor);
+        metaBase = ctor;
         return *this;
     }
 
@@ -47,6 +73,7 @@ public:
     {
         Property *prop = Memory::New<MemberProperty<T, PropertyType>>(name, property);
         properties.Add(prop);
+        metaBase = prop;
         return *this;
     }
 
@@ -55,6 +82,7 @@ public:
     {
         Property *prop = Memory::New<ReadonlyProperty<T, PropertyType>>(name, property);
         properties.Add(prop);
+        metaBase = prop;
         return *this;
     }
 
@@ -63,6 +91,7 @@ public:
     {
         Property *prop = Memory::New<StaticProperty<PropertyType>>(name, property);
         properties.Add(prop);
+        metaBase = prop;
         return *this;
     }
 
@@ -71,6 +100,7 @@ public:
     {
         Method *method = Memory::New<MemberMethod<T, ReturnType, Args...>>(name, fun);
         methods.Add(method);
+        metaBase = method;
         return *this;
     }
 
@@ -80,6 +110,7 @@ public:
         using F = ReturnType (T::*)(Args...);
         Method *method = Memory::New<MemberMethod<T, ReturnType, Args...>>(name, (F)fun);
         methods.Add(method);
+        metaBase = method;
         return *this;
     }
 
@@ -88,7 +119,13 @@ public:
     {
         Method *method = Memory::New<StaticMethod<ReturnType, Args...>>(name, fun);
         methods.Add(method);
+        metaBase = method;
         return *this;
+    }
+
+    Option operator()()
+    {
+        return Option(this, metaBase);
     }
 };
 
@@ -103,7 +140,7 @@ public:
 
     bool RegisterType(Type *type);
     void UnregisterType(Type *type);
-    Type *GetType(const Name &name);
+    Type *GetTypeByName(const Name &name);
 
     void PopulateType(Type *type);
     bool RegisterPopulator(const Name &name, ITypePopulator *populator);
@@ -161,21 +198,21 @@ CT_REFLECTION_BUILTIN_TYPE_TRAITS(float);
 CT_REFLECTION_BUILTIN_TYPE_TRAITS(double);
 CT_REFLECTION_BUILTIN_TYPE_TRAITS(String);
 
-#define CT_TYPE_DECLARE(TYPE_, BASE_)                                                              \
-public:                                                                                            \
-    using Type = Reflection::Type;                                                                 \
-    static Type *GetType()                                                                         \
-    {                                                                                              \
-        static Type *type = nullptr;                                                               \
-        if (!type)                                                                                 \
-        {                                                                                          \
-            type = Memory::New<Type>(CT_TEXT(#TYPE_), Reflection::TypeOf<BASE_>(), sizeof(TYPE_)); \
-            Reflection::Registry::GetInstance()->RegisterType(type);                               \
-            Reflection::Registry::GetInstance()->PopulateType(type);                               \
-        }                                                                                          \
-        return type;                                                                               \
-    }                                                                                              \
-                                                                                                   \
+#define CT_TYPE_DECLARE(TYPE_, BASE_)                                                         \
+public:                                                                                       \
+    using Type = Reflection::Type;                                                            \
+    static Type *GetType()                                                                    \
+    {                                                                                         \
+        static Type *type = nullptr;                                                          \
+        if (!type)                                                                            \
+        {                                                                                     \
+            type = Memory::New<Type>(CT_TEXT(#TYPE_), Type::GetType<BASE_>(), sizeof(TYPE_)); \
+            Reflection::Registry::GetInstance()->RegisterType(type);                          \
+            Reflection::Registry::GetInstance()->PopulateType(type);                          \
+        }                                                                                     \
+        return type;                                                                          \
+    }                                                                                         \
+                                                                                              \
 private:
 
 #define CT_TYPE_DEFINE(TYPE_)                                                              \
@@ -191,7 +228,7 @@ private:
             _Populate##TYPE_();                                                            \
         }                                                                                  \
     };                                                                                     \
-    static const TYPE_##TypePopulator populator##TYPE_;                                    \
+    static const TYPE_##TypePopulator _populator##TYPE_;                                   \
     static void _Populate##TYPE_()
 
 } // namespace Reflection

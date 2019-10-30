@@ -16,6 +16,8 @@ class TestClass1
 public:
     String name = L"None";
     int32 num = 0;
+
+private:
     int32 *numPtr = nullptr;
 
 public:
@@ -45,7 +47,7 @@ public:
         num += inc;
     }
 
-    const String& GetName() const
+    const String &GetName() const
     {
         return name;
     }
@@ -54,16 +56,16 @@ public:
 CT_TYPE_DEFINE(TestClass1)
 {
     Reflection::TypeRegistrar<TestClass1>()
-    .AddConstructor<>()
-    .AddConstructor<const String&>()
-    .AddConstructor<const String&, int32>()
-    .AddConstructor<const String&, int32, int32*>()
-    .AddProperty<String>(CT_TEXT("name"), &TestClass1::name)
-    .AddProperty<int32>(CT_TEXT("num"), &TestClass1::num)
-    .AddMethod<void>(CT_TEXT("Print"), &TestClass1::Print)
-    .AddMethod<void, int32>(CT_TEXT("IncNum"), &TestClass1::IncNum)
-    .AddMethod<const String&>(CT_TEXT("GetName"), &TestClass1::GetName)
-    .Apply();
+        .AddConstructor<>()
+        .AddConstructor<const String &>()
+        .AddConstructor<const String &, int32>()
+        .AddConstructor<const String &, int32, int32 *>()
+        .AddProperty<String>(CT_TEXT("name"), &TestClass1::name)
+        .AddProperty<int32>(CT_TEXT("num"), &TestClass1::num)
+        .AddMethod<void>(CT_TEXT("Print"), &TestClass1::Print)
+        .AddMethod<void, int32>(CT_TEXT("IncNum"), &TestClass1::IncNum)
+        .AddMethod<const String &>(CT_TEXT("GetName"), &TestClass1::GetName)
+        .Apply();
 }
 
 namespace Reflection
@@ -82,11 +84,11 @@ void TestTypeMacro()
 {
     Type *type = TypeOf<TestClass1>();
     auto ctor = type->GetConstructor();
-    for(const auto prop : type->GetProperties())
+    for (const auto prop : type->GetProperties())
     {
         std::wcout << L"property name: " << *prop->GetName().ToString() << std::endl;
     }
-    for(const auto method : type->GetMethods())
+    for (const auto method : type->GetMethods())
     {
         std::wcout << L"method name: " << *method->GetName().ToString() << std::endl;
     }
@@ -102,7 +104,7 @@ void TestTypeMacro()
 
 void Test()
 {
-   TestTypeMacro();
+    TestTypeMacro();
 }
 } // namespace Reflection
 CT_SCOPE_END

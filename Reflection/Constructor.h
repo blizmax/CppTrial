@@ -11,7 +11,8 @@ namespace Reflection
 class Constructor : public MetaBase
 {
 protected:
-    Constructor(Type *ownerType, std::initializer_list<QualifiedType> paramTypes) : ownerType(ownerType)
+    Constructor(Type *ownerType, std::initializer_list<QualifiedType> paramTypes)
+        : MetaBase(), ownerType(ownerType)
     {
         uint32 index = 0;
         for (const auto &paramType : paramTypes)

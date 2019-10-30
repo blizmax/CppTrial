@@ -1,4 +1,5 @@
 #include "Reflection/Type.h"
+#include "Reflection/Registry.h"
 
 CT_SCOPE_BEGIN
 
@@ -130,8 +131,7 @@ Enum *Type::GetEnum() const
 
 Type *Type::GetType(const Name &name)
 {
-    //TODO
-    return nullptr;
+    return Registry::GetInstance()->GetTypeByName(name);
 }
 
 } // namespace Reflection

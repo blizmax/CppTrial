@@ -15,29 +15,31 @@ namespace Reflection
 
 class Type;
 
-class MetaData
-{
-public:
-    HashMap<Name, String> dataMap;
-};
-
 class MetaBase
 {
-public:
+protected:
     MetaBase() = default;
 
     MetaBase(const Name &name) : name(name)
     {
     }
 
+public:
+    virtual ~MetaBase() = default;
+
     Name GetName() const
     {
         return name;
     }
 
+    void SetMetaData(const Name& name, const String& value)
+    {
+        dataMap.Put(name, value);
+    }
+
 protected:
     Name name;
-    MetaData metaData;
+    HashMap<Name, String> dataMap;
 };
 
 template <typename T>

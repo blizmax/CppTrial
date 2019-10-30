@@ -109,6 +109,12 @@ public:
 
     Enum *GetEnum() const;
 
+    template<typename T>
+    static Type *GetType()
+    {
+        return TypeOf<T>();
+    }
+
     static Type *GetType(const Name &name);
 
 protected:
