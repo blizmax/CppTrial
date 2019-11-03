@@ -10,6 +10,9 @@ namespace Reflection
 
 class Enum : public MetaBase
 {
+    template <typename T>
+    friend class EnumRegistrar;
+
 public:
     class Element : public MetaBase
     {

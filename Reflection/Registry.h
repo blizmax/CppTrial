@@ -12,11 +12,7 @@ struct ITypePopulator
     virtual void Populate() const = 0;
 };
 
-struct IOption
-{
-};
-
-struct MetaData : public IOption
+struct MetaData
 {
     Name name;
     String value;
@@ -34,7 +30,7 @@ struct MetaData : public IOption
     }
 };
 
-struct Parameter : public IOption
+struct Parameter
 {
     uint32 index;
     Name name;
@@ -75,39 +71,19 @@ struct Parameter : public IOption
     }
 };
 
-struct EnumValue : public IOption
+struct EnumValue
 {
+    Enum::Element element;
+
+    template <typename T>
+    EnumValue(const Name &name, T value) : element(name, static_cast<int64>(value))
+    {
+    }
 };
 
 template <typename T>
 class TypeRegistrar
 {
-public:
-    class OptionBuilder
-    {
-    public:
-        OptionBuilder(TypeRegistrar *registrar, MetaBase *metaBase)
-            : registrar(registrar), metaBase(metaBase)
-        {
-        }
-
-        TypeRegistrar &operator()()
-        {
-            return *registrar;
-        }
-
-        template <typename OptionType, typename... Args>
-        TypeRegistrar &operator()(OptionType &&option, Args &&... args)
-        {
-            option.Apply(metaBase);
-            return (*this)(std::forward<Args>(args)...);
-        }
-
-    private:
-        TypeRegistrar *registrar;
-        MetaBase *metaBase;
-    };
-
 public:
     Type *type;
     MetaBase *metaBase;
@@ -119,6 +95,7 @@ public:
     explicit TypeRegistrar()
     {
         type = TypeOf<T>();
+        CT_ASSERT(!type->IsEnum());
     }
 
     void Apply()
@@ -192,27 +169,49 @@ public:
         return *this;
     }
 
-    template <typename EnumType>
-    TypeRegistrar &AddEnum(const Name &name)
+    TypeRegistrar &operator()()
     {
-        Enum *e = Memory::New<Enum>(name, TypeOf<std::underlying_type<EnumType>::type>());
-        enums.Add(e);
-        metaBase = e;
         return *this;
     }
 
-    TypeRegistrar &AddEnum(const Name &name)
-    {
-        Enum *e = Memory::New<Enum>(name, TypeOf<uint32>());
-        enums.Add(e);
-        metaBase = e;
-        return *this;
-    }
-
-    OptionBuilder Options()
+    template <typename ItemType, typename... Args>
+    TypeRegistrar &operator()(ItemType &&item, Args &&... args)
     {
         CT_ASSERT(metaBase != nullptr);
-        return OptionBuilder(this, metaBase);
+        item.Apply(metaBase);
+        return (*this)(std::forward<Args>(args)...);
+    }
+};
+
+template <typename T>
+class EnumRegistrar
+{
+public:
+    Type *type;
+    Array<Enum::Element> elements;
+
+    explicit EnumRegistrar()
+    {
+        type = TypeOf<T>();
+        CT_ASSERT(type->IsEnum());
+    }
+
+    void Apply()
+    {
+        Enum *e = type->GetEnum();
+        e->elements = elements;
+    }
+
+    EnumRegistrar &Values()
+    {
+        return *this;
+    }
+
+    template <typename ValueType, typename... Args>
+    EnumRegistrar &Values(ValueType &&value, Args &&... args)
+    {
+        elements.Add(value.element);
+        return Values(std::forward<Args>(args)...);
     }
 };
 
@@ -302,28 +301,32 @@ public:                                                                         
                                                                                               \
 private:
 
-#define CT_TYPE_DEFINE(TYPE_)                                                              \
-    static void _Populate##TYPE_();                                                        \
-    struct TYPE_##TypePopulator : public Reflection::ITypePopulator                        \
-    {                                                                                      \
-        TYPE_##TypePopulator()                                                             \
-        {                                                                                  \
-            Reflection::Registry::GetInstance()->RegisterPopulator(CT_TEXT(#TYPE_), this); \
-        }                                                                                  \
-        virtual void Populate() const override                                             \
-        {                                                                                  \
-            _Populate##TYPE_();                                                            \
-        }                                                                                  \
-    };                                                                                     \
-    static const TYPE_##TypePopulator _populator##TYPE_;                                   \
-    static void _Populate##TYPE_()
+#define CT_TYPE_DEFINE_MACRO_COMBINE_INNER(A_, B_) A_##B_
+#define CT_TYPE_DEFINE_MACRO_COMBINE(A_, B_) CT_TYPE_DEFINE_MACRO_COMBINE_INNER(A_, B_)
+
+#define CT_TYPE_DEFINE(TYPE_)                                                                                              \
+    static void CT_TYPE_DEFINE_MACRO_COMBINE(_Populate, __LINE__)();                                                       \
+    struct CT_TYPE_DEFINE_MACRO_COMBINE(TypePopulator, __LINE__) : public Reflection::ITypePopulator                       \
+    {                                                                                                                      \
+        CT_TYPE_DEFINE_MACRO_COMBINE(TypePopulator, __LINE__)                                                              \
+        ()                                                                                                                 \
+        {                                                                                                                  \
+            Reflection::Registry::GetInstance()->RegisterPopulator(CT_TEXT(#TYPE_), this);                                 \
+        }                                                                                                                  \
+        virtual void Populate() const override                                                                             \
+        {                                                                                                                  \
+            CT_TYPE_DEFINE_MACRO_COMBINE(_Populate, __LINE__)                                                              \
+            ();                                                                                                            \
+        }                                                                                                                  \
+    };                                                                                                                     \
+    static const CT_TYPE_DEFINE_MACRO_COMBINE(TypePopulator, __LINE__) CT_TYPE_DEFINE_MACRO_COMBINE(_populator, __LINE__); \
+    static void CT_TYPE_DEFINE_MACRO_COMBINE(_Populate, __LINE__)()
 
 #define CT_ENUM_DECLARE(ENUM_)                                                                                                            \
     template <>                                                                                                                           \
     struct Reflection::TypeTraits<ENUM_>                                                                                                  \
     {                                                                                                                                     \
-        static Reflection::Type *                                                                                                         \
-        GetType()                                                                                                                         \
+        static Reflection::Type *GetType()                                                                                                \
         {                                                                                                                                 \
             static Reflection::Type *type = nullptr;                                                                                      \
             if (!type)                                                                                                                    \
@@ -338,24 +341,6 @@ private:
     };
 
 #define CT_ENUM_DEFINE(ENUM_) CT_TYPE_DEFINE(ENUM_)
-
-#define CT_NESTED_ENUM_DECLARE(ENUM_)                                                                                                     \
-    template <>                                                                                                                           \
-    struct Reflection::TypeTraits<ENUM_>                                                                                                  \
-    {                                                                                                                                     \
-        static Reflection::Type *                                                                                                         \
-        GetType()                                                                                                                         \
-        {                                                                                                                                 \
-            static Reflection::Type *type = nullptr;                                                                                      \
-            if (!type)                                                                                                                    \
-            {                                                                                                                             \
-                Enum *e = Memory::New<Reflection::Enum>(CT_TEXT(#ENUM_), Reflection::Type::GetType<std::underlying_type<ENUM_>::type>()); \
-                type = Memory::New<Reflection::Type>(e);                                                                                  \
-                Reflection::Registry::GetInstance()->RegisterType(type);                                                                  \
-            }                                                                                                                             \
-            return type;                                                                                                                  \
-        }                                                                                                                                 \
-    };
 
 } // namespace Reflection
 

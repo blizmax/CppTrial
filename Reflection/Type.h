@@ -36,7 +36,7 @@ public:
 
     bool IsEnum() const
     {
-        return isEnum;
+        return innerEnum != nullptr;
     }
 
     bool IsBaseOf(const Type &other) const
@@ -101,13 +101,12 @@ public:
     Array<Constructor *> GetConstructors() const;
     Array<Property *> GetProperties() const;
     Array<Method *> GetMethods() const;
-    Array<Enum *> GetEnums() const;
 
     Constructor *GetConstructor(const Array<QualifiedType> &typeList = {}) const;
     Property *GetProperty(const Name &name) const;
     Method *GetMethod(const Name &name) const;
     Method *GetMethod(const Name &name, const Array<QualifiedType> &typeList) const;
-    Enum *GetEnum(const Name& name) const;
+    Enum *GetEnum() const;
 
     template<typename T>
     static Type *GetType()
@@ -121,7 +120,6 @@ protected:
     Type *SetConstructors(const Array<Constructor *> value);
     Type *SetProperties(const Array<Property *> value);
     Type *SetMethods(const Array<Method *> value);
-    Type *SetEnums(const Array<Enum *> value);
 
     static bool MatchParams(const Array<ParamInfo> &params, const Array<QualifiedType> &types);
 
@@ -132,9 +130,8 @@ protected:
     Array<Constructor *> constructors;
     Array<Property *> properties;
     Array<Method *> methods;
-    Array<Enum *> enums;
     Array<QualifiedType> templates;
-    bool isEnum = false;
+    Enum *innerEnum = nullptr;
 };
 
 } // namespace Reflection

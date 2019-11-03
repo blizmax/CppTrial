@@ -66,7 +66,7 @@ public:
     }
 };
 
-CT_NESTED_ENUM_DECLARE(TestClass1::TestNestedEnum);
+CT_ENUM_DECLARE(TestClass1::TestNestedEnum);
 
 namespace Reflection
 {

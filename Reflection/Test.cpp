@@ -12,6 +12,14 @@ void TestClass1::Print() const
 
 CT_ENUM_DEFINE(TestEnum1)
 {
+    using namespace Reflection;
+    EnumRegistrar<TestEnum1>()
+        .Values(
+            EnumValue(CT_TEXT("E_A"), E_A),
+            EnumValue(CT_TEXT("E_B"), E_B),
+            EnumValue(CT_TEXT("E_C"), E_C),
+            EnumValue(CT_TEXT("E_D"), E_D))
+        .Apply();
 }
 
 CT_TYPE_DEFINE(TestClass1)
@@ -19,8 +27,7 @@ CT_TYPE_DEFINE(TestClass1)
     using namespace Reflection;
     TypeRegistrar<TestClass1>()
         .AddConstructor<>()
-        .AddConstructor<const String &>()
-        .Options()(
+        .AddConstructor<const String &>()(
             MetaData(CT_TEXT("Default Constructor"), CT_TEXT("")),
             Parameter(0, {CT_TEXT("name")}))
         .AddConstructor<const String &, int32>()
@@ -28,8 +35,7 @@ CT_TYPE_DEFINE(TestClass1)
         .AddProperty<String>(CT_TEXT("name"), &TestClass1::name)
         .AddProperty<int32>(CT_TEXT("num"), &TestClass1::num)
         .AddMethod<void>(CT_TEXT("Print"), &TestClass1::Print)
-        .AddMethod<void, int32>(CT_TEXT("IncNum"), &TestClass1::IncNum)
-        .Options()(
+        .AddMethod<void, int32>(CT_TEXT("IncNum"), &TestClass1::IncNum)(
             Parameter(0, {CT_TEXT("inc")}))
         .AddMethod<const String &>(CT_TEXT("GetName"), &TestClass1::GetName)
         .Apply();
@@ -65,7 +71,11 @@ void Reflection::TestTypeMacro()
     printMethod->Invoke(c1);
 
     Type *enumType = TypeOf<TestEnum1>();
-    std::wcout << L"TestEnum1 is enum? :" << enumType->IsEnum() << std::endl;
+    Enum *innerEnum = enumType->GetEnum();
+    for (SizeType i = 0; i < innerEnum->GetElementSize(); ++i)
+    {
+        std::wcout << L"TestEnum1 values index:" << i << L" name: " << *innerEnum->GetNameByIndex(i).ToString() << L" value: " << innerEnum->GetValueByIndex(i) << std::endl;
+    }
 
     Type *nestedEnumType = TypeOf<TestClass1::TestNestedEnum>();
     std::wcout << L"TestNestedEnum is enum? :" << enumType->IsEnum() << std::endl;
