@@ -15,6 +15,7 @@
 #include "Core/Variant.h"
 #include "Core/Any.h"
 #include "Math/Random.h"
+#include "Core/Exception.h"
 #include "Utils/UUID.h"
 #include "Utils/Name.h"
 #include "Reflection/Test.h"
@@ -212,6 +213,13 @@ void TestAny()
     logger.Info(L"RefCast int64 : {0}", any.RefCast<int64>());
 }
 
+void TestException()
+{
+    // Exception e(CT_TEXT("Temp"), CT_TEXT("Test Exception"), CT_EXCEPT_INNER(__FILE__), __LINE__);
+    // logger.Info(CT_TEXT("Exception desc: {0}"), e);
+    CT_EXCEPT(CT_TEXT("Temp"), CT_TEXT("Test Exception"));
+}
+
 void TestTemplate()
 {
     int32 i = 100;
@@ -241,6 +249,8 @@ int main()
     // TestTime();
     // TestVariant();
     //TestAny();
+
+    //TestException();
 
     //TestName();
 

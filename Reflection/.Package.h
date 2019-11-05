@@ -6,6 +6,7 @@
 #include "Core/HashMap.h"
 #include "Core/Template.h"
 #include "Core/Any.h"
+#include "Core/Exception.h"
 #include "Utils/Name.h"
 
 CT_SCOPE_BEGIN
