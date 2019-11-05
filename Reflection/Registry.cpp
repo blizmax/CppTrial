@@ -24,6 +24,10 @@ bool Registry::RegisterType(Type *type)
     if (!typeMap.Contains(type->GetName()))
     {
         typeMap.Put(type->GetName(), type);
+
+#if CT_REFLECTION_AUTO_POPULATE
+        PopulateType(type);
+#endif
         return true;
     }
     return false;
@@ -49,6 +53,16 @@ void Registry::PopulateType(Type *type)
     {
         populatorMap[type->GetName()]->Populate();
     }
+}
+
+void Registry::PopulateAllTypes()
+{
+#if !(CT_REFLECTION_AUTO_POPULATE)
+    for (auto& e : populatorMap)
+    {
+        e.Value()->Populate();
+    }
+#endif
 }
 
 bool Registry::RegisterPopulator(const Name &name, ITypePopulator *populator)

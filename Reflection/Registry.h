@@ -224,12 +224,13 @@ private:
 public:
     static Registry *GetInstance();
 
-    bool RegisterType(Type *type);
-    void UnregisterType(Type *type);
     Type *GetTypeByName(const Name &name);
-
-    void PopulateType(Type *type);
+    bool RegisterType(Type *type);
     bool RegisterPopulator(const Name &name, ITypePopulator *populator);
+    void PopulateAllTypes();
+private:
+    void UnregisterType(Type *type);    
+    void PopulateType(Type *type);
 
 private:
     HashMap<Name, Type *> typeMap;
@@ -294,7 +295,6 @@ public:                                                                         
         {                                                                                     \
             type = Memory::New<Type>(CT_TEXT(#TYPE_), Type::GetType<BASE_>(), sizeof(TYPE_)); \
             Reflection::Registry::GetInstance()->RegisterType(type);                          \
-            Reflection::Registry::GetInstance()->PopulateType(type);                          \
         }                                                                                     \
         return type;                                                                          \
     }                                                                                         \
@@ -334,7 +334,6 @@ private:
                 Enum *e = Memory::New<Reflection::Enum>(CT_TEXT(#ENUM_), Reflection::Type::GetType<std::underlying_type<ENUM_>::type>()); \
                 type = Memory::New<Reflection::Type>(e);                                                                                  \
                 Reflection::Registry::GetInstance()->RegisterType(type);                                                                  \
-                Reflection::Registry::GetInstance()->PopulateType(type);                                                                  \
             }                                                                                                                             \
             return type;                                                                                                                  \
         }                                                                                                                                 \

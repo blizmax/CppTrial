@@ -97,6 +97,12 @@ public:
     bool CanCast(const QualifiedType &other) const;
 
     bool IsEnum() const;
+    bool IsBool() const;
+    bool IsNumber() const;
+    bool IsInteger() const;
+    bool IsFloat() const;
+
+    String ToString() const;
 
     bool operator==(const QualifiedType &other) const
     {

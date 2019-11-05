@@ -13,6 +13,13 @@ CT_SCOPE_BEGIN
 namespace Reflection
 {
 
+// If CT_REFLECTION_AUTO_POPULATE != 0, Type will auto populate after registered, more convenient but not thread safe.
+// For multithread environment, set CT_REFLECTION_AUTO_POPULATE = 0 and call PopulateAllTypes() before use Reflection library.
+#ifndef CT_REFLECTION_AUTO_POPULATE
+#define CT_REFLECTION_AUTO_POPULATE 0
+#endif
+
+
 class Type;
 
 class MetaBase

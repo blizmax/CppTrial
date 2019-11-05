@@ -65,7 +65,7 @@ void Reflection::TestTypeMacro()
     incNumMethod->Invoke(c1, 100);
     for (auto p : incNumMethod->GetParamInfos())
     {
-        std::wcout << L"IncNum param name: " << *p.GetName().ToString() << std::endl;
+        std::wcout << L"IncNum param name: " << *p.GetName().ToString() << L" param type: " << *p.GetType().ToString() << std::endl;
     }
     auto printMethod = type->GetMethod(CT_TEXT("Print"));
     printMethod->Invoke(c1);
@@ -83,6 +83,8 @@ void Reflection::TestTypeMacro()
 
 void Reflection::Test()
 {
+    Registry::GetInstance()->PopulateAllTypes();
+
     TestTypeMacro();
 }
 
