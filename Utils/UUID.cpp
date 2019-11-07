@@ -4,11 +4,10 @@
 #include "Core/Time.h"
 #include "Math/Random.h"
 
-CT_SCOPE_BEGIN
-
 constexpr const CharType HEX_TO_CHAR[16] =
-    {L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9',
-     L'a', L'b', L'c', L'd', L'e', L'f'};
+    {CT_TEXT('0'), CT_TEXT('1'), CT_TEXT('2'), CT_TEXT('3'), CT_TEXT('4'),
+     CT_TEXT('5'), CT_TEXT('6'), CT_TEXT('7'), CT_TEXT('8'), CT_TEXT('9'),
+     CT_TEXT('a'), CT_TEXT('b'), CT_TEXT('c'), CT_TEXT('d'), CT_TEXT('e'), CT_TEXT('f')};
 
 static uint32 NextRuntimeID()
 {
@@ -66,7 +65,7 @@ String UUID::ToString() const
     }
 
     CharType output[37];
-    output[8] = output[13] = output[18] = output[23] = L'-';
+    output[8] = output[13] = output[18] = output[23] = CT_TEXT('-');
     output[36] = 0;
 
     for (int32 i = 0; i < 4; ++i)
@@ -107,5 +106,3 @@ uint32 UUID::HashCode() const
     }
     return hash;
 }
-
-CT_SCOPE_END

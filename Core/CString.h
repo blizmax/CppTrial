@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include <cwchar>
 #include <string>
-
-CT_SCOPE_BEGIN
 
 namespace CString
 {
@@ -13,7 +11,7 @@ using CharTraits = std::char_traits<CharType>;
 
 CT_INLINE bool IsDigit(CharType input)
 {
-    return input >= L'0' && input <= L'9';
+    return input >= CT_TEXT('0') && input <= CT_TEXT('9');
 }
 
 CT_INLINE int32 ToInt32(const CharType *str)
@@ -47,5 +45,3 @@ CT_INLINE float ToFloat(const CharType *str, CharType *&end)
 }
 
 } // namespace CString
-
-CT_SCOPE_END

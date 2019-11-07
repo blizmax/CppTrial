@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Core/General.h"
-
-CT_SCOPE_BEGIN
+#include "Core/.Package.h"
 
 namespace AlgoInternal
 {
@@ -39,5 +37,3 @@ SizeType BinarySearch(T *ptr, SizeType count, const T &value, Compare compare)
 }
 
 } // namespace Algo
-
-CT_SCOPE_END

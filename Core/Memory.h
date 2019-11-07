@@ -1,11 +1,9 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/Template.h"
 #include <cstring>
 #include <new>
-
-CT_SCOPE_BEGIN
 
 namespace Memory
 {
@@ -259,5 +257,3 @@ CT_INLINE void Reverse(T *first, T *last)
 }
 
 } // namespace Memory
-
-CT_SCOPE_END

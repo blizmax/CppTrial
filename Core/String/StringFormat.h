@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/String.h"
 #include "Core/String/StringConvert.h"
-
-CT_SCOPE_BEGIN
 
 namespace StringFormatInternal
 {
@@ -51,12 +49,12 @@ CT_INLINE String FormatImpl(const String &src, Args &&... args)
 
     while (cstr[pos1])
     {
-        if (cstr[pos1++] == L'{')
+        if (cstr[pos1++] == CT_TEXT('{'))
         {
             pos2 = pos1;
             while (cstr[pos2])
             {
-                if (cstr[pos2++] == L'}')
+                if (cstr[pos2++] == CT_TEXT('}'))
                 {
                     String key = String(cstr + pos1, pos2 - pos1 - 1);
                     //Current key only support param index
@@ -89,5 +87,3 @@ CT_INLINE String Format(const String &src, Args &&... args)
     return StringFormatInternal::FormatImpl(src, std::forward<Args>(args)...);
 }
 } // namespace StringFormat
-
-CT_SCOPE_END

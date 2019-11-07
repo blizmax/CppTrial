@@ -3,8 +3,6 @@
 #include "Reflection/.Package.h"
 #include "Reflection/QualifiedType.h"
 
-CT_SCOPE_BEGIN
-
 namespace Reflection
 {
 
@@ -63,5 +61,3 @@ protected:
 };
 
 } // namespace Reflection
-
-CT_SCOPE_END

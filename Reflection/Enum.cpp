@@ -1,7 +1,5 @@
 #include "Reflection/Enum.h"
 
-CT_SCOPE_BEGIN
-
 namespace Reflection
 {
 
@@ -80,5 +78,3 @@ void Enum::CheckRange(SizeType index) const
     CT_ASSERT(IsValidIndex(index));
 }
 } // namespace Reflection
-
-CT_SCOPE_END

@@ -1,8 +1,6 @@
 #include "Math/Random.h"
 #include <random>
 
-CT_SCOPE_BEGIN
-
 static std::mt19937 &RandomGenerator()
 {
     static std::random_device seed;
@@ -51,5 +49,3 @@ void RandSeed(uint32 seed)
 }
 
 } // namespace Math
-
-CT_SCOPE_END

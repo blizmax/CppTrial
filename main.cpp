@@ -20,8 +20,6 @@
 #include "Utils/Name.h"
 #include "Reflection/Test.h"
 
-CT_SCOPE_USING
-
 Log logger = Log(L"Main");
 
 class A

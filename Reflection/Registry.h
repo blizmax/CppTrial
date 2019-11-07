@@ -2,8 +2,6 @@
 
 #include "Reflection/Type.h"
 
-CT_SCOPE_BEGIN
-
 namespace Reflection
 {
 
@@ -342,5 +340,3 @@ private:
 #define CT_ENUM_DEFINE(ENUM_) CT_TYPE_DEFINE(ENUM_)
 
 } // namespace Reflection
-
-CT_SCOPE_END

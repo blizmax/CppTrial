@@ -1,9 +1,6 @@
 #pragma once
 
-#include "Core/General.h"
 #include "Core/String.h"
-
-CT_SCOPE_BEGIN
 
 namespace NameInternal
 {
@@ -75,4 +72,10 @@ private:
     Data *data = nullptr;
 };
 
-CT_SCOPE_END
+namespace std
+{
+inline void swap(Name &lhs, Name &rhs)
+{
+    lhs.Swap(rhs);
+}
+}

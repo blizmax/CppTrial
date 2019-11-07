@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Template/Base.h"
+#include "Core/Template/.Package.h"
 
 #define CT_TEMPLATE_HAS_MEMBER_FUNCTION(FUNC_)                             \
     template <typename T>                                                  \
@@ -16,8 +16,4 @@
         };                                                                 \
     };
 
-CT_SCOPE_BEGIN
-
 CT_TEMPLATE_HAS_MEMBER_FUNCTION(HashCode)
-
-CT_SCOPE_END

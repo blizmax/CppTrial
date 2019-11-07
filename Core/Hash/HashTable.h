@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/Allocator.h"
 #include "Core/Math.h"
-
-CT_SCOPE_BEGIN
 
 namespace Hash
 {
@@ -776,5 +774,3 @@ private:
     Element *data = nullptr;
     Index *indexData = nullptr;
 };
-
-CT_SCOPE_END

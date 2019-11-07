@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include <chrono>
-
-CT_SCOPE_BEGIN
 
 namespace Time
 {
@@ -49,5 +47,3 @@ CT_INLINE int64 MilliTime()
     return MilliTime(Now());
 }
 } // namespace TimeUtils
-
-CT_SCOPE_END

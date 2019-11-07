@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Core/General.h"
 #include "Core/String.h"
 #include "Core/Array.h"
 #include "Core/HashMap.h"
@@ -8,8 +7,6 @@
 #include "Core/Any.h"
 #include "Core/Exception.h"
 #include "Utils/Name.h"
-
-CT_SCOPE_BEGIN
 
 namespace Reflection
 {
@@ -75,5 +72,3 @@ CT_INLINE Type *TypeOf()
 }
 
 } // namespace Reflection
-
-CT_SCOPE_END

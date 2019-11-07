@@ -1,11 +1,9 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/Array.h"
 #include "Core/CString.h"
 #include "Core/Hash.h"
-
-CT_SCOPE_BEGIN
 
 class String
 {
@@ -1057,4 +1055,10 @@ CT_INLINE String String::Format(const String &src, Args &&... args)
     return StringFormat::Format(src, std::forward<Args>(args)...);
 }
 
-CT_SCOPE_END
+namespace std
+{
+inline void swap(String &lhs, String &rhs)
+{
+    lhs.Swap(rhs);
+}
+}

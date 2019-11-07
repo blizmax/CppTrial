@@ -1,7 +1,5 @@
 #include "Reflection/Registry.h"
 
-CT_SCOPE_BEGIN
-
 namespace Reflection
 {
 
@@ -76,5 +74,3 @@ bool Registry::RegisterPopulator(const Name &name, ITypePopulator *populator)
 }
 
 } // namespace Reflection
-
-CT_SCOPE_END

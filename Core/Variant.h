@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/Array.h"
-
-CT_SCOPE_BEGIN
 
 enum class VariantType
 {
@@ -30,7 +28,6 @@ namespace VariantInternal
 template <typename T>
 struct VariantTypeTraits : public TFalseType
 {
-
 };
 
 template <>
@@ -191,13 +188,10 @@ CT_INLINE void ReadBytes(const Array<uint8> &bytes, String &value)
 
 } // namespace VariantInternal
 
-
 template <typename T>
 struct TIsVariantType : public TConditional<VariantInternal::VariantTypeTraits<T>::value, TTrueType, TFalseType>::type
 {
-
 };
-
 
 class Variant
 {
@@ -284,4 +278,10 @@ private:
     Array<uint8> data;
 };
 
-CT_SCOPE_END
+namespace std
+{
+inline void swap(Variant &lhs, Variant &rhs)
+{
+    lhs.Swap(rhs);
+}
+}

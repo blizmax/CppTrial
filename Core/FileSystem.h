@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/String.h"
-
-CT_SCOPE_BEGIN
 
 namespace FileSystem
 {
@@ -45,7 +43,7 @@ public:
 
     String GetFileName() const
     {
-        auto index = pathStr.LastIndexOf(L'/');
+        auto index = pathStr.LastIndexOf(CT_TEXT('/'));
         if (index != INDEX_NONE)
         {
             return pathStr.Substring(index + 1);
@@ -56,7 +54,7 @@ public:
     String GetFileNameWithoutExtension() const
     {
         const String fileName = GetFileName();
-        auto index = fileName.LastIndexOf(L'.');
+        auto index = fileName.LastIndexOf(CT_TEXT('.'));
         if (index != INDEX_NONE)
         {
             return fileName.Substring(0, index);
@@ -67,7 +65,7 @@ public:
     String GetExtension() const
     {
         const String fileName = GetFileName();
-        auto index = fileName.LastIndexOf(L'.');
+        auto index = fileName.LastIndexOf(CT_TEXT('.'));
         if (index != INDEX_NONE)
         {
             return fileName.Substring(index);
@@ -116,7 +114,7 @@ public:
 private:
     void Format()
     {
-        pathStr.ReplaceAll(L'\\', L'/');
+        pathStr.ReplaceAll(CT_TEXT('\\'), CT_TEXT('/'));
 
         //TODO Case sensitive?
     }
@@ -127,9 +125,9 @@ private:
         const wchar *cstr = pathStr.GetPtr();
         if (len > 0)
         {
-            if (cstr[len - 1] != L'/')
+            if (cstr[len - 1] != CT_TEXT('/'))
             {
-                pathStr.Append(L'/');
+                pathStr.Append(CT_TEXT('/'));
             }
         }
 
@@ -141,16 +139,10 @@ private:
     String pathStr;
 };
 
+bool Exists(const Path &path);
 
-bool Exists(const Path& path);
+bool IsFile(const Path &path);
 
-bool IsFile(const Path& path);
-
-bool IsDirectory(const Path& path);
-
-
-
+bool IsDirectory(const Path &path);
 
 } // namespace FileSystem
-
-CT_SCOPE_END

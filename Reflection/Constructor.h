@@ -3,8 +3,6 @@
 #include "Reflection/.Package.h"
 #include "Reflection/ParamInfo.h"
 
-CT_SCOPE_BEGIN
-
 namespace Reflection
 {
 
@@ -100,5 +98,3 @@ public:
 };
 
 } // namespace Reflection
-
-CT_SCOPE_END

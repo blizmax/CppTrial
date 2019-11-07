@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Core/General.h"
-
-CT_SCOPE_BEGIN
+#include "Core/.Package.h"
 
 template <typename T>
 struct Plus
@@ -102,5 +100,3 @@ struct LessEqual
         return a <= b;
     }
 };
-
-CT_SCOPE_END

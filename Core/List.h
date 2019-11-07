@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/Allocator.h"
-
-CT_SCOPE_BEGIN
 
 namespace ListInternal
 {
@@ -502,4 +500,11 @@ private:
     SizeType size = 0;
 };
 
-CT_SCOPE_END
+namespace std
+{
+template <typename E, template <typename T> class N, template <typename T> class A>
+inline void swap(List<E, N, A> &lhs, List<E, N, A> &rhs)
+{
+    lhs.Swap(rhs);
+}
+}

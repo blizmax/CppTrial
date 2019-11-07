@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Core/General.h"
-
-CT_SCOPE_BEGIN
+#include "Core/.Package.h"
 
 namespace AlgoInternal
 {
@@ -80,5 +78,3 @@ void HeapSort(T *ptr, SizeType count, Compare compare)
 }
 
 } // namespace AlgoInternal
-
-CT_SCOPE_END

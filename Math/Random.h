@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Core/General.h"
-
-CT_SCOPE_BEGIN
+#include "Math/.Package.h"
 
 namespace Math
 {
@@ -22,5 +20,3 @@ uint32 Rand();
 void RandSeed(uint32 seed);
 
 }
-
-CT_SCOPE_END

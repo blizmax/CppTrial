@@ -2,8 +2,6 @@
 
 #include "Reflection/.Package.h"
 
-CT_SCOPE_BEGIN
-
 namespace Reflection
 {
 
@@ -280,5 +278,3 @@ CT_INLINE QualifiedType GetQualifiedType()
 }
 
 } // namespace Reflection
-
-CT_SCOPE_END

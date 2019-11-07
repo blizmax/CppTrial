@@ -7,8 +7,6 @@
 #include "Reflection/Method.h"
 #include "Reflection/Enum.h"
 
-CT_SCOPE_BEGIN
-
 namespace Reflection
 {
 
@@ -135,5 +133,3 @@ protected:
 };
 
 } // namespace Reflection
-
-CT_SCOPE_END

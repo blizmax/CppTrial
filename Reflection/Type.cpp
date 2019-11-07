@@ -1,8 +1,6 @@
 #include "Reflection/Type.h"
 #include "Reflection/Registry.h"
 
-CT_SCOPE_BEGIN
-
 namespace Reflection
 {
 
@@ -133,5 +131,3 @@ Type *Type::GetType(const Name &name)
 }
 
 } // namespace Reflection
-
-CT_SCOPE_END

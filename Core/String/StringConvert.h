@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/String.h"
 
-CT_SCOPE_BEGIN
 namespace StringConvert
 {
 
@@ -123,5 +122,3 @@ CT_INLINE bool TryParseFloat(const String &str, float &ret)
 }
 
 } // namespace StringConvert
-
-CT_SCOPE_END

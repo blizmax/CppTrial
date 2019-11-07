@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/Functional.h"
 #include "Core/Algo/BinaryHeap.h"
-
-CT_SCOPE_BEGIN
 
 namespace AlgoInternal
 {
@@ -230,5 +228,3 @@ void Sort(T *ptr, SizeType count)
 }
 
 } // namespace Algo
-
-CT_SCOPE_END

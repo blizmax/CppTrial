@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include <type_traits>
-
-CT_SCOPE_BEGIN
 
 using TTrueType = std::true_type;
 using TFalseType = std::false_type;
@@ -103,5 +101,3 @@ template <>
 struct TNot<false> : public TTrueType
 {
 };
-
-CT_SCOPE_END

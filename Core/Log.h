@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/String.h"
 #include <iostream>
-
-CT_SCOPE_BEGIN
 
 enum class LogLevel
 {
@@ -47,7 +45,7 @@ public:
     {
         if (CompareLevel(level, LogLevel::Debug) >= 0)
         {
-            Print(L"D", msg, std::forward<Args>(args)...);
+            Print(CT_TEXT("D"), msg, std::forward<Args>(args)...);
         }
     }
 
@@ -56,7 +54,7 @@ public:
     {
         if (CompareLevel(level, LogLevel::Info) >= 0)
         {
-            Print(L"I", msg, std::forward<Args>(args)...);
+            Print(CT_TEXT("I"), msg, std::forward<Args>(args)...);
         }
     }
 
@@ -65,7 +63,7 @@ public:
     {
         if (CompareLevel(level, LogLevel::Warning) >= 0)
         {
-            Print(L"W", msg, std::forward<Args>(args)...);
+            Print(CT_TEXT("W"), msg, std::forward<Args>(args)...);
         }
     }
 
@@ -74,7 +72,7 @@ public:
     {
         if (CompareLevel(level, LogLevel::Error) >= 0)
         {
-            Print(L"E", msg, std::forward<Args>(args)...);
+            Print(CT_TEXT("E"), msg, std::forward<Args>(args)...);
         }
     }
 
@@ -89,11 +87,9 @@ private:
     void Print(const String &prefix, const String &msg, Args &&... args) const
     {
         String fmtMsg = String::Format(msg, std::forward<Args>(args)...);
-        std::wcout << String::Format(L"<{0}>[{1}] {2}", prefix, tag, fmtMsg).GetPtr() << std::endl;
+        std::wcout << String::Format(CT_TEXT("<{0}>[{1}] {2}"), prefix, tag, fmtMsg).GetPtr() << std::endl;
     }
 
     String tag;
     LogLevel level = DEFAULT_LEVEL;
 };
-
-CT_SCOPE_END

@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/String.h"
-
-CT_SCOPE_BEGIN
 
 class Exception
 {
@@ -39,12 +37,10 @@ protected:
     String where;
 };
 
-#define CT_EXCEPT_INNER(_FILE) CT_TEXT(_FILE)
+#define CT_EXCEPT_INNER(file) CT_TEXT(file)
 
-#define CT_EXCEPT(TAG_, MSG_)                                         \
-    {                                                                 \
-        Exception e(TAG_, MSG_, CT_EXCEPT_INNER(__FILE__), __LINE__); \
-        throw e;                                                      \
+#define CT_EXCEPT(tag, msg)                                         \
+    {                                                               \
+        Exception e(tag, msg, CT_EXCEPT_INNER(__FILE__), __LINE__); \
+        throw e;                                                    \
     }
-
-CT_SCOPE_END

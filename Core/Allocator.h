@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/Memory.h"
-
-CT_SCOPE_BEGIN
 
 template <typename T>
 class Allocator
@@ -94,5 +92,3 @@ CT_INLINE void Allocator<T>::Destroy(T *ptr, SizeType count)
 
 template <typename T>
 using BasicAlloc = Allocator<T>;
-
-CT_SCOPE_END

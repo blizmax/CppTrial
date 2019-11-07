@@ -1,11 +1,9 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include <thread>
 #include <atomic>
 #include <mutex>
-
-CT_SCOPE_BEGIN
 
 CT_INLINE uint32 GetCurrentThreadID()
 {
@@ -13,5 +11,3 @@ CT_INLINE uint32 GetCurrentThreadID()
     std::hash<std::thread::id> hash;
     return static_cast<uint32>(hash(threadId));
 }
-
-CT_SCOPE_END

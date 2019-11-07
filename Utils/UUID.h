@@ -1,10 +1,7 @@
 #pragma once
 
-#include "Core/General.h"
 #include "Core/Array.h"
 #include "Core/String.h"
-
-CT_SCOPE_BEGIN
 
 /*
           A         |      B      |  C  |   D
@@ -81,4 +78,10 @@ private:
     Array<uint8> data = Array<uint8>(16);
 };
 
-CT_SCOPE_END
+namespace std
+{
+inline void swap(UUID &lhs, UUID &rhs)
+{
+    lhs.Swap(rhs);
+}
+}

@@ -3,8 +3,6 @@
 #include "Core/HashMap.h"
 #include "Core/Thread.h"
 
-CT_SCOPE_BEGIN
-
 static std::mutex mutex;
 
 Name::Name(const Name &other) : data(other.data)
@@ -96,5 +94,3 @@ Array<Name::Data *> Name::DebugDumpNameMap()
     return names;
 }
 #endif
-
-CT_SCOPE_END

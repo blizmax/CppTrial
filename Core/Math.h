@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include <cmath>
-
-CT_SCOPE_BEGIN
 
 namespace Math
 {
@@ -352,5 +350,3 @@ CT_INLINE uint64 NextPowerOfTwo(uint64 value)
 }
 
 } // namespace Math
-
-CT_SCOPE_END

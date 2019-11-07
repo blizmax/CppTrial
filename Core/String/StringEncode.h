@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/String.h"
 //#include <locale>
-
-CT_SCOPE_BEGIN
 
 /*
     Unicode             |  Utf-8
@@ -236,5 +234,3 @@ CT_INLINE Array<char8> ToUTF8(String &str)
 }
 
 } // namespace StringEncode
-
-CT_SCOPE_END

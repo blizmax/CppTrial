@@ -7,8 +7,6 @@
 #include "Reflection/Type.h"
 #include "Reflection/Registry.h"
 
-CT_SCOPE_BEGIN
-
 enum TestEnum1
 {
     E_A,
@@ -78,4 +76,3 @@ void TestTypeMacro();
 void Test();
 
 } // namespace Reflection
-CT_SCOPE_END

@@ -1,8 +1,6 @@
 #include "Reflection/Test.h"
 #include <iostream>
 
-CT_SCOPE_BEGIN
-
 void TestClass1::Print() const
 {
     std::wcout << L"TestClass1 Name: " << *name << L" Num: " << num << std::endl;
@@ -87,5 +85,3 @@ void Reflection::Test()
 
     TestTypeMacro();
 }
-
-CT_SCOPE_END

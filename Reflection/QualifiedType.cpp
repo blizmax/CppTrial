@@ -2,8 +2,6 @@
 #include "Reflection/Type.h"
 #include "Reflection/Registry.h"
 
-CT_SCOPE_BEGIN
-
 namespace Reflection
 {
 
@@ -67,5 +65,3 @@ bool QualifiedType::IsFloat() const
 }
 
 } // namespace Reflection
-
-CT_SCOPE_END

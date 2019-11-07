@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/Hash.h"
 #include "Core/Hash/HashTable.h"
-
-CT_SCOPE_BEGIN
 
 template <typename Key,
           typename Value,
@@ -169,4 +167,11 @@ private:
     HashTableType hashTable;
 };
 
-CT_SCOPE_END
+namespace std
+{
+template <typename K, typename V, typename H, typename E, template <typename T> class A>
+inline void swap(HashMap<K, V, H, E, A> &lhs, HashMap<K, V, H, E, A> &rhs)
+{
+    lhs.Swap(rhs);
+}
+}

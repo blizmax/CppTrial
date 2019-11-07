@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/Memory.h"
-
-CT_SCOPE_BEGIN
 
 namespace AnyInternal
 {
@@ -150,4 +148,10 @@ private:
     AnyInternal::IDynamicData *data = nullptr;
 };
 
-CT_SCOPE_END
+namespace std
+{
+inline void swap(Any &lhs, Any &rhs)
+{
+    lhs.Swap(rhs);
+}
+}

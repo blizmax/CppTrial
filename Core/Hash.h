@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/Functional.h"
 #include "Core/Template.h"
-
-CT_SCOPE_BEGIN
 
 namespace Hash
 {
@@ -134,5 +132,3 @@ struct HashFunc
         return Hash::HashValue(value);
     }
 };
-
-CT_SCOPE_END

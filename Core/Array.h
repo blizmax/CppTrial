@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Core/General.h"
+#include "Core/.Package.h"
 #include "Core/Allocator.h"
 #include "Core/Algo/Sort.h"
-
-CT_SCOPE_BEGIN
 
 template <typename Element, typename Alloc = Allocator<Element>>
 class Array
@@ -621,4 +619,11 @@ private:
     Element *data = nullptr;
 };
 
-CT_SCOPE_END
+namespace std
+{
+template <typename T, typename A>
+inline void swap(Array<T, A> &lhs, Array<T, A> &rhs)
+{
+    lhs.Swap(rhs);
+}
+}
