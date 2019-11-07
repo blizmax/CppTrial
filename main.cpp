@@ -14,8 +14,9 @@
 #include "Core/Template.h"
 #include "Core/Variant.h"
 #include "Core/Any.h"
-#include "Math/Random.h"
 #include "Core/Exception.h"
+#include "Core/Delegate.h"
+#include "Math/Random.h"
 #include "Utils/UUID.h"
 #include "Utils/Name.h"
 #include "Reflection/Test.h"
@@ -218,6 +219,34 @@ void TestException()
     CT_EXCEPT(CT_TEXT("Temp"), CT_TEXT("Test Exception"));
 }
 
+void TestDelegate()
+{
+    class B
+    {
+        public:
+        void Print()
+        {
+            logger.Info(CT_TEXT("Call Print."));
+        }
+        void Test(int32 a, int32 b, int32 c)
+        {
+            logger.Info(CT_TEXT("Call Test. {0} {1} {2}"), a, b, c);
+        }
+    };
+
+    B obj;
+
+    Delegate<void(void)> delegate;
+    delegate.Bind(&B::Print, &obj);
+    delegate.Bind(&B::Print, &obj);
+    delegate.Bind(TestAny);
+    delegate();
+
+    Delegate<void(int32, int32, int32)> delegate1;
+    delegate1.Bind(&B::Test, &obj);
+    delegate1(100, 200, 300);
+}
+
 void TestTemplate()
 {
     int32 i = 100;
@@ -249,12 +278,13 @@ int main()
     //TestAny();
 
     //TestException();
+    TestDelegate();
 
     //TestName();
 
     //TestTemplate();
 
-    Reflection::Test();
+    //Reflection::Test();
    
 
     // std::thread thread1 = std::thread([](){
