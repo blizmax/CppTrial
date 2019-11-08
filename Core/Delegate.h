@@ -2,7 +2,7 @@
 #include "Core/Array.h"
 #include <functional>
 
-template<typename T>
+template <typename T>
 class Delegate;
 
 template <typename ReturnType, typename... Args>
@@ -11,6 +11,8 @@ class Delegate<ReturnType(Args...)>
 public:
     template <typename OwnerType>
     using MemberFuncPtr = ReturnType (OwnerType::*)(Args...);
+    template <typename OwnerType>
+    using ConstMemberFuncPtr = ReturnType (OwnerType::*)(Args...) const;
     using FuncPtr = ReturnType (*)(Args...);
     using WrappedFunc = std::function<ReturnType(Args...)>;
 
@@ -83,6 +85,11 @@ private:
     }
 
 public:
+    bool IsEmpty() const
+    {
+        return data.Size() == 0;
+    }
+
     bool Exists(FuncPtr func) const
     {
         return Find(reinterpret_cast<void *>(func)) != INDEX_NONE;
@@ -118,6 +125,12 @@ public:
         data.Add(InnerData(func, obj));
     }
 
+    template <typename OwnerType>
+    void Bind(ConstMemberFuncPtr<OwnerType> func, OwnerType *obj)
+    {
+        Bind((MemberFuncPtr<OwnerType>)(func), obj);
+    }
+
     // TODO Try compare two std::function object
     void Bind(WrappedFunc func)
     {
@@ -127,18 +140,18 @@ public:
     void Unbind(FuncPtr func)
     {
         auto index = Find(func);
-        if(index != INDEX_NONE)
+        if (index != INDEX_NONE)
         {
             data.Remove(index);
         }
     }
 
     template <typename OwnerType>
-    void Unbind(OwnerType* obj)
+    void Unbind(OwnerType *obj)
     {
-        for(SizeType i = 0; i < data.Size();)
+        for (SizeType i = 0; i < data.Size();)
         {
-            if(data[i].objPtr == obj)
+            if (data[i].objPtr == obj)
             {
                 data.Remove(i);
             }
@@ -156,7 +169,7 @@ public:
 
     void operator()(Args... args)
     {
-        for(const auto& e : data)
+        for (const auto &e : data)
         {
             e.wrappedFunc(std::forward<Args>(args)...);
         }

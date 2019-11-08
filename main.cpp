@@ -224,7 +224,7 @@ void TestDelegate()
     class B
     {
         public:
-        void Print()
+        void Print() const
         {
             logger.Info(CT_TEXT("Call Print."));
         }
@@ -241,10 +241,14 @@ void TestDelegate()
     delegate.Bind(&B::Print, &obj);
     delegate.Bind(TestAny);
     delegate();
+    delegate.Unbind(&obj);
+    delegate();
 
     Delegate<void(int32, int32, int32)> delegate1;
     delegate1.Bind(&B::Test, &obj);
     delegate1(100, 200, 300);
+
+    auto f = &B::Print;
 }
 
 void TestTemplate()
