@@ -8,6 +8,8 @@ namespace IO
 
 void TestPath();
 
+void TestFileSystem();
+
 void Test();
 
 } // namespace IO

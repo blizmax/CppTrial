@@ -9,11 +9,11 @@ namespace IO
 class FileSystem
 {
 public:
-    bool Exists(const Path &path);
+    static bool Exists(const Path &path);
 
-    bool IsFile(const Path &path);
+    static bool IsFile(const Path &path);
 
-    bool IsDirectory(const Path &path);
+    static bool IsDirectory(const Path &path);
 };
 
 } // namespace IO

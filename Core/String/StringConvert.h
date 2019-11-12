@@ -6,6 +6,11 @@
 namespace StringConvert
 {
 
+CT_INLINE String ToString(bool value)
+{
+    return value ? CT_TEXT("true") : CT_TEXT("false");
+}
+
 CT_INLINE String ToString(int32 value)
 {
     std::wstring wstr = std::to_wstring(value);

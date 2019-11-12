@@ -13,7 +13,17 @@ void IO::TestPath()
     logger.Info(path.GetFullPath());
 }
 
+
+void IO::TestFileSystem()
+{
+    Path p1 = Path(CT_TEXT("D:Parent"));
+    Path p2 = Path(CT_TEXT("E:/code"));
+    logger.Info(CT_TEXT("{0} exists? {1}"), p1, FileSystem::Exists(p1));
+    logger.Info(CT_TEXT("{0} exists? {1}"), p2, FileSystem::Exists(p2));
+}
+
 void IO::Test()
 {
-    TestPath();
+    //TestPath();
+    TestFileSystem();
 }
