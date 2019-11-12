@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Core/.Package.h"
-#include "Core/String.h"
+#include "IO/.Package.h"
 
-namespace FileSystem
+namespace IO
 {
 class Path
 {
@@ -19,7 +18,7 @@ public:
         Format();
     }
 
-    Path(const wchar *path) : pathStr(path)
+    Path(const CharType *path) : pathStr(path)
     {
         Format();
     }
@@ -138,11 +137,4 @@ private:
 private:
     String pathStr;
 };
-
-bool Exists(const Path &path);
-
-bool IsFile(const Path &path);
-
-bool IsDirectory(const Path &path);
-
-} // namespace FileSystem
+} // namespace IO

@@ -12,9 +12,11 @@ include_directories("${PROJECT_SOURCE_DIR}/")
 
 add_subdirectory(Math)
 add_subdirectory(Utils)
+add_subdirectory(IO)
 add_subdirectory(Reflection)
 
 add_executable(Main main.cpp)
 target_link_libraries(Main Math)
 target_link_libraries(Main Utils)
+target_link_libraries(Main IO)
 target_link_libraries(Main Reflection)

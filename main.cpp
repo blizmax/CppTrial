@@ -8,7 +8,6 @@
 #include "Core/String/StringEncode.h"
 #include "Core/String/StringConvert.h"
 #include "Core/Log.h"
-#include "Core/FileSystem.h"
 #include "Core/Thread.h"
 #include "Core/Time.h"
 #include "Core/Template.h"
@@ -20,8 +19,9 @@
 #include "Utils/UUID.h"
 #include "Utils/Name.h"
 #include "Reflection/Test.h"
+#include "IO/Test.h"
 
-Log logger = Log(L"Main");
+static Log logger = Log(L"Main");
 
 class A
 {
@@ -175,16 +175,6 @@ void TestLogger()
     logger.Error(L"{}{0}and{1}", String(L"String1"), sizeof(double));
 }
 
-void TestPath()
-{
-    FileSystem::Path path = FileSystem::Path(L"D:Parent");
-    path.Append(FileSystem::Path(L"pic1.jpg"));
-    logger.Info(path.GetExtension());
-    logger.Info(path.GetFileNameWithoutExtension());
-    logger.Info(path.GetFileName());
-    logger.Info(path.GetFullPath());
-}
-
 void TestTime()
 {
     logger.Info(L"Now: {0}", Time::NanoTime() / 1000000000);
@@ -282,13 +272,15 @@ int main()
     //TestAny();
 
     //TestException();
-    TestDelegate();
+    //TestDelegate();
 
     //TestName();
 
     //TestTemplate();
 
     //Reflection::Test();
+
+    IO::Test();
    
 
     // std::thread thread1 = std::thread([](){
