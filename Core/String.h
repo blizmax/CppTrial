@@ -112,7 +112,7 @@ public:
         return data.Capacity();
     }
 
-    const CharType *GetPtr() const
+    const CharType *CStr() const
     {
         constexpr static CharType EMPTY[] = {0, 0};
         return data.Size() ? data.GetData() : EMPTY;
@@ -206,27 +206,27 @@ public:
     {
         const SizeType len = Length();
         index = index < len ? index : len;
-        return String(GetPtr() + index, count);
+        return String(CStr() + index, count);
     }
 
     String &Replace(SizeType index, SizeType count, const String &str)
     {
         CheckRange(index);
-        return ReplacePrivate(index, count, str.GetPtr(), str.Length());
+        return ReplacePrivate(index, count, str.CStr(), str.Length());
     }
 
     String &Replace(SizeType index, SizeType count, const String &str, SizeType strIndex)
     {
         CheckRange(index);
         str.CheckRange(strIndex);
-        return ReplacePrivate(index, count, str.GetPtr() + strIndex, str.Length());
+        return ReplacePrivate(index, count, str.CStr() + strIndex, str.Length());
     }
 
     String &Replace(SizeType index, SizeType count, const String &str, SizeType strIndex, SizeType strCount)
     {
         CheckRange(index);
         str.CheckRange(strIndex);
-        return ReplacePrivate(index, count, str.GetPtr() + strIndex, strCount);
+        return ReplacePrivate(index, count, str.CStr() + strIndex, strCount);
     }
 
     String &Replace(SizeType index, SizeType count, const CharType *str)
@@ -391,7 +391,7 @@ public:
 
     bool Find(CharType value, SizeType startIndex, SizeType *at) const
     {
-        const CharType *ptr = GetPtr();
+        const CharType *ptr = CStr();
         for (SizeType i = startIndex; i < Length(); ++i)
         {
             if (ptr[i] == value)
@@ -438,7 +438,7 @@ public:
     bool Find(const CharType *str, SizeType startIndex, SizeType count, SizeType *at) const
     {
         const SizeType len = Length();
-        const CharType *ptr = GetPtr();
+        const CharType *ptr = CStr();
 
         if (count == 0)
         {
@@ -501,7 +501,7 @@ public:
 
     bool Find(const String &str, SizeType startIndex, SizeType count, SizeType *at) const
     {
-        return Find(str.GetPtr(), startIndex, count, at);
+        return Find(str.CStr(), startIndex, count, at);
     }
 
     bool ReverseFind(CharType value, SizeType &at) const
@@ -521,7 +521,7 @@ public:
             return false;
         }
 
-        const CharType *ptr = GetPtr();
+        const CharType *ptr = CStr();
         startIndex = startIndex >= Length() ? Length() - 1 : startIndex;
         for (SizeType i = startIndex + 1; i >= 1;)
         {
@@ -573,7 +573,7 @@ public:
             return false;
         }
 
-        const CharType *ptr = GetPtr();
+        const CharType *ptr = CStr();
         startIndex = startIndex >= Length() ? Length() - 1 : startIndex;
 
         if (count == 0)
@@ -638,7 +638,7 @@ public:
 
     bool ReverseFind(const String &str, SizeType startIndex, SizeType count, SizeType *at) const
     {
-        return ReverseFind(str.GetPtr(), startIndex, count, at);
+        return ReverseFind(str.CStr(), startIndex, count, at);
     }
 
     bool StartsWith(const String &str, SizeType offset = 0) const
@@ -692,18 +692,18 @@ public:
 
     int Compare(const String &other) const
     {
-        return ComparePrivate(GetPtr(), Length(), other.GetPtr(), other.Length());
+        return ComparePrivate(CStr(), Length(), other.CStr(), other.Length());
     }
 
     int Compare(const CharType *other) const
     {
         SizeType len = CharTraits::length(other);
-        return ComparePrivate(GetPtr(), Length(), other, len);
+        return ComparePrivate(CStr(), Length(), other, len);
     }
 
     uint32 HashCode() const
     {
-        const CharType *ptr = GetPtr();
+        const CharType *ptr = CStr();
         return Hash::HashValue(ptr);
     }
 
@@ -750,7 +750,7 @@ public:
 
     const CharType *operator*() const
     {
-        return GetPtr();
+        return CStr();
     }
 
     CharType &operator[](SizeType index)

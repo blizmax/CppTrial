@@ -44,7 +44,7 @@ CT_INLINE String FormatImpl(const String &src, Args &&... args)
     ParseParams(params, std::forward<Args>(args)...);
 
     SizeType pos0 = 0, pos1 = 0, pos2 = 0;
-    auto cstr = src.GetPtr();
+    auto cstr = src.CStr();
     String output;
 
     while (cstr[pos1])

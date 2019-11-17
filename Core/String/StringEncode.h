@@ -210,7 +210,7 @@ CT_INLINE Array<char8> ToUTF8(String &str)
     SizeType len = str.Length();
     SizeType pos = 0;
     SizeType size;
-    const wchar *cstr = str.GetPtr();
+    const wchar *cstr = str.CStr();
     char32 charUTF32;
     char8 buffer[6] = {0};
     Array<char8> arr;

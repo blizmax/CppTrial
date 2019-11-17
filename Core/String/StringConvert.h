@@ -68,7 +68,7 @@ CT_INLINE String ToString(const T *value)
 CT_INLINE bool FastCheckIsIntPrivate(const String &str)
 {
     return (str.Length() > 0 && CString::IsDigit(str[0])) ||
-           (str.Length() > 1 && str[0] == L'-' && CString::IsDigit(str[1]));
+           (str.Length() > 1 && str[0] == CT_TEXT('-') && CString::IsDigit(str[1]));
 }
 
 CT_INLINE bool FastCheckIsUIntPrivate(const String &str)
@@ -79,9 +79,9 @@ CT_INLINE bool FastCheckIsUIntPrivate(const String &str)
 CT_INLINE bool FastCheckIsFloatPrivate(const String &str)
 {
     return (str.Length() > 0 && CString::IsDigit(str[0])) ||
-           (str.Length() > 1 && str[0] == L'-' && CString::IsDigit(str[1])) ||
-           (str.Length() > 1 && str[0] == L'.' && CString::IsDigit(str[1])) ||
-           (str.Length() > 2 && str[0] == L'-' && str[1] == L'.' && CString::IsDigit(str[2]));
+           (str.Length() > 1 && str[0] == CT_TEXT('-') && CString::IsDigit(str[1])) ||
+           (str.Length() > 1 && str[0] == CT_TEXT('.') && CString::IsDigit(str[1])) ||
+           (str.Length() > 2 && str[0] == CT_TEXT('-') && str[1] == CT_TEXT('.') && CString::IsDigit(str[2]));
 }
 
 CT_INLINE bool TryParseInt32(const String &str, int32 &ret)
@@ -89,8 +89,8 @@ CT_INLINE bool TryParseInt32(const String &str, int32 &ret)
     if (FastCheckIsIntPrivate(str))
     {
         CharType *end;
-        ret = CString::ToInt32(str.GetPtr(), end);
-        if (end - str.GetPtr() == str.Length())
+        ret = CString::ToInt32(str.CStr(), end);
+        if (end - str.CStr() == str.Length())
         {
             return true;
         }
@@ -103,8 +103,8 @@ CT_INLINE bool TryParseUInt32(const String &str, uint32 &ret)
     if (FastCheckIsUIntPrivate(str))
     {
         CharType *end;
-        ret = CString::ToUInt32(str.GetPtr(), end);
-        if (end - str.GetPtr() == str.Length())
+        ret = CString::ToUInt32(str.CStr(), end);
+        if (end - str.CStr() == str.Length())
         {
             return true;
         }
@@ -117,8 +117,8 @@ CT_INLINE bool TryParseFloat(const String &str, float &ret)
     if (FastCheckIsFloatPrivate(str))
     {
         CharType *end;
-        ret = CString::ToFloat(str.GetPtr(), end);
-        if (end - str.GetPtr() == str.Length())
+        ret = CString::ToFloat(str.CStr(), end);
+        if (end - str.CStr() == str.Length())
         {
             return true;
         }

@@ -93,6 +93,7 @@ void TestName()
         t.join();
     }
 
+#ifdef CT_DEBUG
     auto nameDatas = Name::DebugDumpNameMap();
     for(const auto& data: nameDatas)
     {
@@ -100,6 +101,7 @@ void TestName()
     }
 
     logger.Info(L"Count : {0}", nameDatas.Size());
+#endif
 }
 
 void TestArraySort()

@@ -87,7 +87,7 @@ private:
     void Print(const String &prefix, const String &msg, Args &&... args) const
     {
         String fmtMsg = String::Format(msg, std::forward<Args>(args)...);
-        std::wcout << String::Format(CT_TEXT("<{0}>[{1}] {2}"), prefix, tag, fmtMsg).GetPtr() << std::endl;
+        std::wcout << String::Format(CT_TEXT("<{0}>[{1}] {2}"), prefix, tag, fmtMsg).CStr() << std::endl;
     }
 
     String tag;

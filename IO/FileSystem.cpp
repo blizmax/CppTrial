@@ -23,10 +23,15 @@ bool IO::FileSystem::IsDirectory(const String& path)
     return fs::is_directory(ToPath(path));
 }
 
-bool IO::FileSystem::CreateDirectory(const String& path)
+bool IO::FileSystem::IsEmpty(const String& path)
+{
+    return fs::is_empty(ToPath(path));
+}
+
+bool IO::FileSystem::CreateDirectories(const String& path)
 {
     std::error_code err;
-    fs::create_directory(ToPath(path), err);
+    fs::create_directories(ToPath(path), err);
     return !err;
 }
 

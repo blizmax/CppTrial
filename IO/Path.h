@@ -23,55 +23,23 @@ public:
         Format();
     }
 
-    bool IsEmpty() const
-    {
-        return pathStr.IsEmpty();
-    }
-
-    Path GetParent() const;
-
     void Swap(Path &other)
     {
         std::swap(pathStr, other.pathStr);
     }
 
-    String GetFullPath() const
-    {
-        return pathStr;
-    }
+    String GetFullPath() const;
+    String GetFileName() const;
+    String GetFileNameWithoutExtension() const;
+    String GetExtension() const;
 
-    String GetFileName() const
-    {
-        auto index = pathStr.LastIndexOf(CT_TEXT('/'));
-        if (index != INDEX_NONE)
-        {
-            return pathStr.Substring(index + 1);
-        }
-        return pathStr;
-    }
+    //TODO
+    Path GetParent() const;
 
-    String GetFileNameWithoutExtension() const
-    {
-        const String fileName = GetFileName();
-        auto index = fileName.LastIndexOf(CT_TEXT('.'));
-        if (index != INDEX_NONE)
-        {
-            return fileName.Substring(0, index);
-        }
-        return fileName;
-    }
-
-    String GetExtension() const
-    {
-        const String fileName = GetFileName();
-        auto index = fileName.LastIndexOf(CT_TEXT('.'));
-        if (index != INDEX_NONE)
-        {
-            return fileName.Substring(index);
-        }
-
-        return String();
-    }
+    bool Exists() const;
+    bool IsDirectory() const;
+    bool IsFile() const;
+    bool IsEmpty() const;
 
     Path &Append(const Path &path)
     {
@@ -79,7 +47,7 @@ public:
         return *this;
     }
 
-    const String &ToString() const
+    String ToString() const
     {
         return pathStr;
     }
@@ -89,15 +57,15 @@ public:
         return pathStr.HashCode();
     }
 
-    Path operator+(const Path &other) const
+    Path operator+(const Path &path) const
     {
         Path temp = *this;
-        return temp.Append(other);
+        return temp.Append(path);
     }
 
-    Path &operator+=(const Path &other)
+    Path &operator+=(const Path &path)
     {
-        return Append(other);
+        return Append(path);
     }
 
     bool operator==(const Path &other) const
@@ -111,28 +79,9 @@ public:
     }
 
 private:
-    void Format()
-    {
-        pathStr.ReplaceAll(CT_TEXT('\\'), CT_TEXT('/'));
+    void Format();
 
-        //TODO Case sensitive?
-    }
-
-    void AppendPrivate(const String &appendPath)
-    {
-        SizeType len = pathStr.Length();
-        const wchar *cstr = pathStr.GetPtr();
-        if (len > 0)
-        {
-            if (cstr[len - 1] != CT_TEXT('/'))
-            {
-                pathStr.Append(CT_TEXT('/'));
-            }
-        }
-
-        pathStr.Append(appendPath);
-        Format();
-    }
+    void AppendPrivate(const String &appendPath);
 
 private:
     String pathStr;
