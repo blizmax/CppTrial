@@ -28,18 +28,27 @@ public:
         std::swap(pathStr, other.pathStr);
     }
 
-    String GetFullPath() const;
+    String GetPathName() const;
+    String GetAbsolute() const;
     String GetFileName() const;
     String GetFileNameWithoutExtension() const;
     String GetExtension() const;
+    String GetParent() const;
+    String GetChild(const String& name) const;
+    String GetSibling(const String& name) const;
 
     //TODO
-    Path GetParent() const;
+    Path GetParentPath() const;
+    Path GetChildPath(const String& name) const;
+    Path GetSiblingPath(const String& name) const;
 
     bool Exists() const;
     bool IsDirectory() const;
     bool IsFile() const;
     bool IsEmpty() const;
+
+    bool CreateDirectory() const;
+    bool CreateDirectories() const;
 
     Path &Append(const Path &path)
     {

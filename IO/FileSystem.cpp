@@ -28,6 +28,13 @@ bool IO::FileSystem::IsEmpty(const String& path)
     return fs::is_empty(ToPath(path));
 }
 
+bool IO::FileSystem::CreateDirectory(const String& path)
+{
+    std::error_code err;
+    fs::create_directory(ToPath(path), err);
+    return !err;
+}
+
 bool IO::FileSystem::CreateDirectories(const String& path)
 {
     std::error_code err;
@@ -65,4 +72,16 @@ bool IO::FileSystem::RemoveDirectory(const String& path , bool recursively)
     }
 
     return !err;
+}
+
+String IO::FileSystem::GetCurrentPath()
+{
+    auto ret = fs::current_path();
+    return String(ret.c_str());
+}
+
+String IO::FileSystem::GetAbsolute(const String &path)
+{
+    auto ret = fs::absolute(ToPath(path));
+    return String(ret.c_str());
 }

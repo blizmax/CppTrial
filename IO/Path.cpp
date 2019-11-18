@@ -1,9 +1,14 @@
 #include "IO/Path.h"
 #include "IO/FileSystem.h"
 
-String IO::Path::GetFullPath() const
+String IO::Path::GetPathName() const
 {
     return pathStr;
+}
+
+String IO::Path::GetAbsolute() const
+{
+    return FileSystem::GetAbsolute(pathStr);
 }
 
 String IO::Path::GetFileName() const
@@ -39,6 +44,31 @@ String IO::Path::GetExtension() const
     return String();
 }
 
+String IO::Path::GetParent() const
+{
+    return pathStr + CT_TEXT("../");
+}
+
+String IO::Path::GetChild(const String& name) const
+{
+    if(!pathStr.IsEmpty() && pathStr[pathStr.Length() - 1] != CT_TEXT('/'))
+    {
+        return pathStr + CT_TEXT('/') + name;
+    }
+
+    return pathStr + name;
+}
+
+String IO::Path::GetSibling(const String& name) const
+{
+    return GetParent() + name;
+}
+
+IO::Path IO::Path::GetParentPath() const
+{
+    return IO::Path(GetParent());
+}
+
 bool IO::Path::Exists() const
 {
     return IO::FileSystem::Exists(pathStr);
@@ -57,6 +87,16 @@ bool IO::Path::IsFile() const
 bool IO::Path::IsEmpty() const
 {
     return IO::FileSystem::IsEmpty(pathStr);
+}
+
+bool IO::Path::CreateDirectory() const
+{
+    return IO::FileSystem::CreateDirectory(pathStr);
+}
+
+bool IO::Path::CreateDirectories() const
+{
+    return IO::FileSystem::CreateDirectories(pathStr);
 }
 
 void IO::Path::Format()
