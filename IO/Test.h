@@ -1,12 +1,12 @@
 #pragma once
 
-#include "IO/Path.h"
+#include "IO/FileHandle.h"
 #include "IO/FileSystem.h"
 
 namespace IO
 {
 
-void TestPath();
+void TestFileHandle();
 
 void TestFileSystem();
 

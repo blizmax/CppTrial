@@ -1,7 +1,6 @@
 #pragma once
 
 #include "IO/.Package.h"
-#include "IO/Path.h"
 
 namespace IO
 {
@@ -21,13 +20,29 @@ public:
 
     static bool CreateDirectories(const String &path);
 
-    static bool DeleteFile(const String &path);
+    static bool Remove(const String &path);
 
-    static bool RemoveDirectory(const String &path, bool recursively = false);
+    static bool RemoveAll(const String &path);
+
+    static bool Copy(const String &from, const String &to, bool overwriteExisting = false);
+
+    static bool Rename(const String &oldPath, const String& newPath);
+
+    static uint64 GetFileSize(const String &path);
+
+    static int64 GetLastModifiedTime(const String& path);
 
     static String GetCurrentPath();
 
-    static String GetAbsolute(const String &path);
+    static String GetTempDirectoryPath();
+
+    static String GetFullPath(const String &path);
+
+    static String GetAbsolutePath(const String &path);
+
+    static Array<String> List(const String &path, bool recursive = false);
+
+    static bool Iterate(const String &path, std::function<void(const String &path)> callback, bool recursive = true);
 };
 
 } // namespace IO
