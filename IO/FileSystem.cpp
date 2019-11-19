@@ -62,11 +62,11 @@ bool IO::FileSystem::Copy(const String &from, const String &to, bool overwriteEx
     std::error_code err;
     if(overwriteExisting)
     {
-        fs::copy(ToPath(from), ToPath(to), fs::copy_options::overwrite_existing);
+        fs::copy(ToPath(from), ToPath(to), fs::copy_options::overwrite_existing | fs::copy_options::recursive);
     }
     else
     {
-        fs::copy(ToPath(from), ToPath(to));
+        fs::copy(ToPath(from), ToPath(to), fs::copy_options::recursive);
     }
 
     return !err;

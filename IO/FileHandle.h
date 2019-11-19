@@ -29,6 +29,9 @@ public:
         std::swap(pathStr, other.pathStr);
     }
 
+    uint64 GetSize() const;
+    int64 GetLastModifiedTime() const;
+
     String GetPath() const;
     String GetFullPath() const;
     String GetAbsolutePath() const;
@@ -38,6 +41,20 @@ public:
     String GetParentPath() const;
     String GetChildPath(const String& name) const;
     String GetSiblingPath(const String& name) const;
+
+    bool Exists() const;
+    bool IsDirectory() const;
+    bool IsFile() const;
+    bool IsEmpty() const;
+
+    bool CreateDirectory() const;
+    bool CreateDirectories() const;
+    // Remove file or empty directory.
+    bool Remove() const;
+    // Remove file or directory recursively.
+    bool RemoveAll() const;
+    bool CopyTo(const FileHandle& dest, bool overwriteExisting = false) const;
+    bool RenameTo(const FileHandle& dest) const;
 
     FileHandle GetParent() const;
     FileHandle GetChild(const String& name) const;
@@ -57,19 +74,6 @@ public:
         return ret;
     }
 
-    bool Exists() const;
-    bool IsDirectory() const;
-    bool IsFile() const;
-    bool IsEmpty() const;
-
-    bool CreateDirectory() const;
-    bool CreateDirectories() const;
-    // Remove file or empty directory.
-    bool Remove() const;
-    // Remove file or directory recursively.
-    bool RemoveAll() const;
-    bool CopyTo(const FileHandle& dest, bool overwriteExisting = false) const;
-    bool RenameTo(const FileHandle& dest) const;
 
     FileHandle &Append(const FileHandle &path)
     {

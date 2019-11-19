@@ -27,6 +27,9 @@ void IO::TestFileHandle()
     {
         logger.Info(child.ToString());
     }
+
+    FileHandle fileHandle4 = FileHandle(CT_TEXT("E:/dog.tree"));
+    logger.Info(CT_TEXT("File size of {0} is : {1}"), fileHandle4, fileHandle4.GetSize());
     // logger.Info(path.GetExtension());
     // logger.Info(path.GetFileNameWithoutExtension());
     // logger.Info(path.GetFileName());
