@@ -205,12 +205,12 @@ CT_INLINE String FromUTF8(const char8 *cstr)
     return str;
 }
 
-CT_INLINE Array<char8> ToUTF8(String &str)
+CT_INLINE Array<char8> ToUTF8(const String &str)
 {
     SizeType len = str.Length();
     SizeType pos = 0;
     SizeType size;
-    const wchar *cstr = str.CStr();
+    const CharType *cstr = str.CStr();
     char32 charUTF32;
     char8 buffer[6] = {0};
     Array<char8> arr;

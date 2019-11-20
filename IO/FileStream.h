@@ -2,6 +2,7 @@
 
 #include "IO/.Package.h"
 #include <fstream>
+#include <filesystem>
 
 namespace IO
 {
@@ -16,6 +17,7 @@ public:
 
     enum class FileMode
     {
+        None,
         Append,
         Truncate
     };
@@ -25,10 +27,13 @@ public:
     FileStream(FileStream&&) = delete;
     FileStream& operator=(const FileStream&) = delete;
     FileStream& operator=(FileStream&&) = delete;
-    virtual ~FileStream();
+
+    virtual ~FileStream() = default;
 
 protected:
     FileStream() = default;
+
+    explicit FileStream(const String& path, AccessMode accessMode, FileMode fileMode);
 
 public:
 
@@ -52,37 +57,32 @@ public:
         return accessMode == AccessMode::Write;
     }
 
-    SizeType Size() const;
+    SizeType Size() const
+    {
+        return size;
+    }
 
     virtual bool IsOpen() const = 0;
     virtual bool IsEnd() const = 0;
-    virtual SizeType Tell() const = 0;
+    virtual SizeType Tell() = 0;
     virtual void Seek(SizeType pos) = 0;
     virtual void Close() = 0;
 
-    // virtual SizeType Read(void* buf, SizeType count);
-    // virtual Array<uint8> ReadBytes();
-    // virtual String ReadString();
-
-    // virtual SizeType Write(void* buf, SizeType count);
-    // virtual void WriteBytes(const Array<uint8> bytes);
-    // virtual void WriteString(const String& str);
-
 protected:
     AccessMode accessMode = AccessMode::Read;
-    FileMode fileMode = FileMode::Truncate;
+    FileMode fileMode = FileMode::None;
     String pathStr;
-    SizeType size;
+    SizeType size = 0;
 };
 
 class FileInputStream : public FileStream
 {
 public:
-    explicit FileInputStream(const String& path, AccessMode accessMode = AccessMode::Read, FileMode fileMode = FileMode::Truncate);
-
+    explicit FileInputStream(const String& path);
+    
     bool IsOpen() const override;
     bool IsEnd() const override;
-    SizeType Tell() const override;
+    SizeType Tell() override;
     void Seek(SizeType pos) override;
     void Close() override;
 
@@ -91,7 +91,26 @@ public:
     String ReadString();
 
 protected:
-    std::ifstream stream;
+    std::ifstream fstream;
+};
+
+class FileOutputStream : public FileStream
+{
+public:
+    explicit FileOutputStream(const String& path, FileMode fileMode = FileMode::Truncate);
+    
+    bool IsOpen() const override;
+    bool IsEnd() const override;
+    SizeType Tell() override;
+    void Seek(SizeType pos) override;
+    void Close() override;
+
+    SizeType Write(const void* buf, SizeType count);
+    void WriteBytes(const Array<uint8> bytes);
+    void WriteString(const String& str);
+
+protected:
+    std::ofstream fstream;
 };
 
 

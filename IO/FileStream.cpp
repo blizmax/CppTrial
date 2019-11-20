@@ -1,53 +1,136 @@
 #include "IO/FileStream.h"
 #include <filesystem>
 
-// IO::FileStream::FileStream(const String& path, AccessMode accessMode, FileMode fileMode) :
-//     pathStr(path), accessMode(accessMode), fileMode(fileMode)
-// {
-//     std::ios::openmode mode = std::ios::binary;
-//     if(IsReadable())
-//     {
-//         mode |= std::ios::in;
-//     }
-//     if(IsWriteable())
-//     {
-//         mode |= std::ios::out;
-//     }
-//     if(fileMode == FileMode::Append)
-//     {
-//         mode |= std::ios::app;
-//     }
-//     else
-//     {
-//         mode |= std::ios::trunc;
-//     }
+IO::FileStream::FileStream(const String &path, AccessMode accessMode, FileMode fileMode) : pathStr(path), accessMode(accessMode), fileMode(fileMode)
+{
+}
 
-//     fstream.open(std::filesystem::path(*path), mode);
+//===============================================================================
+IO::FileInputStream::FileInputStream(const String &path) 
+    : FileStream(path, AccessMode::Read, FileMode::None)
+{
+    std::ios::openmode mode = std::ios::binary | std::ios::in;
 
-//     if(!fstream.fail())
-//     {
-//         fstream.seekg(0, std::ios::end);
-//         size = fstream.tellg();
-//         fstream.seekg(0, std::ios::beg);
-//     }
-// }
+    fstream.open(std::filesystem::path(*path), mode);
 
-// IO::FileStream::~FileStream()
-// {
-//     Close();
-// }
+    if (!fstream.fail())
+    {
+        fstream.seekg(0, std::ios::end);
+        size = static_cast<SizeType>(fstream.tellg());
+        fstream.seekg(0, std::ios::beg);
+    }
+}
 
-// bool IO::FileStream::IsOpen() const
-// {
-//     return fstream.is_open();
-// }
+bool IO::FileInputStream::IsOpen() const
+{
+    return fstream.is_open();
+}
 
-// bool IO::FileStream::IsEnd() const
-// {
-//     return fstream.eof();
-// }
+bool IO::FileInputStream::IsEnd() const
+{
+    return fstream.eof();
+}
 
-// SizeType IO::FileStream::Size() const
-// {
-//     return size;
-// }
+SizeType IO::FileInputStream::Tell()
+{
+    return static_cast<SizeType>(fstream.tellg());
+}
+
+void IO::FileInputStream::Seek(SizeType pos)
+{
+    fstream.seekg(static_cast<std::streampos>(pos));
+}
+
+void IO::FileInputStream::Close()
+{
+    fstream.close();
+}
+
+SizeType IO::FileInputStream::Read(void* buf, SizeType count)
+{
+    fstream.read(static_cast<char8*>(buf), static_cast<std::streamsize>(count));
+    return static_cast<SizeType>(fstream.gcount());
+}
+
+Array<uint8> IO::FileInputStream::ReadBytes()
+{
+    Seek(0);
+    Array<uint8> arr(size);
+    Read(arr.GetData(), size);
+    return arr;
+}
+
+String IO::FileInputStream::ReadString()
+{
+    Seek(0);
+    Array<char8> arr(size);
+    Read(arr.GetData(), size);
+    return StringEncode::FromUTF8(arr.GetData());
+}
+
+//===============================================================================
+
+IO::FileOutputStream::FileOutputStream(const String &path, FileMode fileMode) 
+    : FileStream(path, AccessMode::Write, fileMode)
+{
+    std::ios::openmode mode = std::ios::binary | std::ios::out;
+    if(fileMode == FileMode::Append)
+    {
+        mode |= std::ios::app;
+    }
+    else
+    {
+        mode |= std::ios::trunc;
+    }
+
+    fstream.open(std::filesystem::path(*path), mode);
+
+    if (!fstream.fail())
+    {
+        fstream.seekp(0, std::ios::end);
+        size = static_cast<SizeType>(fstream.tellp());
+        fstream.seekp(0, std::ios::beg);
+    }
+}
+
+bool IO::FileOutputStream::IsOpen() const
+{
+    return fstream.is_open();
+}
+
+bool IO::FileOutputStream::IsEnd() const
+{
+    return fstream.eof();
+}
+
+SizeType IO::FileOutputStream::Tell()
+{
+    return static_cast<SizeType>(fstream.tellp());
+}
+
+void IO::FileOutputStream::Seek(SizeType pos)
+{
+    fstream.seekp(static_cast<std::streampos>(pos));
+}
+
+void IO::FileOutputStream::Close()
+{
+    fstream.close();
+}
+
+SizeType IO::FileOutputStream::Write(const void* buf, SizeType count)
+{
+    fstream.write(static_cast<const char8*>(buf), static_cast<std::streamsize>(count));
+    return count;
+}
+
+void IO::FileOutputStream::WriteBytes(const Array<uint8> bytes)
+{
+    Write(bytes.GetData(), bytes.Size());
+}
+
+void IO::FileOutputStream::WriteString(const String& str)
+{
+    Array<char8> arr = StringEncode::ToUTF8(str);
+    Write(arr.GetData(), arr.Size());
+}

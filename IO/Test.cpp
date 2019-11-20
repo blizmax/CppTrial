@@ -47,8 +47,20 @@ void IO::TestFileSystem()
     logger.Info(CT_TEXT("{0} is dir?"), FileSystem::IsDirectory(CT_TEXT("E:/emp")));
 }
 
+void IO::TestFileStream()
+{
+    FileInputStream istream = FileInputStream(CT_TEXT("E:/dog.tree"));
+    logger.Info(CT_TEXT("ifstream is open? {0}"), istream.IsOpen());
+    String str = istream.ReadString();
+
+    FileOutputStream ostream = FileOutputStream(CT_TEXT("E:/dog_copy.tree"));
+    logger.Info(CT_TEXT("ofstream is open? {0}"), ostream.IsOpen());
+    ostream.WriteString(str);
+}
+
 void IO::Test()
 {
-    TestFileHandle();
+    //TestFileHandle();
     //TestFileSystem();
+    TestFileStream();
 }
