@@ -51,11 +51,19 @@ void IO::TestFileStream()
 {
     FileInputStream istream = FileInputStream(CT_TEXT("E:/dog.tree"));
     logger.Info(CT_TEXT("ifstream is open? {0}"), istream.IsOpen());
-    String str = istream.ReadString();
-
+    String str = istream.ReadString();  
+    logger.Info(str);
     FileOutputStream ostream = FileOutputStream(CT_TEXT("E:/dog_copy.tree"));
     logger.Info(CT_TEXT("ofstream is open? {0}"), ostream.IsOpen());
     ostream.WriteString(str);
+
+    // FileInputStream istream = FileInputStream(CT_TEXT("E:/dog.tree"));
+    // logger.Info(CT_TEXT("ifstream is open? {0}"), istream.IsOpen());
+    // auto arr = istream.ReadBytes();
+
+    // FileOutputStream ostream = FileOutputStream(CT_TEXT("E:/dog_copy.tree"));
+    // logger.Info(CT_TEXT("ofstream is open? {0}"), ostream.IsOpen());
+    // ostream.WriteBytes(arr);
 }
 
 void IO::Test()

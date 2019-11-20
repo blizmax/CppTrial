@@ -56,6 +56,7 @@ Array<uint8> IO::FileInputStream::ReadBytes()
 {
     Seek(0);
     Array<uint8> arr(size);
+    arr.AppendUninitialized(size);
     Read(arr.GetData(), size);
     return arr;
 }
@@ -63,8 +64,10 @@ Array<uint8> IO::FileInputStream::ReadBytes()
 String IO::FileInputStream::ReadString()
 {
     Seek(0);
-    Array<char8> arr(size);
+    Array<char8> arr(size + 1);
+    arr.AppendUninitialized(size + 1);
     Read(arr.GetData(), size);
+    arr.Add(CT_TEXT('\0'));
     return StringEncode::FromUTF8(arr.GetData());
 }
 
@@ -124,7 +127,7 @@ SizeType IO::FileOutputStream::Write(const void* buf, SizeType count)
     return count;
 }
 
-void IO::FileOutputStream::WriteBytes(const Array<uint8> bytes)
+void IO::FileOutputStream::WriteBytes(const Array<uint8>& bytes)
 {
     Write(bytes.GetData(), bytes.Size());
 }

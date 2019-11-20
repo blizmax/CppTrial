@@ -106,7 +106,7 @@ public:
     void Close() override;
 
     SizeType Write(const void* buf, SizeType count);
-    void WriteBytes(const Array<uint8> bytes);
+    void WriteBytes(const Array<uint8>& bytes);
     void WriteString(const String& str);
 
 protected:
