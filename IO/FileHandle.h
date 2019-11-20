@@ -2,6 +2,7 @@
 
 #include "IO/.Package.h"
 #include "IO/FileSystem.h"
+#include "IO/FileStream.h"
 
 namespace IO
 {
@@ -55,6 +56,13 @@ public:
     bool RemoveAll() const;
     bool CopyTo(const FileHandle& dest, bool overwriteExisting = false) const;
     bool RenameTo(const FileHandle& dest) const;
+
+    FileInputStream Read() const;
+    Array<uint8> ReadBytes() const;
+    String ReadString() const;
+    FileOutputStream Write(bool append = false) const;
+    void WriteBytes(const Array<uint8>& bytes, bool append = false) const;
+    void WriteString(const String &str, bool append = false) const;
 
     FileHandle GetParent() const;
     FileHandle GetChild(const String& name) const;

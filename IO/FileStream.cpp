@@ -67,7 +67,7 @@ String IO::FileInputStream::ReadString()
     Array<char8> arr(size + 1);
     arr.AppendUninitialized(size + 1);
     Read(arr.GetData(), size);
-    arr.Add(CT_TEXT('\0'));
+    arr[size] = 0;
     return StringEncode::FromUTF8(arr.GetData());
 }
 

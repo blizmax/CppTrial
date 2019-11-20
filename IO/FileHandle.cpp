@@ -152,6 +152,47 @@ bool IO::FileHandle::RenameTo(const FileHandle& dest) const
     return FileSystem::Rename(pathStr, dest.pathStr);
 }
 
+IO::FileInputStream IO::FileHandle::Read() const
+{
+    return FileInputStream(pathStr);
+}
+
+Array<uint8> IO::FileHandle::ReadBytes() const
+{
+    FileInputStream stream = Read();
+    return stream.ReadBytes();
+}
+
+String IO::FileHandle::ReadString() const
+{
+    FileInputStream stream = Read();
+    return stream.ReadString();
+}
+
+IO::FileOutputStream IO::FileHandle::Write(bool append) const
+{
+    if(append)
+    {
+        return FileOutputStream(pathStr, IO::FileStream::FileMode::Append);
+    }
+    else
+    {
+        return FileOutputStream(pathStr, IO::FileStream::FileMode::Truncate);
+    }
+}
+
+void IO::FileHandle::WriteBytes(const Array<uint8> &bytes, bool append) const
+{
+    FileOutputStream stream = Write(append);
+    stream.WriteBytes(bytes);
+}
+
+void IO::FileHandle::WriteString(const String &str, bool append) const
+{
+    FileOutputStream stream = Write(append);
+    stream.WriteString(str);
+}
+
 void IO::FileHandle::Format()
 {
     pathStr.ReplaceAll(CT_TEXT('\\'), CT_TEXT('/'));

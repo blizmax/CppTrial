@@ -49,11 +49,11 @@ void IO::TestFileSystem()
 
 void IO::TestFileStream()
 {
-    FileInputStream istream = FileInputStream(CT_TEXT("E:/dog.tree"));
+    FileInputStream istream = FileHandle(CT_TEXT("E:/dog.tree")).Read();
     logger.Info(CT_TEXT("ifstream is open? {0}"), istream.IsOpen());
     String str = istream.ReadString();  
     logger.Info(str);
-    FileOutputStream ostream = FileOutputStream(CT_TEXT("E:/dog_copy.tree"));
+    FileOutputStream ostream = FileHandle(CT_TEXT("E:/dog_copy.tree")).Write();
     logger.Info(CT_TEXT("ofstream is open? {0}"), ostream.IsOpen());
     ostream.WriteString(str);
 
