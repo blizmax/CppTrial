@@ -20,6 +20,7 @@
 #include "Utils/Name.h"
 #include "Reflection/Test.h"
 #include "IO/Test.h"
+#include "Math/Test.h"
 
 static Log logger = Log(L"Main");
 
@@ -68,7 +69,6 @@ void TestMath()
         auto uuid = UUID();
         logger.Info(L"UUID{0}: {1}", i, uuid);
     }
-   
 }
 
 void TestName()
@@ -282,7 +282,9 @@ int main()
 
     //Reflection::Test();
 
-    IO::Test();
+    // IO::Test();
+
+    Math::Test();
    
 
     // std::thread thread1 = std::thread([](){
