@@ -9,6 +9,12 @@ public:
     float y = 0.0f;
     float z = 0.0f;
 
+    static const Vector3 ZERO;
+    static const Vector3 ONE;
+    static const Vector3 X;
+    static const Vector3 Y;
+    static const Vector3 Z;
+
 public:
     Vector3() = default;
 

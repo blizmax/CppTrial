@@ -10,6 +10,13 @@ public:
     float z = 0.0f;
     float w = 0.0f;
 
+    static const Vector4 ZERO;
+    static const Vector4 ONE;
+    static const Vector4 X;
+    static const Vector4 Y;
+    static const Vector4 Z;
+    static const Vector4 W;
+
 public:
     Vector4() = default;
 
