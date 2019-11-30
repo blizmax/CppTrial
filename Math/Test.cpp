@@ -2,6 +2,7 @@
 #include "Core/Log.h"
 #include "Math/Vector2.h"
 #include "Math/Vector3.h"
+#include "Math/Vector4.h"
 
 static Log logger = Log(CT_TEXT("Math"));
 
@@ -12,6 +13,16 @@ void Math::TestVector2()
 }
 
 void Math::TestVector3()
+{
+    
+}
+
+void Math::TestVector4()
+{
+
+}
+
+void Math::TestRect()
 {
     
 }
