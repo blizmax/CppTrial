@@ -31,10 +31,13 @@ void Math::TestRect()
 
 void Math::TestMatrix3()
 {
-
+    Matrix3 mat;
+    mat.SetColumn(0, Vector3(1.0f, 2.0f, 3.0f));
+    logger.Info(CT_TEXT("Matrix3:{0}, det:{1}"), mat, mat.Determinant());
 }
 
 void Math::Test()
 {
-    TestVector2();
+    //TestVector2();
+    TestMatrix3();
 }
