@@ -222,7 +222,7 @@ public:
 
     String ToString() const
     {
-        return String::Format(CT_TEXT("x={0},y={1},z={2}"), x, y, z);
+        return String::Format(CT_TEXT("[x={0},y={1},z={2}]"), x, y, z);
     }
 
     uint32 HashCode() const

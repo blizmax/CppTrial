@@ -207,7 +207,7 @@ public:
 
     String ToString() const
     {
-        return String::Format(CT_TEXT("x={0},y={1}"), x, y);
+        return String::Format(CT_TEXT("[x={0},y={1}]"), x, y);
     }
 
     uint32 HashCode() const

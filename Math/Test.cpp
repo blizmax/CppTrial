@@ -3,6 +3,8 @@
 #include "Math/Vector2.h"
 #include "Math/Vector3.h"
 #include "Math/Vector4.h"
+#include "Math/Rect.h"
+#include "Math/Matrix3.h"
 
 static Log logger = Log(CT_TEXT("Math"));
 
@@ -25,6 +27,11 @@ void Math::TestVector4()
 void Math::TestRect()
 {
     
+}
+
+void Math::TestMatrix3()
+{
+
 }
 
 void Math::Test()
