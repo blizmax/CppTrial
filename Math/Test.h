@@ -7,5 +7,6 @@ namespace Math
     void TestVector4();
     void TestRect();
     void TestMatrix3();
+    void TestMatrix4();
     void Test();
 }

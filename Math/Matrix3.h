@@ -7,6 +7,11 @@
 class Matrix3
 {
 public:
+    friend class Matrix4;
+
+    Matrix3(const Matrix3 &) = default;
+    Matrix3 &operator=(const Matrix3 &) = default;
+
     Matrix3()
         : v{{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}
     {
@@ -26,7 +31,6 @@ public:
     Matrix3 Transpose() const;
     Matrix3 Inverse() const;
     Matrix3 Adjugate() const;
-
     String ToString() const;
 
     Matrix3 &SetIdentity()

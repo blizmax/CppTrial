@@ -5,6 +5,7 @@
 #include "Math/Vector4.h"
 #include "Math/Rect.h"
 #include "Math/Matrix3.h"
+#include "Math/Matrix4.h"
 
 static Log logger = Log(CT_TEXT("Math"));
 
@@ -34,6 +35,11 @@ void Math::TestMatrix3()
     Matrix3 mat;
     mat.SetColumn(0, Vector3(1.0f, 2.0f, 3.0f));
     logger.Info(CT_TEXT("Matrix3:{0}, det:{1}"), mat, mat.Determinant());
+}
+
+void Math::TestMatrix4()
+{
+    
 }
 
 void Math::Test()
