@@ -135,24 +135,15 @@ void TestArraySort()
 
 void TestHashMap()
 {
-    HashMap<String, int> map1;
-    map1.Put(L'A', 100);
+    HashMap<String, int32> map1;
+    
+    map1.Put(CT_TEXT("A"), 1);
+    map1.Put(CT_TEXT("2"), 2);
 
-    HashMap<int, int> map2;
-    map2.Put(100, 100);
+    // for(const auto&[key, value] : map1)
+    // {
 
-    HashMap<SizeType, int> map3;
-    map3.Put(100, 100);
-
-    HashMap<float, int> map4;
-    map4.Put(12.10f, 100);
-
-    HashMap<const char8*, int> map5;
-    map5.Put("abc", 1);
-
-    A* a = new A();
-    HashMap<A *, int> map6;
-    map6.Put(a, 1);
+    // }
 }
 
 void TestStringEncode()
