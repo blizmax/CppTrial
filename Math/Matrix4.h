@@ -48,6 +48,154 @@ public:
     Matrix4 &SetColumn(uint32 i, const Vector4 &col);
     Vector4 GetColumn(uint32 i) const;
 
+    float Determinant() const;
+    Matrix4 Transpose() const;
+    Matrix4 Inverse() const;
+    Matrix4 Adjugate() const;
+    String ToString() const;
+
+    Matrix4 &SetIdentity()
+    {
+        v[0][0] = v[1][1] = v[2][2] = v[3][3] = 1.0f;
+        v[1][0] = v[2][0] = v[3][0] = v[0][1] = v[2][1] = v[3][1] = v[0][2] = v[1][2] = v[3][2] = v[0][3] = v[1][3] = v[2][3] = 0.0f;
+        return *this;
+    }
+
+    float &operator()(uint32 r, uint32 c)
+    {
+        return v[c][r];
+    }
+
+    float operator()(uint32 r, uint32 c) const
+    {
+        return v[c][r];
+    }
+
+    bool operator==(const Matrix4 &rhs) const
+    {
+        for (uint32 i = 0; i < 4; ++i)
+        {
+            for (uint32 j = 0; j < 4; ++j)
+            {
+                if (v[i][j] != rhs.v[i][j])
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    bool operator!=(const Matrix4 &rhs) const
+    {
+        return !(*this == rhs);
+    }
+
+    Matrix4 &operator*=(const Matrix4 &rhs)
+    {
+        Matrix4 temp = *this * rhs;
+        *this = temp;
+        return *this;
+    }
+
+    Matrix4 &operator*=(float rhs)
+    {
+        for (uint32 col = 0; col < 4; ++col)
+        {
+            for (uint32 row = 0; row < 4; ++row)
+            {
+                v[col][row] *= rhs;
+            }
+        }
+        return *this;
+    }
+
+    Matrix4 &operator/=(float rhs)
+    {
+        for (uint32 col = 0; col < 4; ++col)
+        {
+            for (uint32 row = 0; row < 4; ++row)
+            {
+                v[col][row] /= rhs;
+            }
+        }
+        return *this;
+    }
+
+    Matrix4 operator+(const Matrix4 &rhs)
+    {
+        Matrix4 ret;
+        for (uint32 col = 0; col < 4; ++col)
+        {
+            for (uint32 row = 0; row < 4; ++row)
+            {
+                ret.v[col][row] = v[col][row] + rhs.v[col][row];
+            }
+        }
+        return ret;
+    }
+
+    Matrix4 operator-(const Matrix4 &rhs)
+    {
+        Matrix4 ret;
+        for (uint32 col = 0; col < 4; ++col)
+        {
+            for (uint32 row = 0; row < 4; ++row)
+            {
+                ret.v[col][row] = v[col][row] - rhs.v[col][row];
+            }
+        }
+        return ret;
+    }
+
+    Matrix4 operator*(const Matrix4 &rhs)
+    {
+        Matrix4 ret;
+        for (uint32 col = 0; col < 4; ++col)
+        {
+            for (uint32 row = 0; row < 4; ++row)
+            {
+                ret.v[col][row] =
+                    v[0][row] * rhs.v[col][0] + v[1][row] * rhs.v[col][1] + v[2][row] * rhs.v[col][2] + v[3][row] * rhs.v[col][3];
+            }
+        }
+        return ret;
+    }
+
+    friend Matrix4 operator*(const Matrix4 &lhs, float rhs)
+    {
+        Matrix4 ret = lhs;
+        ret *= rhs;
+        return ret;
+    }
+
+    friend Matrix4 operator*(float lhs, const Matrix4 &rhs)
+    {
+        Matrix4 ret = rhs;
+        ret *= lhs;
+        return ret;
+    }
+
+    friend Vector4 operator*(const Vector4 &lhs, const Matrix4 &rhs)
+    {
+        Vector4 ret;
+        for (uint32 col = 0; col < 4; ++col)
+        {
+            ret[col] =
+                rhs.v[col][0] * lhs[0] + rhs.v[col][1] * lhs[1] + rhs.v[col][2] * lhs[2] + rhs.v[col][3] * lhs[3];
+        }
+        return ret;
+    }
+
+    friend Vector4 operator*(const Matrix4 &lhs, const Vector4 &rhs)
+    {
+        Vector4 ret;
+        for (uint32 row = 0; row < 4; ++row)
+        {
+            ret[row] =
+                lhs.v[0][row] * rhs[0] + lhs.v[1][row] * rhs[1] + lhs.v[2][row] * rhs[2] + lhs.v[3][row] * rhs[3];
+        }
+        return ret;
+    }
+
 private:
     float v[4][4];
 };
