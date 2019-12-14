@@ -4,6 +4,8 @@
 #include "Math/Vector3.h"
 #include "Math/Vector4.h"
 #include "Math/Rect.h"
+#include "Math/Circle.h"
+#include "Math/Sphere.h"
 #include "Math/Matrix3.h"
 #include "Math/Matrix4.h"
 
@@ -30,6 +32,17 @@ void Math::TestRect()
     
 }
 
+void Math::TestCircle()
+{
+
+}
+
+void Math::TestSphere()
+{
+    Sphere sphere;
+    logger.Info(CT_TEXT("Sphere:{0}"), sphere);
+}
+
 void Math::TestMatrix3()
 {
     Matrix3 mat;
@@ -45,5 +58,8 @@ void Math::TestMatrix4()
 void Math::Test()
 {
     //TestVector2();
-    TestMatrix3();
+
+    TestSphere();
+
+    //TestMatrix3();
 }
