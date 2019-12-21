@@ -2,6 +2,7 @@
 
 #include "Math/.Package.h"
 #include "Math/Matrix3.h"
+#include "Math/Vector3.h"
 #include "Math/Vector4.h"
 
 class Matrix4
@@ -194,6 +195,20 @@ public:
                 lhs.v[0][row] * rhs[0] + lhs.v[1][row] * rhs[1] + lhs.v[2][row] * rhs[2] + lhs.v[3][row] * rhs[3];
         }
         return ret;
+    }
+
+    // Assume w component is 1
+    friend Vector3 operator*(const Vector3 &lhs, const Matrix4 &rhs)
+    {
+        Vector4 temp = Vector4(lhs.x, lhs.y, lhs.z, 1.0f) * rhs;
+        return Vector3(temp.x, temp.y, temp.z) / temp.w;
+    }
+
+    // Assume w component is 1
+    friend Vector3 operator*(const Matrix4 &lhs, const Vector3 &rhs)
+    {
+        Vector4 temp = lhs * Vector4(rhs.x, rhs.y, rhs.z, 1.0f);
+        return Vector3(temp.x, temp.y, temp.z) / temp.w;
     }
 
 private:

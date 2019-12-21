@@ -6,51 +6,58 @@
 #include "Math/Rect.h"
 #include "Math/Circle.h"
 #include "Math/Sphere.h"
+#include "Math/Ray.h"
 #include "Math/Matrix3.h"
 #include "Math/Matrix4.h"
 
+
 static Log logger = Log(CT_TEXT("Math"));
 
-void Math::TestVector2()
+static void TestVector2()
 {
     Vector2 vec = Vector2(-2.0f, 0.0f) - Vector2(-5.0f, 2.0f);
     logger.Info(CT_TEXT("{0}"), vec);
 }
 
-void Math::TestVector3()
+static void TestVector3()
 {
     
 }
 
-void Math::TestVector4()
+static void TestVector4()
 {
 
 }
 
-void Math::TestRect()
+static void TestRect()
 {
     
 }
 
-void Math::TestCircle()
+static void TestCircle()
 {
 
 }
 
-void Math::TestSphere()
+static void TestSphere()
 {
     Sphere sphere;
     logger.Info(CT_TEXT("Sphere:{0}"), sphere);
 }
 
-void Math::TestMatrix3()
+static void TestRay()
+{
+    
+}
+
+static void TestMatrix3()
 {
     Matrix3 mat;
     mat.SetColumn(0, Vector3(1.0f, 2.0f, 3.0f));
     logger.Info(CT_TEXT("Matrix3:{0}, det:{1}"), mat, mat.Determinant());
 }
 
-void Math::TestMatrix4()
+static void TestMatrix4()
 {
     
 }
