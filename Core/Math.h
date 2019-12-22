@@ -10,8 +10,8 @@ constexpr float EPSILON = 0.00001f;
 constexpr float PI = 3.14159265359f;
 constexpr float TWO_PI = PI * 2.0f;
 constexpr float HALF_PI = PI * 0.5f;
-constexpr float RadToDeg = 180.0f / PI;
-constexpr float DegToRad = PI / 180.0f;
+constexpr float RAD_TO_DEG = 180.0f / PI;
+constexpr float DEG_TO_RAD = PI / 180.0f;
 
 CT_INLINE float Sin(float value)
 {

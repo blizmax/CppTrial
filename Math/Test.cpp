@@ -3,6 +3,7 @@
 #include "Math/Vector2.h"
 #include "Math/Vector3.h"
 #include "Math/Vector4.h"
+#include "Math/Quat.h"
 #include "Math/Rect.h"
 #include "Math/Circle.h"
 #include "Math/Sphere.h"
@@ -46,6 +47,11 @@ static void TestSphere()
 }
 
 static void TestRay()
+{
+    
+}
+
+static void TestQuat()
 {
     
 }
