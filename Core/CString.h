@@ -1,13 +1,90 @@
 #pragma once
 
 #include "Core/.Package.h"
+#include "Core/Template.h"
 #include <cwchar>
 #include <string>
 
 namespace CString
 {
 
-using CharTraits = std::char_traits<CharType>;
+template <typename Char>
+CT_INLINE SizeType Length(const Char *str)
+{
+    if constexpr (TIsSame<Char, char8>::value)
+    {
+        return std::strlen(str);
+    }
+    else if constexpr (TIsSame<Char, wchar>::value)
+    {
+        return std::wcslen(str);
+    }
+    else
+    {
+        SizeType len = 0;
+        for (; *str != static_cast<Char>(0); ++str)
+            ++len;
+        return len;
+    }
+}
+
+template <typename Char>
+CT_INLINE int32 Compare(const Char *str1, const Char *str2, SizeType count)
+{
+    if constexpr (TIsSame<Char, char8>::value)
+    {
+        return std::memcmp(str1, str2, count);
+    }
+    else if constexpr (TIsSame<Char, wchar>::value)
+    {
+        return std::wmemcmp(str1, str2, count);
+    }
+    else
+    {
+        for (; count > 0; --count, ++str1, ++str2)
+        {
+            if (*str1 < *str2)
+                return -1;
+            if (*str2 < *str1)
+                return 1;
+        }
+        return 0;
+    }
+}
+
+template <typename Char>
+CT_INLINE void Copy(Char *dst, const Char *src, SizeType count)
+{
+    if constexpr (TIsSame<Char, char8>::value)
+    {
+        std::memcpy(dst, src, count);
+    }
+    else if constexpr (TIsSame<Char, wchar>::value)
+    {
+        std::wmemcpy(dst, src, count);
+    }
+    else
+    {
+        std::memcpy(dst, src, count * sizeof(Char));
+    }
+}
+
+template <typename Char>
+CT_INLINE void Move(Char *dst, const Char *src, SizeType count)
+{
+    if constexpr (TIsSame<Char, char8>::value)
+    {
+        std::memmove(dst, src, count);
+    }
+    else if constexpr (TIsSame<Char, wchar>::value)
+    {
+        std::wmemmove(dst, src, count);
+    }
+    else
+    {
+        std::memmove(dst, src, count * sizeof(Char));
+    }
+}
 
 CT_INLINE bool IsDigit(CharType input)
 {

@@ -8,7 +8,6 @@
 class String
 {
 public:
-    using CharTraits = CString::CharTraits;
     using CharArray = Array<CharType>;
 
 public:
@@ -22,11 +21,11 @@ public:
     {
         if (str && *str)
         {
-            SizeType len = CharTraits::length(str);
+            SizeType len = CString::Length(str);
             if (len > 0)
             {
                 data.AppendUninitialized(len + 1);
-                CharTraits::copy(data.GetData(), str, len);
+                CString::Copy(data.GetData(), str, len);
                 data.GetData()[len] = 0;
             }
         }
@@ -36,12 +35,12 @@ public:
     {
         if (str && *str)
         {
-            SizeType len = CharTraits::length(str);
+            SizeType len = CString::Length(str);
             len = len < count ? len : count;
             if (len > 0)
             {
                 data.AppendUninitialized(len + 1);
-                CharTraits::copy(data.GetData(), str, len);
+                CString::Copy(data.GetData(), str, len);
                 data.GetData()[len] = 0;
             }
         }
@@ -64,12 +63,12 @@ public:
     {
         if (data.GetData() != str)
         {
-            SizeType len = (str && *str) ? CharTraits::length(str) + 1 : 0;
+            SizeType len = (str && *str) ? CString::Length(str) + 1 : 0;
             data.Clear();
             data.AppendUninitialized(len);
             if (len > 0)
             {
-                CharTraits::copy(data.GetData(), str, len);
+                CString::Copy(data.GetData(), str, len);
             }
         }
         return *this;
@@ -232,7 +231,7 @@ public:
     String &Replace(SizeType index, SizeType count, const CharType *str)
     {
         CheckRange(index);
-        return ReplacePrivate(index, count, str, CharTraits::length(str));
+        return ReplacePrivate(index, count, str, CString::Length(str));
     }
 
     String &Replace(SizeType index, SizeType count, const CharType *str, SizeType repCount)
@@ -408,25 +407,25 @@ public:
 
     bool Find(const CharType *str) const
     {
-        const SizeType len = CharTraits::length(str);
+        const SizeType len = CString::Length(str);
         return Find(str, 0, len, nullptr);
     }
 
     bool Find(const CharType *str, SizeType startIndex, SizeType *at) const
     {
-        const SizeType len = CharTraits::length(str);
+        const SizeType len = CString::Length(str);
         return Find(str, startIndex, len, at);
     }
 
     bool Find(const CharType *str, SizeType &at) const
     {
-        const SizeType len = CharTraits::length(str);
+        const SizeType len = CString::Length(str);
         return Find(str, 0, len, &at);
     }
 
     bool Find(const CharType *str, SizeType startIndex, SizeType &at) const
     {
-        const SizeType len = CharTraits::length(str);
+        const SizeType len = CString::Length(str);
         return Find(str, startIndex, len, &at);
     }
 
@@ -539,25 +538,25 @@ public:
 
     bool ReverseFind(const CharType *str) const
     {
-        const SizeType len = CharTraits::length(str);
+        const SizeType len = CString::Length(str);
         return ReverseFind(str, Length() - 1, len, nullptr);
     }
 
     bool ReverseFind(const CharType *str, SizeType startIndex, SizeType *at) const
     {
-        const SizeType len = CharTraits::length(str);
+        const SizeType len = CString::Length(str);
         return ReverseFind(str, Length() - 1, len, at);
     }
 
     bool ReverseFind(const CharType *str, SizeType &at) const
     {
-        const SizeType len = CharTraits::length(str);
+        const SizeType len = CString::Length(str);
         return ReverseFind(str, Length() - 1, len, &at);
     }
 
     bool ReverseFind(const CharType *str, SizeType startIndex, SizeType &at) const
     {
-        const SizeType len = CharTraits::length(str);
+        const SizeType len = CString::Length(str);
         return ReverseFind(str, startIndex, len, &at);
     }
 
@@ -697,7 +696,7 @@ public:
 
     int Compare(const CharType *other) const
     {
-        SizeType len = CharTraits::length(other);
+        SizeType len = CString::Length(other);
         return ComparePrivate(CStr(), Length(), other, len);
     }
 
@@ -716,13 +715,13 @@ public:
     {
         if (str && *str)
         {
-            SizeType len = CharTraits::length(str);
+            SizeType len = CString::Length(str);
             if (len > 0)
             {
                 const SizeType curSize = data.Size();
                 data.AppendUninitialized(len + (curSize ? 0 : 1));
                 CharType *curPtr = data.GetData() + curSize - (curSize ? 1 : 0);
-                CharTraits::copy(curPtr, str, len);
+                CString::Copy(curPtr, str, len);
                 *(curPtr + len) = 0;
             }
         }
@@ -1011,15 +1010,15 @@ private:
 
             if (count >= repCount)
             {
-                CharTraits::move(ptr + repCount, ptr + count, len - index - count + 1);
-                CharTraits::copy(ptr, repStr, repCount);
+                CString::Move(ptr + repCount, ptr + count, len - index - count + 1);
+                CString::Copy(ptr, repStr, repCount);
                 data.Resize(data.Size() - count + repCount);
             }
             else
             {
                 data.AppendUninitialized(repCount - count);
-                CharTraits::move(ptr + repCount, ptr + count, len - index - count + 1);
-                CharTraits::copy(ptr, repStr, repCount);
+                CString::Move(ptr + repCount, ptr + count, len - index - count + 1);
+                CString::Copy(ptr, repStr, repCount);
             }
         }
 
@@ -1029,7 +1028,7 @@ private:
     int ComparePrivate(const CharType *ptr1, SizeType len1, const CharType *ptr2, SizeType len2) const
     {
         SizeType len = len1 < len2 ? len1 : len2;
-        int ret = CharTraits::compare(ptr1, ptr2, len);
+        int ret = CString::Compare(ptr1, ptr2, len);
         if (ret != 0)
         {
             return ret;

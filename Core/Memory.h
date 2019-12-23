@@ -86,7 +86,7 @@ CT_INLINE void ArrayDelete(T *ptr, SizeType count)
 }
 
 template <typename T>
-CT_INLINE void Copy(const T *src, SizeType count, T *dst)
+CT_INLINE void Copy(T *dst, const T *src, SizeType count)
 {
     if constexpr (TIsTriviallyCopyAssignable<T>::value)
     {
@@ -97,17 +97,15 @@ CT_INLINE void Copy(const T *src, SizeType count, T *dst)
     }
     else
     {
-        for (; count > 0; --count)
+        for (; count > 0; --count, ++dst, ++src)
         {
             *dst = *src;
-            ++src;
-            ++dst;
         }
     }
 }
 
 template <typename T>
-CT_INLINE void CopyBackward(const T *src, SizeType count, T *dst)
+CT_INLINE void CopyBackward(T *dst, const T *src, SizeType count)
 {
     if constexpr (TIsTriviallyCopyAssignable<T>::value)
     {
@@ -118,17 +116,15 @@ CT_INLINE void CopyBackward(const T *src, SizeType count, T *dst)
     }
     else
     {
-        for (; count > 0; --count)
+        for (; count > 0; --count, --dst, --src)
         {
             *dst = *src;
-            --src;
-            --dst;
         }
     }
 }
 
 template <typename T>
-CT_INLINE void Move(T *src, SizeType count, T *dst)
+CT_INLINE void Move(T *dst, T *src, SizeType count)
 {
     if constexpr (TIsTriviallyMoveAssignable<T>::value)
     {
@@ -139,17 +135,15 @@ CT_INLINE void Move(T *src, SizeType count, T *dst)
     }
     else
     {
-        for (; count > 0; --count)
+        for (; count > 0; --count, ++dst, ++src)
         {
             *dst = std::move(*src);
-            ++src;
-            ++dst;
         }
     }
 }
 
 template <typename T>
-CT_INLINE void MoveBackward(T *src, SizeType count, T *dst)
+CT_INLINE void MoveBackward(T *dst, T *src, SizeType count)
 {
     if constexpr (TIsTriviallyMoveAssignable<T>::value)
     {
@@ -160,11 +154,9 @@ CT_INLINE void MoveBackward(T *src, SizeType count, T *dst)
     }
     else
     {
-        for (; count > 0; --count)
+        for (; count > 0; --count, --dst, --src)
         {
             *dst = std::move(*src);
-            --src;
-            --dst;
         }
     }
 }
@@ -172,15 +164,14 @@ CT_INLINE void MoveBackward(T *src, SizeType count, T *dst)
 template <typename T>
 CT_INLINE void Fill(T *dst, SizeType count, const T &value)
 {
-    for (; count > 0; --count)
+    for (; count > 0; --count, ++dst)
     {
         *dst = value;
-        ++dst;
     }
 }
 
 template <typename T>
-CT_INLINE void UninitializedCopy(const T *src, SizeType count, T *dst)
+CT_INLINE void UninitializedCopy(T *dst, const T *src, SizeType count)
 {
     if constexpr (TIsTriviallyCopyAssignable<T>::value)
     {
@@ -191,11 +182,9 @@ CT_INLINE void UninitializedCopy(const T *src, SizeType count, T *dst)
     }
     else
     {
-        for (; count > 0; --count)
+        for (; count > 0; --count, ++dst, ++src)
         {
             Construct(dst, *src);
-            ++dst;
-            ++src;
         }
     }
 }
@@ -205,41 +194,35 @@ CT_INLINE void UninitializedFill(T *dst, SizeType count, const T &value)
 {
     if constexpr (TIsTriviallyCopyAssignable<T>::value)
     {
-        for (; count > 0; --count)
+        for (; count > 0; --count, ++dst)
         {
             *dst = value;
-            ++dst;
         }
     }
     else
     {
-        for (; count > 0; --count)
+        for (; count > 0; --count, ++dst)
         {
             Construct(dst, value);
-            ++dst;
         }
     }
 }
 
 template <typename T>
-CT_INLINE void UninitializedMove(T *src, SizeType count, T *dst)
+CT_INLINE void UninitializedMove(T *dst, T *src, SizeType count)
 {
     if constexpr (TIsTriviallyMoveAssignable<T>::value)
     {
-        for (; count > 0; --count)
+        for (; count > 0; --count, ++dst, ++src)
         {
             *dst = std::move(*src);
-            ++src;
-            ++dst;
         }
     }
     else
     {
-        for (; count > 0; --count)
+        for (; count > 0; --count, ++dst, ++src)
         {
             Construct(dst, std::move(*src));
-            ++src;
-            ++dst;
         }
     }
 }

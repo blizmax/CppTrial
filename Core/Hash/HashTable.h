@@ -722,7 +722,7 @@ private:
 
         if (tempPtr)
         {
-            Memory::UninitializedMove(tempPtr, 1, data + pos);
+            Memory::UninitializedMove(data + pos, tempPtr, 1);
             return true;
         }
 

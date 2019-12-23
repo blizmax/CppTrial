@@ -29,7 +29,7 @@ public:
     {
         SizeType minCapacity = other.size;
         Reserve(minCapacity);
-        Memory::UninitializedCopy(other.data, other.size, data);
+        Memory::UninitializedCopy(data, other.data, other.size);
         size = other.size;
     }
 
@@ -51,14 +51,14 @@ public:
             }
             else if (size > other.size)
             {
-                Memory::Copy(other.data, other.size, data);
+                Memory::Copy(data, other.data, other.size);
                 Alloc::Destroy(data + other.size, size - other.size);
                 size = other.size;
             }
             else
             {
-                Memory::Copy(other.data, size, data);
-                Memory::UninitializedCopy(other.data + size, other.size - size, data + size);
+                Memory::Copy(data, other.data, size);
+                Memory::UninitializedCopy(data + size, other.data + size, other.size - size);
                 size = other.size;
             }
         }
@@ -495,7 +495,7 @@ private:
     void ReservePrivate(SizeType newCapacity)
     {
         Element *newData = Alloc::Allocate(newCapacity);
-        Memory::UninitializedMove(data, size, newData);
+        Memory::UninitializedMove(newData, data, size);
         DestroyAndDeallocate(data, size, capacity);
         data = newData;
         capacity = newCapacity;
@@ -505,7 +505,7 @@ private:
     {
         const SizeType moveCount = size - index - count;
         size -= count;
-        Memory::Move(data + index + count, moveCount, data + index);
+        Memory::Move(data + index, data + index + count, moveCount);
         Alloc::Destroy(data + size, count);
     }
 
@@ -523,13 +523,13 @@ private:
             SizeType moveNum = oldSize - index;
             if (moveNum > count)
             {
-                Memory::UninitializedMove(data + oldSize - count, count, data + oldSize);
-                Memory::MoveBackward(data + oldSize - count - 1, moveNum - count, data + oldSize - 1);
+                Memory::UninitializedMove(data + oldSize, data + oldSize - count, count);
+                Memory::MoveBackward(data + oldSize - 1, data + oldSize - count - 1, moveNum - count);
                 Memory::Fill(data + index, count, value);
             }
             else
             {
-                Memory::UninitializedMove(data + index, moveNum, data + index + count);
+                Memory::UninitializedMove(data + index + count, data + index, moveNum);
                 Memory::Fill(data + index, moveNum, value);
                 Memory::UninitializedFill(data + index + moveNum, count - moveNum, value);
             }
@@ -540,9 +540,9 @@ private:
             Element *oldData = data;
             capacity = FixCapacity((oldCapacity * 2) >= size ? (oldCapacity * 2) : size);
             data = Alloc::Allocate(capacity);
-            Memory::UninitializedMove(oldData, index, data);
+            Memory::UninitializedMove(data, oldData, index);
             Memory::UninitializedFill(data + index, count, value);
-            Memory::UninitializedMove(oldData + index, oldSize - index, data + index + count);
+            Memory::UninitializedMove(data + index + count, oldData + index, oldSize - index);
             DestroyAndDeallocate(oldData, oldSize, oldCapacity);
         }
     }
@@ -558,8 +558,8 @@ private:
         else if (size <= capacity)
         {
             SizeType moveNum = oldSize - index;
-            Memory::UninitializedMove(data + oldSize - 1, 1, data + oldSize);
-            Memory::MoveBackward(data + oldSize - 2, moveNum - 1, data + oldSize - 1);
+            Memory::UninitializedMove(data + oldSize, data + oldSize - 1, 1);
+            Memory::MoveBackward(data + oldSize - 1, data + oldSize - 2, moveNum - 1);
             Alloc::Construct(data + index, std::move(value));
         }
         else
@@ -568,9 +568,9 @@ private:
             Element *oldData = data;
             capacity = FixCapacity((oldCapacity * 2) >= size ? (oldCapacity * 2) : size);
             data = Alloc::Allocate(capacity);
-            Memory::UninitializedMove(oldData, index, data);
+            Memory::UninitializedMove(data, oldData, index);
             Alloc::Construct(data + index, std::move(value));
-            Memory::UninitializedMove(oldData + index, oldSize - index, data + index + 1);
+            Memory::UninitializedMove(data + index + 1, oldData + index, oldSize - index);
             DestroyAndDeallocate(oldData, oldSize, oldCapacity);
         }
     }
@@ -582,22 +582,22 @@ private:
 
         if (index == oldSize && size <= capacity)
         {
-            Memory::UninitializedCopy(src, count, data + oldSize);
+            Memory::UninitializedCopy(data + oldSize, src, count);
         }
         else if (size <= capacity)
         {
             SizeType moveNum = oldSize - index;
             if (moveNum > count)
             {
-                Memory::UninitializedMove(data + oldSize - count, count, data + oldSize);
-                Memory::MoveBackward(data + oldSize - count - 1, moveNum - count, data + oldSize - 1);
-                Memory::Copy(src, count, data + index);
+                Memory::UninitializedMove(data + oldSize, data + oldSize - count, count);
+                Memory::MoveBackward(data + oldSize - 1, data + oldSize - count - 1, moveNum - count);
+                Memory::Copy(data + index, src, count);
             }
             else
             {
-                Memory::UninitializedMove(data + index, moveNum, data + index + count);
-                Memory::Copy(src, moveNum, data + index);
-                Memory::UninitializedCopy(src + moveNum, count - moveNum, data + index + moveNum);
+                Memory::UninitializedMove(data + index + count, data + index, moveNum);
+                Memory::Copy(data + index, src, moveNum);
+                Memory::UninitializedCopy(data + index + moveNum, src + moveNum, count - moveNum);
             }
         }
         else
@@ -606,9 +606,9 @@ private:
             Element *oldData = data;
             capacity = FixCapacity((oldCapacity * 2) >= size ? (oldCapacity * 2) : size);
             data = Alloc::Allocate(capacity);
-            Memory::UninitializedMove(oldData, index, data);
-            Memory::Copy(src, count, data + index);
-            Memory::UninitializedMove(oldData + index, oldSize - index, data + index + count);
+            Memory::UninitializedMove(data, oldData, index);
+            Memory::Copy(data + index, src, count);
+            Memory::UninitializedMove(data + index + count, oldData + index, oldSize - index);
             DestroyAndDeallocate(oldData, oldSize, oldCapacity);
         }
     }
