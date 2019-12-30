@@ -68,7 +68,7 @@ static void TestMatrix4()
     
 }
 
-void Math::Test()
+void Test::TestMath()
 {
     //TestVector2();
 

@@ -1,6 +1,6 @@
 #include "Math/.Package.h"
 
-namespace Math
+namespace Test
 {
-    void Test();
+    void TestMath();
 }

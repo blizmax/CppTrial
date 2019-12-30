@@ -2,7 +2,7 @@
 #include "Core/Thread.h"
 #include "Core/Hash.h"
 #include "Core/Time.h"
-#include "Math/Random.h"
+#include "Core/Math.h"
 
 constexpr const CharType HEX_TO_CHAR[16] =
     {CT_TEXT('0'), CT_TEXT('1'), CT_TEXT('2'), CT_TEXT('3'), CT_TEXT('4'),

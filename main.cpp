@@ -15,7 +15,7 @@
 #include "Core/Any.h"
 #include "Core/Exception.h"
 #include "Core/Delegate.h"
-#include "Math/Random.h"
+#include "Core/SkipList.h"
 #include "Utils/UUID.h"
 #include "Utils/Name.h"
 #include "Reflection/Test.h"
@@ -275,8 +275,7 @@ int main()
 
     // IO::Test();
 
-    Math::Test();
-   
+    Test::TestMath();
 
     // std::thread thread1 = std::thread([](){
     //     Log log1 = Log(L"Thread1");
