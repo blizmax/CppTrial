@@ -689,12 +689,12 @@ public:
         return arr;
     }
 
-    int Compare(const String &other) const
+    int32 Compare(const String &other) const
     {
         return ComparePrivate(CStr(), Length(), other.CStr(), other.Length());
     }
 
-    int Compare(const CharType *other) const
+    int32 Compare(const CharType *other) const
     {
         SizeType len = CString::Length(other);
         return ComparePrivate(CStr(), Length(), other, len);
@@ -1025,10 +1025,10 @@ private:
         return *this;
     }
 
-    int ComparePrivate(const CharType *ptr1, SizeType len1, const CharType *ptr2, SizeType len2) const
+    int32 ComparePrivate(const CharType *ptr1, SizeType len1, const CharType *ptr2, SizeType len2) const
     {
         SizeType len = len1 < len2 ? len1 : len2;
-        int ret = CString::Compare(ptr1, ptr2, len);
+        int32 ret = CString::Compare(ptr1, ptr2, len);
         if (ret != 0)
         {
             return ret;
