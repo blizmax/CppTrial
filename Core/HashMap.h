@@ -2,7 +2,7 @@
 
 #include "Core/.Package.h"
 #include "Core/Hash.h"
-#include "Core/Hash/HashTable.h"
+#include "Core/Container/HashTable.h"
 
 template <typename Key,
           typename Value,
@@ -12,7 +12,7 @@ template <typename Key,
 class HashMap
 {
 public:
-    using EntryType = Hash::MapEntry<Key, Value>;
+    using EntryType = Container::MapEntry<Key, Value>;
 
     HashMap() = default;
     HashMap(const HashMap &) = default;
@@ -161,7 +161,7 @@ public:
     }
 
 private:
-    using KeyTriats = Hash::MapKeyTraits<EntryType>;
+    using KeyTriats = Container::MapKeyTraits<EntryType>;
     using HashTableType = HashTable<EntryType, Hasher, KeyEqual, KeyTriats, Alloc>;
 
     HashTableType hashTable;

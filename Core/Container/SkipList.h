@@ -1,11 +1,25 @@
 #pragma once
 
-#include "Core/.Package.h"
+#include "Core/Container/.Package.h"
 #include "Core/Allocator.h"
 #include "Core/Math.h"
 
 namespace SkipListInternal
 {
+template <typename T>
+struct Comparator
+{
+    int32 operator()(const T &a, const T &b) const
+    {
+        if(a < b)
+            return -1;
+        else if(a == b)
+            return 0;
+        else
+            return 1;
+    }
+};
+
 template <typename Element>
 class Node
 {
@@ -45,20 +59,41 @@ public:
     bool Add(const Element &value)
     {
         const Key &key = KeyTraits::GetKey(value);
-        NodeType *node = FindPrivate(key);
 
-        if (node)
+        NodeType *cache[MAX_LEVEL];
+        NodeType *node = FindPrivate(key, cache);
+        if (node != nullptr)
         {
             return false;
         }
 
-        NodeType *newNode = CreateNode(value);
-
-        //TODO
-
+        uint32 nodeLevel = static_cast<uint32>(Math::RandInt(0, MAX_LEVEL - 1));
+        if(nodeLevel > level)
+        {
+            nodeLevel = ++level;
+            cache[level] = head;
+        }
+        NodeType *newNode = CreateNode(nodeLevel, value);
+        for(uint32 i = level; i > 0; --i)
+        {
+            node = cache[i];
+            newNode->forward[i] = node->forward[i];
+            node->forward[i] = newNode; 
+        }
+        
         ++size;
 
         return true;
+    }
+
+    bool Remove(const Element &value)
+    {
+        return RemovePrivate(KeyTraits::GetKey(value));
+    }
+
+    bool RemoveByKey(const Key &key)
+    {
+        return RemovePrivate(key);
     }
 
 private:
@@ -121,6 +156,60 @@ private:
         }
 
         return nullptr;
+    }
+
+    NodeType *FindPrivate(const Key &key, NodeType **cache) const
+    {
+        NodeType *node = head;
+        for (uint32 i = level; i > 0; --i)
+        {
+            while (node->forward[i] && Compare(node->forward[i]->key, key) < 0)
+            {
+                node = node->forward[i];
+            }
+            cache[i] = node;
+        }
+
+        if (node->forward[0] != nullptr)
+        {
+            node = node->forward[0];
+            if (Compare(node->key, key) == 0)
+            {
+                return node;
+            }
+        }
+
+        return nullptr;
+    }
+
+    bool RemovePrivate(const Key& key)
+    {
+        NodeType *cache[MAX_LEVEL];
+        NodeType *node = FindPrivate(key, cache);
+        if (node == nullptr)
+        {
+            return false;
+        }
+
+        for(uint32 i = 0; i <= level; ++i)
+        {
+            if(cache[i]->forward[i] != node)
+            {
+                break;
+            }
+            cache[i]->forward[i] = node->forward[i];
+        }
+
+        DeleteNode(node);
+
+        while(level > 0 && head->forward[level] == nullptr)
+        {
+            --level;
+        }
+
+        --size;
+
+        return true;
     }
 
 private:

@@ -2,7 +2,7 @@
 
 #include "Core/.Package.h"
 #include "Core/Hash.h"
-#include "Core/Hash/HashTable.h"
+#include "Core/Container/HashTable.h"
 
 template <typename Key,
           typename Hasher = HashFunc<Key>,
@@ -133,7 +133,7 @@ public:
     }
 
 private:
-    using KeyTriats = Hash::SetKeyTraits<Key>;
+    using KeyTriats = Container::SetKeyTraits<Key>;
     using HashTableType = HashTable<Key, Hasher, KeyEqual, KeyTriats, Alloc>;
 
     HashTableType hashTable;
