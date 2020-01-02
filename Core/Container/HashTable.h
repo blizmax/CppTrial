@@ -430,7 +430,7 @@ public:
 
         ConstIterator operator++(int)
         {
-            Iterator temp(*this);
+            ConstIterator temp(*this);
             if (index != INDEX_NONE)
             {
                 ++index;

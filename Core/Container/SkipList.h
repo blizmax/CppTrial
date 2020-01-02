@@ -33,6 +33,10 @@ public:
     Node(const Element &element) : element(element)
     {
     }
+
+    Node(Element &&element) : element(std::move(element))
+    {
+    }
 };
 } // namespace SkipListInternal
 
@@ -51,8 +55,54 @@ public:
         CreateHead();
     }
 
+    SkipList(const SkipList &other)
+    {
+        CreateHead();
+
+        NodeType *current = other.head->forward[0];
+        while (current)
+        {
+            Add(current->element);
+            current = current->forward[0];
+        }
+    }
+
+    SkipList(SkipList &&other) noexcept : size(other.size), level(other.level), head(other.head)
+    {
+        other.size = 0;
+        other.level = 0;
+        other.head = nullptr;
+    }
+
+    SkipList &operator=(const SkipList &other)
+    {
+        if (this != &other)
+        {
+            SkipList temp(other);
+            Swap(temp);
+        }
+        return *this;
+    }
+
+    SkipList &operator=(SkipList &&other) noexcept
+    {
+        if (this != &other)
+        {
+            Clear();
+
+            size = other.size;
+            level = other.level;
+            head = other.head;
+            other.size = 0;
+            other.level = 0;
+            other.head = nullptr;
+        }
+        return *this;
+    }
+
     ~SkipList()
     {
+        Clear();
         DeleteHead();
     }
 
@@ -96,15 +146,57 @@ public:
         size = 0;
     }
 
-    bool Contains(const Element &value) const
+    NodeType *Find(const Element &value) const
     {
         const Key &key = KeyTraits::GetKey(value);
-        return FindPrivate(key) != nullptr;
+        return FindPrivate(key);
+    }
+
+    NodeType *FindByKey(const Key &key) const
+    {
+        return FindPrivate(key);
+    }
+
+    bool Contains(const Element &value) const
+    {
+        return Find(value) != nullptr;
     }
 
     bool ContainsKey(const Key &key) const
     {
-        return FindPrivate(key) != nullptr;
+        return FindByKey(key) != nullptr;
+    }
+
+    void Put(const Element &value)
+    {
+        const Key &key = KeyTraits::GetKey(value);
+
+        NodeType *cache[MAX_LEVEL];
+        NodeType *node = FindPrivate(key, cache);
+        if (node != nullptr)
+        {
+            node->element = value;
+        }
+        else
+        {
+            InsertPrivate(key, value, cache);
+        }
+    }
+
+    void Put(Element &&value)
+    {
+        const Key &key = KeyTraits::GetKey(value);
+
+        NodeType *cache[MAX_LEVEL];
+        NodeType *node = FindPrivate(key, cache);
+        if (node != nullptr)
+        {
+            node->element = std::move(value);
+        }
+        else
+        {
+            InsertPrivate(key, std::move(value), cache);
+        }
     }
 
     bool Add(const Element &value)
@@ -118,23 +210,53 @@ public:
             return false;
         }
 
-        int32 nodeLevel = Math::RandInt(0, MAX_LEVEL - 1);
-        if (nodeLevel > level)
-        {
-            nodeLevel = ++level;
-            cache[level] = head;
-        }
-        NodeType *newNode = CreateNode(nodeLevel, value);
-        for (int32 i = level; i >= 0; --i)
-        {
-            node = cache[i];
-            newNode->forward[i] = node->forward[i];
-            node->forward[i] = newNode;
-        }
-
-        ++size;
+        InsertPrivate(key, value, cache);
 
         return true;
+    }
+
+    bool Add(Element &&value)
+    {
+        const Key &key = KeyTraits::GetKey(value);
+
+        NodeType *cache[MAX_LEVEL];
+        NodeType *node = FindPrivate(key, cache);
+        if (node != nullptr)
+        {
+            return false;
+        }
+
+        InsertPrivate(key, std::move(value), cache);
+
+        return true;
+    }
+
+    Element &Get(const Element &value)
+    {
+        NodeType *node = Find(value);
+        CheckRange(node);
+        return node->element;
+    }
+
+    const Element &Get(const Element &value) const
+    {
+        NodeType *node = Find(value);
+        CheckRange(node);
+        return node->element;
+    }
+
+    Element &GetByKey(const Key &key)
+    {
+        NodeType *node = FindByKey(key);
+        CheckRange(node);
+        return node->element;
+    }
+
+    const Element &GetByKey(const Key &key) const
+    {
+        NodeType *node = FindByKey(key);
+        CheckRange(node);
+        return node->element;
     }
 
     bool Remove(const Element &value)
@@ -147,7 +269,159 @@ public:
         return RemovePrivate(key);
     }
 
+    bool operator==(const SkipList &other) const
+    {
+        if (size != other.size)
+        {
+            return false;
+        }
+
+        NodeType *ptr0 = head->forward[0];
+        NodeType *ptr1 = other->forward[0];
+        while (ptr0 && ptr1)
+        {
+            if (ptr0->element != ptr1->element)
+            {
+                return false;
+            }
+            ptr0 = ptr0->forward[0];
+            ptr1 = ptr1->forward[0];
+        }
+        return true;
+    }
+
+    bool operator!=(const SkipList &other) const
+    {
+        return !(*this == other);
+    }
+
+    //===================== STL STYLE =========================
+public:
+    friend class Iterator;
+    friend class ConstIterator;
+
+    class Iterator
+    {
+    private:
+        NodeType *node;
+
+    public:
+        Iterator(NodeType *node) : node(node)
+        {
+        }
+
+        Iterator(const Iterator &other) : node(other.node)
+        {
+        }
+
+        Iterator &operator++()
+        {
+            node = node->forward[0];
+            return *this;
+        }
+
+        Iterator operator++(int)
+        {
+            Iterator temp(*this);
+            node = node->forward[0];
+            return temp;
+        }
+
+        Element &operator*()
+        {
+            return node->element;
+        }
+
+        Element *operator->()
+        {
+            return &(node->element);
+        }
+
+        bool operator==(const Iterator &other) const
+        {
+            return node == other.node;
+        }
+
+        bool operator!=(const Iterator &other) const
+        {
+            return node != other.node;
+        }
+    };
+
+    class ConstIterator
+    {
+    private:
+        NodeType *node;
+
+    public:
+        ConstIterator(NodeType *node) : node(node)
+        {
+        }
+
+        ConstIterator(const ConstIterator &other) : node(other.node)
+        {
+        }
+
+        ConstIterator &operator++()
+        {
+            node = node->forward[0];
+            return *this;
+        }
+
+        ConstIterator operator++(int)
+        {
+            ConstIterator temp(*this);
+            node = node->forward[0];
+            return temp;
+        }
+
+        const Element &operator*()
+        {
+            return node->element;
+        }
+
+        const Element *operator->()
+        {
+            return &(node->element);
+        }
+
+        bool operator==(const Iterator &other) const
+        {
+            return node == other.node;
+        }
+
+        bool operator!=(const Iterator &other) const
+        {
+            return node != other.node;
+        }
+    };
+
+    Iterator begin()
+    {
+        return Iterator(head->forward[0]);
+    }
+
+    ConstIterator begin() const
+    {
+        return ConstIterator(head->forward[0]);
+    }
+
+    Iterator end()
+    {
+        return Iterator(nullptr);
+    }
+
+    ConstIterator end() const
+    {
+        return ConstIterator(nullptr);
+    }
+
 private:
+    void CheckRange(NodeType *node) const
+    {
+        CT_ASSERT(node != nullptr);
+    }
+
     void CreateHead()
     {
         head = NodeAlloc::Allocate(1);
@@ -169,6 +443,15 @@ private:
     {
         NodeType *node = NodeAlloc::Allocate(1);
         NodeAlloc::Construct(node, value);
+        node->level = level;
+        node->forward = NodePtrAlloc::Allocate(level + 1);
+        return node;
+    }
+
+    NodeType *CreateNode(int32 level, Element &&value)
+    {
+        NodeType *node = NodeAlloc::Allocate(1);
+        NodeAlloc::Construct(node, std::move(value));
         node->level = level;
         node->forward = NodePtrAlloc::Allocate(level + 1);
         return node;
@@ -237,6 +520,42 @@ private:
         }
 
         return nullptr;
+    }
+
+    void InsertPrivate(const Key &key, const Element &value, NodeType **cache)
+    {
+        int32 nodeLevel = Math::RandInt(0, MAX_LEVEL - 1);
+        if (nodeLevel > level)
+        {
+            nodeLevel = ++level;
+            cache[level] = head;
+        }
+        NodeType *newNode = CreateNode(nodeLevel, value);
+        for (int32 i = level; i >= 0; --i)
+        {
+            newNode->forward[i] = cache[i]->forward[i];
+            cache[i]->forward[i] = newNode;
+        }
+
+        ++size;
+    }
+
+    void InsertPrivate(const Key &key, Element &&value, NodeType **cache)
+    {
+        int32 nodeLevel = Math::RandInt(0, MAX_LEVEL - 1);
+        if (nodeLevel > level)
+        {
+            nodeLevel = ++level;
+            cache[level] = head;
+        }
+        NodeType *newNode = CreateNode(nodeLevel, std::move(value));
+        for (int32 i = level; i >= 0; --i)
+        {
+            newNode->forward[i] = cache[i]->forward[i];
+            cache[i]->forward[i] = newNode;
+        }
+
+        ++size;
     }
 
     bool RemovePrivate(const Key &key)
