@@ -442,6 +442,7 @@ private:
 
     void DeleteHead()
     {
+        NodeAlloc::Destroy(head, 1);
         NodeAlloc::Deallocate(head, 1);
     }
 
@@ -527,7 +528,7 @@ private:
             cache[level] = head;
         }
         NodeType *newNode = CreateNode(nodeLevel, value);
-        for (int32 i = level; i >= 0; --i)
+        for (int32 i = nodeLevel; i >= 0; --i)
         {
             newNode->forward[i] = cache[i]->forward[i];
             cache[i]->forward[i] = newNode;
@@ -545,7 +546,7 @@ private:
             cache[level] = head;
         }
         NodeType *newNode = CreateNode(nodeLevel, std::move(value));
-        for (int32 i = level; i >= 0; --i)
+        for (int32 i = nodeLevel; i >= 0; --i)
         {
             newNode->forward[i] = cache[i]->forward[i];
             cache[i]->forward[i] = newNode;

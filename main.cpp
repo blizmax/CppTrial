@@ -3,6 +3,7 @@
 #include "Core/List.h"
 #include "Core/HashSet.h"
 #include "Core/HashMap.h"
+#include "Core/SortedSet.h"
 #include "Core/SortedMap.h"
 #include "Core/String.h"
 #include "Core/Algorithm.h"
@@ -159,11 +160,19 @@ void TestSortedMap()
     map1.Put(35, 35);
     map1.Put(35, 35);
 
-    // for(uint32 i = 1; i < 100; ++i)
-    // {
-    //     //int32 v = Math::RandInt(0, 65535);
-    //     map1.Put(i, i);
-    // }
+    for(uint32 i = 1; i < 100; ++i)
+    {
+        int32 v = Math::RandInt(0, 65535);
+        map1.Put(v, v);
+    }
+
+    for(uint32 i = 10000; i <= 65535; ++i)
+    {
+        if (map1.Contains(i))
+        {
+            map1.Remove(i);
+        }
+    }
 
     for(const auto & e : map1)
     {

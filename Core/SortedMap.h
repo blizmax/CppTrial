@@ -21,7 +21,6 @@ public:
 
     SortedMap(std::initializer_list<EntryType> initList)
     {
-        SizeType initSize = initList.size();
         for (const EntryType &entry : initList)
         {
             skipList.Put(entry);
@@ -144,3 +143,12 @@ private:
 
     SkipListType skipList;
 };
+
+namespace std
+{
+template <typename K, typename V, typename C, template <typename T> class A>
+inline void swap(SortedMap<K, V, C, A> &lhs, SortedMap<K, V, C, A> &rhs)
+{
+    lhs.Swap(rhs);
+}
+}
