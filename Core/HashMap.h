@@ -161,8 +161,8 @@ public:
     }
 
 private:
-    using KeyTriats = Container::MapKeyTraits<EntryType>;
-    using HashTableType = HashTable<EntryType, Hasher, KeyEqual, KeyTriats, Alloc>;
+    using KeyTraits = Container::MapKeyTraits<EntryType>;
+    using HashTableType = HashTable<EntryType, Hasher, KeyEqual, KeyTraits, Alloc>;
 
     HashTableType hashTable;
 };

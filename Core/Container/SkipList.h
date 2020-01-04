@@ -6,36 +6,48 @@
 
 namespace SkipListInternal
 {
-template <typename T>
-struct Comparator
-{
-    int32 operator()(const T &a, const T &b) const
-    {
-        if (a < b)
-            return -1;
-        else if (a == b)
-            return 0;
-        else
-            return 1;
-    }
-};
-
-template <typename Element>
+template <typename Element, template <typename T> class Alloc = Allocator>
 class Node
 {
 public:
+    using NodePtrAlloc = Alloc<Node*>;
+
     Element element;
-    Node **forward = nullptr;
+    Node **forward;
     int32 level = 0;
 
-    Node() = default;
-
-    Node(const Element &element) : element(element)
+    Node(int32 level) : level(level)
     {
+        Init();
     }
 
-    Node(Element &&element) : element(std::move(element))
+    Node(const Element &element, int32 level) : element(element), level(level)
     {
+        Init();
+    }
+
+    Node(Element &&element, int32 level) : element(std::move(element)), level(level)
+    {
+        Init();
+    }
+
+    ~Node()
+    {
+        if (forward)
+        {
+            NodePtrAlloc::Deallocate(forward);
+            forward = nullptr;
+        }
+    }
+
+private:
+    void Init()
+    {
+        forward = NodePtrAlloc::Allocate(level + 1);
+        for (int32 i = 0; i <= level; ++i)
+        {
+            forward[i] = nullptr;
+        }
     }
 };
 } // namespace SkipListInternal
@@ -425,46 +437,30 @@ private:
     void CreateHead()
     {
         head = NodeAlloc::Allocate(1);
-        head->level = MAX_LEVEL - 1;
-        head->forward = NodePtrAlloc::Allocate(MAX_LEVEL);
-        for (int32 i = 0; i < MAX_LEVEL; ++i)
-        {
-            head->forward[i] = nullptr;
-        }
+        NodeAlloc::Construct(head, MAX_LEVEL - 1);
     }
 
     void DeleteHead()
     {
-        NodePtrAlloc::Deallocate(head->forward);
         NodeAlloc::Deallocate(head, 1);
     }
 
     NodeType *CreateNode(int32 level, const Element &value)
     {
         NodeType *node = NodeAlloc::Allocate(1);
-        NodeAlloc::Construct(node, value);
-        node->level = level;
-        node->forward = NodePtrAlloc::Allocate(level + 1);
+        NodeAlloc::Construct(node, value, level);
         return node;
     }
 
     NodeType *CreateNode(int32 level, Element &&value)
     {
         NodeType *node = NodeAlloc::Allocate(1);
-        NodeAlloc::Construct(node, std::move(value));
-        node->level = level;
-        node->forward = NodePtrAlloc::Allocate(level + 1);
+        NodeAlloc::Construct(node, std::move(value), level);
         return node;
     }
 
     void DeleteNode(NodeType *node)
     {
-        if (node->forward)
-        {
-            NodePtrAlloc::Deallocate(node->forward);
-            node->forward = nullptr;
-        }
-
         NodeAlloc::Destroy(node, 1);
         NodeAlloc::Deallocate(node, 1);
     }
@@ -480,7 +476,7 @@ private:
         NodeType *node = head;
         for (int32 i = level; i >= 0; --i)
         {
-            while (node->forward[i] && Compare(node->forward[i]->key, key) < 0)
+            while (node->forward[i] && Compare(node->forward[i]->element.Key(), key) < 0)
             {
                 node = node->forward[i];
             }
@@ -489,7 +485,7 @@ private:
         if (node->forward[0] != nullptr)
         {
             node = node->forward[0];
-            if (Compare(node->key, key) == 0)
+            if (Compare(node->element.Key(), key) == 0)
             {
                 return node;
             }
@@ -503,7 +499,7 @@ private:
         NodeType *node = head;
         for (int32 i = level; i >= 0; --i)
         {
-            while (node->forward[i] && Compare(node->forward[i]->key, key) < 0)
+            while (node->forward[i] && Compare(node->forward[i]->element.Key(), key) < 0)
             {
                 node = node->forward[i];
             }
@@ -513,7 +509,7 @@ private:
         if (node->forward[0] != nullptr)
         {
             node = node->forward[0];
-            if (Compare(node->key, key) == 0)
+            if (Compare(node->element.Key(), key) == 0)
             {
                 return node;
             }
@@ -590,7 +586,6 @@ private:
 
 private:
     using NodeAlloc = Alloc<NodeType>;
-    using NodePtrAlloc = Alloc<NodeType *>;
 
     NodeType *head = nullptr;
     int32 level = 0;

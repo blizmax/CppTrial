@@ -46,7 +46,7 @@ CT_INLINE void Allocator<T>::Deallocate(T *ptr)
 template <typename T>
 CT_INLINE void Allocator<T>::Deallocate(T *ptr, SizeType count)
 {
-    Allocator<T>::Deallocate(ptr);
+    Deallocate(ptr);
 }
 
 template <typename T>

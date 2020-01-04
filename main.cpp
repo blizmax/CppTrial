@@ -146,6 +146,31 @@ void TestHashMap()
     // }
 }
 
+void TestSortedMap()
+{
+    SortedMap<int32, int32> map1 {
+        {1, 1}, {100, 100}, {70, 70}
+    };
+
+    map1.Put(35, 35);
+    map1.Put(35, 35);
+    map1.Put(35, 35);
+    map1.Put(35, 35);
+    map1.Put(35, 35);
+    map1.Put(35, 35);
+
+    // for(uint32 i = 1; i < 100; ++i)
+    // {
+    //     //int32 v = Math::RandInt(0, 65535);
+    //     map1.Put(i, i);
+    // }
+
+    for(const auto & e : map1)
+    {
+        logger.Info(CT_TEXT("{0}"), e.Key());
+    }
+}
+
 void TestStringEncode()
 {
     String str1 = StringEncode::FromUTF8("😊😡/(ㄒoㄒ)/~~🐷");
@@ -276,6 +301,8 @@ int main()
     // IO::Test();
 
     Test::TestMath();
+
+    TestSortedMap();
 
     // std::thread thread1 = std::thread([](){
     //     Log log1 = Log(L"Thread1");
