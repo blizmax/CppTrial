@@ -477,7 +477,7 @@ private:
         NodeType *node = head;
         for (int32 i = level; i >= 0; --i)
         {
-            while (node->forward[i] && Compare(node->forward[i]->element.Key(), key) < 0)
+            while (node->forward[i] && Compare(KeyTraits::GetKey(node->forward[i]->element), key) < 0)
             {
                 node = node->forward[i];
             }
@@ -486,7 +486,7 @@ private:
         if (node->forward[0] != nullptr)
         {
             node = node->forward[0];
-            if (Compare(node->element.Key(), key) == 0)
+            if (Compare(KeyTraits::GetKey(node->element), key) == 0)
             {
                 return node;
             }
@@ -500,7 +500,7 @@ private:
         NodeType *node = head;
         for (int32 i = level; i >= 0; --i)
         {
-            while (node->forward[i] && Compare(node->forward[i]->element.Key(), key) < 0)
+            while (node->forward[i] && Compare(KeyTraits::GetKey(node->forward[i]->element), key) < 0)
             {
                 node = node->forward[i];
             }
@@ -510,7 +510,7 @@ private:
         if (node->forward[0] != nullptr)
         {
             node = node->forward[0];
-            if (Compare(node->element.Key(), key) == 0)
+            if (Compare(KeyTraits::GetKey(node->element), key) == 0)
             {
                 return node;
             }
