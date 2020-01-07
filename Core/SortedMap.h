@@ -24,7 +24,7 @@ public:
     {
         for (const EntryType &entry : initList)
         {
-            skipList.Put(entry);
+            container.Put(entry);
         }
     }
 
@@ -38,62 +38,62 @@ public:
 public:
     SizeType Size() const
     {
-        return skipList.Size();
+        return container.Size();
     }
 
     bool IsEmpty() const
     {
-        return skipList.IsEmpty();
+        return container.IsEmpty();
     }
 
     void Swap(SortedMap &other)
     {
-        skipList.Swap(other.skipList);
+        container.Swap(other.container);
     }
 
     void Clear()
     {
-        skipList.Clear();
+        container.Clear();
     }
 
     bool Contains(const Key &key) const
     {
-        return skipList.ContainsKey(key);
+        return container.ContainsKey(key);
     }
 
     void Put(const Key &key, const Value &value)
     {
-        skipList.Put(EntryType(key, value));
+        container.Put(EntryType(key, value));
     }
 
     void Put(const Key &key, Value &&value)
     {
-        skipList.Put(EntryType(key, std::move(value)));
+        container.Put(EntryType(key, std::move(value)));
     }
 
     void Put(Key &&key, const Value &value)
     {
-        skipList.Put(EntryType(std::move(key), value));
+        container.Put(EntryType(std::move(key), value));
     }
 
     void Put(Key &&key, Value &&value)
     {
-        skipList.Put(EntryType(std::move(key), std::move(value)));
+        container.Put(EntryType(std::move(key), std::move(value)));
     }
 
     Value &Get(const Key &key)
     {
-        return skipList.GetByKey(key).Value();
+        return container.GetByKey(key).Value();
     }
 
     const Value &Get(const Key &key) const
     {
-        return skipList.GetByKey(key).Value();
+        return container.GetByKey(key).Value();
     }
 
     bool Remove(const Key &key)
     {
-        return skipList.RemoveByKey(key);
+        return container.RemoveByKey(key);
     }
 
     Value &operator[](const Key &key)
@@ -108,7 +108,7 @@ public:
 
     bool operator==(const SortedMap &other) const
     {
-        return skipList == other.skipList;
+        return container == other.container;
     }
 
     bool operator!=(const SortedMap &other) const
@@ -120,29 +120,30 @@ public:
 public:
     auto begin()
     {
-        return skipList.begin();
+        return container.begin();
     }
 
     auto begin() const
     {
-        return skipList.begin();
+        return container.begin();
     }
 
     auto end()
     {
-        return skipList.end();
+        return container.end();
     }
 
     auto end() const
     {
-        return skipList.end();
+        return container.end();
     }
 
 private:
     using KeyTraits = Container::MapKeyTraits<EntryType>;
-    using SkipListType = SkipList<EntryType, Comparer, KeyTraits, Alloc>;
+    using ContainerType = SkipList<EntryType, Comparer, KeyTraits, Alloc>;
+    //using ContainerType = AVLTree<EntryType, Comparer, KeyTraits, Alloc>;
 
-    SkipListType skipList;
+    ContainerType container;
 };
 
 namespace std

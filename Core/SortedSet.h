@@ -20,7 +20,7 @@ public:
     {
         for (const Key &key : initList)
         {
-            skipList.Add(key);
+            container.Add(key);
         }
     }
 
@@ -34,52 +34,52 @@ public:
 public:
     SizeType Size() const
     {
-        return skipList.Size();
+        return container.Size();
     }
 
     bool IsEmpty() const
     {
-        return skipList.IsEmpty();
+        return container.IsEmpty();
     }
 
     void Swap(SortedSet &other)
     {
-        skipList.Swap(other.skipList);
+        container.Swap(other.container);
     }
 
     void Clear()
     {
-        skipList.Clear();
+        container.Clear();
     }
 
     bool Contains(const Key &key) const
     {
-        return skipList.ContainsKey(key);
+        return container.ContainsKey(key);
     }
 
     bool Add(const Key &key)
     {
-        return skipList.Add(key);
+        return container.Add(key);
     }
 
     bool Add(Key &&key)
     {
-        return skipList.Add(std::move(key));
+        return container.Add(std::move(key));
     }
 
     const Key &Get(const Key &key) const
     {
-        return skipList.GetByKey(key);
+        return container.GetByKey(key);
     }
 
     bool Remove(const Key &key)
     {
-        return skipList.RemoveByKey(key);
+        return container.RemoveByKey(key);
     }
 
     bool operator==(const SortedSet &other) const
     {
-        return skipList == other.skipList;
+        return container == other.container;
     }
 
     bool operator!=(const SortedSet &other) const
@@ -91,29 +91,29 @@ public:
 public:
     auto begin()
     {
-        return skipList.begin();
+        return container.begin();
     }
 
     auto begin() const
     {
-        return skipList.begin();
+        return container.begin();
     }
 
     auto end()
     {
-        return skipList.end();
+        return container.end();
     }
 
     auto end() const
     {
-        return skipList.end();
+        return container.end();
     }
 
 private:
     using KeyTraits = Container::SetKeyTraits<Key>;
-    using SkipListType = SkipList<Key, Comparer, KeyTraits, Alloc>;
+    using ContainerType = SkipList<Key, Comparer, KeyTraits, Alloc>;
 
-    SkipListType skipList;
+    ContainerType container;
 };
 
 namespace std

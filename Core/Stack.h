@@ -3,11 +3,11 @@
 #include "Core/.Package.h"
 #include "Core/Array.h"
 
-template <typename Element, typename InnerDataStructure = Array<Element>>
+template <typename Element, typename InnerContainer = Array<Element>>
 class Stack
 {
 public:
-    using ContainerType = InnerDataStructure;
+    using ContainerType = InnerContainer;
 
 public:
     Stack() = default;

@@ -207,9 +207,17 @@ public:
             return false;
         }
 
-        //TODO
-        //Use iterator
-
+        auto iter0 = begin();
+        auto iter1 = other.begin();
+        while(iter0 != end() && iter1 != other.end())
+        {
+            if(*iter0 != *iter1)
+            {
+                return false;
+            }
+            ++iter0;
+            ++iter1;
+        }
         return true;
     }
 
@@ -220,23 +228,138 @@ public:
 
     //===================== STL STYLE =========================
 public:
-    friend class Iterator;
-    friend class ConstIterator;
+    class IteratorBase
+    {
+    protected:
+        Stack<NodeType *> stack;
 
-    // TODO
-    // USE STACK TO RESERVE PARENT NODE
-    class Iterator
+        void PushLeft(NodeType *root)
+        {
+            if (!root)
+            {
+                return;
+            }
+
+            NodeType *current = root;
+            while (current)
+            {
+                stack.Push(current);
+                current = current->left;
+            }
+        }
+
+        void Step()
+        {
+            if (stack.IsEmpty())
+            {
+                return;
+            }
+            NodeType *top = stack.Top();
+            stack.Pop();
+            PushLeft(top->right);
+        }
+
+    public:
+        bool operator==(const IteratorBase &other) const
+        {
+            NodeType *ptr0 = stack.IsEmpty() ? nullptr : stack.Top();
+            NodeType *ptr1 = other.stack.IsEmpty() ? nullptr : other.stack.Top();
+            return ptr0 == ptr1;
+        }
+
+        bool operator!=(const IteratorBase &other) const
+        {
+            return !(*this == other);
+        }
+    };
+
+    class Iterator : public IteratorBase
     {
     private:
-        Stack<NodeType *> stack;
-        bool leftWard;
+        using IteratorBase::stack;
     public:
+        Iterator(NodeType *root)
+        {
+            this->PushLeft(root);
+        }
 
+        Iterator &operator++()
+        {
+            this->Step();
+            return *this;
+        }
+
+        Iterator operator++(int)
+        {
+            Iterator temp(*this);
+            this->Step();
+            return temp;
+        }
+
+        Element &operator*()
+        {
+            return stack.Top()->element;
+        }
+
+        Element *operator->()
+        {
+            return &(stack.Top()->element);
+        }
     };
 
-    class ConstIterator
+    class ConstIterator : public IteratorBase
     {
+    private:
+        using IteratorBase::stack;
+    public:
+        ConstIterator(NodeType *root)
+        {
+            PushLeft(root);
+        }
+
+        ConstIterator &operator++()
+        {
+            this->Step();
+            return *this;
+        }
+
+        ConstIterator operator++(int)
+        {
+            Iterator temp(*this);
+            this->Step();
+            return temp;
+        }
+
+        const Element &operator*()
+        {
+            return stack.Top()->element;
+        }
+
+        const Element *operator->()
+        {
+            return &(stack.Top()->element);
+        }
     };
+
+    Iterator begin()
+    {
+        return Iterator(root);
+    }
+
+    ConstIterator begin() const
+    {
+        return ConstIterator(root);
+    }
+
+    Iterator end()
+    {
+        return Iterator(nullptr);
+    }
+
+    ConstIterator end() const
+    {
+        return ConstIterator(nullptr);
+    }
 
 private:
     void CheckRange(NodeType *node) const
