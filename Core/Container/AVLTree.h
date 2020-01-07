@@ -2,6 +2,7 @@
 
 #include "Core/Container/.Package.h"
 #include "Core/Allocator.h"
+#include "Core/Stack.h"
 
 namespace AVLTreeInternal
 {
@@ -207,6 +208,7 @@ public:
         }
 
         //TODO
+        //Use iterator
 
         return true;
     }
@@ -221,9 +223,15 @@ public:
     friend class Iterator;
     friend class ConstIterator;
 
-    //TODO
+    // TODO
+    // USE STACK TO RESERVE PARENT NODE
     class Iterator
     {
+    private:
+        Stack<NodeType *> stack;
+        bool leftWard;
+    public:
+
     };
 
     class ConstIterator

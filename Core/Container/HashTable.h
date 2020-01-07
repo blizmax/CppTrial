@@ -297,7 +297,13 @@ public:
         {
             if (IsInited(indexData[i].flag))
             {
-                if (!other.Contains(data[i]))
+                const Element &value = data[i];
+                const Key &key = KeyTraits::GetKey(value);
+                if (!other.ContainsKey(key))
+                {
+                    return false;
+                }
+                if (other.GetByKey(key) != value)
                 {
                     return false;
                 }

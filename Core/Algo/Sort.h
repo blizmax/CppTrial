@@ -100,7 +100,7 @@ void IntroSort(T *ptr, SizeType count, Compare compare)
     if (count < 2)
         return;
 
-    struct Stack
+    struct InnerStack
     {
         T *min;
         T *max;
@@ -117,9 +117,9 @@ void IntroSort(T *ptr, SizeType count, Compare compare)
         return depth;
     };
 
-    Stack sortStacks[64] = {{ptr, ptr + count - 1, CalcMaxDepth(count)}};
-    Stack current;
-    for (Stack *top = sortStacks; top >= sortStacks; --top)
+    InnerStack sortStacks[64] = {{ptr, ptr + count - 1, CalcMaxDepth(count)}};
+    InnerStack current;
+    for (InnerStack *top = sortStacks; top >= sortStacks; --top)
     {
         current = *top;
 
