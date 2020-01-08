@@ -1,23 +1,23 @@
 #pragma once
 
 #include "Core/.Package.h"
-#include "Core/Array.h"
+#include "Core/List.h"
 
-template <typename Element, typename InnerContainer = Array<Element>>
-class Stack
+template <typename Element, typename InnerContainer = List<Element>>
+class Queue
 {
 public:
     using ContainerType = InnerContainer;
 
 public:
-    Stack() = default;
-    Stack(const Stack &) = default;
-    Stack(Stack &&) noexcept = default;
-    Stack &operator=(const Stack &) = default;
-    Stack &operator=(Stack &&) = default;
-    ~Stack() = default;
+    Queue() = default;
+    Queue(const Queue &) = default;
+    Queue(Queue &&) noexcept = default;
+    Queue &operator=(const Queue &) = default;
+    Queue &operator=(Queue &&) = default;
+    ~Queue() = default;
 
-    Stack(std::initializer_list<Element> initList)
+    Queue(std::initializer_list<Element> initList)
     {
         for (const Element &value : initList)
         {
@@ -35,7 +35,7 @@ public:
         return container.IsEmpty();
     }
 
-    void Swap(Stack &other)
+    void Swap(Queue &other)
     {
         if (this != &other)
         {
@@ -48,49 +48,59 @@ public:
         container.Clear();
     }
 
-    Element &Top()
+    Element &First()
+    {
+        return container.First();
+    }
+
+    const Element &First() const
+    {
+        return container.First();
+    }
+
+    Element &Last()
     {
         return container.Last();
     }
 
-    const Element &Top() const
+    const Element &Last() const
     {
         return container.Last();
     }
 
-    void Pop()
-    {
-        container.Pop();
-    }
-
-    void Push(const Element &value)
+    void Enqueue(const Element &value)
     {
         container.Add(value);
     }
 
-    void Push(Element &&value)
+    void Enqueue(Element &&value)
     {
         container.Add(std::move(value));
     }
 
-    bool operator==(const Stack &other) const
+    void Dequeue()
+    {
+        container.RemoveFirst();
+    }
+
+    bool operator==(const Queue &other) const
     {
         return container == other.container;
     }
 
-    bool operator!=(const Stack &other) const
+    bool operator!=(const Queue &other) const
     {
         return container != other.container;
     }
 
 private:
     ContainerType container;
-};
+}
 
 namespace std
 {
 template <typename T, typename C>
-inline void swap(Stack<T, C> &lhs, Stack<T, C> &rhs)
+inline void swap(Queue<T, C> &lhs, Queue<T, C> &rhs)
 {
     lhs.Swap(rhs);
 }

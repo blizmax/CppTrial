@@ -191,98 +191,6 @@ public:
         size = newSize;
     }
 
-    void Remove(SizeType index)
-    {
-        CheckRange(index);
-        RemovePrivate(index, 1);
-    }
-
-    void Remove(SizeType index, SizeType count)
-    {
-        CheckRange(index);
-        CheckRange(index + count - 1);
-        RemovePrivate(index, count);
-    }
-
-    void RemoveValue(const Element &value)
-    {
-        auto index = IndexOf(value);
-        if (index != INDEX_NONE)
-        {
-            Remove(index);
-        }
-    }
-
-    void Add(const Element &value)
-    {
-        InsertPrivate(size, value);
-    }
-
-    void Add(Element &&value)
-    {
-        InsertPrivate(size, std::move(value));
-    }
-
-    void Insert(SizeType index, const Element &value)
-    {
-        CheckRange(index);
-        InsertPrivate(index, value);
-    }
-
-    void Insert(SizeType index, const Element &value, SizeType count)
-    {
-        CheckRange(index);
-        if (count > 0)
-        {
-            InsertPrivate(index, value, count);
-        }
-    }
-
-    void Insert(SizeType index, Element &&value)
-    {
-        CheckRange(index);
-        InsertPrivate(index, std::move(value));
-    }
-
-    void Insert(SizeType index, const Element *src, SizeType count)
-    {
-        CheckRange(index);
-        if (count > 0)
-        {
-            InsertPrivate(index, src, count);
-        }
-    }
-
-    Element &First()
-    {
-        CheckRange(0);
-        return data[0];
-    }
-
-    const Element &First() const
-    {
-        CheckRange(0);
-        return data[0];
-    }
-
-    Element &Peek()
-    {
-        CheckRange(size - 1);
-        return data[size - 1];
-    }
-
-    const Element &Peek() const
-    {
-        CheckRange(size - 1);
-        return data[size - 1];
-    }
-
-    void Pop()
-    {
-        CheckRange(size - 1);
-        Alloc::Destroy(data + (--size));
-    }
-
     bool Find(const Element &value, SizeType *at = nullptr) const
     {
         for (SizeType i = 0; i < size; ++i)
@@ -396,6 +304,98 @@ public:
             return ret;
         }
         return INDEX_NONE;
+    }
+
+    void Add(const Element &value)
+    {
+        InsertPrivate(size, value);
+    }
+
+    void Add(Element &&value)
+    {
+        InsertPrivate(size, std::move(value));
+    }
+
+    void Insert(SizeType index, const Element &value)
+    {
+        CheckRange(index);
+        InsertPrivate(index, value);
+    }
+
+    void Insert(SizeType index, const Element &value, SizeType count)
+    {
+        CheckRange(index);
+        if (count > 0)
+        {
+            InsertPrivate(index, value, count);
+        }
+    }
+
+    void Insert(SizeType index, Element &&value)
+    {
+        CheckRange(index);
+        InsertPrivate(index, std::move(value));
+    }
+
+    void Insert(SizeType index, const Element *src, SizeType count)
+    {
+        CheckRange(index);
+        if (count > 0)
+        {
+            InsertPrivate(index, src, count);
+        }
+    }
+
+    void Remove(SizeType index)
+    {
+        CheckRange(index);
+        RemovePrivate(index, 1);
+    }
+
+    void Remove(SizeType index, SizeType count)
+    {
+        CheckRange(index);
+        CheckRange(index + count - 1);
+        RemovePrivate(index, count);
+    }
+
+    void RemoveValue(const Element &value)
+    {
+        auto index = IndexOf(value);
+        if (index != INDEX_NONE)
+        {
+            Remove(index);
+        }
+    }
+
+    Element &First()
+    {
+        CheckRange(0);
+        return data[0];
+    }
+
+    const Element &First() const
+    {
+        CheckRange(0);
+        return data[0];
+    }
+
+    Element &Last()
+    {
+        CheckRange(size - 1);
+        return data[size - 1];
+    }
+
+    const Element &Last() const
+    {
+        CheckRange(size - 1);
+        return data[size - 1];
+    }
+
+    void Pop()
+    {
+        CheckRange(size - 1);
+        Alloc::Destroy(data + (--size));
     }
 
     Element &At(SizeType index)

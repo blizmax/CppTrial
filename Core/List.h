@@ -170,12 +170,12 @@ public:
         size = 0;
     }
 
-    bool Contains(const Element &value)
+    bool Contains(const Element &value) const
     {
         return FindNode(value) != nullptr;
     }
 
-    NodeType *FindNode(const Element &value)
+    NodeType *FindNode(const Element &value) const
     {
         NodeType *node = head;
         while (node)
@@ -189,8 +189,7 @@ public:
         return node;
     }
 
-    // since NodeType may only support forward link, always search from head
-    NodeType *FindNode(SizeType index)
+    NodeType *FindNodeByIndex(SizeType index) const
     {
         if (index >= size)
         {
@@ -204,6 +203,64 @@ public:
             --index;
         }
         return node;
+    }
+
+    void AddFirst(const Element &value)
+    {
+        NodeType *node = CreateNode(value);
+        AddFirstPrivate(node);
+    }
+
+    void AddFirst(Element &&value)
+    {
+        NodeType *node = CreateNode(std::move(value));
+        AddFirstPrivate(node);
+    }
+
+    void AddLast(const Element &value)
+    {
+        NodeType *node = CreateNode(value);
+        AddLastPrivate(node);
+    }
+
+    void AddLast(Element &&value)
+    {
+        NodeType *node = CreateNode(std::move(value));
+        AddLastPrivate(node);
+    }
+
+    void Add(const Element &value)
+    {
+        NodeType *node = CreateNode(value);
+        AddLastPrivate(node);
+    }
+
+    void Add(Element &&value)
+    {
+        NodeType *node = CreateNode(std::move(value));
+        AddLastPrivate(node);
+    }
+
+    void Insert(NodeType *before, const Element &value)
+    {
+        NodeType *node = CreateNode(value);
+        InsertPrivate(before, node);
+    }
+
+    void Insert(NodeType *before, Element &&value)
+    {
+        NodeType *node = CreateNode(std::move(value));
+        InsertPrivate(before, node);
+    }
+
+    void Insert(SizeType index, const Element &value)
+    {
+        Insert(FindNodeByIndex(index), value);
+    }
+
+    void Insert(SizeType index, Element &&value)
+    {
+        Insert(FindNodeByIndex(index), std::move(value));
     }
 
     void RemoveNode(NodeType *node)
@@ -274,75 +331,97 @@ public:
         --size;
     }
 
+    void Remove(SizeType index)
+    {
+        RemoveNode(FindNodeByIndex(index));
+    }
+
     void RemoveValue(const Element &value)
     {
-        auto node = FindNode(value);
-        if (node)
-        {
-            RemoveNode(node);
-        }
+        RemoveNode(FindNode(value));
     }
 
-    void AddFirst(const Element &value)
+    Element &First()
     {
-        NodeType *node = CreateNode(value);
-        if (head)
-        {
-            node->SetNext(head);
-            head->SetPrev(node);
-            head = node;
-        }
-        else
-        {
-            head = tail = node;
-        }
-        ++size;
+        NodeType *node = head;
+        CheckRange(node);
+        return node->GetValue();
     }
 
-    void AddLast(const Element &value)
+    const Element &First() const
     {
-        Add(value);
+        const NodeType *node = head;
+        CheckRange(node);
+        return node->GetValue();
     }
 
-    void Add(const Element &value)
+    Element &Last()
     {
-        NodeType *node = CreateNode(value);
-        if (tail)
-        {
-            tail->SetNext(node);
-            node->SetPrev(tail);
-            tail = node;
-        }
-        else
-        {
-            head = tail = node;
-        }
-        ++size;
+        NodeType *node = tail;
+        CheckRange(node);
+        return node->GetValue();
     }
 
-    void Insert(NodeType *before, const Element &value)
+    const Element &Last() const
     {
-        if (before == nullptr || before == head)
+        const NodeType *node = tail;
+        CheckRange(node);
+        return node->GetValue();
+    }
+
+    void Pop()
+    {
+        RemoveLast();
+    }
+
+    Element &At(SizeType index)
+    {
+        NodeType *node = FindNodeByIndex(index);
+        CheckRange(node);
+        return node->GetValue();
+    }
+
+    const Element &At(SizeType index) const
+    {
+        const NodeType *node = FindNodeByIndex(index);
+        CheckRange(node);
+        return node->GetValue();
+    }
+
+    Element &operator[](SizeType index)
+    {
+        return At(index);
+    }
+
+    const Element &operator[](SizeType index) const
+    {
+        return At(index);
+    }
+
+    bool operator==(const List &other) const
+    {
+        if (size != other.size)
         {
-            AddFirst(value);
+            return false;
         }
-        else
+
+        NodeType *ptr0 = head;
+        NodeType *ptr1 = other.head;
+        while (ptr0 && ptr1)
         {
-            NodeType *node = CreateNode(value);
-            if (before->GetPrev())
+            if (ptr0->GetValue() != ptr1->GetValue())
             {
-                node->SetPrev(before->GetPrev());
-                before->GetPrev()->SetNext(node);
+                return false;
             }
-            node->SetNext(before);
-            before->SetPrev(node);
-            ++size;
+            ptr0 = ptr0->GetNext();
+            ptr1 = ptr1->GetNext();
         }
+        return true;
     }
 
-    void Insert(SizeType index, const Element &value)
+    bool operator!=(const List &other) const
     {
-        Insert(FindNode(index), value);
+        return !(*this == other);
     }
 
     //===================== STL STYLE =========================
@@ -479,6 +558,11 @@ public:
     }
 
 private:
+    void CheckRange(NodeType *node) const
+    {
+        CT_ASSERT(node != nullptr);
+    }
+
     NodeType *CreateNode(const Element &value)
     {
         NodeType *node = NodeAlloc::Allocate(1);
@@ -486,10 +570,66 @@ private:
         return node;
     }
 
+    NodeType *CreateNode(Element &&value)
+    {
+        NodeType *node = NodeAlloc::Allocate(1);
+        NodeAlloc::Construct(node, std::move(value));
+        return node;
+    }
+
     void DeleteNode(NodeType *node)
     {
         NodeAlloc::Destroy(node, 1);
         NodeAlloc::Deallocate(node, 1);
+    }
+
+    void AddFirstPrivate(NodeType *node)
+    {
+        if (head)
+        {
+            node->SetNext(head);
+            head->SetPrev(node);
+            head = node;
+        }
+        else
+        {
+            head = tail = node;
+        }
+        ++size;
+    }
+
+    void AddLastPrivate(NodeType *node)
+    {
+        if (tail)
+        {
+            tail->SetNext(node);
+            node->SetPrev(tail);
+            tail = node;
+        }
+        else
+        {
+            head = tail = node;
+        }
+        ++size;
+    }
+
+    void InsertPrivate(NodeType *before, NodeType *node)
+    {
+        if (before == nullptr || before == head)
+        {
+            AddFirstPrivate(node);
+        }
+        else
+        {
+            if (before->GetPrev())
+            {
+                node->SetPrev(before->GetPrev());
+                before->GetPrev()->SetNext(node);
+            }
+            node->SetNext(before);
+            before->SetPrev(node);
+            ++size;
+        }
     }
 
 private:
@@ -507,4 +647,4 @@ inline void swap(List<E, N, A> &lhs, List<E, N, A> &rhs)
 {
     lhs.Swap(rhs);
 }
-}
+} // namespace std
