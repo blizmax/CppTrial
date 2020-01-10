@@ -346,6 +346,14 @@ public:
         }
     }
 
+    void RemoveLast()
+    {
+        if(size > 0)
+        {
+            RemovePrivate(size - 1, 1);
+        }
+    }
+
     void Remove(SizeType index)
     {
         CheckRange(index);

@@ -68,17 +68,17 @@ public:
         return container.Last();
     }
 
-    void Enqueue(const Element &value)
+    void Push(const Element &value)
     {
         container.Add(value);
     }
 
-    void Enqueue(Element &&value)
+    void Push(Element &&value)
     {
         container.Add(std::move(value));
     }
 
-    void Dequeue()
+    void Pop()
     {
         container.RemoveFirst();
     }

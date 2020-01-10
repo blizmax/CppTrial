@@ -47,7 +47,7 @@ CT_INLINE SizeType SiftUp(T *heap, SizeType count, SizeType index, Compare compa
     while (index > 0)
     {
         SizeType parent = ParentIndex(index);
-        if (!compare(heap[index], heap[parent]))
+        if (compare(heap[index], heap[parent]))
         {
             break;
         }

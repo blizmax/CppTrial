@@ -5,6 +5,7 @@
 #include "Core/HashMap.h"
 #include "Core/SortedSet.h"
 #include "Core/SortedMap.h"
+#include "Core/PriorityQueue.h"
 #include "Core/String.h"
 #include "Core/Algorithm.h"
 #include "Core/String/StringEncode.h"
@@ -180,6 +181,23 @@ void TestSortedMap()
     }
 }
 
+void TestPriorityQueue()
+{
+    PriorityQueue<int32> queue{120, 130};
+    queue.Push(140);
+
+    for(int32 i = 1; i < 100; ++i)
+    {
+        queue.Push(i);
+    }
+
+    while(!queue.IsEmpty())
+    {
+        logger.Info(CT_TEXT("first:{0}"), queue.First());
+        queue.Pop();
+    }
+}
+
 void TestStringEncode()
 {
     String str1 = StringEncode::FromUTF8("😊😡/(ㄒoㄒ)/~~🐷");
@@ -311,7 +329,8 @@ int main()
 
     Test::TestMath();
 
-    TestSortedMap();
+    //TestSortedMap();
+    TestPriorityQueue();
 
     // std::thread thread1 = std::thread([](){
     //     Log log1 = Log(L"Thread1");
