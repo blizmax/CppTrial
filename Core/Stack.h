@@ -14,7 +14,7 @@ public:
     Stack(const Stack &) = default;
     Stack(Stack &&) noexcept = default;
     Stack &operator=(const Stack &) = default;
-    Stack &operator=(Stack &&) = default;
+    Stack &operator=(Stack &&) noexcept = default;
     ~Stack() = default;
 
     Stack(std::initializer_list<Element> initList)

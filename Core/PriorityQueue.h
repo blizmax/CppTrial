@@ -14,7 +14,7 @@ public:
     PriorityQueue(const PriorityQueue &) = default;
     PriorityQueue(PriorityQueue &&) noexcept = default;
     PriorityQueue &operator=(const PriorityQueue &) = default;
-    PriorityQueue &operator=(PriorityQueue &&) = default;
+    PriorityQueue &operator=(PriorityQueue &&) noexcept = default;
     ~PriorityQueue() = default;
  
     PriorityQueue(std::initializer_list<Element> initList)
