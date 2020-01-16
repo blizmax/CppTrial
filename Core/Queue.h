@@ -14,7 +14,7 @@ public:
     Queue(const Queue &) = default;
     Queue(Queue &&) noexcept = default;
     Queue &operator=(const Queue &) = default;
-    Queue &operator=(Queue &&) = default;
+    Queue &operator=(Queue &&) noexcept = default;
     ~Queue() = default;
 
     Queue(std::initializer_list<Element> initList)
