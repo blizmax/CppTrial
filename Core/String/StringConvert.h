@@ -98,6 +98,40 @@ CT_INLINE bool TryParseInt32(const String &str, int32 &ret)
     return false;
 }
 
+CT_INLINE int32 ParseInt32(const String &str)
+{
+    int32 ret;
+    if (TryParseInt32(str, ret))
+    {
+        return ret;
+    }
+    CT_ASSERT(false);
+}
+
+CT_INLINE bool TryParseInt64(const String &str, int64 &ret)
+{
+    if (FastCheckIsIntPrivate(str))
+    {
+        CharType *end;
+        ret = CString::ToInt64(str.CStr(), end);
+        if (end - str.CStr() == str.Length())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+CT_INLINE int64 ParseInt64(const String &str)
+{
+    int64 ret;
+    if (TryParseInt64(str, ret))
+    {
+        return ret;
+    }
+    CT_ASSERT(false);
+}
+
 CT_INLINE bool TryParseUInt32(const String &str, uint32 &ret)
 {
     if (FastCheckIsUIntPrivate(str))
@@ -112,6 +146,40 @@ CT_INLINE bool TryParseUInt32(const String &str, uint32 &ret)
     return false;
 }
 
+CT_INLINE uint32 ParseUInt32(const String &str)
+{
+    uint32 ret;
+    if (TryParseUInt32(str, ret))
+    {
+        return ret;
+    }
+    CT_ASSERT(false);
+}
+
+CT_INLINE bool TryParseUInt64(const String &str, uint64 &ret)
+{
+    if (FastCheckIsUIntPrivate(str))
+    {
+        CharType *end;
+        ret = CString::ToUInt64(str.CStr(), end);
+        if (end - str.CStr() == str.Length())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+CT_INLINE uint64 ParseUInt64(const String &str)
+{
+    uint64 ret;
+    if (TryParseUInt64(str, ret))
+    {
+        return ret;
+    }
+    CT_ASSERT(false);
+}
+
 CT_INLINE bool TryParseFloat(const String &str, float &ret)
 {
     if (FastCheckIsFloatPrivate(str))
@@ -124,6 +192,40 @@ CT_INLINE bool TryParseFloat(const String &str, float &ret)
         }
     }
     return false;
+}
+
+CT_INLINE float ParseFloat(const String &str)
+{
+    float ret;
+    if (TryParseFloat(str, ret))
+    {
+        return ret;
+    }
+    CT_ASSERT(false);
+}
+
+CT_INLINE bool TryParseDouble(const String &str, double &ret)
+{
+    if (FastCheckIsFloatPrivate(str))
+    {
+        CharType *end;
+        ret = CString::ToDouble(str.CStr(), end);
+        if (end - str.CStr() == str.Length())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+CT_INLINE double ParseDouble(const String &str)
+{
+    double ret;
+    if (TryParseDouble(str, ret))
+    {
+        return ret;
+    }
+    CT_ASSERT(false);
 }
 
 } // namespace StringConvert

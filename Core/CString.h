@@ -101,6 +101,16 @@ CT_INLINE int32 ToInt32(const CharType *str, CharType *&end)
     return wcstol(str, &end, 10);
 }
 
+CT_INLINE int64 ToInt64(const CharType *str)
+{
+    return wcstoll(str, nullptr, 10);
+}
+
+CT_INLINE int64 ToInt64(const CharType *str, CharType *&end)
+{
+    return wcstoll(str, &end, 10);
+}
+
 CT_INLINE uint32 ToUInt32(const CharType *str)
 {
     return wcstoul(str, nullptr, 10);
@@ -111,6 +121,16 @@ CT_INLINE uint32 ToUInt32(const CharType *str, CharType *&end)
     return wcstoul(str, &end, 10);
 }
 
+CT_INLINE uint64 ToUInt64(const CharType *str)
+{
+    return wcstoull(str, nullptr, 10);
+}
+
+CT_INLINE uint64 ToUInt64(const CharType *str, CharType *&end)
+{
+    return wcstoull(str, &end, 10);
+}
+
 CT_INLINE float ToFloat(const CharType *str)
 {
     return wcstof(str, nullptr);
@@ -119,6 +139,16 @@ CT_INLINE float ToFloat(const CharType *str)
 CT_INLINE float ToFloat(const CharType *str, CharType *&end)
 {
     return wcstof(str, &end);
+}
+
+CT_INLINE double ToDouble(const CharType *str)
+{
+    return wcstod(str, nullptr);
+}
+
+CT_INLINE double ToDouble(const CharType *str, CharType *&end)
+{
+    return wcstod(str, &end);
 }
 
 } // namespace CString
