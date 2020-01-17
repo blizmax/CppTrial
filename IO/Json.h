@@ -24,18 +24,16 @@ public:
     JsonType type;
     Variant variant;
 
-    JsonValue *next = nullptr;
-    JsonValue *prev = nullptr;
-    JsonValue *parent = nullptr;
-    JsonValue *child = nullptr;
+    SPtr<JsonValue> next;
+    SPtr<JsonValue> child;
 
     JsonValue(JsonType type) : type(type)
     {
     }
 
-    JsonValue *GetChild(SizeType index) const
+    SPtr<JsonValue> GetChild(SizeType index) const
     {
-        JsonValue *current = child;
+        auto current = child;
         while (current && index > 0)
         {
             --index;
@@ -44,9 +42,9 @@ public:
         return current;
     }
 
-    JsonValue *GetChild(const String &name) const
+    SPtr<JsonValue> GetChild(const String &name) const
     {
-        JsonValue *current = child;
+        auto current = child;
         while (current && current->name != name)
         {
             current = current->next;
@@ -104,103 +102,12 @@ public:
         return type != JsonType::Array && type != JsonType::Object;
     }
 
-    String AsString() const
-    {
-        switch (type)
-        {
-        case JsonType::String:
-            return variant.GetValue<String>();
-        case JsonType::Double:
-            return StringConvert::ToString(variant.GetValue<double>());
-        case JsonType::Int64:
-            return StringConvert::ToString(variant.GetValue<int64>());
-        case JsonType::Bool:
-            return StringConvert::ToString(variant.GetValue<bool>());
-        case JsonType::Null:
-            return CT_TEXT("null");
-        }
-        CT_ASSERT(false);
-    }
-
-    float AsFloat() const
-    {
-        switch (type)
-        {
-        case JsonType::String:
-            return StringConvert::ParseFloat(variant.GetValue<String>());
-        case JsonType::Double:
-            return static_cast<float>(variant.GetValue<double>());
-        case JsonType::Int64:
-            return static_cast<float>(variant.GetValue<int64>());
-        case JsonType::Bool:
-            return variant.GetValue<bool>() ? 0 : 1;
-        }
-        CT_ASSERT(false);
-    }
-
-    double AsDouble() const
-    {
-        switch (type)
-        {
-        case JsonType::String:
-            return StringConvert::ParseDouble(variant.GetValue<String>());
-        case JsonType::Double:
-            return variant.GetValue<double>();
-        case JsonType::Int64:
-            return static_cast<double>(variant.GetValue<int64>());
-        case JsonType::Bool:
-            return variant.GetValue<bool>() ? 0 : 1;
-        }
-        CT_ASSERT(false);
-    }
-
-    int32 AsInt32() const
-    {
-        switch (type)
-        {
-        case JsonType::String:
-            return StringConvert::ParseInt32(variant.GetValue<String>());
-        case JsonType::Double:
-            return static_cast<int32>(variant.GetValue<double>());
-        case JsonType::Int64:
-            return static_cast<int32>(variant.GetValue<int64>());
-        case JsonType::Bool:
-            return variant.GetValue<bool>() ? 0 : 1;
-        }
-        CT_ASSERT(false);
-    }
-
-    int64 AsInt64() const
-    {
-        switch (type)
-        {
-        case JsonType::String:
-            return StringConvert::ParseInt64(variant.GetValue<String>());
-        case JsonType::Double:
-            return static_cast<int64>(variant.GetValue<double>());
-        case JsonType::Int64:
-            return variant.GetValue<int64>();
-        case JsonType::Bool:
-            return variant.GetValue<bool>() ? 0 : 1;
-        }
-        CT_ASSERT(false);
-    }
-
-    bool AsBool() const
-    {
-        switch (type)
-        {
-        case JsonType::String:
-            return variant.GetValue<String>() == CT_TEXT("true");
-        case JsonType::Double:
-            return variant.GetValue<double>() != 0;
-        case JsonType::Int64:
-            return variant.GetValue<int64>() != 0;
-        case JsonType::Bool:
-            return variant.GetValue<bool>();
-        }
-        CT_ASSERT(false);
-    }
+    String AsString() const;
+    float AsFloat() const;
+    double AsDouble() const;
+    int32 AsInt32() const;
+    int64 AsInt64() const;
+    bool AsBool() const;
 
     String GetString(const String &name) const
     {
@@ -273,6 +180,38 @@ public:
         auto child = GetChild(index);
         return child->AsBool();
     }
+};
+
+class JsonReader
+{
+public:
+    SPtr<JsonValue> Parse(const String &source)
+    {
+        return Parse(source.CStr(), 0, source.Length());
+    }
+
+    SPtr<JsonValue> Parse(const CharType *cstr, SizeType offset, SizeType count)
+    {
+        auto root = NewValue(JsonType::Object);
+
+        if (count > 0)
+        {
+            ParseObject(root, cstr, offset, offset + count - 1);
+        }
+        return root;
+    }
+
+private:
+    SPtr<JsonValue> NewValue(JsonType type) const
+    {
+        return Memory::MakeShared<JsonValue>(type);
+    }
+
+    SizeType ParseObject(SPtr<JsonValue> json, const CharType *cstr, SizeType begin, SizeType end);
+    SizeType ParseArray(SPtr<JsonValue> json, const CharType *cstr, SizeType begin, SizeType end);
+    SizeType ParseChild(SPtr<JsonValue> parent, const CharType *cstr, SizeType begin, SizeType end, SizeType nameBegin, SizeType nameEnd);
+    SizeType ParseString(SPtr<JsonValue> json, const CharType *cstr, SizeType begin, SizeType end);
+    SPtr<JsonValue> ParseOtherTypes(const CharType *cstr, SizeType begin, SizeType end);
 };
 
 } // namespace IO

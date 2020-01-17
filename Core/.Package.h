@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstdint>
 #include <initializer_list>
+#include <memory>
 
 #ifdef _DEBUG
 #define CT_DEBUG 1
@@ -37,4 +38,11 @@ typedef wchar_t wchar;
 typedef wchar CharType;
 typedef size_t SizeType;
 
-static constexpr SizeType INDEX_NONE = static_cast<SizeType>(-1);
+constexpr SizeType INDEX_NONE = static_cast<SizeType>(-1);
+
+template <typename T>
+using SPtr = std::shared_ptr<T>;
+template <typename T>
+using WPtr = std::weak_ptr<T>;
+template <typename T>
+using UPtr = std::unique_ptr<T>;

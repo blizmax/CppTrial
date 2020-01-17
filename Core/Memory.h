@@ -85,6 +85,12 @@ CT_INLINE void ArrayDelete(T *ptr, SizeType count)
     Free(ptr);
 }
 
+template <typename T, typename... Args>
+CT_INLINE SPtr<T> MakeShared(Args &&... args)
+{
+    return std::make_shared<T>(std::forward<Args>(args)...);
+}
+
 template <typename T>
 CT_INLINE void Copy(T *dst, const T *src, SizeType count)
 {
