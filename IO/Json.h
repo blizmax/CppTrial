@@ -196,7 +196,7 @@ public:
 
         if (count > 0)
         {
-            ParseObject(root, cstr, offset, offset + count - 1);
+            ParseObject(root.get(), cstr, offset, offset + count - 1);
         }
         return root;
     }
@@ -207,10 +207,10 @@ private:
         return Memory::MakeShared<JsonValue>(type);
     }
 
-    SizeType ParseObject(SPtr<JsonValue> json, const CharType *cstr, SizeType begin, SizeType end);
-    SizeType ParseArray(SPtr<JsonValue> json, const CharType *cstr, SizeType begin, SizeType end);
-    SizeType ParseChild(SPtr<JsonValue> parent, const CharType *cstr, SizeType begin, SizeType end, SizeType nameBegin, SizeType nameEnd);
-    SizeType ParseString(SPtr<JsonValue> json, const CharType *cstr, SizeType begin, SizeType end);
+    SizeType ParseObject(JsonValue *json, const CharType *cstr, SizeType begin, SizeType end);
+    SizeType ParseArray(JsonValue *json, const CharType *cstr, SizeType begin, SizeType end);
+    SizeType ParseChild(JsonValue *parent, const String &name, const CharType *cstr, SizeType begin, SizeType end);
+    SizeType ParseString(JsonValue *json, const CharType *cstr, SizeType begin, SizeType end);
     SPtr<JsonValue> ParseOtherTypes(const CharType *cstr, SizeType begin, SizeType end);
 };
 

@@ -114,7 +114,78 @@ bool IO::JsonValue::AsBool() const
     CT_ASSERT(false);
 }
 
-// SizeType IO::JsonReader::ParseObject(JsonValue *json, const CharType *cstr, SizeType begin, SizeType end)
-// {
+SizeType IO::JsonReader::ParseObject(JsonValue *json, const CharType *cstr, SizeType begin, SizeType end)
+{
+    bool dqOpen = false;
+    SizeType dqPos;
+    String childName;
 
-// }
+    SizeType current = begin;
+    while (current < end)
+    {
+        auto c = cstr[current];
+        switch (c)
+        {
+        case CT_TEXT('\"'):
+        {
+            if (!dqOpen)
+            {
+                dqPos = current;
+            }
+            else
+            {
+                childName = String(cstr + dqPos + 1, current - dqPos - 1);
+            }
+            dqOpen = !dqOpen;
+            ++current;
+            break;
+        }
+        case CT_TEXT(':'):
+        {
+            current = ParseChild(json, childName, cstr, current + 1, end);
+            break;
+        }
+        case CT_TEXT('}'):
+        {
+            return current + 1;
+        }
+        //TODO Check Error
+        default:
+        {
+            ++current;
+            break;
+        }
+        }
+    }
+
+    return current;
+}
+
+SizeType IO::JsonReader::ParseArray(JsonValue *json, const CharType *cstr, SizeType begin, SizeType end)
+{
+    auto current = ParseChild(json, String(), cstr, begin, end);
+    while (current < end)
+    {
+        auto c = cstr[current];
+        switch (c)
+        {
+        case CT_TEXT(','):
+        {
+            current = ParseChild(json, String(), cstr, current + 1, end);
+            break;
+        }
+        case CT_TEXT(']'):
+        {
+            return current + 1;
+        }
+        //TODO Check Error
+        default:
+        {
+            ++current;
+            break;
+        }
+        }
+    }
+
+    return current;
+}
