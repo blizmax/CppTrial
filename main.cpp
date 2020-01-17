@@ -23,6 +23,7 @@
 #include "Reflection/Test.h"
 #include "IO/Test.h"
 #include "Math/Test.h"
+#include "Json/Test.h"
 
 static Log logger = Log(L"Main");
 
@@ -327,10 +328,12 @@ int main()
 
     // IO::Test();
 
-    Test::TestMath();
+    //Test::TestMath();
+
+    Json::Test();
 
     //TestSortedMap();
-    TestPriorityQueue();
+    //TestPriorityQueue();
 
     // std::thread thread1 = std::thread([](){
     //     Log log1 = Log(L"Thread1");

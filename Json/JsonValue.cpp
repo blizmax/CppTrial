@@ -1,6 +1,6 @@
-#include "IO/Json.h"
+#include "Json/JsonValue.h"
 
-String IO::JsonValue::AsString() const
+String Json::JsonValue::AsString() const
 {
     switch (type)
     {
@@ -16,9 +16,10 @@ String IO::JsonValue::AsString() const
         return CT_TEXT("null");
     }
     CT_ASSERT(false);
+    return String();
 }
 
-float IO::JsonValue::AsFloat() const
+float Json::JsonValue::AsFloat() const
 {
     switch (type)
     {
@@ -32,9 +33,10 @@ float IO::JsonValue::AsFloat() const
         return variant.GetValue<bool>() ? 0 : 1;
     }
     CT_ASSERT(false);
+    return 0;
 }
 
-double IO::JsonValue::AsDouble() const
+double Json::JsonValue::AsDouble() const
 {
     switch (type)
     {
@@ -48,25 +50,11 @@ double IO::JsonValue::AsDouble() const
         return variant.GetValue<bool>() ? 0 : 1;
     }
     CT_ASSERT(false);
+    return 0;
 }
 
-double IO::JsonValue::AsDouble() const
-{
-    switch (type)
-    {
-    case JsonType::String:
-        return StringConvert::ParseDouble(variant.GetValue<String>());
-    case JsonType::Double:
-        return variant.GetValue<double>();
-    case JsonType::Int64:
-        return static_cast<double>(variant.GetValue<int64>());
-    case JsonType::Bool:
-        return variant.GetValue<bool>() ? 0 : 1;
-    }
-    CT_ASSERT(false);
-}
 
-int32 IO::JsonValue::AsInt32() const
+int32 Json::JsonValue::AsInt32() const
 {
     switch (type)
     {
@@ -80,9 +68,10 @@ int32 IO::JsonValue::AsInt32() const
         return variant.GetValue<bool>() ? 0 : 1;
     }
     CT_ASSERT(false);
+    return 0;
 }
 
-int64 IO::JsonValue::AsInt64() const
+int64 Json::JsonValue::AsInt64() const
 {
     switch (type)
     {
@@ -96,9 +85,10 @@ int64 IO::JsonValue::AsInt64() const
         return variant.GetValue<bool>() ? 0 : 1;
     }
     CT_ASSERT(false);
+    return 0;
 }
 
-bool IO::JsonValue::AsBool() const
+bool Json::JsonValue::AsBool() const
 {
     switch (type)
     {
@@ -112,9 +102,98 @@ bool IO::JsonValue::AsBool() const
         return variant.GetValue<bool>();
     }
     CT_ASSERT(false);
+    return false;
 }
 
-// SizeType IO::JsonReader::ParseObject(JsonValue *json, const CharType *cstr, SizeType begin, SizeType end)
-// {
+SPtr<Json::JsonValue> Json::JsonValue::GetChild(SizeType index) const
+{
+    auto current = child;
+    while (current && index > 0)
+    {
+        --index;
+        current = current->next;
+    }
+    return current;
+}
 
-// }
+SPtr<Json::JsonValue> Json::JsonValue::GetChild(const String &name) const
+{
+    auto current = child;
+    while (current && current->name != name)
+    {
+        current = current->next;
+    }
+    return current;
+}
+
+String Json::JsonValue::GetString(const String &name) const
+{
+    auto child = GetChild(name);
+    return child->AsString();
+}
+
+String Json::JsonValue::GetString(SizeType index) const
+{
+    auto child = GetChild(index);
+    return child->AsString();
+}
+
+float Json::JsonValue::GetFloat(const String &name) const
+{
+    auto child = GetChild(name);
+    return child->AsFloat();
+}
+
+float Json::JsonValue::GetFloat(SizeType index) const
+{
+    auto child = GetChild(index);
+    return child->AsFloat();
+}
+
+double Json::JsonValue::GetDouble(const String &name) const
+{
+    auto child = GetChild(name);
+    return child->AsDouble();
+}
+
+double Json::JsonValue::GetDouble(SizeType index) const
+{
+    auto child = GetChild(index);
+    return child->AsDouble();
+}
+
+int32 Json::JsonValue::GetInt32(const String &name) const
+{
+    auto child = GetChild(name);
+    return child->AsInt32();
+}
+
+int32 Json::JsonValue::GetInt32(SizeType index) const
+{
+    auto child = GetChild(index);
+    return child->AsInt32();
+}
+
+int64 Json::JsonValue::GetInt64(const String &name) const
+{
+    auto child = GetChild(name);
+    return child->AsInt64();
+}
+
+int64 Json::JsonValue::GetInt64(SizeType index) const
+{
+    auto child = GetChild(index);
+    return child->AsInt64();
+}
+
+bool Json::JsonValue::GetBool(const String &name) const
+{
+    auto child = GetChild(name);
+    return child->AsBool();
+}
+
+bool Json::JsonValue::GetBool(SizeType index) const
+{
+    auto child = GetChild(index);
+    return child->AsBool();
+}

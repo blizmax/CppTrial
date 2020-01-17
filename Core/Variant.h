@@ -218,16 +218,17 @@ public:
     }
 
     template <typename T>
-    Variant(T value)
+    Variant(T &&value)
     {
-        VariantInternal::WriteBytes(data, value);
-        type = VariantInternal::VariantTypeTraits<T>::GetType();
+        using DecayType = typename TDecay<T>::type;
+        VariantInternal::WriteBytes(data, std::forward<T>(value));
+        type = VariantInternal::VariantTypeTraits<DecayType>::GetType();
     }
 
     template <typename T>
     Variant &operator=(T &&value)
     {
-        Variant temp(value);
+        Variant temp(std::forward<T>(value));
         Swap(temp);
         return *this;
     }
@@ -284,4 +285,4 @@ inline void swap(Variant &lhs, Variant &rhs)
 {
     lhs.Swap(rhs);
 }
-}
+} // namespace std

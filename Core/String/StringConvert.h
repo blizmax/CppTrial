@@ -106,6 +106,7 @@ CT_INLINE int32 ParseInt32(const String &str)
         return ret;
     }
     CT_ASSERT(false);
+    return ret;
 }
 
 CT_INLINE bool TryParseInt64(const String &str, int64 &ret)
@@ -130,6 +131,7 @@ CT_INLINE int64 ParseInt64(const String &str)
         return ret;
     }
     CT_ASSERT(false);
+    return ret;
 }
 
 CT_INLINE bool TryParseUInt32(const String &str, uint32 &ret)
@@ -154,6 +156,7 @@ CT_INLINE uint32 ParseUInt32(const String &str)
         return ret;
     }
     CT_ASSERT(false);
+    return ret;
 }
 
 CT_INLINE bool TryParseUInt64(const String &str, uint64 &ret)
@@ -178,6 +181,7 @@ CT_INLINE uint64 ParseUInt64(const String &str)
         return ret;
     }
     CT_ASSERT(false);
+    return ret;
 }
 
 CT_INLINE bool TryParseFloat(const String &str, float &ret)
@@ -202,6 +206,7 @@ CT_INLINE float ParseFloat(const String &str)
         return ret;
     }
     CT_ASSERT(false);
+    return ret;
 }
 
 CT_INLINE bool TryParseDouble(const String &str, double &ret)
@@ -226,6 +231,7 @@ CT_INLINE double ParseDouble(const String &str)
         return ret;
     }
     CT_ASSERT(false);
+    return ret;
 }
 
 } // namespace StringConvert
