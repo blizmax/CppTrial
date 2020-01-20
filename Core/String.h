@@ -16,6 +16,7 @@ public:
     String(String &&) = default;
     String &operator=(const String &) = default;
     String &operator=(String &&) = default;
+    ~String() = default;
 
     String(const CharType *str)
     {
@@ -208,69 +209,166 @@ public:
         return String(CStr() + index, count);
     }
 
-    String &Replace(SizeType index, SizeType count, const String &str)
+    String Replace(SizeType index, SizeType count, const String &str) const
     {
         CheckRange(index);
-        return ReplacePrivate(index, count, str.CStr(), str.Length());
+
+        String temp(*this);
+        return temp.ReplacePrivate(index, count, str.CStr(), str.Length());
     }
 
-    String &Replace(SizeType index, SizeType count, const String &str, SizeType strIndex)
-    {
-        CheckRange(index);
-        str.CheckRange(strIndex);
-        return ReplacePrivate(index, count, str.CStr() + strIndex, str.Length());
-    }
-
-    String &Replace(SizeType index, SizeType count, const String &str, SizeType strIndex, SizeType strCount)
+    String Replace(SizeType index, SizeType count, const String &str, SizeType strIndex) const
     {
         CheckRange(index);
         str.CheckRange(strIndex);
-        return ReplacePrivate(index, count, str.CStr() + strIndex, strCount);
+
+        String temp(*this);
+        return temp.ReplacePrivate(index, count, str.CStr() + strIndex, str.Length());
     }
 
-    String &Replace(SizeType index, SizeType count, const CharType *str)
+    String Replace(SizeType index, SizeType count, const String &str, SizeType strIndex, SizeType strCount) const
     {
         CheckRange(index);
-        return ReplacePrivate(index, count, str, CString::Length(str));
+        str.CheckRange(strIndex);
+
+        String temp(*this);
+        return temp.ReplacePrivate(index, count, str.CStr() + strIndex, strCount);
     }
 
-    String &Replace(SizeType index, SizeType count, const CharType *str, SizeType repCount)
+    String Replace(SizeType index, SizeType count, const CharType *str) const
     {
         CheckRange(index);
-        return ReplacePrivate(index, count, str, repCount);
+
+        String temp(*this);
+        return temp.ReplacePrivate(index, count, str, CString::Length(str));
     }
 
-    String &Replace(SizeType index, SizeType count, CharType chr, SizeType chrCount = 1)
+    String Replace(SizeType index, SizeType count, const CharType *str, SizeType repCount) const
     {
         CheckRange(index);
-        String temp(chr, chrCount);
-        return Replace(index, count, temp);
+
+        String temp(*this);
+        return temp.ReplacePrivate(index, count, str, repCount);
     }
 
-    String &Replace(const String &oldValue, const String &newValue)
+    String Replace(SizeType index, SizeType count, CharType chr, SizeType chrCount = 1) const
+    {
+        CheckRange(index);
+
+        String temp(*this);
+        return temp.Replace(index, count, String(chr, chrCount));
+    }
+
+    String Replace(const String &oldValue, const String &newValue) const
     {
         CheckNonEmpty(oldValue);
 
         SizeType index = 0;
         if (Find(oldValue, index))
         {
-            Replace(index, oldValue.Length(), newValue);
+            return Replace(index, oldValue.Length(), newValue);
         }
         return *this;
     }
 
-    String &ReplaceAll(const String &oldValue, const String &newValue)
+    String ReplaceAll(const String &oldValue, const String &newValue) const
     {
         CheckNonEmpty(oldValue);
 
+        String temp(*this);
         SizeType pos1 = 0;
         SizeType pos2 = 0;
-        while (Find(oldValue, pos1, pos2))
+        while (temp.Find(oldValue, pos1, pos2))
         {
-            Replace(pos1, oldValue.Length(), newValue);
-            pos1 = pos2 + newValue.Length() - oldValue.Length();
+            temp.ReplacePrivate(pos2, oldValue.Length(), newValue.CStr(), newValue.Length());
+            pos1 = pos2 + newValue.Length();
         }
-        return *this;
+        return temp;
+    }
+
+    String TrimStart() const
+    {
+        const SizeType len = Length();
+        SizeType startIndex = 0;
+
+        if (len > 0)
+        {
+            SizeType pos = 0;
+            while (Find(CT_TEXT(' '), startIndex, pos))
+            {
+                if (pos == startIndex && startIndex < len)
+                {
+                    ++startIndex;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        return Substring(startIndex);
+    }
+
+    String TrimEnd() const
+    {
+        const SizeType len = Length();
+        SizeType endIndex = len;
+
+        if (len > 0)
+        {
+            SizeType pos = 0;
+            while (ReverseFind(CT_TEXT(' '), endIndex - 1, pos))
+            {
+                if (pos != endIndex - 1)
+                {
+                    break;
+                }
+                if (--endIndex == 0)
+                {
+                    break;
+                }
+            }
+        }
+
+        return Substring(0, endIndex);
+    }
+
+    String Trim() const
+    {
+        const SizeType len = Length();
+        SizeType startIndex = 0;
+        SizeType endIndex = len;
+
+        if (len > 0)
+        {
+            SizeType pos = 0;
+            while (Find(CT_TEXT(' '), startIndex, pos))
+            {
+                if (pos == startIndex && startIndex < len)
+                {
+                    ++startIndex;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            while (ReverseFind(CT_TEXT(' '), endIndex - 1, pos))
+            {
+                if (pos != endIndex - 1)
+                {
+                    break;
+                }
+                if (--endIndex <= startIndex)
+                {
+                    break;
+                }
+            }
+        }
+
+        return Substring(startIndex, endIndex - startIndex);
     }
 
     bool Contains(CharType value) const
@@ -447,7 +545,7 @@ public:
             }
             return true;
         }
-        if (len - startIndex < count)
+        if (startIndex + count > len)
         {
             return false;
         }
@@ -850,7 +948,6 @@ public:
         return ret;
     }
 
-    // op <=
     friend bool operator<=(const String &lhs, const String &rhs)
     {
         return lhs.Compare(rhs) <= 0;
@@ -866,7 +963,6 @@ public:
         return rhs.Compare(lhs) > 0;
     }
 
-    // op <
     friend bool operator<(const String &lhs, const String &rhs)
     {
         return lhs.Compare(rhs) < 0;
@@ -882,7 +978,6 @@ public:
         return rhs.Compare(lhs) >= 0;
     }
 
-    // op >=
     friend bool operator>=(const String &lhs, const String &rhs)
     {
         return lhs.Compare(rhs) >= 0;
@@ -898,7 +993,6 @@ public:
         return rhs.Compare(lhs) < 0;
     }
 
-    // op >
     friend bool operator>(const String &lhs, const String &rhs)
     {
         return lhs.Compare(rhs) > 0;
@@ -914,7 +1008,6 @@ public:
         return rhs.Compare(lhs) <= 0;
     }
 
-    // op ==
     friend bool operator==(const String &lhs, const String &rhs)
     {
         return lhs.Compare(rhs) == 0;
@@ -930,7 +1023,6 @@ public:
         return rhs.Compare(lhs) == 0;
     }
 
-    // op !=
     friend bool operator!=(const String &lhs, const String &rhs)
     {
         return lhs.Compare(rhs) != 0;
@@ -991,9 +1083,7 @@ private:
 
     String &ReplacePrivate(SizeType index, SizeType count, const CharType *repStr, SizeType repCount)
     {
-        CharType *ptr = data.GetData();
-
-        if (!ptr)
+        if (!data.GetData())
         {
             String temp(repStr, repCount);
             Swap(temp);
@@ -1001,15 +1091,14 @@ private:
         else
         {
             const SizeType len = Length();
-            ptr += index;
-
             if (index + count > len)
             {
-                count = len - index;
+                count = len - index - 1;
             }
 
             if (count >= repCount)
             {
+                auto ptr = data.GetData() + index;
                 CString::Move(ptr + repCount, ptr + count, len - index - count + 1);
                 CString::Copy(ptr, repStr, repCount);
                 data.Resize(data.Size() - count + repCount);
@@ -1017,6 +1106,7 @@ private:
             else
             {
                 data.AppendUninitialized(repCount - count);
+                auto ptr = data.GetData() + index;
                 CString::Move(ptr + repCount, ptr + count, len - index - count + 1);
                 CString::Copy(ptr, repStr, repCount);
             }
@@ -1060,4 +1150,4 @@ inline void swap(String &lhs, String &rhs)
 {
     lhs.Swap(rhs);
 }
-}
+} // namespace std

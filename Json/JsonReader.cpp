@@ -174,7 +174,7 @@ SizeType Json::JsonReader::ParseString(JsonValue *json, const CharType *cstr, Si
 SPtr<Json::JsonValue> Json::JsonReader::ParseOtherTypes(const String &str)
 {
     SPtr<JsonValue> ret = nullptr;
-    String tempStr = str; //TODO Trim
+    String tempStr = str.Trim();
 
     if (tempStr == CT_TEXT("true"))
     {

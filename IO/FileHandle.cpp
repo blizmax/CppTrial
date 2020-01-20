@@ -195,7 +195,7 @@ void IO::FileHandle::WriteString(const String &str, bool append) const
 
 void IO::FileHandle::Format()
 {
-    pathStr.ReplaceAll(CT_TEXT('\\'), CT_TEXT('/'));
+    pathStr = pathStr.ReplaceAll(CT_TEXT('\\'), CT_TEXT('/'));
 
     //TODO Case sensitive?
 }
