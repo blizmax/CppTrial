@@ -12,9 +12,6 @@ using TEnableIf = std::enable_if<B, T>;
 template <bool B, typename T, typename F>
 using TConditional = std::conditional<B, T, F>;
 
-template <typename T>
-using TIsVoid = std::is_void<T>;
-
 template <typename T1, typename T2>
 using TIsSame = std::is_same<T1, T2>;
 
@@ -22,7 +19,15 @@ template <typename T>
 using TDecay = std::decay<T>;
 
 template <typename T>
+using TIsVoid = std::is_void<T>;
+template <typename T>
 using TIsPointer = std::is_pointer<T>;
+template <typename T>
+using TIsNullPointer = std::is_null_pointer<T>;
+template <typename T>
+using TIsIntegral = std::is_integral<T>;
+template <typename T>
+using TIsFloatingPoint = std::is_floating_point<T>;
 
 template <typename T, typename... Args>
 using TIsConstructible = std::is_constructible<T, Args...>;
