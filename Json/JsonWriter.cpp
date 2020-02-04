@@ -132,7 +132,17 @@ bool Json::JsonWriter::CheckCanPop()
 {
     if (named)
     {
-        return false;
+        if(state.first)
+            state.first = false;
+        else
+            buffer += CT_TEXT(", ");
+    }
+    else
+    {
+        if(!named)
+            return false;
+        else
+            named = false; 
     }
     if (stack.IsEmpty())
     {
