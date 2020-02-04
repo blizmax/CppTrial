@@ -1,6 +1,6 @@
 #include "Json/JsonWriter.h"
 
-Json::JsonWriter::JsonWriter()
+Json::JsonWriter::JsonWriter(bool pretty) : pretty(pretty)
 {
     stack.Push({false, true});
     buffer += CT_TEXT('{');
@@ -29,6 +29,11 @@ Json::JsonWriter &Json::JsonWriter::Name(const String &name)
         else
             buffer += CT_TEXT(", ");
 
+        if (pretty)
+        {
+            buffer += CT_TEXT('\n');
+            buffer += String(CT_TEXT(' '), 4 * GetIndentLevel());
+        }
         buffer += CT_TEXT('\"');
         buffer += name;
         buffer += CT_TEXT('\"');
@@ -63,25 +68,26 @@ Json::JsonWriter &Json::JsonWriter::Pop()
 {
     if (CheckCanPop())
     {
-        if (GetCurrentState().array)
+        const bool array = GetCurrentState().array;
+        const bool first = GetCurrentState().first;
+        stack.Pop();
+    
+        if (array)
         {
             buffer += CT_TEXT(']');
         }
         else
         {
+            if(pretty)
+            {
+                if (!first)
+                {
+                    buffer += CT_TEXT('\n');
+                    buffer += String(CT_TEXT(' '), 4 * GetIndentLevel());
+                }
+            }
             buffer += CT_TEXT('}');
         }
-        stack.Pop();
-    }
-
-    return *this;
-}
-
-Json::JsonWriter &Json::JsonWriter::Value(const String &value)
-{
-    if (CheckCanWriteValue())
-    {
-        buffer += value;
     }
 
     return *this;
@@ -98,13 +104,27 @@ void Json::JsonWriter::Write(String &dest)
     Reset();
 }
 
+Json::JsonWriter &Json::JsonWriter::WriteValue(const String &value, bool quote)
+{
+    if (CheckCanWriteValue())
+    {
+        if (quote)
+            buffer += CT_TEXT('\"');
+        buffer += value;
+        if (quote)
+            buffer += CT_TEXT('\"');
+    }
+
+    return *this;
+}
+
+int32 Json::JsonWriter::GetIndentLevel() const
+{
+    return stack.Size();
+}
+
 Json::JsonWriter::State &Json::JsonWriter::GetCurrentState()
 {
-    if (stack.IsEmpty())
-    {
-        stack.Push({true, true});
-        buffer += CT_TEXT('[');
-    }
     return stack.Top();
 }
 

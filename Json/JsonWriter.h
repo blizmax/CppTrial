@@ -9,7 +9,7 @@ namespace Json
 class JsonWriter
 {
 public:
-    JsonWriter();
+    JsonWriter(bool pretty = false);
 
     JsonWriter &Reset();
     JsonWriter &PushObject();
@@ -17,17 +17,20 @@ public:
     JsonWriter &Pop();
     JsonWriter &Name(const String &name);
 
-    JsonWriter &Value(const String &value);
+    JsonWriter &Value(const String &value)
+    {
+        return WriteValue(value, true);
+    }
 
     JsonWriter &Value(std::nullptr_t)
     {
-        return Value(String(CT_TEXT("null")));
+        return WriteValue(CT_TEXT("null"));
     }
 
-    template <typename T, typename = typename TEnableIf<TIsIntegral<T>::value || TIsFloatingPoint<T>::value, T>::value>
+    template <typename T, typename = typename TEnableIf<TIsIntegral<T>::value || TIsFloatingPoint<T>::value, T>::type>
     JsonWriter &Value(T value)
     {
-        return Value(StringConvert::ToString(value));
+        return WriteValue(StringConvert::ToString(value));
     }
 
     void Write(String &dest);
@@ -39,11 +42,17 @@ private:
         bool first;
     };
 
+    JsonWriter &WriteValue(const String& value, bool quote = false);
+
     State &GetCurrentState();
+    int32 GetIndentLevel() const;
+
     bool CheckCanWriteValue();
     bool CheckCanWriteName();
     bool CheckCanPop();
 
+private:
+    bool pretty = false;
     bool named = false;
     Stack<State> stack;
     String buffer;
