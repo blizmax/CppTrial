@@ -159,7 +159,7 @@ SizeType Json::JsonReader::ParseString(JsonValue *json, const CharType *cstr, Si
     SizeType current = begin;
     while (current < end)
     {
-        auto c = cstr[current];
+        auto c = cstr[current++];
         if (c == CT_TEXT('\"'))
         {
             json->variant = String(cstr + begin, current - begin);

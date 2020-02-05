@@ -3,22 +3,36 @@
 
 static Log logger = Log(CT_TEXT("Json"));
 
-static void TestJsonWriter()
+static String GetJsonString()
 {
     Json::JsonWriter writer(true);
     writer.Name(CT_TEXT("name")).Value(CT_TEXT("Tom"));
     writer.Name(CT_TEXT("age")).Value(20);
     writer.Name(CT_TEXT("male")).Value(true);
     writer.Name(CT_TEXT("interests")).PushArray().Value(CT_TEXT("music")).Value(CT_TEXT("reading")).Pop();
-    writer.Name(CT_TEXT("score")).PushObject()
-        .Name(CT_TEXT("math")).Value(90).Name(CT_TEXT("science")).Value(95.5).Pop();
+    writer.Name(CT_TEXT("score")).PushObject().Name(CT_TEXT("math")).Value(90).Name(CT_TEXT("science")).Value(95.5).Pop();
     writer.Name(CT_TEXT("extra")).Value(nullptr);
     writer.Name(CT_TEXT("earray")).PushArray().Pop();
     writer.Name(CT_TEXT("eobject")).PushObject();
 
     String str;
     writer.Write(str);
+    return str;
+}
+
+static void DumpJson()
+{
+    String str = GetJsonString();
     logger.Info(str);
+    logger.Info(CT_TEXT("---------------------------"));
+
+    Json::JsonReader reader;
+    auto json = reader.Parse(str);
+
+    for(auto child = json->child; child != nullptr; child = child->next)
+    {
+        logger.Info(CT_TEXT("name: {0}, type: {1}"), child->name, static_cast<int32>(child->type));
+    }
 }
 
 void Json::Test()
@@ -39,5 +53,5 @@ void Json::Test()
 
     // logger.Info(CT_TEXT("{0},{1},{2},{3},"), str1, str2, str3, str4);
 
-    TestJsonWriter();
+    DumpJson();
 }
