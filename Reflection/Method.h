@@ -47,43 +47,43 @@ public:
 
     virtual Any Invoke(Any obj) const
     {
-        CT_THROW("Not implement");
+        CT_EXCEPTION("Not implement");
         return Any();
     }
 
     virtual Any Invoke(Any obj, Any arg1) const
     {
-        CT_THROW("Not implement");
+        CT_EXCEPTION("Not implement");
         return Any();
     }
 
     virtual Any Invoke(Any obj, Any arg1, Any arg2) const
     {
-        CT_THROW("Not implement");
+        CT_EXCEPTION("Not implement");
         return Any();
     }
 
     virtual Any Invoke(Any obj, Any arg1, Any arg2, Any arg3) const
     {
-        CT_THROW("Not implement");
+        CT_EXCEPTION("Not implement");
         return Any();
     }
 
     virtual Any Invoke(Any obj, Any arg1, Any arg2, Any arg3, Any arg4) const
     {
-        CT_THROW("Not implement");
+        CT_EXCEPTION("Not implement");
         return Any();
     }
 
     virtual Any Invoke(Any obj, Any arg1, Any arg2, Any arg3, Any arg4, Any arg5) const
     {
-        CT_THROW("Not implement");
+        CT_EXCEPTION("Not implement");
         return Any();
     }
 
     virtual Any Invoke(Any obj, Any arg1, Any arg2, Any arg3, Any arg4, Any arg5, Any arg6) const
     {
-        CT_THROW("Not implement");
+        CT_EXCEPTION("Not implement");
         return Any();
     }
 

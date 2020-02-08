@@ -37,12 +37,12 @@ public:
 
     virtual void Set(Any obj, Any value) const
     {
-        CT_THROW("Not implement");
+        CT_EXCEPTION("Not implement");
     }
 
     virtual Any Get(Any obj) const
     {
-        CT_THROW("Not implement");
+        CT_EXCEPTION("Not implement");
         return Any();
     }
 
@@ -86,7 +86,7 @@ public:
 
     virtual void Set(Any obj, Any value) const override
     {
-        CT_THROW("Attempt to modify a readonly property.");
+        CT_EXCEPTION("Attempt to modify a readonly property.");
     }
 
     virtual Any Get(Any obj) const override

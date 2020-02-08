@@ -6,11 +6,11 @@
 class Exception
 {
 public:
-    Exception(const CharType *tag, const String &msg) : tag(tag), what(msg)
+    Exception(const String &tag, const String &msg) : tag(tag), what(msg)
     {
     }
 
-    Exception(const CharType *tag, const String &msg, const CharType *file, int32 line) : tag(tag), what(msg)
+    Exception(const String &tag, const String &msg, const CharType *file, int32 line) : tag(tag), what(msg)
     {
         where = String(file) + CT_TEXT(":") + StringConvert::ToString(line);
     }
@@ -37,10 +37,10 @@ protected:
     String where;
 };
 
-#define CT_EXCEPT_INNER(file) CT_TEXT(file)
+#define __CT_EXCEPTION_INNER(file) CT_TEXT(file)
 
-#define CT_EXCEPT(tag, msg)                                         \
-    {                                                               \
-        Exception e(tag, msg, CT_EXCEPT_INNER(__FILE__), __LINE__); \
-        throw e;                                                    \
+#define CT_EXCEPTION(msg)                                                            \
+    {                                                                                \
+        Exception e(CT_TEXT("Core"), msg, __CT_EXCEPTION_INNER(__FILE__), __LINE__); \
+        CT_DEBUG_BREAK();                                                            \
     }

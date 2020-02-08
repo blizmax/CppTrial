@@ -2,6 +2,7 @@
 
 #include "Core/.Package.h"
 #include "Core/Memory.h"
+#include "Core/Exception.h"
 
 namespace AnyInternal
 {
@@ -118,7 +119,7 @@ public:
     T Cast() const
     {
         if (!data)
-            CT_THROW("Invalid to cast an empty any.");
+            CT_EXCEPTION("Invalid to cast an empty any.");
         return static_cast<AnyInternal::DynamicData<T> *>(data)->value;
     }
 
@@ -126,7 +127,7 @@ public:
     T &RefCast()
     {
         if (!data)
-            CT_THROW("Invalid to cast an empty any.");
+            CT_EXCEPTION("Invalid to cast an empty any.");
         return static_cast<AnyInternal::DynamicData<T> *>(data)->value;
     }
 
@@ -134,7 +135,7 @@ public:
     const T &RefCast() const
     {
         if (!data)
-            CT_THROW("Invalid to cast an empty any.");
+            CT_EXCEPTION("Invalid to cast an empty any.");
         return static_cast<AnyInternal::DynamicData<T> *>(data)->value;
     }
 

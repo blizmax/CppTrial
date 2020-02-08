@@ -17,7 +17,6 @@ namespace Reflection
 #define CT_REFLECTION_AUTO_POPULATE 0
 #endif
 
-
 class Type;
 
 class MetaBase
@@ -37,7 +36,7 @@ public:
         return name;
     }
 
-    void SetMetaData(const Name& name, const String& value)
+    void SetMetaData(const Name &name, const String &value)
     {
         dataMap.Put(name, value);
     }

@@ -248,18 +248,11 @@ void TestAny()
     logger.Info(L"RefCast int64 : {0}", any.RefCast<int64>());
 }
 
-void TestException()
-{
-    // Exception e(CT_TEXT("Temp"), CT_TEXT("Test Exception"), CT_EXCEPT_INNER(__FILE__), __LINE__);
-    // logger.Info(CT_TEXT("Exception desc: {0}"), e);
-    CT_EXCEPT(CT_TEXT("Temp"), CT_TEXT("Test Exception"));
-}
-
 void TestDelegate()
 {
     class B
     {
-        public:
+    public:
         void Print() const
         {
             logger.Info(CT_TEXT("Call Print."));
@@ -331,6 +324,8 @@ int main()
     //Test::TestMath();
 
     Json::Test();
+
+    CT_EXCEPTION("Test Exception");
 
     //TestSortedMap();
     //TestPriorityQueue();

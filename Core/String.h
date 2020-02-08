@@ -18,6 +18,8 @@ public:
     String &operator=(String &&) = default;
     ~String() = default;
 
+    String(const char8 *str);
+
     String(const CharType *str)
     {
         if (str && *str)
@@ -1137,6 +1139,12 @@ private:
 #include "Core/String/StringConvert.h"
 #include "Core/String/StringFormat.h"
 #include "Core/String/StringEncode.h"
+
+CT_INLINE String::String(const char8 *str)
+{
+    String temp = StringEncode::FromUTF8(str);
+    Swap(temp);
+}
 
 template <typename... Args>
 CT_INLINE String String::Format(const String &src, Args &&... args)

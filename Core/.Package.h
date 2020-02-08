@@ -5,19 +5,17 @@
 #include <initializer_list>
 #include <memory>
 
+#include "debugbreak.h"
+
 #ifdef _DEBUG
 #define CT_DEBUG 1
 #endif
 
-#define CT_ALIGN(x, a) (((x) + ((a)-1)) & ~((a)-1))
+#define CT_DEBUG_BREAK() debug_break()
 
 #define CT_ASSERT(cond) assert(cond)
 
-#ifdef CT_EXCEPTION
-#define CT_THROW(msg) throw msg
-#else
-#define CT_THROW(...) CT_ASSERT(false)
-#endif
+#define CT_ALIGN(x, a) (((x) + ((a)-1)) & ~((a)-1))
 
 #define CT_INLINE inline
 #define CT_TEXT(text) L##text
