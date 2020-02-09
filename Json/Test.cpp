@@ -1,7 +1,5 @@
 #include "Json/Test.h"
-#include "Core/Log.h"
-
-static Log logger = Log(CT_TEXT("Json"));
+#include "Core/Logger.h"
 
 static String GetJsonString()
 {
@@ -23,15 +21,15 @@ static String GetJsonString()
 static void DumpJson()
 {
     String str = GetJsonString();
-    logger.Info(str);
-    logger.Info(CT_TEXT("---------------------------"));
+    CT_LOG(Info, str);
+    CT_LOG(Info, CT_TEXT("---------------------------"));
 
     Json::JsonReader reader;
     auto json = reader.Parse(str);
 
     for(auto child = json->child; child != nullptr; child = child->next)
     {
-        logger.Info(CT_TEXT("name: {0}, type: {1}"), child->name, static_cast<int32>(child->type));
+        CT_LOG(Info, CT_TEXT("name: {0}, type: {1}"), child->name, static_cast<int32>(child->type));
     }
 }
 

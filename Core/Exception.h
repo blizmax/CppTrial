@@ -2,6 +2,7 @@
 
 #include "Core/.Package.h"
 #include "Core/String.h"
+#include "Core/Logger.h"
 
 class Exception
 {
@@ -42,5 +43,6 @@ protected:
 #define CT_EXCEPTION(msg)                                                            \
     {                                                                                \
         Exception e(CT_TEXT("Core"), msg, __CT_EXCEPTION_INNER(__FILE__), __LINE__); \
+        CT_LOG(Fatal, e.ToString());                                                 \
         CT_DEBUG_BREAK();                                                            \
     }

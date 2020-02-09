@@ -10,7 +10,7 @@
 #include "Core/Algorithm.h"
 #include "Core/String/StringEncode.h"
 #include "Core/String/StringConvert.h"
-#include "Core/Log.h"
+#include "Core/Logger.h"
 #include "Core/Thread.h"
 #include "Core/Time.h"
 #include "Core/Template.h"
@@ -24,8 +24,6 @@
 #include "IO/Test.h"
 #include "Math/Test.h"
 #include "Json/Test.h"
-
-static Log logger = Log(L"Main");
 
 class A
 {
@@ -62,15 +60,10 @@ void TestMath()
     auto min = Math::Min(100, 10, -5.0, 22, -33.5f);
     auto clamp = Math::Clamp(50.0, 77.0, 80.0);
 
-    // for(int32 i = 0; i < 100; ++i)
-    // {
-    //     logger.Info(L"Random value: {0}", Math::Rand());
-    // }
-
     for(int32 i = 0; i < 10; ++i)
     {
         auto uuid = UUID();
-        logger.Info(L"UUID{0}: {1}", i, uuid);
+        CT_LOG(Info, L"UUID{0}: {1}", i, uuid);
     }
 }
 
@@ -80,7 +73,6 @@ void TestName()
         for(uint32 i = 0; i < 1000; ++i)
         {
             Name name(StringConvert::ToString(i));
-            //logger.Info(L"addr : {0}", data);
         }
     };
 
@@ -100,10 +92,10 @@ void TestName()
     auto nameDatas = Name::DebugDumpNameMap();
     for(const auto& data: nameDatas)
     {
-        logger.Info(L"Name :{0}", data->string);
+        CT_LOG(Info, CT_TEXT("Name :{0}"), data->string);
     }
 
-    logger.Info(L"Count : {0}", nameDatas.Size());
+    CT_LOG(Info, CT_TEXT("Count : {0}"), nameDatas.Size());
 #endif
 }
 
@@ -129,11 +121,11 @@ void TestArraySort()
     {
         if(arr[i - 1] > arr[i])
         {
-            logger.Error(L"Sort error at pos {0}, value is {1}", i, arr[i]);
+            CT_LOG(Error, CT_TEXT("Sort error at pos {0}, value is {1}"), i, arr[i]);
         }
     }
 
-    logger.Info(L"Total used milliseconds: {0}", (Time::MilliTime() - startTime));
+    CT_LOG(Info, CT_TEXT("Total used milliseconds: {0}"), (Time::MilliTime() - startTime));
 }
 
 void TestHashMap()
@@ -178,7 +170,7 @@ void TestSortedMap()
 
     for(const auto & e : map1)
     {
-        logger.Info(CT_TEXT("{0}"), e.Key());
+        CT_LOG(Info, CT_TEXT("{0}"), e.Key());
     }
 }
 
@@ -194,7 +186,7 @@ void TestPriorityQueue()
 
     while(!queue.IsEmpty())
     {
-        logger.Info(CT_TEXT("first:{0}"), queue.First());
+        CT_LOG(Info, CT_TEXT("first:{0}"), queue.First());
         queue.Pop();
     }
 }
@@ -216,36 +208,37 @@ void TestStringConvert()
 
 void TestLogger()
 {
+    Logger logger(CT_TEXT(""));
     logger.SetLevel(LogLevel::Info);
-    logger.Info(L"IIIIII");
-    logger.Error(L"{}{0}and{1}", String(L"String1"), sizeof(double));
+    logger.Info(CT_TEXT("IIIIII"));
+    logger.Error(CT_TEXT("{}{0}and{1}"), String(L"String1"), sizeof(double));
 }
 
 void TestTime()
 {
-    logger.Info(L"Now: {0}", Time::NanoTime() / 1000000000);
+    CT_LOG(Info, CT_TEXT("Now: {0}"), Time::NanoTime() / 1000000000);
     std::this_thread::sleep_for(Time::Seconds(1));
-    logger.Info(L"Now: {0}", Time::MilliTime() / 1000);
-    logger.Info(L"Next: {0}", Time::MilliTime(Time::Now() + Time::Seconds(1)) / 1000);
+    CT_LOG(Info, CT_TEXT("Now: {0}"), Time::MilliTime() / 1000);
+    CT_LOG(Info, CT_TEXT("Next: {0}"), Time::MilliTime(Time::Now() + Time::Seconds(1)) / 1000);
 }
 
 void TestVariant()
 {
     Variant var(100);
     int32 intValue = var.GetValue<int32>();
-    var = String(L"ABCD");
+    var = String(CT_TEXT("ABCD"));
     String strValue = var.GetValue<String>();
-    logger.Info(L"String value : {0}", strValue);
+    CT_LOG(Info, CT_TEXT("String value : {0}"), strValue);
 }
 
 void TestAny()
 {
     Any any(100LL);
     int32 val = any.Cast<int32>();
-    logger.Info(L"Cast int32 : {0}", val);
+    CT_LOG(Info, CT_TEXT("Cast int32 : {0}"), val);
     int32& ref = any.RefCast<int32>();
     ref = 300;
-    logger.Info(L"RefCast int64 : {0}", any.RefCast<int64>());
+    CT_LOG(Info, CT_TEXT("RefCast int64 : {0}"), any.RefCast<int64>());
 }
 
 void TestDelegate()
@@ -255,11 +248,11 @@ void TestDelegate()
     public:
         void Print() const
         {
-            logger.Info(CT_TEXT("Call Print."));
+            CT_LOG(Info, CT_TEXT("Call Print."));
         }
         void Test(int32 a, int32 b, int32 c)
         {
-            logger.Info(CT_TEXT("Call Test. {0} {1} {2}"), a, b, c);
+            CT_LOG(Info, CT_TEXT("Call Test. {0} {1} {2}"), a, b, c);
         }
     };
 

@@ -1,5 +1,4 @@
 #include "Math/Test.h"
-#include "Core/Log.h"
 #include "Math/Vector2.h"
 #include "Math/Vector3.h"
 #include "Math/Vector4.h"
@@ -10,14 +9,12 @@
 #include "Math/Ray.h"
 #include "Math/Matrix3.h"
 #include "Math/Matrix4.h"
-
-
-static Log logger = Log(CT_TEXT("Math"));
+#include "Core/Logger.h"
 
 static void TestVector2()
 {
     Vector2 vec = Vector2(-2.0f, 0.0f) - Vector2(-5.0f, 2.0f);
-    logger.Info(CT_TEXT("{0}"), vec);
+    CT_LOG(Info, CT_TEXT("{0}"), vec);
 }
 
 static void TestVector3()
@@ -43,7 +40,7 @@ static void TestCircle()
 static void TestSphere()
 {
     Sphere sphere;
-    logger.Info(CT_TEXT("Sphere:{0}"), sphere);
+    CT_LOG(Info, CT_TEXT("Sphere:{0}"), sphere);
 }
 
 static void TestRay()
@@ -60,7 +57,7 @@ static void TestMatrix3()
 {
     Matrix3 mat;
     mat.SetColumn(0, Vector3(1.0f, 2.0f, 3.0f));
-    logger.Info(CT_TEXT("Matrix3:{0}, det:{1}"), mat, mat.Determinant());
+    CT_LOG(Info, CT_TEXT("Matrix3:{0}, det:{1}"), mat, mat.Determinant());
 }
 
 static void TestMatrix4()
