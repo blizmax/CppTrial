@@ -318,7 +318,7 @@ int main()
 
     Json::Test();
 
-    CT_EXCEPTION("Test Exception");
+    CT_EXCEPTION(Runtime, "Test Exception");
 
     //TestSortedMap();
     //TestPriorityQueue();

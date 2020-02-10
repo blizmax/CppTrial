@@ -288,7 +288,7 @@ public:
         return temp;
     }
 
-    String TrimStart() const
+    String TrimStart(CharType value = CT_TEXT(' ')) const
     {
         const SizeType len = Length();
         SizeType startIndex = 0;
@@ -296,7 +296,7 @@ public:
         if (len > 0)
         {
             SizeType pos = 0;
-            while (Find(CT_TEXT(' '), startIndex, pos))
+            while (Find(value, startIndex, pos))
             {
                 if (pos == startIndex && startIndex < len)
                 {
@@ -312,7 +312,7 @@ public:
         return Substring(startIndex);
     }
 
-    String TrimEnd() const
+    String TrimEnd(CharType value = CT_TEXT(' ')) const
     {
         const SizeType len = Length();
         SizeType endIndex = len;
@@ -320,7 +320,7 @@ public:
         if (len > 0)
         {
             SizeType pos = 0;
-            while (ReverseFind(CT_TEXT(' '), endIndex - 1, pos))
+            while (ReverseFind(value, endIndex - 1, pos))
             {
                 if (pos != endIndex - 1)
                 {
@@ -336,7 +336,7 @@ public:
         return Substring(0, endIndex);
     }
 
-    String Trim() const
+    String Trim(CharType value = CT_TEXT(' ')) const
     {
         const SizeType len = Length();
         SizeType startIndex = 0;
@@ -345,7 +345,7 @@ public:
         if (len > 0)
         {
             SizeType pos = 0;
-            while (Find(CT_TEXT(' '), startIndex, pos))
+            while (Find(value, startIndex, pos))
             {
                 if (pos == startIndex && startIndex < len)
                 {
@@ -357,7 +357,7 @@ public:
                 }
             }
 
-            while (ReverseFind(CT_TEXT(' '), endIndex - 1, pos))
+            while (ReverseFind(value, endIndex - 1, pos))
             {
                 if (pos != endIndex - 1)
                 {

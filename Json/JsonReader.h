@@ -25,7 +25,13 @@ private:
     SizeType ParseArray(JsonValue *json, const CharType *cstr, SizeType begin, SizeType end);
     SizeType ParseChild(JsonValue *parent, const String &name, const CharType *cstr, SizeType begin, SizeType end);
     SizeType ParseString(JsonValue *json, const CharType *cstr, SizeType begin, SizeType end);
-    SPtr<JsonValue> ParseOtherTypes(const String& str);
+    SPtr<JsonValue> ParseOtherTypes(const String &str);
+
+    bool IsWhitespace(CharType value) const
+    {
+        return value == CT_TEXT(' ') || value == CT_TEXT('\t') ||
+               value == CT_TEXT('\n') || value == CT_TEXT('\r');
+    }
 };
 
-}
+} // namespace Json

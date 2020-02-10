@@ -40,9 +40,9 @@ protected:
 
 #define __CT_EXCEPTION_INNER(file) CT_TEXT(file)
 
-#define CT_EXCEPTION(msg)                                                            \
+#define CT_EXCEPTION(tag, msg)                                                            \
     {                                                                                \
-        Exception e(CT_TEXT("Core"), msg, __CT_EXCEPTION_INNER(__FILE__), __LINE__); \
+        Exception e(#tag, msg, __CT_EXCEPTION_INNER(__FILE__), __LINE__); \
         CT_LOG(Fatal, e.ToString());                                                 \
         CT_DEBUG_BREAK();                                                            \
     }

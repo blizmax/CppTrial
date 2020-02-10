@@ -71,14 +71,14 @@ Json::JsonWriter &Json::JsonWriter::Pop()
         const bool array = GetCurrentState().array;
         const bool first = GetCurrentState().first;
         stack.Pop();
-    
+
         if (array)
         {
             buffer += CT_TEXT(']');
         }
         else
         {
-            if(pretty)
+            if (pretty)
             {
                 if (!first)
                 {
@@ -141,9 +141,11 @@ bool Json::JsonWriter::CheckCanWriteValue()
     else
     {
         if (!named)
+        {
+            CT_EXCEPTION(Json, "Name must be set.");
             return false;
-        else
-            named = false;
+        }
+        named = false;
     }
     return true;
 }
@@ -152,6 +154,7 @@ bool Json::JsonWriter::CheckCanPop()
 {
     if (named)
     {
+        CT_EXCEPTION(Json, "Value must be set since named.");
         return false;
     }
     if (stack.IsEmpty())
@@ -165,6 +168,7 @@ bool Json::JsonWriter::CheckCanWriteName()
 {
     if (named || GetCurrentState().array)
     {
+        CT_EXCEPTION(Json, "Current state must be a json object.");
         return false;
     }
     return true;
