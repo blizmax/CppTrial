@@ -1,3 +1,5 @@
+#include "Test/TestCoreLib.h"
+
 #include "Core/Math.h"
 #include "Core/Array.h"
 #include "Core/List.h"
@@ -18,33 +20,9 @@
 #include "Core/Any.h"
 #include "Core/Exception.h"
 #include "Core/Delegate.h"
-#include "Utils/UUID.h"
-#include "Utils/Name.h"
-#include "Reflection/Test.h"
-#include "IO/Test.h"
-#include "Math/Test.h"
-#include "Json/Test.h"
 
-class A
+namespace Test
 {
-public:
-    A() { std::cout << "A constructor" << std::endl; }
-    A(const A &rhs) { std::cout << "A copy constructor" << std::endl; }
-    A(A &&rhs)
-    noexcept { std::cout << "A move constructor" << std::endl; }
-    A &operator=(const A &rhs)
-    {
-        std::cout << "A copy assign" << std::endl;
-        return *this;
-    }
-    A &operator=(A &&rhs) noexcept
-    {
-        std::cout << "A move assign" << std::endl;
-        return *this;
-    }
-    ~A() { std::cout << "A destructor" << std::endl; }
-};
-
 void TestMath()
 {
     int i1 = Math::TruncToInt(-5.6f);
@@ -59,44 +37,6 @@ void TestMath()
     float f8 = Math::Round(3.5f);
     auto min = Math::Min(100, 10, -5.0, 22, -33.5f);
     auto clamp = Math::Clamp(50.0, 77.0, 80.0);
-
-    for(int32 i = 0; i < 10; ++i)
-    {
-        auto uuid = UUID();
-        CT_LOG(Info, L"UUID{0}: {1}", i, uuid);
-    }
-}
-
-void TestName()
-{
-    auto runnable = [](){
-        for(uint32 i = 0; i < 1000; ++i)
-        {
-            Name name(StringConvert::ToString(i));
-        }
-    };
-
-    Array<std::thread> threads;
-
-    for(uint32 i = 0; i < 5; ++i)
-    {
-        threads.Add(std::thread(runnable));
-    }
-
-    for(auto& t : threads)
-    {
-        t.join();
-    }
-
-#ifdef CT_DEBUG
-    auto nameDatas = Name::DebugDumpNameMap();
-    for(const auto& data: nameDatas)
-    {
-        CT_LOG(Info, CT_TEXT("Name :{0}"), data->string);
-    }
-
-    CT_LOG(Info, CT_TEXT("Count : {0}"), nameDatas.Size());
-#endif
 }
 
 void TestArraySort()
@@ -119,7 +59,7 @@ void TestArraySort()
 
     for (SizeType i = 1; i < arr.Size(); ++i)
     {
-        if(arr[i - 1] > arr[i])
+        if (arr[i - 1] > arr[i])
         {
             CT_LOG(Error, CT_TEXT("Sort error at pos {0}, value is {1}"), i, arr[i]);
         }
@@ -131,21 +71,15 @@ void TestArraySort()
 void TestHashMap()
 {
     HashMap<String, int32> map1;
-    
+
     map1.Put(CT_TEXT("A"), 1);
     map1.Put(CT_TEXT("2"), 2);
-
-    // for(const auto&[key, value] : map1)
-    // {
-
-    // }
 }
 
 void TestSortedMap()
 {
-    SortedMap<int32, int32> map1 {
-        {1, 1}, {100, 100}, {70, 70}
-    };
+    SortedMap<int32, int32> map1{
+        {1, 1}, {100, 100}, {70, 70}};
 
     map1.Put(35, 35);
     map1.Put(35, 35);
@@ -154,13 +88,13 @@ void TestSortedMap()
     map1.Put(35, 35);
     map1.Put(35, 35);
 
-    for(uint32 i = 1; i < 100; ++i)
+    for (uint32 i = 1; i < 100; ++i)
     {
         int32 v = Math::RandInt(0, 65535);
         map1.Put(v, v);
     }
 
-    for(uint32 i = 10000; i <= 65535; ++i)
+    for (uint32 i = 10000; i <= 65535; ++i)
     {
         if (map1.Contains(i))
         {
@@ -168,7 +102,7 @@ void TestSortedMap()
         }
     }
 
-    for(const auto & e : map1)
+    for (const auto &e : map1)
     {
         CT_LOG(Info, CT_TEXT("{0}"), e.Key());
     }
@@ -179,12 +113,12 @@ void TestPriorityQueue()
     PriorityQueue<int32> queue{120, 130};
     queue.Push(140);
 
-    for(int32 i = 1; i < 100; ++i)
+    for (int32 i = 1; i < 100; ++i)
     {
         queue.Push(i);
     }
 
-    while(!queue.IsEmpty())
+    while (!queue.IsEmpty())
     {
         CT_LOG(Info, CT_TEXT("first:{0}"), queue.First());
         queue.Pop();
@@ -236,7 +170,7 @@ void TestAny()
     Any any(100LL);
     int32 val = any.Cast<int32>();
     CT_LOG(Info, CT_TEXT("Cast int32 : {0}"), val);
-    int32& ref = any.RefCast<int32>();
+    int32 &ref = any.RefCast<int32>();
     ref = 300;
     CT_LOG(Info, CT_TEXT("RefCast int64 : {0}"), any.RefCast<int64>());
 }
@@ -273,66 +207,4 @@ void TestDelegate()
     auto f = &B::Print;
 }
 
-void TestTemplate()
-{
-    int32 i = 100;
-    const int32* ptr = &i;
-    Hash::HashValue(ptr);
-    const char8* cstr = "HHHH";
-    Hash::HashValue(cstr);
-
-    UUID uuid;
-    Hash::HashValue(uuid);
-}
-
-int main()
-{
-    // SizeType index = Algo::BinarySearch(arr.GetData(), arr.Size(), 77, &AlgoInternal::Less<int>);
-    // int v = arr[index];
-
-    // uint32 uniCode[] = {0x4E25, 0};
-    // uint8 buffer[4] = {0};
-    // SizeType count = StringConvert::UTF32ToUTF8(uniCode, uniCode + 1, buffer);
-    // uint32 ret;
-    // count = StringConvert::UTF8ToUTF32(buffer, buffer + count, &ret);
-
-    // TestMath();
-    // TestArraySort();
-    // TestHashMap();
-    // TestTime();
-    // TestVariant();
-    //TestAny();
-
-    //TestException();
-    //TestDelegate();
-
-    //TestName();
-
-    //TestTemplate();
-
-    //Reflection::Test();
-
-    // IO::Test();
-
-    //Test::TestMath();
-
-    Json::Test();
-
-    CT_EXCEPTION(Runtime, "Test Exception");
-
-    //TestSortedMap();
-    //TestPriorityQueue();
-
-    // std::thread thread1 = std::thread([](){
-    //     Log log1 = Log(L"Thread1");
-    //     log1.Info(L"Thread start.");
-
-    //     log1.Info(L"Thread finish.");
-    // });
-    // thread1.join();
-
-
-
-    system("pause");
-    return 0;
-}
+} // namespace Test
