@@ -7,7 +7,19 @@ set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG -D_DEBUG")
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -D_DEBUG")
 
+if(MSVC)
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D _CRT_SECURE_NO_WARNINGS /MP")
+endif(MSVC)
+
+# Render API
+set (CT_USE_OPENGL 1)
+
+set (CT_EXTERNAL_COMMON ${PROJECT_SOURCE_DIR}/External/Common)
+
+add_definitions(-DUNICODE -D_UNICODE)
+
 include_directories("${PROJECT_SOURCE_DIR}/")
+include_directories("${CT_EXTERNAL_COMMON}/glad/include")
 
 add_subdirectory(Math)
 add_subdirectory(Utils)
@@ -15,4 +27,13 @@ add_subdirectory(IO)
 add_subdirectory(Reflection)
 add_subdirectory(Json)
 
+if(CT_USE_OPENGL)
+    add_subdirectory(OpenGL)
+endif(CT_USE_OPENGL)
+
+if(WIN32)
+    add_subdirectory(Application)
+endif(WIN32)
+
+# list(APPEND, TestSubdirs, Math, Utils, IO, Reflection, Json)
 add_subdirectory(Test)

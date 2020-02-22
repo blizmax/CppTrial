@@ -1,5 +1,6 @@
 #include "Test/TestUtilsLib.h"
 
+#include "Core/Logger.h"
 #include "Core/Thread.h"
 
 #include "Utils/UUID.h"
