@@ -9,14 +9,24 @@ public:
     Application() = default;
     virtual ~Application() = default;
 
+    virtual void PreInit(const WindowConfig &config);
     virtual void Init();
     virtual void Run();
+    virtual void Exit();
 
-    // virtual void CreateWindow();
-    // virtual Window& GetWindow();
+    Window &GetWindow()
+    {
+        return *window;
+    }
 
+    void RequestQuit()
+    {
+        requestingQuit = true;
+    }
 
-
+private:
+    Window *window;
+    bool requestingQuit = false;
 };
 
 extern Application *gApp;

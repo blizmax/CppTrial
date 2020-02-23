@@ -26,10 +26,7 @@ add_subdirectory(Utils)
 add_subdirectory(IO)
 add_subdirectory(Reflection)
 add_subdirectory(Json)
-
-if(CT_USE_OPENGL)
-    add_subdirectory(OpenGL)
-endif(CT_USE_OPENGL)
+add_subdirectory(Graphics)
 
 if(WIN32)
     add_subdirectory(Application)

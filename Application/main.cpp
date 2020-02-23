@@ -5,10 +5,13 @@ Application *gApp = &app;
 
 int main(int argc, char **argv)
 {
-    gApp->Init();
-    Window::Create({CT_TEXT("Hello World"), 1280, 720});
+    app.PreInit({CT_TEXT("Hello World"), 1280, 720});
 
-    gApp->Run();
+    app.Init();
+
+    app.Run();
+
+    app.Exit();
 
     return 0;
 }

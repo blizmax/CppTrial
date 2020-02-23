@@ -7,8 +7,8 @@
 class WindowsWindow : public Window
 {
 public:
-    virtual void OnAttach() override;
-    virtual void OnDetach() override;
+    virtual void OnLoad() override;
+    virtual void OnUnload() override;
     virtual void OnTick() override;
 
     virtual uint32 GetWidth() const override

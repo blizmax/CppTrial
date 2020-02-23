@@ -1,4 +1,5 @@
 #include "Application/Windows/WindowsWindow.h"
+#include "Application/Application.h"
 #include <tchar.h>
 
 void WindowsWindow::CreateNativeWindow(const WindowConfig &config)
@@ -31,7 +32,7 @@ void WindowsWindow::CreateNativeWindow(const WindowConfig &config)
     hwnd = CreateWindowEx(
         0,
         wc.lpszClassName,              // name of the window class
-        *config.title,                 // title of the window
+        config.title.CStr(),           // title of the window
         WS_OVERLAPPEDWINDOW,           // window style
         CW_USEDEFAULT,                 // x-position of the window
         CW_USEDEFAULT,                 // y-position of the window
@@ -48,11 +49,11 @@ void WindowsWindow::CreateNativeWindow(const WindowConfig &config)
     ShowWindow(hwnd, SW_SHOW);
 }
 
-void WindowsWindow::OnAttach()
+void WindowsWindow::OnLoad()
 {
 }
 
-void WindowsWindow::OnDetach()
+void WindowsWindow::OnUnload()
 {
     ReleaseDC(hwnd, hdc);
     DestroyWindow(hwnd);
@@ -78,6 +79,61 @@ void WindowsWindow::OnTick()
 
 LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    LRESULT result = DefWindowProc(hWnd, message, wParam, lParam);
+    LRESULT result = 0;
+
+    WindowsWindow *thisWindow;
+    if (message == WM_NCCREATE)
+    {
+        thisWindow = static_cast<WindowsWindow *>(reinterpret_cast<CREATESTRUCT *>(lParam)->lpCreateParams);
+
+        SetLastError(0);
+        if (!SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(thisWindow)))
+        {
+            if (GetLastError() != 0)
+                return FALSE;
+        }
+    }
+    else
+    {
+        thisWindow = reinterpret_cast<WindowsWindow *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    }
+
+    switch (message)
+    {
+    case WM_CHAR:
+    {
+        //TODO
+        break;
+    }
+    case WM_KEYUP:
+    {
+        break;
+    }
+    case WM_KEYDOWN:
+    {
+        break;
+    }
+    case WM_LBUTTONDOWN:
+    {
+        break;
+    }
+    case WM_LBUTTONUP:
+    {
+        break;
+    }
+    case WM_MOUSEMOVE:
+    {
+        break;
+    }
+    case WM_DESTROY:
+    {
+        PostQuitMessage(0);
+        gApp->RequestQuit();
+        break;
+    }
+    default:
+        result = DefWindowProc(hWnd, message, wParam, lParam);
+    }
+
     return result;
 }

@@ -189,7 +189,7 @@ void GLWindowsWindow::CreateNativeWindow(const WindowConfig &config)
     }
 }
 
-void GLWindowsWindow::OnDetach()
+void GLWindowsWindow::OnUnload()
 {
     if (renderContext)
     {
@@ -198,5 +198,12 @@ void GLWindowsWindow::OnDetach()
         renderContext = 0;
     }
 
-    WindowsWindow::OnDetach();
+    WindowsWindow::OnUnload();
+}
+
+void GLWindowsWindow::OnTick()
+{
+    WindowsWindow::OnTick();
+
+    SwapBuffers(hdc);
 }
