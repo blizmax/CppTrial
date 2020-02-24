@@ -60,7 +60,7 @@ bool IO::FileSystem::RemoveAll(const String &path)
 bool IO::FileSystem::Copy(const String &from, const String &to, bool overwriteExisting)
 {
     std::error_code err;
-    if(overwriteExisting)
+    if (overwriteExisting)
     {
         fs::copy(ToPath(from), ToPath(to), fs::copy_options::overwrite_existing | fs::copy_options::recursive);
     }
@@ -72,7 +72,7 @@ bool IO::FileSystem::Copy(const String &from, const String &to, bool overwriteEx
     return !err;
 }
 
-bool IO::FileSystem::Rename(const String &oldPath, const String& newPath)
+bool IO::FileSystem::Rename(const String &oldPath, const String &newPath)
 {
     std::error_code err;
     fs::rename(ToPath(oldPath), ToPath(newPath), err);
@@ -147,7 +147,6 @@ Array<String> IO::FileSystem::List(const String &path, bool recursive)
     Array<String> ret;
     Iterate(path, [&ret](const String &p) {
         ret.Add(p);
-    },
-            recursive);
+    }, recursive);
     return ret;
 }
