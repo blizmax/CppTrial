@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Core/.Package.h"
+#include "Core/String.h"
 #include <chrono>
+#include <ctime>
 
 namespace Time
 {
@@ -46,4 +48,17 @@ CT_INLINE int64 MilliTime()
 {
     return MilliTime(Now());
 }
-} // namespace TimeUtils
+
+CT_INLINE String ToString(const String &format, std::time_t value)
+{
+    wchar str[100];
+    auto count = std::wcsftime(str, 100, format.CStr(), std::localtime(&value));
+    return String(str, count);
+}
+
+CT_INLINE String ToString(const String &format)
+{
+    return ToString(format, Clock::to_time_t(Now()));
+}
+
+}

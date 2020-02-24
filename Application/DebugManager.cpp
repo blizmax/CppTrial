@@ -16,7 +16,7 @@ void DebugManager::OnUnload()
 
 }
 
-void DebugManager::OnTick()
+void DebugManager::OnUpdate()
 {
     
 }

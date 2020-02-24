@@ -6,7 +6,7 @@ class GLWindowsWindow : public WindowsWindow
 {
 public:
     virtual void OnUnload() override;
-    virtual void OnTick() override;
+    virtual void OnUpdate() override;
     virtual void CreateNativeWindow(const WindowConfig &config) override;
 
 private:

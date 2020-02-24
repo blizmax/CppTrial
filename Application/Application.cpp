@@ -23,10 +23,10 @@ void Application::Run()
     {
 
 #if CT_DEBUG
-        gDebugManager->OnTick();
+        gDebugManager->OnUpdate();
 #endif
 
-        window->OnTick();
+        window->OnUpdate();
     }
 }
 

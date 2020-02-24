@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Application/Module.h"
+#include "Utils/Module.h"
 
 class DebugManager : public Module
 {
@@ -10,7 +10,7 @@ public:
 
     virtual void OnLoad() override;
     virtual void OnUnload() override;
-    virtual void OnTick() override;
+    virtual void OnUpdate() override;
 };
 
 extern DebugManager *gDebugManager;

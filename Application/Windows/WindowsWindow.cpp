@@ -59,7 +59,7 @@ void WindowsWindow::OnUnload()
     DestroyWindow(hwnd);
 }
 
-void WindowsWindow::OnTick()
+void WindowsWindow::OnUpdate()
 {
     // this struct holds Windows event messages
     MSG msg;

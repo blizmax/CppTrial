@@ -2,6 +2,7 @@
 
 #include "Core/.Package.h"
 #include "Core/String.h"
+#include "Core/Time.h"
 #include <iostream>
 
 enum class LogLevel
@@ -110,7 +111,8 @@ private:
     void Print(const String &prefix, const String &msg, Args &&... args) const
     {
         String fmtMsg = String::Format(msg, std::forward<Args>(args)...);
-        std::wcout << String::Format(CT_TEXT("<{0}>[{1}] {2}"), prefix, tag, fmtMsg).CStr() << std::endl;
+        String fmtTime = Time::ToString(CT_TEXT("%Y-%m-%d %H:%M:%S"));
+        std::wcout << String::Format(CT_TEXT("[{0}] <{1}>[{2}] {3}"), fmtTime, prefix, tag, fmtMsg).CStr() << std::endl;
     }
 
 private:

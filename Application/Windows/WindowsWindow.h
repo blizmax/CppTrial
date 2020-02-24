@@ -9,7 +9,7 @@ class WindowsWindow : public Window
 public:
     virtual void OnLoad() override;
     virtual void OnUnload() override;
-    virtual void OnTick() override;
+    virtual void OnUpdate() override;
 
     virtual uint32 GetWidth() const override
     {

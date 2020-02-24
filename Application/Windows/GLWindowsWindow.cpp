@@ -201,9 +201,9 @@ void GLWindowsWindow::OnUnload()
     WindowsWindow::OnUnload();
 }
 
-void GLWindowsWindow::OnTick()
+void GLWindowsWindow::OnUpdate()
 {
-    WindowsWindow::OnTick();
+    WindowsWindow::OnUpdate();
 
     SwapBuffers(hdc);
 }
