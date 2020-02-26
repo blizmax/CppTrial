@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Graphics/.Package.h"
+#include "Render/.Package.h"
 
 class IndexBuffer
 {

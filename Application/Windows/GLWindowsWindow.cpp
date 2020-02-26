@@ -187,6 +187,8 @@ void GLWindowsWindow::CreateNativeWindow(const WindowConfig &config)
             CT_EXCEPTION(Init, "wglMakeCurrent failed!");
         }
     }
+
+    CT_LOG(Debug, CT_TEXT("GLWindowsWindow created."));
 }
 
 void GLWindowsWindow::OnUnload()

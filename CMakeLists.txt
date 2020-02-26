@@ -26,7 +26,7 @@ add_subdirectory(Utils)
 add_subdirectory(IO)
 add_subdirectory(Reflection)
 add_subdirectory(Json)
-add_subdirectory(Graphics)
+add_subdirectory(Render)
 
 if(WIN32)
     add_subdirectory(Application)

@@ -13,7 +13,7 @@ target_link_libraries(Application Reflection)
 target_link_libraries(Application Json)
 
 if(CT_USE_OPENGL)
-    target_link_libraries(Application GraphicsOpenGL)
+    target_link_libraries(Application RenderOpenGL)
 endif(CT_USE_OPENGL)
 
 if(WIN32)

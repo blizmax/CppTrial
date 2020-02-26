@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Application/.Package.h"
 #include "Utils/Module.h"
 
 struct WindowConfig

@@ -1,4 +1,4 @@
-#include "Graphics/OpenGL/GLVertexBuffer.h"
+#include "Render/OpenGL/GLVertexBuffer.h"
 
 SPtr<VertexBuffer> VertexBuffer::Create(float *vertices, uint32 size)
 {
