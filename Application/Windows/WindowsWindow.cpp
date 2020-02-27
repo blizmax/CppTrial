@@ -1,5 +1,6 @@
 #include "Application/Windows/WindowsWindow.h"
 #include "Application/Application.h"
+#include "Application/InputManager.h"
 #include <tchar.h>
 
 void WindowsWindow::CreateNativeWindow(const WindowConfig &config)
@@ -102,7 +103,17 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
     {
     case WM_CHAR:
     {
-        //TODO
+        gInputManager->OnKeyTyped((char32) wParam);
+        break;
+    }
+    case WM_UNICHAR:
+    {
+        if(wParam == UNICODE_NOCHAR)
+        {
+            return TRUE;
+        }
+
+        gInputManager->OnKeyTyped((char32) wParam); 
         break;
     }
     case WM_KEYUP:

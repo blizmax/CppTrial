@@ -13,7 +13,7 @@ struct WindowConfig
 class Window : public Module
 {
 public:
-    Window() : Module(CT_TEXT("Window")) {}
+    Window() = default;
     virtual ~Window() = default;
 
     virtual uint32 GetWidth() const = 0;
@@ -21,6 +21,11 @@ public:
 
     virtual void CreateNativeWindow(const WindowConfig &config) = 0;
     virtual void *GetNativeHandler() const = 0;
+
+    virtual String GetName() const override
+    {
+        return CT_TEXT("Window");
+    }
 
 public:
     static Window *Create(const WindowConfig &config);

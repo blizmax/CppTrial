@@ -1,4 +1,5 @@
 #include "Application/Application.h"
+#include "Application/InputManager.h"
 #include "Render/RenderManager.h"
 
 #if CT_DEBUG
@@ -12,12 +13,12 @@ void Application::PreInit(const WindowConfig &config)
 #endif
 
     window = Window::Create(config);
-
-    gRenderManager->OnLoad();
 }
 
 void Application::Init()
 {
+    gInputManager->OnLoad();
+    gRenderManager->OnLoad();
 }
 
 void Application::Run()
@@ -31,6 +32,7 @@ void Application::Run()
 
         window->OnUpdate();
 
+        gInputManager->OnUpdate();
         gRenderManager->OnUpdate();
     }
 }
@@ -38,6 +40,7 @@ void Application::Run()
 void Application::Exit()
 {
     gRenderManager->OnUnload();
+    gInputManager->OnUnload();
 
 #if CT_DEBUG
     gDebugManager->OnUnload();

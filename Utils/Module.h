@@ -5,7 +5,7 @@
 class Module
 {
 public:
-    Module(const String &name) : name(name) {}
+    Module() = default;
     virtual ~Module() = default;
 
     Module(Module &&) = delete;
@@ -17,11 +17,5 @@ public:
     virtual void OnUnload() = 0;
     virtual void OnUpdate() = 0;
 
-    const String &GetName() const
-    {
-        return name;
-    }
-
-private:
-    String name;
+    virtual String GetName() const = 0;
 };

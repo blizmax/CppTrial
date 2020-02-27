@@ -4,7 +4,7 @@
 
 #include "Render/RenderAPI.h"
 
-DebugManager debugManager;;
+DebugManager debugManager;
 DebugManager *gDebugManager = &debugManager;
 
 
