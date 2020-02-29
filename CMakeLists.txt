@@ -32,5 +32,4 @@ if(WIN32)
     add_subdirectory(Application)
 endif(WIN32)
 
-# list(APPEND, TestSubdirs, Math, Utils, IO, Reflection, Json)
 add_subdirectory(Test)
