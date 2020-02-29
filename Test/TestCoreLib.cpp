@@ -193,18 +193,14 @@ void TestDelegate()
     B obj;
 
     Delegate<void(void)> delegate;
-    delegate.Bind(&B::Print, &obj);
-    delegate.Bind(&B::Print, &obj);
-    delegate.Bind(TestAny);
-    delegate();
-    delegate.Unbind(&obj);
+    delegate.On(&B::Print, &obj);
+    auto handle = delegate.On(&B::Print, &obj);
+    delegate.On(TestAny);
     delegate();
 
-    Delegate<void(int32, int32, int32)> delegate1;
-    delegate1.Bind(&B::Test, &obj);
-    delegate1(100, 200, 300);
+    handle.Off();
 
-    auto f = &B::Print;
+    delegate();
 }
 
 } // namespace Test

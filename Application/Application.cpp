@@ -25,15 +25,14 @@ void Application::Run()
 {
     while (!requestingQuit)
     {
+        gInputManager->OnUpdate();
+        gRenderManager->OnUpdate();
 
 #if CT_DEBUG
         gDebugManager->OnUpdate();
 #endif
 
         window->OnUpdate();
-
-        gInputManager->OnUpdate();
-        gRenderManager->OnUpdate();
     }
 }
 

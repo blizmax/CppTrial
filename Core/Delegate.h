@@ -9,37 +9,27 @@ template <typename ReturnType, typename... Args>
 class Delegate<ReturnType(Args...)>
 {
 public:
-    template <typename OwnerType>
-    using MemberFuncPtr = ReturnType (OwnerType::*)(Args...);
-    template <typename OwnerType>
-    using ConstMemberFuncPtr = ReturnType (OwnerType::*)(Args...) const;
-    using FuncPtr = ReturnType (*)(Args...);
-    using WrappedFunc = std::function<ReturnType(Args...)>;
+    template <typename ObjectType>
+    using MemberFunc = ReturnType (ObjectType::*)(Args...);
+    template <typename ObjectType>
+    using ConstMemberFunc = ReturnType (ObjectType::*)(Args...) const;
 
-private:
+    using Callable = std::function<ReturnType(Args...)>;
+
+public:
     struct InnerData
     {
-        void *objPtr = nullptr;
-        void *funcPtr = nullptr;
-        WrappedFunc wrappedFunc;
+        Callable callable;
+        bool enabled;
 
-        InnerData(FuncPtr func)
+        InnerData(Callable func) : enabled(true)
         {
-            funcPtr = reinterpret_cast<void *>(func);
-            wrappedFunc = WrappedFunc(func);
+            callable = func;
         }
 
-        InnerData(WrappedFunc func)
+        template <typename ObjectType>
+        InnerData(MemberFunc<ObjectType> func, ObjectType *obj) : enabled(true)
         {
-            wrappedFunc = func;
-        }
-
-        template <typename OwnerType>
-        InnerData(MemberFuncPtr<OwnerType> func, OwnerType *obj)
-        {
-            //funcPtr = reinterpret_cast<void *>(func);
-            objPtr = reinterpret_cast<void *>(obj);
-
             using namespace std::placeholders;
 
             constexpr uint32 argNum = sizeof...(Args);
@@ -47,134 +37,103 @@ private:
 
             if constexpr (argNum == 0)
             {
-                wrappedFunc = std::bind(func, obj);
+                callable = std::bind(func, obj);
             }
             else if constexpr (argNum == 1)
             {
-                wrappedFunc = std::bind(func, obj, _1);
+                callable = std::bind(func, obj, _1);
             }
             else if constexpr (argNum == 2)
             {
-                wrappedFunc = std::bind(func, obj, _1, _2);
+                callable = std::bind(func, obj, _1, _2);
             }
             else if constexpr (argNum == 3)
             {
-                wrappedFunc = std::bind(func, obj, _1, _2, _3);
+                callable = std::bind(func, obj, _1, _2, _3);
             }
             else if constexpr (argNum == 4)
             {
-                wrappedFunc = std::bind(func, obj, _1, _2, _3, _4);
+                callable = std::bind(func, obj, _1, _2, _3, _4);
             }
             else if constexpr (argNum == 5)
             {
-                wrappedFunc = std::bind(func, obj, _1, _2, _3, _4, _5);
+                callable = std::bind(func, obj, _1, _2, _3, _4, _5);
             }
+        }
+
+        void Disable()
+        {
+            enabled = false;
+        }
+
+        bool IsEnabled() const
+        {
+            return enabled;
         }
     };
 
-    SizeType Find(void *func) const
+    class Handle
     {
-        for (SizeType i = 0; i < data.Size(); ++i)
+    public:
+        Handle(const SPtr<InnerData> & data) : data(data)
         {
-            if (data[i].funcPtr == func)
-            {
-                return i;
-            }
         }
-        return INDEX_NONE;
-    }
+
+        void Off()
+        {
+            if(data)
+                data->Disable();
+        }
+
+    private:
+        SPtr<InnerData> data;
+    };
 
 public:
     bool IsEmpty() const
     {
-        return data.Size() == 0;
-    }
-
-    bool Exists(FuncPtr func) const
-    {
-        return Find(reinterpret_cast<void *>(func)) != INDEX_NONE;
-    }
-
-    // template<typename OwnerType>
-    // bool Exists(MemberFuncPtr<OwnerType> func, OwnerType *obj) const
-    // {
-    //     auto index = Find(reinterpret_cast<void *>(func));
-    //     if(index != INDEX_NONE && data[index].objPtr == obj)
-    //     {
-    //         return true;
-    //     }
-    //     return false;
-    // }
-
-    void Bind(FuncPtr func)
-    {
-        if (!Exists(func))
-        {
-            data.Add(InnerData(func));
-        }
-    }
-
-    // TODO Try compare two member function ptr
-    template <typename OwnerType>
-    void Bind(MemberFuncPtr<OwnerType> func, OwnerType *obj)
-    {
-        // if (!Exists(func, obj))
-        // {
-        //     data.Add(InnerData(func, obj));
-        // }
-        data.Add(InnerData(func, obj));
-    }
-
-    template <typename OwnerType>
-    void Bind(ConstMemberFuncPtr<OwnerType> func, OwnerType *obj)
-    {
-        Bind((MemberFuncPtr<OwnerType>)(func), obj);
-    }
-
-    // TODO Try compare two std::function object
-    void Bind(WrappedFunc func)
-    {
-        data.Add(InnerData(func));
-    }
-
-    void Unbind(FuncPtr func)
-    {
-        auto index = Find(func);
-        if (index != INDEX_NONE)
-        {
-            data.Remove(index);
-        }
-    }
-
-    template <typename OwnerType>
-    void Unbind(OwnerType *obj)
-    {
-        for (SizeType i = 0; i < data.Size();)
-        {
-            if (data[i].objPtr == obj)
-            {
-                data.Remove(i);
-            }
-            else
-            {
-                ++i;
-            }
-        }
+        return chain.Size() == 0;
     }
 
     void Clear()
     {
-        data.Clear();
+        for (const auto &e : chain)
+            e->Disable();
+
+        chain.Clear();
+    }
+
+    Handle On(Callable func)
+    {
+        auto innerData = Memory::MakeShared<InnerData>(func);
+        chain.Add(innerData);
+        return Handle(innerData);
+    }
+
+    template <typename ObjectType>
+    Handle On(MemberFunc<ObjectType> func, ObjectType *obj)
+    {
+        auto innerData = Memory::MakeShared<InnerData>(func, obj);
+        chain.Add(innerData);
+        return Handle(innerData);
+    }
+
+    template <typename ObjectType>
+    Handle On(ConstMemberFunc<ObjectType> func, ObjectType *obj)
+    {
+        return On((MemberFunc<ObjectType>)(func), obj);
     }
 
     void operator()(Args... args)
     {
-        for (const auto &e : data)
+        //TODO Clean the chain if contains too many holes
+        for (const auto &e : chain)
         {
-            e.wrappedFunc(std::forward<Args>(args)...);
+            if (e->IsEnabled())
+                e->callable(std::forward<Args>(args)...);
         }
     }
 
 private:
-    Array<InnerData> data;
+    Array<SPtr<InnerData>> chain;
 };

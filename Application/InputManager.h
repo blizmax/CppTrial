@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Application/.Package.h"
+#include "Core/Delegate.h"
 #include "Utils/Module.h"
 
 class InputManager : public Module

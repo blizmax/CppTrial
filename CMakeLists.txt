@@ -20,6 +20,7 @@ add_definitions(-DUNICODE -D_UNICODE)
 
 include_directories("${PROJECT_SOURCE_DIR}/")
 include_directories("${CT_EXTERNAL_COMMON}/glad/include")
+include_directories("${CT_EXTERNAL_COMMON}/imgui")
 
 add_subdirectory(Math)
 add_subdirectory(Utils)
