@@ -230,6 +230,7 @@ CT_INLINE Array<char8> ToUTF8(const String &str)
         }
     }
 
+    arr.Add(0);
     return arr;
 }
 

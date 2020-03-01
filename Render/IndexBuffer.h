@@ -10,5 +10,7 @@ public:
     virtual void Bind() const = 0;
     virtual void Unbind() const = 0;
 
-    static SPtr<IndexBuffer> Create(float *indices, uint32 size);
+    virtual uint32 GetCount() const = 0;
+
+    static SPtr<IndexBuffer> Create(uint32 *indices, uint32 count);
 };

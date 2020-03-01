@@ -3,6 +3,7 @@
 #if CT_DEBUG
 
 #include "Render/RenderAPI.h"
+#include "Render/Shader.h"
 
 DebugManager debugManager;
 DebugManager *gDebugManager = &debugManager;
@@ -183,7 +184,9 @@ void ImGuiEnd()
 
 void DebugManager::OnLoad()
 {
-     CT_LOG(Debug, CT_TEXT("DebugManager initialized."));
+    CT_LOG(Debug, CT_TEXT("DebugManager initialized."));
+
+    Shader::Create(CT_TEXT("Assets/Shaders/Shader1.glsl"));
 }
 
 void DebugManager::OnUnload()

@@ -560,7 +560,7 @@ public:
                 {
                     if (*(ptr + i + j) != *(str + j))
                     {
-                        return false;
+                        goto out;
                     }
                 }
                 if (at)
@@ -569,6 +569,7 @@ public:
                 }
                 return true;
             }
+        out:;
         }
         return false;
     }
@@ -697,7 +698,7 @@ public:
                 {
                     if (*(ptr + i - j) != *(str + count - 1 - j))
                     {
-                        return false;
+                        goto out;
                     }
                 }
                 if (at)
@@ -706,6 +707,7 @@ public:
                 }
                 return true;
             }
+        out:;
         }
         return false;
     }

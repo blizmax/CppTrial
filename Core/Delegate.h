@@ -20,20 +20,20 @@ public:
     struct InnerData
     {
         Callable callable;
-        bool enabled;
+        bool alive;
 
-        InnerData(Callable func) : enabled(true)
+        InnerData(Callable func) : alive(true)
         {
             callable = func;
         }
 
         template <typename ObjectType>
-        InnerData(MemberFunc<ObjectType> func, ObjectType *obj) : enabled(true)
+        InnerData(MemberFunc<ObjectType> func, ObjectType *obj) : alive(true)
         {
             using namespace std::placeholders;
 
             constexpr uint32 argNum = sizeof...(Args);
-            static_assert(argNum < 6, "too much args!");
+            static_assert(argNum < 6, "too many args!");
 
             if constexpr (argNum == 0)
             {
@@ -60,29 +60,19 @@ public:
                 callable = std::bind(func, obj, _1, _2, _3, _4, _5);
             }
         }
-
-        void Disable()
-        {
-            enabled = false;
-        }
-
-        bool IsEnabled() const
-        {
-            return enabled;
-        }
     };
 
     class Handle
     {
     public:
-        Handle(const SPtr<InnerData> & data) : data(data)
+        Handle(const SPtr<InnerData> &data) : data(data)
         {
         }
 
         void Off()
         {
-            if(data)
-                data->Disable();
+            if (data)
+                data->alive = false;
         }
 
     private:
@@ -90,15 +80,26 @@ public:
     };
 
 public:
+    Delegate() = default;
+    Delegate(const Delegate &) = delete;
+    Delegate(Delegate &&) = delete;
+    Delegate &operator=(const Delegate &) = delete;
+    Delegate &operator=(Delegate &&) = delete;
+
+    ~Delegate()
+    {
+        Clear();
+    }
+
     bool IsEmpty() const
     {
-        return chain.Size() == 0;
+        return chain.IsEmpty();
     }
 
     void Clear()
     {
         for (const auto &e : chain)
-            e->Disable();
+            e->alive = false;
 
         chain.Clear();
     }
@@ -126,11 +127,24 @@ public:
 
     void operator()(Args... args)
     {
-        //TODO Clean the chain if contains too many holes
+        uint32 deadNum = 0;
         for (const auto &e : chain)
         {
-            if (e->IsEnabled())
+            if (e->alive)
                 e->callable(std::forward<Args>(args)...);
+            else
+                ++deadNum;
+        }
+
+        if (deadNum >= 5)
+        {
+            Array<SPtr<InnerData>> temp;
+            for (const auto &e : chain)
+            {
+                if (e->alive)
+                    temp.Add(e);
+            }
+            chain.Swap(temp);
         }
     }
 

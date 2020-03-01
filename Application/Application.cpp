@@ -8,10 +8,6 @@
 
 void Application::PreInit(const WindowConfig &config)
 {
-#if CT_DEBUG
-    gDebugManager->OnLoad();
-#endif
-
     window = Window::Create(config);
 }
 
@@ -19,6 +15,10 @@ void Application::Init()
 {
     gInputManager->OnLoad();
     gRenderManager->OnLoad();
+
+#if CT_DEBUG
+    gDebugManager->OnLoad();
+#endif
 }
 
 void Application::Run()
@@ -38,10 +38,10 @@ void Application::Run()
 
 void Application::Exit()
 {
-    gRenderManager->OnUnload();
-    gInputManager->OnUnload();
-
 #if CT_DEBUG
     gDebugManager->OnUnload();
 #endif
+
+    gRenderManager->OnUnload();
+    gInputManager->OnUnload();
 }
