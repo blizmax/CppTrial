@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Core/.Package.h"
 #include "Core/Array.h"
 #include <functional>

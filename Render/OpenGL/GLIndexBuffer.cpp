@@ -20,10 +20,10 @@ GLIndexBuffer::~GLIndexBuffer()
 
 void GLIndexBuffer::Bind() const
 {
-    glBindBuffer(GL_ARRAY_BUFFER, id);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
 }
 
 void GLIndexBuffer::Unbind() const
 {
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }

@@ -1,6 +1,6 @@
 #include "Render/OpenGL/GLVertexArray.h"
 
-SPtr<VertexArray> Create()
+SPtr<VertexArray> VertexArray::Create()
 {
     return Memory::MakeShared<GLVertexArray>();
 }
@@ -63,8 +63,7 @@ void GLVertexArray::AddVertexBuffer(const SPtr<VertexBuffer> &buffer)
                               GetGLTypeByVertexDataType(attr.dataType),
                               attr.normalized ? GL_TRUE : GL_FALSE,
                               layout.GetStride(),
-                              reinterpret_cast<const void *>(attr.offset));
-                              //(const void *)attr.offset);
+                              reinterpret_cast<void *>(attr.offset));
 
         ++vertexBufferIndex;
     }
@@ -75,7 +74,7 @@ void GLVertexArray::AddVertexBuffer(const SPtr<VertexBuffer> &buffer)
 void GLVertexArray::SetIndexBuffer(const SPtr<IndexBuffer> &buffer)
 {
     glBindVertexArray(id);
-    indexBuffer->Bind();
+    buffer->Bind();
 
     indexBuffer = buffer;
 }

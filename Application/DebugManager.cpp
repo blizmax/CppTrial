@@ -2,11 +2,12 @@
 
 #if CT_DEBUG
 
-#include "Render/RenderAPI.h"
-#include "Render/Shader.h"
-
 DebugManager debugManager;
 DebugManager *gDebugManager = &debugManager;
+
+#if defined(_WIN32)
+#include <windows.h>
+#endif
 
 #if 0
 #include "imgui"
@@ -184,9 +185,36 @@ void ImGuiEnd()
 
 void DebugManager::OnLoad()
 {
-    CT_LOG(Debug, CT_TEXT("DebugManager initialized."));
+#if defined(_WIN32)
+    auto &gLog = Logger::GetGlobalLogger();
+    gLog.printHandler.Clear();
+    gLog.printHandler.On([](LogLevel l, const String &s) {
+        HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+        WORD color = 0;
+        switch (l)
+        {
+        case LogLevel::Debug:
+            color = FOREGROUND_RED | FOREGROUND_GREEN;
+            break;
+        case LogLevel::Info: 
+            color = FOREGROUND_GREEN;
+            break;
+        case LogLevel::Warning:
+            color = FOREGROUND_RED | FOREGROUND_BLUE;
+            break;
+        case LogLevel::Error:
+            color = FOREGROUND_RED;
+            break;
+        default:
+            color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+            break;
+        }
+        SetConsoleTextAttribute(h, FOREGROUND_INTENSITY | color);
+        std::wcout << s.CStr() << std::endl;
+    });
+#endif
 
-    Shader::Create(CT_TEXT("Assets/Shaders/Shader1.glsl"));
+    CT_LOG(Info, CT_TEXT("DebugManager loaded."));
 }
 
 void DebugManager::OnUnload()
@@ -196,13 +224,7 @@ void DebugManager::OnUnload()
 
 void DebugManager::OnUpdate()
 {
-    //TODO Move to render mgr
-    RenderAPI::SetClearColor(1.0f, 0.0f, 1.0f, 1.0f);
-    RenderAPI::Clear();
 
-    //IMGUI BEGIN
-
-    //IMGUI END
 }
 
 #endif

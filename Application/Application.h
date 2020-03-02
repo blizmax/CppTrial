@@ -2,6 +2,7 @@
 
 #include "Application/.Package.h"
 #include "Application/Window.h"
+#include "Application/Logic.h"
 
 class Application
 {
@@ -26,6 +27,7 @@ public:
 
 private:
     Window *window;
+    Logic *logic;
     bool requestingQuit = false;
 };
 

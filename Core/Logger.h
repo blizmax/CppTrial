@@ -3,6 +3,7 @@
 #include "Core/.Package.h"
 #include "Core/String.h"
 #include "Core/Time.h"
+#include "Core/Delegate.h"
 #include <iostream>
 
 enum class LogLevel
@@ -27,14 +28,17 @@ public:
     Logger &operator=(Logger &&) = delete;
     ~Logger() = default;
 
-    explicit Logger(const String &inTag, LogLevel inLevel = DEFAULT_LEVEL)
-        : tag(inTag), level(inLevel)
+    explicit Logger(const String &tag, LogLevel lv = DEFAULT_LEVEL)
+        : tag(tag), level(lv)
     {
+        printHandler.On([](LogLevel l, const String &s) {
+            std::wcout << s.CStr() << std::endl;
+        });
     }
 
-    void SetLevel(LogLevel newLevel)
+    void SetLevel(LogLevel lv)
     {
-        level = newLevel;
+        level = lv;
     }
 
     LogLevel GetLevel() const
@@ -71,27 +75,7 @@ public:
     {
         if (CompareLevel(level, lv) <= 0)
         {
-            String prefix;
-            switch (lv)
-            {
-            case LogLevel::Debug:
-                prefix = CT_TEXT("D");
-                break;
-            case LogLevel::Info:
-                prefix = CT_TEXT("I");
-                break;
-            case LogLevel::Warning:
-                prefix = CT_TEXT("W");
-                break;
-            case LogLevel::Error:
-                prefix = CT_TEXT("E");
-                break;
-            case LogLevel::Fatal:
-                prefix = CT_TEXT("F");
-                break;
-            }
-
-            Print(prefix, msg, std::forward<Args>(args)...);
+            Print(lv, msg, std::forward<Args>(args)...);
         }
     }
 
@@ -108,12 +92,36 @@ private:
     }
 
     template <typename... Args>
-    void Print(const String &prefix, const String &msg, Args &&... args) const
+    void Print(const LogLevel &lv, const String &msg, Args &&... args) const
     {
+        String prefix;
+        switch (lv)
+        {
+        case LogLevel::Debug:
+            prefix = CT_TEXT("D");
+            break;
+        case LogLevel::Info:
+            prefix = CT_TEXT("I");
+            break;
+        case LogLevel::Warning:
+            prefix = CT_TEXT("W");
+            break;
+        case LogLevel::Error:
+            prefix = CT_TEXT("E");
+            break;
+        case LogLevel::Fatal:
+            prefix = CT_TEXT("F");
+            break;
+        }
+
         String fmtMsg = String::Format(msg, std::forward<Args>(args)...);
         String fmtTime = Time::ToString(CT_TEXT("%Y-%m-%d %H:%M:%S"));
-        std::wcout << String::Format(CT_TEXT("[{0}] <{1}>[{2}] {3}"), fmtTime, prefix, tag, fmtMsg).CStr() << std::endl;
+
+        printHandler(lv, String::Format(CT_TEXT("[{0}] <{1}>[{2}] {3}"), fmtTime, prefix, tag, fmtMsg));
     }
+
+public:
+    mutable Delegate<void(LogLevel, const String &)> printHandler;
 
 private:
     static Logger gLogger;
