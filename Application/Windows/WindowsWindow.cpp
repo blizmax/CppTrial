@@ -103,37 +103,104 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
     {
     case WM_CHAR:
     {
-        gInputManager->ProcessKeyTyped((char32) wParam);
+        gInputManager->ProcessKeyTyped((char32)wParam);
         break;
     }
     case WM_UNICHAR:
     {
-        if(wParam == UNICODE_NOCHAR)
+        if (wParam == UNICODE_NOCHAR)
         {
             return TRUE;
         }
 
-        gInputManager->ProcessKeyTyped((char32) wParam); 
+        gInputManager->ProcessKeyTyped((char32)wParam);
         break;
     }
     case WM_KEYUP:
     {
+        int32 key = (HIWORD(lParam) & (KF_EXTENDED | 0xff));
+        gInputManager->ProcessKeyUp(key);
         break;
     }
     case WM_KEYDOWN:
     {
+        int32 key = (HIWORD(lParam) & (KF_EXTENDED | 0xff));
+        gInputManager->ProcessKeyDown(key);
         break;
     }
     case WM_LBUTTONDOWN:
-    {
-        break;
-    }
+    case WM_RBUTTONDOWN:
+    case WM_MBUTTONDOWN:
+    case WM_XBUTTONDOWN:
     case WM_LBUTTONUP:
+    case WM_RBUTTONUP:
+    case WM_MBUTTONUP:
+    case WM_XBUTTONUP:
     {
+        int button;
+        bool down = false;
+
+        if (message == WM_LBUTTONDOWN || message == WM_LBUTTONUP)
+            button = CT_BUTTON_LEFT;
+        else if (message == WM_RBUTTONDOWN || message == WM_RBUTTONUP)
+            button = CT_BUTTON_RIGHT;
+        else if (message == WM_MBUTTONDOWN || message == WM_MBUTTONUP)
+            button = CT_BUTTON_MIDDLE;
+        else if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
+            button = CT_BUTTON_3;
+        else
+            button = CT_BUTTON_4;
+
+        if (message == WM_LBUTTONDOWN || message == WM_RBUTTONDOWN ||
+            message == WM_MBUTTONDOWN || message == WM_XBUTTONDOWN)
+        {
+            down = true;
+        }
+
+        // for (i = 0;  i <= GLFW_MOUSE_BUTTON_LAST;  i++)
+        // {
+        //     if (window->mouseButtons[i] == GLFW_PRESS)
+        //         break;
+        // }
+
+        // if (i > GLFW_MOUSE_BUTTON_LAST)
+        //     SetCapture(hWnd);
+
+        if (down)
+            gInputManager->ProcessTouchDown(button);
+        else
+            gInputManager->ProcessTouchUp(button);
+
+        // for (i = 0;  i <= GLFW_MOUSE_BUTTON_LAST;  i++)
+        // {
+        //     if (window->mouseButtons[i] == GLFW_PRESS)
+        //         break;
+        // }
+
+        // if (i > GLFW_MOUSE_BUTTON_LAST)
+        //     ReleaseCapture();
+
+        if (message == WM_XBUTTONDOWN || message == WM_XBUTTONUP)
+            return TRUE;
+
         break;
     }
     case WM_MOUSEMOVE:
     {
+        const int32 x = GET_X_LPARAM(lParam);
+        const int32 y = GET_Y_LPARAM(lParam);
+        gInputManager->ProcessMouseMoved(x, y);
+        break;
+    }
+    case WM_MOUSEWHEEL:
+    case WM_MOUSEHWHEEL:
+    {
+        gInputManager->ProcessMouseScrolled((int16)HIWORD(wParam));
+        break;
+    }
+    case WM_SIZE:
+    {
+        //TODO
         break;
     }
     case WM_DESTROY:

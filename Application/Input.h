@@ -3,17 +3,18 @@
 #include "Application/.Package.h"
 
 
-#define CT_MOUSE_BUTTON_0         0
-#define CT_MOUSE_BUTTON_1         1
-#define CT_MOUSE_BUTTON_2         2
-#define CT_MOUSE_BUTTON_3         3
-#define CT_MOUSE_BUTTON_4         4
-#define CT_MOUSE_BUTTON_5         5
-#define CT_MOUSE_BUTTON_6         6
-#define CT_MOUSE_BUTTON_7         7
-#define CT_MOUSE_BUTTON_LEFT      CT_MOUSE_BUTTON_0
-#define CT_MOUSE_BUTTON_RIGHT     CT_MOUSE_BUTTON_1
-#define CT_MOUSE_BUTTON_MIDDLE    CT_MOUSE_BUTTON_2
+#define CT_BUTTON_0         0
+#define CT_BUTTON_1         1
+#define CT_BUTTON_2         2
+#define CT_BUTTON_3         3
+#define CT_BUTTON_4         4
+#define CT_BUTTON_5         5
+#define CT_BUTTON_6         6
+#define CT_BUTTON_7         7
+#define CT_BUTTON_LEFT      CT_BUTTON_0
+#define CT_BUTTON_RIGHT     CT_BUTTON_1
+#define CT_BUTTON_MIDDLE    CT_BUTTON_2
+#define CT_BUTTON_LAST      CT_BUTTON_7
 
 
 #define CT_KEY_UNKNOWN            -1
@@ -138,6 +139,8 @@
 #define CT_KEY_RIGHT_ALT          346
 #define CT_KEY_RIGHT_SUPER        347
 #define CT_KEY_MENU               348
+
+#define CT_KEY_LAST               CT_KEY_MENU
 
 enum class InputEventType
 {
