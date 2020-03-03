@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Application/.Package.h"
+#include "Application/Input.h"
 #include "Core/Delegate.h"
 #include "Utils/Module.h"
 
@@ -19,14 +20,26 @@ public:
         return CT_TEXT("InputManager");
     }
 
-    virtual void OnKeyTyped(char32 character) {};
-    virtual void OnKeyDown(int32 key, int32 repeat) {};
-    virtual void OnKeyUp(int32 key) {};
-    virtual void OnTouchDown(int32 button) {};
-    virtual void OnTouchUp(int32 button) {};
+    virtual void ProcessKeyTyped(char32 character) {};
+    virtual void ProcessKeyDown(int32 key, int32 repeat) {};
+    virtual void ProcessKeyUp(int32 key) {};
+    virtual void ProcessTouchDown(int32 button) {};
+    virtual void ProcessTouchUp(int32 button) {};
     // virtual void OnTouchDragged(int32 button) {};
-    virtual void OnMouseMoved(int32 posX, int32 posY) {};
-    virtual void OnMouseScrolled(int32 amount) {};
+    virtual void ProcessMouseMoved(int32 posX, int32 posY) {};
+    virtual void ProcessMouseScrolled(int32 amount) {};
+
+public:
+    Delegate<void(char32)> keyTypedHandler;
+    Delegate<void(int32, int32)> keyDownHandler;
+    Delegate<void(int32)> keyUpHandler;
+    Delegate<void(int32)> touchDownHandler;
+    Delegate<void(int32)> touchUpHandler;
+    Delegate<void(int32)> mouseMovedHandler;
+    Delegate<void(int32)> mouseScrolledHandler;
+
+protected:
+    int32 keycodeTable[512];
 };
 
 extern InputManager *gInputManager;

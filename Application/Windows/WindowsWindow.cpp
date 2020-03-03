@@ -103,7 +103,7 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
     {
     case WM_CHAR:
     {
-        gInputManager->OnKeyTyped((char32) wParam);
+        gInputManager->ProcessKeyTyped((char32) wParam);
         break;
     }
     case WM_UNICHAR:
@@ -113,7 +113,7 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
             return TRUE;
         }
 
-        gInputManager->OnKeyTyped((char32) wParam); 
+        gInputManager->ProcessKeyTyped((char32) wParam); 
         break;
     }
     case WM_KEYUP:
