@@ -12,6 +12,8 @@ DebugManager *gDebugManager = &debugManager;
 #if 0
 #include "imgui"
 #include "Application/Application.h"
+#include "Application/Input.h"
+
 
 static bool g_MouseJustPressed[5] = { false, false, false, false, false };
 
@@ -19,6 +21,8 @@ void ImGuiInit()
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+
+    //=========================Windowing============================
 
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
@@ -32,28 +36,28 @@ void ImGuiInit()
     io.BackendPlatformName = "WIP";
 
     // Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
-    io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
-    io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
-    io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-    io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
-    io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
-    io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
-    io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
-    io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
-    io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
-    io.KeyMap[ImGuiKey_Insert] = GLFW_KEY_INSERT;
-    io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
-    io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
-    io.KeyMap[ImGuiKey_Space] = GLFW_KEY_SPACE;
-    io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
-    io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
-    io.KeyMap[ImGuiKey_KeyPadEnter] = GLFW_KEY_KP_ENTER;
-    io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
-    io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
-    io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
-    io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
-    io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
-    io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
+    io.KeyMap[ImGuiKey_Tab] = CT_KEY_TAB;
+    io.KeyMap[ImGuiKey_LeftArrow] = CT_KEY_LEFT;
+    io.KeyMap[ImGuiKey_RightArrow] = CT_KEY_RIGHT;
+    io.KeyMap[ImGuiKey_UpArrow] = CT_KEY_UP;
+    io.KeyMap[ImGuiKey_DownArrow] = CT_KEY_DOWN;
+    io.KeyMap[ImGuiKey_PageUp] = CT_KEY_PAGE_UP;
+    io.KeyMap[ImGuiKey_PageDown] = CT_KEY_PAGE_DOWN;
+    io.KeyMap[ImGuiKey_Home] = CT_KEY_HOME;
+    io.KeyMap[ImGuiKey_End] = CT_KEY_END;
+    io.KeyMap[ImGuiKey_Insert] = CT_KEY_INSERT;
+    io.KeyMap[ImGuiKey_Delete] = CT_KEY_DELETE;
+    io.KeyMap[ImGuiKey_Backspace] = CT_KEY_BACKSPACE;
+    io.KeyMap[ImGuiKey_Space] = CT_KEY_SPACE;
+    io.KeyMap[ImGuiKey_Enter] = CT_KEY_ENTER;
+    io.KeyMap[ImGuiKey_Escape] = CT_KEY_ESCAPE;
+    io.KeyMap[ImGuiKey_KeyPadEnter] = CT_KEY_KP_ENTER;
+    io.KeyMap[ImGuiKey_A] = CT_KEY_A;
+    io.KeyMap[ImGuiKey_C] = CT_KEY_C;
+    io.KeyMap[ImGuiKey_V] = CT_KEY_V;
+    io.KeyMap[ImGuiKey_X] = CT_KEY_X;
+    io.KeyMap[ImGuiKey_Y] = CT_KEY_Y;
+    io.KeyMap[ImGuiKey_Z] = CT_KEY_Z;
 
     io.SetClipboardTextFn = ImGui_ImplGlfw_SetClipboardText;
     io.GetClipboardTextFn = ImGui_ImplGlfw_GetClipboardText;
@@ -61,6 +65,17 @@ void ImGuiInit()
 #if defined(_WIN32)
     io.ImeWindowHandle = gApp->GetWindow().GetNativeHandler();
 #endif
+
+
+
+    //=========================Renderer============================
+    io.BackendRendererName = "WIP";
+
+    //TODO 
+    //Create Shader
+    //CreateFontsTexture
+
+
 }
 
 void ImGuiCharTyped(char32 c)
@@ -75,13 +90,13 @@ void ImGuiKeyUp(int32 key)
     io.KeysDown[key] = false;
 
     // Modifiers are not reliable across systems
-    io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
-    io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
-    io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
+    io.KeyCtrl = io.KeysDown[CT_KEY_LEFT_CONTROL] || io.KeysDown[CT_KEY_RIGHT_CONTROL];
+    io.KeyShift = io.KeysDown[CT_KEY_LEFT_SHIFT] || io.KeysDown[CT_KEY_RIGHT_SHIFT];
+    io.KeyAlt = io.KeysDown[CT_KEY_LEFT_ALT] || io.KeysDown[CT_KEY_RIGHT_ALT];
 #ifdef _WIN32
     io.KeySuper = false;
 #else
-    io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
+    io.KeySuper = io.KeysDown[CT_KEY_LEFT_SUPER] || io.KeysDown[CT_KEY_RIGHT_SUPER];
 #endif
 }
 
@@ -91,13 +106,13 @@ void ImGuiKeyDown(int32 key)
     io.KeysDown[key] = true;
 
     // Modifiers are not reliable across systems
-    io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
-    io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
-    io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
+    io.KeyCtrl = io.KeysDown[CT_KEY_LEFT_CONTROL] || io.KeysDown[CT_KEY_RIGHT_CONTROL];
+    io.KeyShift = io.KeysDown[CT_KEY_LEFT_SHIFT] || io.KeysDown[CT_KEY_RIGHT_SHIFT];
+    io.KeyAlt = io.KeysDown[CT_KEY_LEFT_ALT] || io.KeysDown[CT_KEY_RIGHT_ALT];
 #ifdef _WIN32
     io.KeySuper = false;
 #else
-    io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
+    io.KeySuper = io.KeysDown[CT_KEY_LEFT_SUPER] || io.KeysDown[CT_KEY_RIGHT_SUPER];
 #endif
 }
 
@@ -110,15 +125,16 @@ void ImGuiTouchDown(int32 button)
 {
     ImGuiIO& io = ImGui::GetIO();
 
-    // if (button >= 0 && button < IM_ARRAYSIZE(g_MouseJustPressed))
-    //     g_MouseJustPressed[button] = true;
+    if (button >= 0 && button < IM_ARRAYSIZE(g_MouseJustPressed))
+        g_MouseJustPressed[button] = true;
 }
 
 void ImGuiMouseScrolled(float xoffset, float yoffset)
 {
-    ImGuiIO& io = ImGui::GetIO();
-    io.MouseWheelH += xoffset;
-    io.MouseWheel += yoffset;
+    // TODO
+    // ImGuiIO& io = ImGui::GetIO();
+    // io.MouseWheelH += xoffset;
+    // io.MouseWheel += yoffset;
 }
 
 void ImGuiBegin()
@@ -170,6 +186,10 @@ void ImGuiBegin()
     }
 
     ImGui::NewFrame();
+
+    //TODO
+    //Draw Content
+    
 }
 
 void ImGuiEnd()
@@ -177,7 +197,31 @@ void ImGuiEnd()
     ImGui::Render();
     
     //TODO
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
+    int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
+    if (fb_width <= 0 || fb_height <= 0)
+        return;
+
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_SCISSOR_TEST);
+
+    glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
+    float L = draw_data->DisplayPos.x;
+    float R = draw_data->DisplayPos.x + draw_data->DisplaySize.x;
+    float T = draw_data->DisplayPos.y;
+    float B = draw_data->DisplayPos.y + draw_data->DisplaySize.y;
+    const float ortho_projection[4][4] =
+    {
+        { 2.0f/(R-L),   0.0f,         0.0f,   0.0f },
+        { 0.0f,         2.0f/(T-B),   0.0f,   0.0f },
+        { 0.0f,         0.0f,        -1.0f,   0.0f },
+        { (R+L)/(L-R),  (T+B)/(B-T),  0.0f,   1.0f },
+    };
 }
 
 #endif

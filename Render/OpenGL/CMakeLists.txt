@@ -9,4 +9,5 @@ add_library(RenderOpenGL
 target_link_libraries(RenderOpenGL
     ${OPENGL_LIBRARIES}
     IO
+    Render
 )
