@@ -103,7 +103,7 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
     {
     case WM_CHAR:
     {
-        gInputManager->ProcessKeyTyped((char32)wParam);
+        gInputManager->ProcessKeyTyped((int32)wParam);
         break;
     }
     case WM_UNICHAR:
@@ -113,7 +113,7 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
             return TRUE;
         }
 
-        gInputManager->ProcessKeyTyped((char32)wParam);
+        gInputManager->ProcessKeyTyped((int32)wParam);
         break;
     }
     case WM_KEYUP:
@@ -195,7 +195,7 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
     case WM_MOUSEWHEEL:
     case WM_MOUSEHWHEEL:
     {
-        gInputManager->ProcessMouseScrolled((int16)HIWORD(wParam));
+        gInputManager->ProcessMouseScrolled((int32)HIWORD(wParam));
         break;
     }
     case WM_SIZE:

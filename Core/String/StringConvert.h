@@ -11,6 +11,26 @@ CT_INLINE String ToString(bool value)
     return value ? CT_TEXT("true") : CT_TEXT("false");
 }
 
+CT_INLINE String ToString(char value)
+{
+    return String((CharType)value);
+}
+
+CT_INLINE String ToString(char16 value)
+{
+    return String((CharType)value);
+}
+
+CT_INLINE String ToString(char32 value)
+{
+    return String((CharType)value);
+}
+
+CT_INLINE String ToString(wchar value)
+{
+    return String((CharType)value);
+}
+
 CT_INLINE String ToString(int32 value)
 {
     std::wstring wstr = std::to_wstring(value);

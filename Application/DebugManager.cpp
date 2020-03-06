@@ -5,6 +5,8 @@
 DebugManager debugManager;
 DebugManager *gDebugManager = &debugManager;
 
+#include "Application/InputManager.h"
+
 #if defined(_WIN32)
 #include <windows.h>
 #endif
@@ -12,7 +14,6 @@ DebugManager *gDebugManager = &debugManager;
 #if 0
 #include "imgui"
 #include "Application/Application.h"
-#include "Application/Input.h"
 
 
 static bool g_MouseJustPressed[5] = { false, false, false, false, false };
@@ -257,6 +258,10 @@ void DebugManager::OnLoad()
         std::wcout << s.CStr() << std::endl;
     });
 #endif
+
+    gInputManager->mouseMovedEventHandler.On([](InputEvent &event){
+        CT_LOG(Debug, event.ToString());
+    });
 
     CT_LOG(Info, CT_TEXT("DebugManager loaded."));
 }
