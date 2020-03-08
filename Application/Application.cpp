@@ -10,16 +10,22 @@ void Application::PreInit(const WindowConfig &config)
 {
 #if CT_DEBUG
     gDebugManager->OnLoad();
+    CT_LOG(Info, CT_TEXT("DebugManager loaded."));
 #endif
     window = Window::Create(config);
+    CT_LOG(Info, CT_TEXT("Primary window created."));
 }
 
 void Application::Init()
 {
     gInputManager->OnLoad();
+    CT_LOG(Info, CT_TEXT("InputManager loaded."));
+
     gRenderManager->OnLoad();
+    CT_LOG(Info, CT_TEXT("RenderManager loaded."));
 
     gLogic->OnLoad();
+    CT_LOG(Info, CT_TEXT("Logic loaded."));
 }
 
 void Application::Run()
@@ -50,4 +56,9 @@ void Application::Exit()
 #if CT_DEBUG
     gDebugManager->OnUnload();
 #endif
+}
+
+Input &Application::GetInput()
+{
+    return gInputManager->GetInput();
 }

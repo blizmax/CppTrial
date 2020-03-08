@@ -28,8 +28,8 @@ GLTexture::GLTexture(uint32 width, uint32 height) : width(width), height(height)
 
 GLTexture::GLTexture(const String &path)
 {
-    int32 channels;
-    void *data = ImageLoader::Load(path, width, height, channels, true);
+    int32 w, h, channels;
+    void *data = ImageLoader::Load(path, w, h, channels, true);
     if (!data)
     {
         CT_EXCEPTION(Render, "Load texture data failed.");
@@ -49,6 +49,9 @@ GLTexture::GLTexture(const String &path)
     {
         CT_EXCEPTION(Render, "Unsupported data format.");
     }
+
+    width = w;
+    height = h;
 
     glCreateTextures(GL_TEXTURE_2D, 1, &id);
     glTextureStorage2D(id, 1, internalFormat, width, height);

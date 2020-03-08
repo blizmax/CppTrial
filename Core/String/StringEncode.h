@@ -179,59 +179,84 @@ CT_INLINE SizeType UTF32ToWide(const char32 *start, wchar *output)
     return size;
 }
 
-CT_INLINE String FromUTF8(const char8 *cstr)
+class UTF8
 {
-    SizeType len = strlen(cstr);
-    SizeType pos = 0;
-    SizeType size;
-    char32 charUTF32;
-    wchar buffer[2] = {0};
-    String str;
-
-    while (true)
+public:
+    static String FromChars(const char8 *value)
     {
-        size = UTF8ToUTF32(cstr + pos, cstr + len, &charUTF32);
-        if (size == 0)
-            break;
-        pos += size;
-        size = UTF32ToWide(&charUTF32, buffer);
-        if (size == 0)
-            break;
-        for (SizeType i = 0; i < size; ++i)
-        {
-            str += buffer[i];
-        }
-    }
-    return str;
-}
+        SizeType len = strlen(value);
+        SizeType pos = 0;
+        SizeType size;
+        char32 charUTF32;
+        wchar buffer[2] = {0};
+        String str;
 
-CT_INLINE Array<char8> ToUTF8(const String &str)
-{
-    SizeType len = str.Length();
-    SizeType pos = 0;
-    SizeType size;
-    const CharType *cstr = str.CStr();
-    char32 charUTF32;
-    char8 buffer[6] = {0};
-    Array<char8> arr;
-
-    while (true)
-    {
-        size = WideToUTF32(cstr + pos, cstr + len, &charUTF32);
-        if (size == 0)
-            break;
-        pos += size;
-        size = UTF32ToUTF8(&charUTF32, buffer);
-        if (size == 0)
-            break;
-        for (SizeType i = 0; i < size; ++i)
+        while (true)
         {
-            arr.Add(buffer[i]);
+            size = UTF8ToUTF32(value + pos, value + len, &charUTF32);
+            if (size == 0)
+                break;
+            pos += size;
+            size = UTF32ToWide(&charUTF32, buffer);
+            if (size == 0)
+                break;
+            for (SizeType i = 0; i < size; ++i)
+            {
+                str += buffer[i];
+            }
         }
+        return str;
     }
 
-    arr.Add(0);
-    return arr;
-}
+    static String FromChars(const Array<char8> &value)
+    {
+        return FromChars(value.GetData());
+    }
+
+    template <typename ByteT>
+    static void ToBytes(const String &value, Array<ByteT> &arr)
+    {
+        static_assert(sizeof(ByteT) == sizeof(uint8), "ByteT must be 8bit type.");
+
+        arr.Clear();
+
+        SizeType len = value.Length();
+        SizeType pos = 0;
+        SizeType size;
+        const CharType *cstr = value.CStr();
+        char32 charUTF32;
+        char8 buffer[6] = {0};
+
+        while (true)
+        {
+            size = WideToUTF32(cstr + pos, cstr + len, &charUTF32);
+            if (size == 0)
+                break;
+            pos += size;
+            size = UTF32ToUTF8(&charUTF32, buffer);
+            if (size == 0)
+                break;
+            for (SizeType i = 0; i < size; ++i)
+            {
+                arr.Add(static_cast<ByteT>(buffer[i]));
+            }
+        }
+    }
+
+    static Array<uint8> ToBytes(const String &value)
+    {
+        Array<uint8> arr;
+        ToBytes(value, arr);
+        return arr;
+    }
+
+    static Array<char8> ToChars(const String &value)
+    {
+        Array<char8> arr;
+        ToBytes(value, arr);
+        arr.Add(0);
+        return arr;
+    }
+};
 
 } // namespace StringEncode

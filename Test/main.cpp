@@ -5,6 +5,31 @@
 #include "IO/FileWatcher.h"
 #include "Test/TestCoreLib.h"
 
+#include "IO/FileStream.h"
+#include <fstream>
+
+void TestEncode()
+{
+    // std::ios::openmode mode = std::ios::binary | std::ios::in;
+    // std::ifstream fstream;
+    // fstream.open("D:/test1.json", mode);
+    // fstream.seekg(0, std::ios::end);
+    // auto size = fstream.tellg();
+    // fstream.seekg(0, std::ios::beg);
+
+    // CT_LOG(Debug, CT_TEXT("open:{0},size:{1}"), fstream.is_open(), static_cast<int32>(size));
+
+    IO::FileInputStream fstream(CT_TEXT("D:/test1.json"));
+    auto bytes = fstream.ReadBytes();
+    auto str = fstream.ReadString();
+    fstream.Close();
+
+    IO::FileOutputStream ostream(CT_TEXT("D:/test1.json"));
+    ostream.WriteString(str);
+
+    CT_LOG(Debug, CT_TEXT("open:{0},size:{1}"), fstream.IsOpen(), bytes.Size());
+}
+
 int main()
 {
     //Json::Test();
@@ -28,8 +53,10 @@ int main()
     // });
     // watcher.Start();
 
-    Test::TestDelegate();
+    //Test::TestDelegate();
   
+    TestEncode();
+
     system("pause");
     return 0;
 }

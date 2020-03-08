@@ -3,6 +3,7 @@
 #include "Application/.Package.h"
 #include "Application/Window.h"
 #include "Application/Logic.h"
+#include "Application/Input.h"
 
 class Application
 {
@@ -14,6 +15,8 @@ public:
     virtual void Init();
     virtual void Run();
     virtual void Exit();
+
+    Input &GetInput();
 
     Window &GetWindow()
     {

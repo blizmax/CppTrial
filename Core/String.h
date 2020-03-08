@@ -1144,7 +1144,7 @@ private:
 
 CT_INLINE String::String(const char8 *str)
 {
-    String temp = StringEncode::FromUTF8(str);
+    String temp = StringEncode::UTF8::FromChars(str);
     Swap(temp);
 }
 

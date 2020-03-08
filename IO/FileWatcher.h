@@ -23,7 +23,10 @@ public:
     FileWatcher(const String &watchPath, FileStatusHandler handler, int64 interval = 1000, bool recursive = true)
         : watchPath(watchPath), handler(handler), interval(interval), recursive(recursive)
     {
-        CT_ASSERT(interval > 0);
+        if (interval <= 0)
+        {
+            CT_EXCEPTION(IO, "Watch interval must > 0.");
+        }
     }
 
     ~FileWatcher()
@@ -48,4 +51,4 @@ private:
     bool running = false;
 };
 
-} // namespace IO
+}

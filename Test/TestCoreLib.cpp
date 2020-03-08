@@ -127,7 +127,7 @@ void TestPriorityQueue()
 
 void TestStringEncode()
 {
-    String str1 = StringEncode::FromUTF8("😊😡/(ㄒoㄒ)/~~🐷");
+    String str1 = StringEncode::UTF8::FromChars("😊😡/(ㄒoㄒ)/~~🐷");
     String str2 = String(L"😊😡/(ㄒoㄒ)/~~🐷");
 
     std::cout << (str1 == str2) << std::endl;

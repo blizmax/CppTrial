@@ -91,6 +91,12 @@ CT_INLINE SPtr<T> MakeShared(Args &&... args)
     return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
+template <typename T, typename... Args>
+CT_INLINE UPtr<T> MakeUnique(Args &&... args)
+{
+    return std::make_unique<T>(std::forward<Args>(args)...);
+}
+
 template <typename T>
 CT_INLINE void Copy(T *dst, const T *src, SizeType count)
 {

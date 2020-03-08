@@ -1,4 +1,5 @@
 #include "Application/Windows/WindowsInputManager.h"
+#include "Application/Application.h"
 
 WindowsInputManager inputManager;
 InputManager *gInputManager = &inputManager;
@@ -130,7 +131,10 @@ void WindowsInputManager::OnLoad()
     keycodeTable[0x037] = CT_KEY_KP_MULTIPLY;
     keycodeTable[0x04A] = CT_KEY_KP_SUBTRACT;
 
-
     InputManager::OnLoad();
-    CT_LOG(Info, CT_TEXT("InputManager loaded."));
+}
+
+Input &WindowsInputManager::GetInput()
+{
+    return gApp->GetWindow().GetInput();
 }

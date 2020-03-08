@@ -68,7 +68,7 @@ String IO::FileInputStream::ReadString()
     arr.AppendUninitialized(size + 1);
     Read(arr.GetData(), size);
     arr[size] = 0;
-    return StringEncode::FromUTF8(arr.GetData());
+    return StringEncode::UTF8::FromChars(arr);
 }
 
 //===============================================================================
@@ -134,6 +134,6 @@ void IO::FileOutputStream::WriteBytes(const Array<uint8>& bytes)
 
 void IO::FileOutputStream::WriteString(const String& str)
 {
-    Array<char8> arr = StringEncode::ToUTF8(str);
+    auto arr = StringEncode::UTF8::ToBytes(str);
     Write(arr.GetData(), arr.Size());
 }

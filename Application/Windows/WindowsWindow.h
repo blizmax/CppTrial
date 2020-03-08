@@ -11,6 +11,11 @@ public:
     virtual void OnUnload() override;
     virtual void OnUpdate() override;
 
+    virtual Input &GetInput() override
+    {
+        return input;
+    }
+
     virtual uint32 GetWidth() const override
     {
         //TODO
@@ -36,7 +41,5 @@ private:
 protected:
     HWND hwnd;
     HDC hdc;
-    // bool dragging = false;
-    // int32 previousX = 0;
-    // int32 previousY = 0;
+    Input input;
 };

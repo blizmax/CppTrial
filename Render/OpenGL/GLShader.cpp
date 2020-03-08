@@ -86,7 +86,7 @@ GLShader::ShaderSource GLShader::Parse(const String &path)
 
 bool GLShader::Compile(uint32 shaderID, const String &source)
 {
-    auto u8Str = StringEncode::ToUTF8(source);
+    auto u8Str = StringEncode::UTF8::ToChars(source);
     const char *cstr = u8Str.GetData();
 
     glShaderSource(shaderID, 1, &cstr, NULL);
