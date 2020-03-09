@@ -16,17 +16,25 @@ public:
         return input;
     }
 
-    virtual uint32 GetWidth() const override
-    {
-        //TODO
-        return 0;
-    }
+    virtual uint32 GetPositionX() const override;
+    virtual uint32 GetPositionY() const override;
+    virtual uint32 GetWidth() const override;
+    virtual uint32 GetHeight() const override;
 
-    virtual uint32 GetHeight() const override
-    {
-        //TODO
-        return 0;
-    }
+    virtual void SetTitle(const String &title) override;
+
+    virtual void Minimize() override;
+    virtual void Maximize() override;
+    virtual void Restore() override;
+    virtual void Show() override;
+    virtual void Hide() override;
+    virtual void Focus() override;
+    virtual void Flash() override;
+
+    virtual bool Minimized() const override;
+    virtual bool Maximized() const override;
+    virtual bool Visible() const override;
+    virtual bool Focused() const override;
 
     virtual void *GetNativeHandler() const override
     {

@@ -27,6 +27,9 @@ public:
         //     CT_LOG(Debug, event.ToString());
         // });
 
+        auto &window = gApp->GetWindow();
+        window.SetTitle(CT_TEXT("New Title"));
+
         float vertexData[] = {
             -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
             0.5f, -0.5f, 0.0f, 1.0f, 0.0f,

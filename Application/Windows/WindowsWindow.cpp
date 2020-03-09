@@ -215,3 +215,93 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
 
     return result;
 }
+
+uint32 WindowsWindow::GetPositionX() const
+{
+    POINT pos = {0, 0};
+    ClientToScreen(hwnd, &pos);
+    return pos.x;
+}
+
+uint32 WindowsWindow::GetPositionY() const
+{
+    POINT pos = {0, 0};
+    ClientToScreen(hwnd, &pos);
+    return pos.y;
+}
+
+uint32 WindowsWindow::GetWidth() const
+{
+    RECT area;
+    GetClientRect(hwnd, &area);
+    return area.right;
+}
+
+uint32 WindowsWindow::GetHeight() const
+{
+    RECT area;
+    GetClientRect(hwnd, &area);
+    return area.bottom;
+}
+
+void WindowsWindow::SetTitle(const String &title)
+{
+    SetWindowTextW(hwnd, *title);
+}
+
+void WindowsWindow::Minimize()
+{
+    ShowWindow(hwnd, SW_MINIMIZE);
+}
+
+void WindowsWindow::Maximize()
+{
+    ShowWindow(hwnd, SW_MAXIMIZE);
+}
+
+void WindowsWindow::Restore()
+{
+    ShowWindow(hwnd, SW_RESTORE);
+}
+
+void WindowsWindow::Show()
+{
+    ShowWindow(hwnd, SW_SHOWNA);
+}
+
+void WindowsWindow::Hide()
+{
+    ShowWindow(hwnd, SW_HIDE);
+}
+
+void WindowsWindow::Focus()
+{
+    BringWindowToTop(hwnd);
+    SetForegroundWindow(hwnd);
+    SetFocus(hwnd);
+}
+
+void WindowsWindow::Flash()
+{
+    FlashWindow(hwnd, TRUE);
+}
+
+bool WindowsWindow::Minimized() const
+{
+    return IsIconic(hwnd);
+}
+
+bool WindowsWindow::Maximized() const
+{
+    return IsZoomed(hwnd);
+}
+
+bool WindowsWindow::Visible() const
+{
+    return IsWindowVisible(hwnd);
+}
+
+bool WindowsWindow::Focused() const
+{
+    return hwnd == GetActiveWindow();
+}
