@@ -1,10 +1,8 @@
-#include "Application/Windows/WindowsInputManager.h"
-#include "Application/Application.h"
+#include "Application/Windows/WindowsInput.h"
 
-WindowsInputManager inputManager;
-InputManager *gInputManager = &inputManager;
+int32 Input::keycodeTable[512];
 
-void WindowsInputManager::OnLoad()
+void Input::Init()
 {
     std::memset(keycodeTable, CT_KEY_UNKNOWN, sizeof(keycodeTable));
 
@@ -130,11 +128,4 @@ void WindowsInputManager::OnLoad()
     keycodeTable[0x059] = CT_KEY_KP_EQUAL;
     keycodeTable[0x037] = CT_KEY_KP_MULTIPLY;
     keycodeTable[0x04A] = CT_KEY_KP_SUBTRACT;
-
-    InputManager::OnLoad();
-}
-
-Input &WindowsInputManager::GetInput()
-{
-    return gApp->GetWindow().GetInput();
 }

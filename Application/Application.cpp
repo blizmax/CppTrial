@@ -1,5 +1,4 @@
 #include "Application/Application.h"
-#include "Application/InputManager.h"
 #include "Render/RenderManager.h"
 
 #if CT_DEBUG
@@ -14,13 +13,12 @@ void Application::PreInit(const WindowConfig &config)
 #endif
     window = Window::Create(config);
     CT_LOG(Info, CT_TEXT("Primary window created."));
+    
+    GetInput().Init();
 }
 
 void Application::Init()
 {
-    gInputManager->OnLoad();
-    CT_LOG(Info, CT_TEXT("InputManager loaded."));
-
     gRenderManager->OnLoad();
     CT_LOG(Info, CT_TEXT("RenderManager loaded."));
 
@@ -32,8 +30,6 @@ void Application::Run()
 {
     while (!requestingQuit)
     {
-        gInputManager->OnUpdate();
-
         gLogic->OnUpdate();
 
         gRenderManager->OnUpdate();
@@ -51,7 +47,6 @@ void Application::Exit()
     gLogic->OnUnload();
 
     gRenderManager->OnUnload();
-    gInputManager->OnUnload();
 
 #if CT_DEBUG
     gDebugManager->OnUnload();
@@ -60,5 +55,5 @@ void Application::Exit()
 
 Input &Application::GetInput()
 {
-    return gInputManager->GetInput();
+    return window->GetInput();
 }

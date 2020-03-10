@@ -1,6 +1,5 @@
 #include "Application/Windows/WindowsWindow.h"
 #include "Application/Application.h"
-#include "Application/InputManager.h"
 #include <tchar.h>
 
 void WindowsWindow::CreateNativeWindow(const WindowConfig &config)
@@ -103,7 +102,7 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
     {
     case WM_CHAR:
     {
-        gInputManager->ProcessKeyTyped((int32)wParam);
+        thisWindow->input.ProcessKeyTyped((int32)wParam);
         break;
     }
     case WM_UNICHAR:
@@ -113,19 +112,19 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
             return TRUE;
         }
 
-        gInputManager->ProcessKeyTyped((int32)wParam);
+        thisWindow->input.ProcessKeyTyped((int32)wParam);
         break;
     }
     case WM_KEYUP:
     {
         int32 key = (HIWORD(lParam) & (KF_EXTENDED | 0xff));
-        gInputManager->ProcessKeyUp(key);
+        thisWindow->input.ProcessKeyUp(key);
         break;
     }
     case WM_KEYDOWN:
     {
         int32 key = (HIWORD(lParam) & (KF_EXTENDED | 0xff));
-        gInputManager->ProcessKeyDown(key);
+        thisWindow->input.ProcessKeyDown(key);
         break;
     }
     case WM_LBUTTONDOWN:
@@ -167,9 +166,9 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
         //     SetCapture(hWnd);
 
         if (down)
-            gInputManager->ProcessTouchDown(button);
+            thisWindow->input.ProcessTouchDown(button);
         else
-            gInputManager->ProcessTouchUp(button);
+            thisWindow->input.ProcessTouchUp(button);
 
         // for (i = 0;  i <= GLFW_MOUSE_BUTTON_LAST;  i++)
         // {
@@ -189,18 +188,47 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
     {
         const int32 x = GET_X_LPARAM(lParam);
         const int32 y = GET_Y_LPARAM(lParam);
-        gInputManager->ProcessMouseMoved(x, y);
+        thisWindow->input.ProcessMouseMoved(x, y);
         break;
     }
     case WM_MOUSEWHEEL:
     case WM_MOUSEHWHEEL:
     {
-        gInputManager->ProcessMouseScrolled((int32)HIWORD(wParam));
+        const int32 amount = HIWORD(wParam);
+        thisWindow->input.ProcessMouseScrolled(amount);
         break;
     }
     case WM_SIZE:
     {
-        //TODO
+        const uint32 width = LOWORD(lParam);
+        const uint32 height = HIWORD(lParam);
+        thisWindow->ProcessWindowResize(width, height);
+        break;
+    }
+    case WM_SETFOCUS:
+    {
+        thisWindow->ProcessWindowFocus(true);
+        break;
+    }
+    case WM_KILLFOCUS:
+    {
+        thisWindow->ProcessWindowFocus(false);
+        break;
+    }
+    case WM_DROPFILES:
+    {
+        HDROP drop = (HDROP) wParam;
+        const int32 count = DragQueryFileW(drop, 0xffffffff, NULL, 0);
+        Array<String> paths(count);
+        WCHAR buffer[MAX_PATH];
+
+        for (int32 i = 0;  i < count; ++i)
+        {
+            DragQueryFileW(drop, i, buffer, MAX_PATH);
+            paths.Add(buffer);
+        }
+        thisWindow->ProcessFilesDropped(std::move(paths));
+        DragFinish(drop);
         break;
     }
     case WM_DESTROY:
@@ -214,6 +242,29 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
     }
 
     return result;
+}
+
+void WindowsWindow::ProcessWindowResize(uint32 width, uint32 height)    
+{
+    WindowResizeEvent event(width, height);
+    windowResizeEventHandler(event);
+}
+
+void WindowsWindow::ProcessWindowFocus(bool focused)
+{
+    WindowFocusEvent event(focused);
+    windowFocusEventHandler(event);
+
+    if(!focused)
+    {
+        input.RelasePressed();
+    }
+}
+
+void WindowsWindow::ProcessFilesDropped(Array<String> &&paths)    
+{
+    FilesDroppedEvent event(std::move(paths));
+    filesDroppedEventHandler(event);
 }
 
 uint32 WindowsWindow::GetPositionX() const

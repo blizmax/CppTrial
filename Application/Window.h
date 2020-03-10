@@ -2,6 +2,7 @@
 
 #include "Application/.Package.h"
 #include "Application/Input.h"
+#include "Application/WindowEvent.h"
 #include "Utils/Module.h"
 
 struct WindowConfig
@@ -16,6 +17,12 @@ class Window : public Module
 public:
     Window() = default;
     virtual ~Window() = default;
+
+public:    
+    using WindowEventHandler = Delegate<void(WindowEvent &)>;
+    WindowEventHandler windowResizeEventHandler;
+    WindowEventHandler windowFocusEventHandler;
+    WindowEventHandler filesDroppedEventHandler;
 
     virtual Input &GetInput() = 0;
 

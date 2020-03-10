@@ -9,6 +9,8 @@ void Input::ProcessKeyTyped(int32 character)
 void Input::ProcessKeyDown(int32 key)
 {
     bool repeat = false;
+    key = TranslateKey(key);
+
     if (key != CT_KEY_UNKNOWN)
     {
         repeat = pressedKeys[key];
@@ -21,6 +23,8 @@ void Input::ProcessKeyDown(int32 key)
 
 void Input::ProcessKeyUp(int32 key)
 {
+    key = TranslateKey(key);
+
     if (key != CT_KEY_UNKNOWN)
         pressedKeys[key] = false;
 
@@ -67,4 +71,25 @@ void Input::ProcessMouseScrolled(int32 amount)
 {
     MouseScrolledEvent event(amount);
     mouseScrolledEventHandler(event);
+}
+
+void Input::RelasePressed()
+{
+    //TODO should emit event?
+
+    for(int32 key = 0; key <= CT_KEY_LAST; ++key)
+    {
+        if(pressedKeys[key])
+        {
+            pressedKeys[key] = false;
+        }
+    }
+
+    for(int32 button = 0; button <= CT_BUTTON_LAST; ++button)
+    {
+        if(pressedButtons[button])
+        {
+            pressedButtons[button] = false;
+        }
+    }
 }

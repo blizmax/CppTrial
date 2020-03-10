@@ -1,6 +1,6 @@
 set(DIR_APPLICATION_WINDOWS_COMMON 
     WindowsWindow.cpp
-    WindowsInputManager.cpp
+    WindowsInput.cpp
 )
 
 if (CT_USE_OPENGL)

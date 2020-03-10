@@ -30,6 +30,12 @@ public:
         auto &window = gApp->GetWindow();
         window.SetTitle(CT_TEXT("New Title"));
 
+        window.filesDroppedEventHandler.On([](WindowEvent &event)
+        {
+            auto &e = static_cast<FilesDroppedEvent&>(event);
+            CT_LOG(Debug, CT_TEXT("count:{0}, path1:{1}"), e.paths.Size(), e.paths[1]);
+        });
+
         float vertexData[] = {
             -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
             0.5f, -0.5f, 0.0f, 1.0f, 0.0f,

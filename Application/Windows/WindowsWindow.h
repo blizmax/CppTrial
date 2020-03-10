@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Application/Window.h"
+#include "Application/Windows/WindowsInput.h"
 #include <windows.h>
 #include <windowsx.h>
 
@@ -44,10 +45,14 @@ public:
     virtual void CreateNativeWindow(const WindowConfig &config) override;
 
 private:
+    void ProcessWindowResize(uint32 width, uint32 height);
+    void ProcessWindowFocus(bool focused);
+    void ProcessFilesDropped(Array<String> &&paths);
+
     static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 protected:
     HWND hwnd;
     HDC hdc;
-    Input input;
+    WindowsInput input;
 };

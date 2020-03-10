@@ -49,6 +49,15 @@ public:
         return pressedButtons[button];
     }
 
+    static int32 TranslateKey(int32 key)
+    {
+        if (key < 0 || key > CT_KEY_LAST)
+            return CT_KEY_UNKNOWN;
+        return keycodeTable[key];
+    }
+
+    static void Init();
+
 protected:
     virtual void ProcessKeyTyped(int32 character);
     virtual void ProcessKeyDown(int32 key);
@@ -57,21 +66,16 @@ protected:
     virtual void ProcessTouchUp(int32 button);
     virtual void ProcessMouseMoved(int32 posX, int32 posY);
     virtual void ProcessMouseScrolled(int32 amount);
-    // void ProcessKeyTyped(int32 character);
-    // void ProcessKeyDown(int32 key);
-    // void ProcessKeyUp(int32 key);
-    // void ProcessTouchDown(int32 button);
-    // void ProcessTouchUp(int32 button);
-    // void ProcessMouseMoved(int32 posX, int32 posY);
-    // void ProcessMouseScrolled(int32 amount);
+
+    virtual void RelasePressed();
 
 protected:
+    static int32 keycodeTable[512];
+
     bool pressedKeys[512] = {0};
     bool pressedButtons[8] = {0};
     int32 mouseX = 0;
     int32 mouseY = 0;
     int32 deltaX = 0;
     int32 deltaY = 0;
-
-    friend class InputManager;
 };
