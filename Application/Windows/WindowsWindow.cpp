@@ -4,16 +4,11 @@
 
 void WindowsWindow::CreateNativeWindow(const WindowConfig &config)
 {
-    // get the HINSTANCE of the Console Program
     HINSTANCE hInstance = GetModuleHandle(NULL);
 
-    // this struct holds information for the window class
     WNDCLASSEX wc;
-
-    // clear out the window class for use
     ZeroMemory(&wc, sizeof(WNDCLASSEX));
 
-    // fill in the struct with the needed information
     wc.cbSize = sizeof(WNDCLASSEX);
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc = WindowProc;
@@ -22,13 +17,11 @@ void WindowsWindow::CreateNativeWindow(const WindowConfig &config)
     wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
     wc.lpszClassName = _T("WindowsWindow");
 
-    // register the window class
     RegisterClassEx(&wc);
 
     int height_adjust = GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXPADDEDBORDER);
     int width_adjust = GetSystemMetrics(SM_CXFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
 
-    // create the window and use the result as the handle
     hwnd = CreateWindowEx(
         0,
         wc.lpszClassName,              // name of the window class
@@ -45,7 +38,9 @@ void WindowsWindow::CreateNativeWindow(const WindowConfig &config)
 
     hdc = GetDC(hwnd);
 
-    // display the window on the screen
+    // Allow drag
+    DragAcceptFiles(hwnd, TRUE);
+
     ShowWindow(hwnd, SW_SHOW);
 }
 
@@ -61,18 +56,10 @@ void WindowsWindow::OnUnload()
 
 void WindowsWindow::OnUpdate()
 {
-    // this struct holds Windows event messages
     MSG msg;
-
-    // we use PeekMessage instead of GetMessage here
-    // because we should not block the thread at anywhere
-    // except the engine execution driver module
     if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
     {
-        // translate keystroke messages into the right format
         TranslateMessage(&msg);
-
-        // send the message to the WindowProc function
         DispatchMessage(&msg);
     }
 }
@@ -263,7 +250,7 @@ void WindowsWindow::ProcessWindowFocus(bool focused)
 
 void WindowsWindow::ProcessFilesDropped(Array<String> &&paths)    
 {
-    FilesDroppedEvent event(std::move(paths));
+    FilesDroppedEvent event(std::forward<Array<String>>(paths));
     filesDroppedEventHandler(event);
 }
 

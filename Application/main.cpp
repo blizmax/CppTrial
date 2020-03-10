@@ -26,15 +26,26 @@ public:
         // input.mouseMovedEventHandler.On([](InputEvent &event) {
         //     CT_LOG(Debug, event.ToString());
         // });
+        Input &input = gApp->GetInput();
+        input.touchDownEventHandler.On([](InputEvent &event) {
+            CT_LOG(Debug, event.ToString());
+        });
+        input.touchUpEventHandler.On([](InputEvent &event) {
+            CT_LOG(Debug, event.ToString());
+        });
 
         auto &window = gApp->GetWindow();
         window.SetTitle(CT_TEXT("New Title"));
 
-        window.filesDroppedEventHandler.On([](WindowEvent &event)
-        {
-            auto &e = static_cast<FilesDroppedEvent&>(event);
-            CT_LOG(Debug, CT_TEXT("count:{0}, path1:{1}"), e.paths.Size(), e.paths[1]);
-        });
+        gApp->GetClipboard().SetString(CT_TEXT("XXXXXXX"));
+
+        // window.filesDroppedEventHandler.On([](WindowEvent &event)
+        // {
+        //     auto &e = static_cast<FilesDroppedEvent&>(event);
+        //     CT_LOG(Debug, CT_TEXT("count:{0}, path1:{1}"), e.paths.Size(), e.paths[0]);
+
+        //     gApp->GetWindow().Flash();
+        // });
 
         float vertexData[] = {
             -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -103,6 +114,8 @@ public:
         vertexArray->Bind();
 
         RenderAPI::DrawIndexed(vertexArray);
+
+        //CT_LOG(Info, CT_TEXT("FPS:{0}"), gApp->GetFramesPerSecond());
     }
 };
 

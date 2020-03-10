@@ -4,6 +4,7 @@
 #include "Application/Window.h"
 #include "Application/Logic.h"
 #include "Application/Input.h"
+#include "Application/Clipboard.h"
 
 class Application
 {
@@ -17,6 +18,27 @@ public:
     virtual void Exit();
 
     Input &GetInput();
+    Clipboard &GetClipboard();
+
+    int32 GetFramesPerSecond() const
+    {
+        return fps;
+    }
+
+    int32 GetTotalFrames() const
+    {
+        return totalFrames;
+    }
+
+    long GetStartTime() const
+    {
+        return startTime;
+    }
+
+    float GetDeltaTime() const
+    {
+        return deltaTime;
+    }  
 
     Window &GetWindow()
     {
@@ -32,6 +54,13 @@ private:
     Window *window;
     Logic *logic;
     bool requestingQuit = false;
+    float deltaTime;
+    int64 startTime = 0;
+    int64 lastTime = 0;
+    int64 frameCountTime = 0;
+    int32 totalFrames = 0;
+    int32 frames = 0;
+    int32 fps = 0;
 };
 
 extern Application *gApp;

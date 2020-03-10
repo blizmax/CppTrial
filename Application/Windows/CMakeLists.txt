@@ -1,6 +1,7 @@
 set(DIR_APPLICATION_WINDOWS_COMMON 
     WindowsWindow.cpp
     WindowsInput.cpp
+    WindowsClipboard.cpp
 )
 
 if (CT_USE_OPENGL)
