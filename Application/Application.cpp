@@ -2,6 +2,8 @@
 #include "Render/RenderManager.h"
 #include "Core/Time.h"
 
+#include "Application/ImGuiLab.h"
+
 #if CT_DEBUG
 #include "Application/DebugManager.h"
 #endif
@@ -28,6 +30,9 @@ void Application::Init()
     gRenderManager->OnLoad();
     CT_LOG(Info, CT_TEXT("RenderManager loaded."));
 
+    gImGuiLab->OnLoad();
+    CT_LOG(Info, CT_TEXT("ImGuiLab loaded."));
+
     gLogic->OnLoad();
     CT_LOG(Info, CT_TEXT("Logic loaded."));
 }
@@ -52,6 +57,8 @@ void Application::Run()
 
         gRenderManager->OnUpdate();
 
+        //gImGuiLab->OnUpdate();
+
 #if CT_DEBUG
         gDebugManager->OnUpdate();
 #endif
@@ -63,6 +70,8 @@ void Application::Run()
 void Application::Exit()
 {
     gLogic->OnUnload();
+
+    gImGuiLab->OnUnload();
 
     gRenderManager->OnUnload();
 

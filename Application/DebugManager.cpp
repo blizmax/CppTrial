@@ -59,9 +59,6 @@ void ImGuiInit()
     io.KeyMap[ImGuiKey_Y] = CT_KEY_Y;
     io.KeyMap[ImGuiKey_Z] = CT_KEY_Z;
 
-    io.SetClipboardTextFn = ImGui_ImplGlfw_SetClipboardText;
-    io.GetClipboardTextFn = ImGui_ImplGlfw_GetClipboardText;
-    io.ClipboardUserData = g_Window;
 #if defined(_WIN32)
     io.ImeWindowHandle = gApp->GetWindow().GetNativeHandler();
 #endif

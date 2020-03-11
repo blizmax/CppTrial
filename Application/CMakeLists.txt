@@ -13,7 +13,7 @@ set(DIR_IMGUI
 
 add_executable(Application 
     ${DIR_APPLICATION}
-    #${DIR_IMGUI}
+    ${DIR_IMGUI}
 )
 
 target_link_libraries(Application Math)
