@@ -161,3 +161,157 @@ String Matrix4::ToString() const
                           v[0][0], v[1][0], v[2][0], v[3][0], v[0][1], v[1][1], v[2][1], v[3][1],
                           v[0][2], v[1][2], v[2][2], v[3][2], v[0][3], v[1][3], v[2][3], v[3][3]);
 }
+
+Matrix4 Matrix4::Scale(const Vector3 &v)
+{
+    Matrix4 m = Matrix4();
+    m.v[0][0] = v.x;
+    m.v[1][1] = v.y;
+    m.v[2][2] = v.z;
+    m.v[3][3] = 1.0f;
+    return m;
+}
+
+Matrix4 Matrix4::Scale(float x, float y, float z)
+{
+    Matrix4 m = Matrix4();
+    m.v[0][0] = x;
+    m.v[1][1] = y;
+    m.v[2][2] = z;
+    m.v[3][3] = 1.0f;
+    return m;
+}
+
+Matrix4 Matrix4::Translate(const Vector3 &v)
+{
+    Matrix4 m = Matrix4();
+    m.v[3][0] = v.x;
+    m.v[3][1] = v.y;
+    m.v[3][2] = v.z;
+    m.v[3][3] = 1.0f;
+    return m;
+}
+
+Matrix4 Matrix4::Translate(float x, float y, float z)
+{
+    Matrix4 m = Matrix4();
+    m.v[3][0] = x;
+    m.v[3][1] = y;
+    m.v[3][2] = z;
+    m.v[3][3] = 1.0f;
+    return m;
+}
+
+Matrix4 Matrix4::Ortho(float left, float right, float bottom, float top, float n, float f)
+{
+    Matrix4 m = Matrix4();
+    float xOrth = 2.0f / (right - left);
+    float yOrth = 2.0f / (top - bottom);
+    float zOrth = -2.0f / (f - n);
+
+    float tx = -(right + left) / (right - left);
+    float ty = -(top + bottom) / (top - bottom);
+    float tz = -(f + n) / (f - n);
+
+    m.v[0][0] = xOrth;
+    m.v[0][1] = 0;
+    m.v[0][2] = 0;
+    m.v[0][3] = 0;
+    m.v[1][0] = 0;
+    m.v[1][1] = yOrth;
+    m.v[1][2] = 0;
+    m.v[1][3] = 0;
+    m.v[2][0] = 0;
+    m.v[2][1] = 0;
+    m.v[2][2] = zOrth;
+    m.v[2][3] = 0;
+    m.v[3][0] = tx;
+    m.v[3][1] = ty;
+    m.v[3][2] = tz;
+    m.v[3][3] = 1.0f;
+    return m;
+}
+
+Matrix4 Matrix4::Projection(float left, float right, float bottom, float top, float n, float f)
+{
+    Matrix4 m = Matrix4();
+
+    float x = 2.0f * n / (right - left);
+    float y = 2.0f * n / (top - bottom);
+    float a = (right + left) / (right - left);
+    float b = (top + bottom) / (top - bottom);
+    float l_a1 = (f + n) / (n - f);
+    float l_a2 = (2.0f * f * n) / (n - f);
+
+    m.v[0][0] = x;
+    m.v[0][1] = 0;
+    m.v[0][2] = 0;
+    m.v[0][3] = 0;
+    m.v[1][0] = 0;
+    m.v[1][1] = y;
+    m.v[1][2] = 0;
+    m.v[1][3] = 0;
+    m.v[2][0] = a;
+    m.v[2][1] = b;
+    m.v[2][2] = l_a1;
+    m.v[2][3] = -1.0f;
+    m.v[3][0] = 0;
+    m.v[3][1] = 0;
+    m.v[3][2] = l_a2;
+    m.v[3][3] = 0;
+    return m;
+}
+
+Matrix4 Matrix4::Projection(float fovY, float aspect, float n, float f)
+{
+    Matrix4 m = Matrix4();
+    float l_fd = 1.0f / Math::Tan((fovY * Math::DEG_TO_RAD) / 2.0f);
+    float l_a1 = (f + n) / (n - f);
+    float l_a2 = (2.0f * f * n) / (n - f);
+
+    m.v[0][0] = l_fd / aspect;
+    m.v[0][1] = 0;
+    m.v[0][2] = 0;
+    m.v[0][3] = 0;
+    m.v[1][0] = 0;
+    m.v[1][1] = l_fd;
+    m.v[1][2] = 0;
+    m.v[1][3] = 0;
+    m.v[2][0] = 0;
+    m.v[2][1] = 0;
+    m.v[2][2] = l_a1;
+    m.v[2][3] = -1.0f;
+    m.v[3][0] = 0;
+    m.v[3][1] = 0;
+    m.v[3][2] = l_a2;
+    m.v[3][3] = 0;
+    return m;
+}
+
+Matrix4 Matrix4::LookAt(const Vector3 &direction, const Vector3 &up)
+{
+    Matrix4 m = Matrix4();
+
+    Vector3 vez = Vector3(direction).Normalize();
+    Vector3 vex = vez.Cross(up).Normalize();
+    Vector3 vey = vex.Cross(vez).Normalize();
+
+    m.v[0][0] = vex.x;
+    m.v[1][0] = vex.y;
+    m.v[2][0] = vex.z;
+    m.v[0][1] = vey.x;
+    m.v[1][1] = vey.y;
+    m.v[2][1] = vey.z;
+    m.v[0][2] = -vez.x;
+    m.v[1][2] = -vez.y;
+    m.v[2][2] = -vez.z;
+    return m;
+}
+
+Matrix4 Matrix4::LookAt(const Vector3 &position, const Vector3 &target, const Vector3 &up)
+{
+    Vector3 direction = target - position;
+    Matrix4 m1 = LookAt(direction, up);
+    Matrix4 m2 = Translate(-position);
+    return m1 * m2;
+}

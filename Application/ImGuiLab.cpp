@@ -69,6 +69,8 @@ void ImGuiLab::BindPlatform()
     io.ImeWindowHandle = gApp->GetWindow().GetNativeHandler();
 #endif
 
+    // TODO: Clipboard
+
     // WIP: Create mouse cursors
 
 

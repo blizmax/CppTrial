@@ -44,6 +44,13 @@ public:
     {
     }
 
+    Matrix4 &SetIdentity()
+    {
+        v[0][0] = v[1][1] = v[2][2] = v[3][3] = 1.0f;
+        v[1][0] = v[2][0] = v[3][0] = v[0][1] = v[2][1] = v[3][1] = v[0][2] = v[1][2] = v[3][2] = v[0][3] = v[1][3] = v[2][3] = 0.0f;
+        return *this;
+    }
+
     Matrix4 &SetRow(uint32 i, const Vector4 &row);
     Vector4 GetRow(uint32 i) const;
     Matrix4 &SetColumn(uint32 i, const Vector4 &col);
@@ -55,12 +62,16 @@ public:
     Matrix4 Adjugate() const;
     String ToString() const;
 
-    Matrix4 &SetIdentity()
-    {
-        v[0][0] = v[1][1] = v[2][2] = v[3][3] = 1.0f;
-        v[1][0] = v[2][0] = v[3][0] = v[0][1] = v[2][1] = v[3][1] = v[0][2] = v[1][2] = v[3][2] = v[0][3] = v[1][3] = v[2][3] = 0.0f;
-        return *this;
-    }
+    //TODO Rotate
+    static Matrix4 Scale(const Vector3 &v);
+    static Matrix4 Scale(float x, float y, float z);
+    static Matrix4 Translate(const Vector3 &v);
+    static Matrix4 Translate(float x, float y, float z);
+    static Matrix4 Ortho(float left, float right, float bottom, float top, float near, float far);
+    static Matrix4 Projection(float left, float right, float bottom, float top, float near, float far);
+    static Matrix4 Projection(float fovY, float aspectRatio, float near, float far);
+    static Matrix4 LookAt(const Vector3 &direction, const Vector3 &up);
+    static Matrix4 LookAt(const Vector3 &position, const Vector3 &target, const Vector3 &up);
 
     float &operator()(uint32 r, uint32 c)
     {
