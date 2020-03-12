@@ -40,6 +40,16 @@ public:
         return *this;
     }
 
+    float *GetPtr()
+    {
+        return &(v[0][0]);
+    }
+
+    const float *GetPtr() const
+    {
+        return &(v[0][0]);
+    }
+
     float &operator()(uint32 r, uint32 c)
     {
         return v[c][r];

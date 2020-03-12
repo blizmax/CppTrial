@@ -116,8 +116,6 @@ void ImGuiLab::BindRenderer()
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
     texture = Texture::Create(width, height);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     texture->SetData(static_cast<void*>(pixels), width * height * 4);
 
     //io.Fonts->TexID = 0;
@@ -131,7 +129,8 @@ void ImGuiLab::UnbindPlatform()
 
 void ImGuiLab::UnbindRenderer()
 {
-
+    shader.reset();
+    texture.reset();
 }
 
 void ImGuiLab::Begin()
@@ -144,6 +143,10 @@ void ImGuiLab::Begin()
 void ImGuiLab::End()
 {
     ImGui::Render();
+
+    shader->Bind();
+    texture->Bind();
+
 
     //TODO RenderDrawData(ImGui::GetDrawData());
 }

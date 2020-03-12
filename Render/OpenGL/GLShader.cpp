@@ -27,7 +27,7 @@ GLShader::GLShader(const String &path)
         {
             CT_LOG(Debug, CT_TEXT("Init Shader succeed! Path :{0}"), path);
         }
-        
+
         glDetachShader(id, vertexShader);
         glDetachShader(id, fragmentShader);
     }
@@ -49,6 +49,46 @@ void GLShader::Bind() const
 void GLShader::Unbind() const
 {
     glUseProgram(0);
+}
+
+int32 GLShader::GetUniformLocation(const String &name)
+{
+    if (uniformLocations.Contains(name))
+        return uniformLocations.Get(name);
+
+    int32 location = glGetUniformLocation(id, StringEncode::UTF8::ToChars(name).GetData());
+    uniformLocations.Put(name, location);
+    return location;
+}
+
+void GLShader::SetInt(const String &name, int32 value)
+{
+    int32 location = GetUniformLocation(name);
+    glUniform1i(location, value);
+}
+
+void GLShader::SetFloat(const String &name, float value)
+{
+    int32 location = GetUniformLocation(name);
+    glUniform1f(location, value);
+}
+
+void GLShader::SetVector3(const String &name, const Vector3 &value)
+{
+    int32 location = GetUniformLocation(name);
+    glUniform3f(location, value.x, value.y, value.z);
+}
+
+void GLShader::SetVector4(const String &name, const Vector4 &value)
+{
+    int32 location = GetUniformLocation(name);
+    glUniform4f(location, value.x, value.y, value.z, value.w);
+}
+
+void GLShader::SetMatrix4(const String &name, const Matrix4 &value)
+{
+    int32 location = GetUniformLocation(name);
+    glUniformMatrix4fv(location, 1, GL_FALSE, value.GetPtr());
 }
 
 GLShader::ShaderSource GLShader::Parse(const String &path)

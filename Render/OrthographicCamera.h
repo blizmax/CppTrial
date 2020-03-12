@@ -24,7 +24,7 @@ public:
     float zoom = 1.0f;
 
 public:
-    OrthographicCamera(float viewportWidth, float viewportHeight)
+    explicit OrthographicCamera(float viewportWidth, float viewportHeight)
         : viewportWidth(viewportWidth), viewportHeight(viewportHeight)
     {
         Update();

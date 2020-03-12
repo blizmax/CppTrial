@@ -1,6 +1,7 @@
 #include "Application/Application.h"
 #include "Render/Shader.h"
 #include "Render/RenderAPI.h"
+#include "Render/OrthographicCamera.h"
 #include "Render/VertexArray.h"
 #include "Render/Texture.h"
 #include "IO/FileWatcher.h"
@@ -15,6 +16,7 @@ private:
     SPtr<VertexArray> vertexArray;
     SPtr<Shader> shader;
     SPtr<Texture> texture;
+    OrthographicCamera camera{0.0f, 0.0f};
 
     UPtr<IO::FileWatcher> watcher;
     bool reloadShader = false;
@@ -37,7 +39,7 @@ public:
         auto &window = gApp->GetWindow();
         window.SetTitle(CT_TEXT("New Title"));
 
-        gApp->GetClipboard().SetString(CT_TEXT("XXXXXXX"));
+        //gApp->GetClipboard().SetString(CT_TEXT("XXXXXXX"));
 
         // window.filesDroppedEventHandler.On([](WindowEvent &event)
         // {
@@ -46,6 +48,22 @@ public:
 
         //     gApp->GetWindow().Flash();
         // });
+
+        float width = window.GetWidth();
+        float height = window.GetHeight();
+        camera.viewportWidth = width;
+        camera.viewportHeight = height;
+        camera.Update();
+
+        window.windowResizeEventHandler.On([this](WindowEvent &event)
+        {
+            auto &e = static_cast<WindowResizeEvent&>(event);
+            RenderAPI::SetViewport(0, 0, e.width, e.height);
+
+            camera.viewportWidth = (float)e.width;
+            camera.viewportHeight = (float)e.height;
+            camera.Update();
+        });
 
         float vertexData[] = {
             -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -109,8 +127,15 @@ public:
         RenderAPI::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         RenderAPI::Clear();
 
-        texture->Bind();
         shader->Bind();
+
+        Matrix4 scaleMat = Matrix4::Scale(texture->GetWidth(), texture->GetHeight(), 1.0f);
+        shader->SetMatrix4(CT_TEXT("model"), scaleMat);
+        shader->SetMatrix4(CT_TEXT("view"), camera.view);
+        shader->SetMatrix4(CT_TEXT("projection"), camera.projection);
+        shader->SetInt(CT_TEXT("mainTex"), 0);
+
+        texture->Bind();
         vertexArray->Bind();
 
         RenderAPI::DrawIndexed(vertexArray);
