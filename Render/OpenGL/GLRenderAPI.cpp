@@ -6,6 +6,11 @@ void RenderAPI::SetViewport(uint32 x, uint32 y, uint32 width, uint32 height)
     glViewport(x, y, width, height);
 }
 
+void RenderAPI::SetScissor(uint32 x, uint32 y, uint32 width, uint32 height)
+{
+    glScissor(x, y, width, height);
+}
+
 void RenderAPI::SetClearColor(float r, float g, float b, float a)
 {
     glClearColor(r, g, b, a);

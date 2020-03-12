@@ -15,4 +15,5 @@ enum class VertexDataType
     Int2,
     Int3,
     Int4,
+    UByte4,
 };

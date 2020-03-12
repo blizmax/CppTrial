@@ -36,6 +36,8 @@ struct VertexAttribute
             return 4 * 3;
         case VertexDataType::Int4:
             return 4 * 4;
+        case VertexDataType::UByte4:
+            return 4;
         }
 
         CT_EXCEPTION(Render, "Unknown data type!");
@@ -61,6 +63,8 @@ struct VertexAttribute
         case VertexDataType::Int3:
             return 3;
         case VertexDataType::Int4:
+            return 4;
+        case VertexDataType::UByte4:
             return 4;
         }
 

@@ -28,9 +28,17 @@ private:
     void UnbindPlatform();
     void UnbindRenderer(); 
 
+    void SetupRenderState(ImDrawData *drawData, uint32 width, uint32 height);
+    void RenderDrawData(ImDrawData *drawData);
+
 private:
+    Input::InputEventHandler::Handle KeyTypedHandle;
     Input::InputEventHandler::Handle keyUpHandle;
     Input::InputEventHandler::Handle keyDownHandle;
+    Input::InputEventHandler::Handle touchUpHandle;
+    Input::InputEventHandler::Handle touchDownHandle;
+    Input::InputEventHandler::Handle mouseMovedHandle;
+    Input::InputEventHandler::Handle mouseScrolledHandle;
 
     SPtr<Shader> shader;
     SPtr<Texture> texture;

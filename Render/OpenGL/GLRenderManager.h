@@ -7,4 +7,5 @@ class GLRenderManager : public RenderManager
 {
 public:
     virtual void OnLoad() override;
+    virtual void OnUpdate() override;
 };

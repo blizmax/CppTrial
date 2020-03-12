@@ -23,6 +23,8 @@ static GLenum GetGLTypeByVertexDataType(VertexDataType dataType)
         return GL_INT;
     case VertexDataType::Int4:
         return GL_INT;
+    case VertexDataType::UByte4:
+        return GL_UNSIGNED_BYTE;
     }
 
     CT_EXCEPTION(Render, "Unknown data type!");

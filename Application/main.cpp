@@ -117,15 +117,14 @@ public:
 
     virtual void OnUpdate() override
     {
+        RenderAPI::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        RenderAPI::Clear();
+
         if(reloadShader)
         {
             reloadShader = false;
             shader = Shader::Create(CT_TEXT("Assets/Shaders/Shader1.glsl"));
         }
-
-        //TODO Move to render mgr
-        RenderAPI::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        RenderAPI::Clear();
 
         shader->Bind();
 

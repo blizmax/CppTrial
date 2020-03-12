@@ -57,7 +57,7 @@ void Application::Run()
 
         gRenderManager->OnUpdate();
 
-        //gImGuiLab->OnUpdate();
+        gImGuiLab->OnUpdate();
 
 #if CT_DEBUG
         gDebugManager->OnUpdate();
