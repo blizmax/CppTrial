@@ -3,9 +3,6 @@
 #include "Render/VertexArray.h"
 #include "Render/OrthographicCamera.h"
 
-//TEMP
-#include "glad/glad.h"
-
 ImGuiLab imguiLab;
 ImGuiLab *gImGuiLab = &imguiLab;
 
@@ -15,8 +12,8 @@ void ImGuiLab::OnLoad()
     ImGui::CreateContext();
 
     ImGuiIO &io = ImGui::GetIO();
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     ImGui::StyleColorsDark();
 
     BindPlatform();
@@ -35,7 +32,7 @@ void ImGuiLab::OnUpdate()
 {
     Begin();
 
-    static bool open = true;
+    static bool open = false;
     ImGui::ShowDemoWindow(&open);
 
     End();
@@ -44,11 +41,10 @@ void ImGuiLab::OnUpdate()
 void ImGuiLab::BindPlatform()
 {
     ImGuiIO &io = ImGui::GetIO();
-    io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors; // We can honor GetMouseCursor() values (optional)
-    io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;  // We can honor io.WantSetMousePos requests (optional, rarely used)
+    io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
+    io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
     io.BackendPlatformName = "WIP";
 
-    // Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
     io.KeyMap[ImGuiKey_Tab] = CT_KEY_TAB;
     io.KeyMap[ImGuiKey_LeftArrow] = CT_KEY_LEFT;
     io.KeyMap[ImGuiKey_RightArrow] = CT_KEY_RIGHT;
@@ -206,37 +202,6 @@ void ImGuiLab::End()
 
     RenderDrawData(ImGui::GetDrawData());
 
-    // {
-    //     SetupRenderState(ImGui::GetDrawData(), gApp->GetWindow().GetWidth(), gApp->GetWindow().GetHeight());
-
-    //     float vertexData[] = {
-    //         -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-    //         0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-    //         0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
-    //         -0.5f, 0.5f, 0.0f, 0.0f, 1.0f};
-
-    //     uint32 indexData[] = {
-    //         0, 1, 2,
-    //         2, 3, 0};
-
-    //     auto vertexBuffer = VertexBuffer::Create(vertexData, sizeof(vertexData));
-    //     vertexBuffer->SetLayout({
-    //         {CT_TEXT("position"), VertexDataType::Float3},
-    //         {CT_TEXT("texCoord"), VertexDataType::Float2},
-    //     });
-
-    //     auto indexBuffer = IndexBuffer::Create(indexData, 6);
-
-    //     auto vertexArray = VertexArray::Create();
-    //     vertexArray->AddVertexBuffer(vertexBuffer);
-    //     vertexArray->SetIndexBuffer(indexBuffer);
-
-    //     Matrix4 scaleMat = Matrix4::Scale(texture->GetWidth(), texture->GetHeight(), 1.0f);
-    //     shader->SetInt(CT_TEXT("mainTex"), 0);
-
-    //     RenderAPI::DrawIndexed(vertexArray);
-    // }
-
     uint32 width = gApp->GetWindow().GetWidth();
     uint32 height = gApp->GetWindow().GetHeight();
 
@@ -253,36 +218,7 @@ void ImGuiLab::SetupRenderState(ImDrawData *drawData, uint32 width, uint32 heigh
     float T = drawData->DisplayPos.y;
     float B = drawData->DisplayPos.y + drawData->DisplaySize.y;
 
-    // Matrix4 mvp{
-    //     2.0f / (R - L),
-    //     0.0f,
-    //     0.0f,
-    //     0.0f,
-    //     0.0f,
-    //     2.0f / (T - B),
-    //     0.0f,
-    //     0.0f,
-    //     0.0f,
-    //     0.0f,
-    //     -1.0f,
-    //     0.0f,
-    //     (R + L) / (L - R),
-    //     (T + B) / (B - T),
-    //     0.0f,
-    //     1.0f,
-    // };
-
-    OrthographicCamera camera(width, height);
-    //camera.position.x = L + (R - L) / 2.0f;
-    //camera.position.y = T + (B - T) / 2.0f;
-    camera.zoom = 3.0f;
-    camera.Update();
-
-    //uint32 tw = texture->GetWidth();
-    //uint32 th = texture->GetHeight();
-    //Matrix4 mvp = camera.combined * Matrix4::Scale(texture->GetWidth(), texture->GetHeight(), 1.0f);
-    Matrix4 mvp = camera.combined;
-
+    Matrix4 mvp = Matrix4::Ortho(L, R, B, T, -1.0f, 1.0f);
 
     shader->Bind();
     texture->Bind(0);
@@ -296,6 +232,8 @@ void ImGuiLab::RenderDrawData(ImDrawData *drawData)
     int32 height = (int32)(drawData->DisplaySize.y * drawData->FramebufferScale.y);
     if (width <= 0 || height <= 0)
         return;
+
+    SetupRenderState(drawData, width, height);
 
     ImVec2 clip_off = drawData->DisplayPos;
     ImVec2 clip_scale = drawData->FramebufferScale;
@@ -317,27 +255,12 @@ void ImGuiLab::RenderDrawData(ImDrawData *drawData)
         vao->SetIndexBuffer(ebo);
         vao->Bind();
 
-
-        //TEST
-        CT_LOG(Error, CT_TEXT("SIZE:{0}"), sizeof(ImDrawIdx));
-        // for(uint32 i = 0; i < 50; ++i)
-        // {
-        //     auto v = cmd_list->VtxBuffer.Data[i];
-        //     CT_LOG(Error, CT_TEXT("index:{0}, data:{1},{2},{3},{4},{5}"), i, v.pos.x, v.pos.y, v.uv.x, v.uv.y, v.col);
-        // }
-
         for (int32 cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
         {
             const ImDrawCmd *pcmd = &cmd_list->CmdBuffer[cmd_i];
 
-            //TEST
-            //auto offset = pcmd->IdxOffset;
-            //CT_LOG(Error, CT_TEXT("index:{0}, offset:{1}"), cmd_i, offset);
-
             if (pcmd->UserCallback != NULL)
             {
-                // User callback, registered via ImDrawList::AddCallback()
-                // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
                 if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
                     SetupRenderState(drawData, width, height);
                 else
@@ -353,12 +276,10 @@ void ImGuiLab::RenderDrawData(ImDrawData *drawData)
 
                 if (clip_rect.x < width && clip_rect.y < height && clip_rect.z >= 0.0f && clip_rect.w >= 0.0f)
                 {
-                    RenderAPI::SetScissor((int32)clip_rect.x, (int32)clip_rect.y, (int32)clip_rect.z, (int32)clip_rect.w);
+                    RenderAPI::SetScissor((int32)clip_rect.x, (int32)(height - clip_rect.w), (int32)(clip_rect.z - clip_rect.x), (int32)(clip_rect.w - clip_rect.y));
+
                     //glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
-                    //RenderAPI::DrawIndexed(vao);
-
-
-                    glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, (void*)(intptr_t)(pcmd->IdxOffset * sizeof(ImDrawIdx)));
+                    RenderAPI::DrawIndexed(pcmd->IdxOffset, pcmd->ElemCount);
                 }
             }
         }

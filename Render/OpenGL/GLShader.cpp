@@ -73,6 +73,12 @@ void GLShader::SetFloat(const String &name, float value)
     glUniform1f(location, value);
 }
 
+void GLShader::SetVector2(const String &name, const Vector2 &value)
+{
+    int32 location = GetUniformLocation(name);
+    glUniform2f(location, value.x, value.y);
+}
+
 void GLShader::SetVector3(const String &name, const Vector3 &value)
 {
     int32 location = GetUniformLocation(name);

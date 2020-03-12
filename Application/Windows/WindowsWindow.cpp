@@ -181,7 +181,7 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
     case WM_MOUSEWHEEL:
     case WM_MOUSEHWHEEL:
     {
-        const int32 amount = HIWORD(wParam);
+        const int16 amount = HIWORD(wParam);
         thisWindow->input.ProcessMouseScrolled(amount);
         break;
     }

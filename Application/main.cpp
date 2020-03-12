@@ -28,14 +28,7 @@ public:
         // input.mouseMovedEventHandler.On([](InputEvent &event) {
         //     CT_LOG(Debug, event.ToString());
         // });
-        Input &input = gApp->GetInput();
-        input.touchDownEventHandler.On([](InputEvent &event) {
-            CT_LOG(Debug, event.ToString());
-        });
-        input.touchUpEventHandler.On([](InputEvent &event) {
-            CT_LOG(Debug, event.ToString());
-        });
-
+       
         auto &window = gApp->GetWindow();
         window.SetTitle(CT_TEXT("New Title"));
 

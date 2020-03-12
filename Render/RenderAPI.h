@@ -12,4 +12,5 @@ public:
     static void Clear();
 
     static void DrawIndexed(const SPtr<VertexArray> &vertexArray);
+    static void DrawIndexed(uint32 startIndex, uint32 indexCount);
 };

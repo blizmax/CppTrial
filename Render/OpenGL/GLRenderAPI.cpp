@@ -25,3 +25,8 @@ void RenderAPI::DrawIndexed(const SPtr<VertexArray> &vertexArray)
 {
     glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 }
+
+void RenderAPI::DrawIndexed(uint32 startIndex, uint32 indexCount)
+{
+    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, reinterpret_cast<void *>((uint64)startIndex * sizeof(uint32)));
+}

@@ -15,6 +15,7 @@ public:
 
     virtual void SetInt(const String &name, int32 value) override;
     virtual void SetFloat(const String &name, float value) override;
+    virtual void SetVector2(const String &name, const Vector2 &value) override;
     virtual void SetVector3(const String &name, const Vector3 &value) override;
     virtual void SetVector4(const String &name, const Vector4 &valeu) override;
     virtual void SetMatrix4(const String &name, const Matrix4 &value) override;
