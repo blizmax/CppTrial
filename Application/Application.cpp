@@ -53,10 +53,13 @@ void Application::Run()
         ++frames;
         ++totalFrames;
 
+        CT_PROFILE_SESSION_BEGIN(CT_TEXT("Logic"));
         gLogic->OnUpdate();
 
+        CT_PROFILE_SESSION_BEGIN(CT_TEXT("RenderManager"));
         gRenderManager->OnUpdate();
 
+        CT_PROFILE_SESSION_BEGIN(CT_TEXT("ImGuiLab"));
         gImGuiLab->OnUpdate();
 
 #if CT_DEBUG

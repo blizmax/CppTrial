@@ -30,6 +30,8 @@ void ImGuiLab::OnUnload()
 
 void ImGuiLab::OnUpdate()
 {
+    CT_PROFILE_FUNCTION();
+
     Begin();
 
     static bool open = false;
