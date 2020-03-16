@@ -35,9 +35,9 @@ public:
         return isStatic;
     }
 
-    SizeType GetParamCount() const
+    int32 GetParamCount() const
     {
-        return paramInfos.Size();
+        return paramInfos.Count();
     }
 
     const Array<ParamInfo> &GetParamInfos() const

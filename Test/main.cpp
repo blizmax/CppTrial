@@ -27,7 +27,7 @@ void TestEncode()
     IO::FileOutputStream ostream(CT_TEXT("D:/test1.json"));
     ostream.WriteString(str);
 
-    CT_LOG(Debug, CT_TEXT("open:{0},size:{1}"), fstream.IsOpen(), bytes.Size());
+    CT_LOG(Debug, CT_TEXT("open:{0},size:{1}"), fstream.IsOpen(), bytes.Count());
 }
 
 int main()

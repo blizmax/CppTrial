@@ -10,32 +10,32 @@ class Array
 public:
     Array() = default;
 
-    explicit Array(SizeType capacity)
+    explicit Array(int32 capacity)
     {
         Reserve(capacity);
     }
 
     Array(std::initializer_list<Element> initList)
     {
-        SizeType minCapacity = initList.size();
+        int32 minCapacity = (int32)initList.size();
         Reserve(minCapacity);
         for (const Element &value : initList)
         {
-            Memory::UninitializedFill((data + size++), 1, value);
+            Memory::UninitializedFill((data + count++), 1, value);
         }
     }
 
     Array(const Array &other)
     {
-        SizeType minCapacity = other.size;
+        int32 minCapacity = other.count;
         Reserve(minCapacity);
-        Memory::UninitializedCopy(data, other.data, other.size);
-        size = other.size;
+        Memory::UninitializedCopy(data, other.data, other.count);
+        count = other.count;
     }
 
-    Array(Array &&other) noexcept : size(other.size), capacity(other.capacity), data(other.data)
+    Array(Array &&other) noexcept : count(other.count), capacity(other.capacity), data(other.data)
     {
-        other.size = 0;
+        other.count = 0;
         other.capacity = 0;
         other.data = nullptr;
     }
@@ -44,22 +44,22 @@ public:
     {
         if (this != &other)
         {
-            if (other.size > capacity)
+            if (other.count > capacity)
             {
                 Array temp(other);
                 Swap(temp);
             }
-            else if (size > other.size)
+            else if (count > other.count)
             {
-                Memory::Copy(data, other.data, other.size);
-                Alloc::Destroy(data + other.size, size - other.size);
-                size = other.size;
+                Memory::Copy(data, other.data, other.count);
+                Alloc::Destroy(data + other.count, count - other.count);
+                count = other.count;
             }
             else
             {
-                Memory::Copy(data, other.data, size);
-                Memory::UninitializedCopy(data + size, other.data + size, other.size - size);
-                size = other.size;
+                Memory::Copy(data, other.data, count);
+                Memory::UninitializedCopy(data + count, other.data + count, other.count - count);
+                count = other.count;
             }
         }
         return *this;
@@ -69,13 +69,8 @@ public:
     {
         if (this != &other)
         {
-            DestroyAndDeallocate(data, size, capacity);
-            size = other.size;
-            capacity = other.capacity;
-            data = other.data;
-            other.size = 0;
-            other.capacity = 0;
-            other.data = nullptr;
+            Array temp(std::move(other));
+            Swap(temp);
         }
         return *this;
     }
@@ -89,9 +84,9 @@ public:
 
     ~Array()
     {
-        DestroyAndDeallocate(data, size, capacity);
+        DestroyAndDeallocate(data, count, capacity);
         data = nullptr;
-        size = capacity = 0;
+        count = capacity = 0;
     }
 
     Element *GetData()
@@ -104,26 +99,26 @@ public:
         return data;
     }
 
-    SizeType Size() const
+    int32 Count() const
     {
-        return size;
+        return count;
     }
 
-    SizeType Capacity() const
+    int32 Capacity() const
     {
         return capacity;
     }
 
     bool IsEmpty() const
     {
-        return size == 0;
+        return count == 0;
     }
 
     void Swap(Array &other) noexcept
     {
         if (this != &other)
         {
-            std::swap(size, other.size);
+            std::swap(count, other.count);
             std::swap(capacity, other.capacity);
             std::swap(data, other.data);
         }
@@ -131,15 +126,15 @@ public:
 
     void Clear()
     {
-        Alloc::Destroy(data, size);
-        size = 0;
+        Alloc::Destroy(data, count);
+        count = 0;
     }
 
     void Shrink()
     {
-        if (size != capacity)
+        if (count != capacity)
         {
-            SizeType newCapacity = FixCapacity(size);
+            int32 newCapacity = FixCapacity(count);
             if (newCapacity < capacity)
             {
                 ReservePrivate(newCapacity);
@@ -149,13 +144,13 @@ public:
 
     void Reverse()
     {
-        if (size > 1)
+        if (count > 1)
         {
-            Memory::Reverse(data, data + size);
+            Memory::Reverse(data, data + count);
         }
     }
 
-    void Reserve(SizeType newCapacity)
+    void Reserve(int32 newCapacity)
     {
         if (newCapacity <= capacity)
             return;
@@ -167,33 +162,37 @@ public:
         }
     }
 
-    void Resize(SizeType newSize)
+    void Resize(int32 newCount)
     {
-        if (newSize < size)
+        CT_CHECK(newCount >= 0);
+
+        if (newCount < count)
         {
-            RemovePrivate(newSize, size - newSize);
+            RemovePrivate(newCount, count - newCount);
         }
-        else if (newSize > size)
+        else if (newCount > count)
         {
-            AppendUninitialized(newSize - size);
+            AppendUninitialized(newCount - count);
             //FIXME
             //Init use default value Element() ?
         }
     }
 
-    void AppendUninitialized(SizeType appendSize)
+    void AppendUninitialized(int32 num)
     {
-        const SizeType newSize = size + appendSize;
-        if (newSize > capacity)
+        CT_CHECK(num >= 0);
+
+        const int32 newCount = count + num;
+        if (newCount > capacity)
         {
-            Reserve(newSize);
+            Reserve(newCount);
         }
-        size = newSize;
+        count = newCount;
     }
 
-    bool Find(const Element &value, SizeType *at = nullptr) const
+    bool Find(const Element &value, int32 *at = nullptr) const
     {
-        for (SizeType i = 0; i < size; ++i)
+        for (int32 i = 0; i < count; ++i)
         {
             if (data[i] == value)
             {
@@ -207,15 +206,15 @@ public:
         return false;
     }
 
-    bool Find(const Element &value, SizeType &at) const
+    bool Find(const Element &value, int32 &at) const
     {
         return Find(value, &at);
     }
 
     template <typename Predicate>
-    bool Find(Predicate pred, SizeType *at = nullptr) const
+    bool Find(Predicate pred, int32 *at = nullptr) const
     {
-        for (SizeType i = 0; i < size; ++i)
+        for (int32 i = 0; i < count; ++i)
         {
             if (pred(data[i]))
             {
@@ -230,16 +229,15 @@ public:
     }
 
     template <typename Predicate>
-    bool Find(Predicate pred, SizeType &at) const
+    bool Find(Predicate pred, int32 &at) const
     {
         return Find(pred, &at);
     }
 
-    bool FindLast(const Element &value, SizeType *at) const
+    bool FindLast(const Element &value, int32 *at) const
     {
-        for (SizeType i = size; i >= 1;)
+        for (int32 i = count - 1; i >= 0; --i)
         {
-            --i;
             if (data[i] == value)
             {
                 if (at)
@@ -252,17 +250,16 @@ public:
         return false;
     }
 
-    bool FindLast(const Element &value, SizeType &at) const
+    bool FindLast(const Element &value, int32 &at) const
     {
         return Find(value, &at);
     }
 
     template <typename Predicate>
-    bool FindLast(Predicate pred, SizeType *at = nullptr) const
+    bool FindLast(Predicate pred, int32 *at = nullptr) const
     {
-        for (SizeType i = size; i >= 1;)
+        for (int32 i = count - 1; i >= 0; --i)
         {
-            --i;
             if (pred(data[i]))
             {
                 if (at)
@@ -276,7 +273,7 @@ public:
     }
 
     template <typename Predicate>
-    bool FindLast(Predicate pred, SizeType &at) const
+    bool FindLast(Predicate pred, int32 &at) const
     {
         return FindLast(pred, &at);
     }
@@ -286,169 +283,187 @@ public:
         return Find(value);
     }
 
-    SizeType IndexOf(const Element &value) const
+    int32 IndexOf(const Element &value) const
     {
-        SizeType ret = 0;
-        if (Find(value, ret))
+        int32 result = 0;
+        if (Find(value, result))
         {
-            return ret;
+            return result;
         }
         return INDEX_NONE;
     }
 
-    SizeType LastIndexOf(const Element &value) const
+    int32 LastIndexOf(const Element &value) const
     {
-        SizeType ret = 0;
-        if (FindLast(value, ret))
+        int32 result = 0;
+        if (FindLast(value, result))
         {
-            return ret;
+            return result;
         }
         return INDEX_NONE;
     }
 
     void Add(const Element &value)
     {
-        InsertPrivate(size, value);
+        InsertPrivate(count, value);
     }
 
     void Add(Element &&value)
     {
-        InsertPrivate(size, std::move(value));
+        InsertPrivate(count, std::move(value));
     }
 
-    void Insert(SizeType index, const Element &value)
+    void Insert(int32 index, const Element &value)
     {
         CheckRange(index);
+
         InsertPrivate(index, value);
     }
 
-    void Insert(SizeType index, const Element &value, SizeType count)
+    void Insert(int32 index, const Element &value, int32 num)
     {
         CheckRange(index);
-        if (count > 0)
+        CT_CHECK(num >= 0);
+
+        if (num > 0)
         {
-            InsertPrivate(index, value, count);
+            InsertPrivate(index, value, num);
         }
     }
 
-    void Insert(SizeType index, Element &&value)
+    void Insert(int32 index, Element &&value)
     {
-        CheckRange(index);
+        CT_CHECK(index >= 0 && index < count);
+
         InsertPrivate(index, std::move(value));
     }
 
-    void Insert(SizeType index, const Element *src, SizeType count)
+    void Insert(int32 index, const Element *ptr, int32 num)
     {
         CheckRange(index);
-        if (count > 0)
+        CT_CHECK(num >= 0);
+
+        if (num > 0)
         {
-            InsertPrivate(index, src, count);
+            InsertPrivate(index, ptr, num);
         }
     }
 
     void RemoveLast()
     {
-        if(size > 0)
-        {
-            RemovePrivate(size - 1, 1);
-        }
+        CheckRange(count - 1);
+
+        RemovePrivate(count - 1, 1);
     }
 
-    void Remove(SizeType index)
+    void RemoveAt(int32 index)
     {
         CheckRange(index);
+
         RemovePrivate(index, 1);
     }
 
-    void Remove(SizeType index, SizeType count)
+    void RemoveAt(int32 index, int32 num)
     {
         CheckRange(index);
-        CheckRange(index + count - 1);
-        RemovePrivate(index, count);
+        CT_CHECK(num >= 0 && num <= count);
+
+        RemovePrivate(index, num);
     }
 
-    void RemoveValue(const Element &value)
+    bool RemoveValue(const Element &value)
     {
-        auto index = IndexOf(value);
+        int32 index = IndexOf(value);
         if (index != INDEX_NONE)
         {
-            Remove(index);
+            RemovePrivate(index, 1);
+            return true;
         }
+        return false;
     }
 
     Element &First()
     {
         CheckRange(0);
+
         return data[0];
     }
 
     const Element &First() const
     {
         CheckRange(0);
+
         return data[0];
     }
 
     Element &Last()
     {
-        CheckRange(size - 1);
-        return data[size - 1];
+        CheckRange(count - 1);
+
+        return data[count - 1];
     }
 
     const Element &Last() const
     {
-        CheckRange(size - 1);
-        return data[size - 1];
+        CheckRange(count - 1);
+
+        return data[count - 1];
     }
 
     void Pop()
     {
-        CheckRange(size - 1);
-        Alloc::Destroy(data + (--size));
+        CheckRange(count - 1);
+
+        Alloc::Destroy(data + (--count));
     }
 
-    Element &At(SizeType index)
+    Element &At(int32 index)
     {
         CheckRange(index);
+
         return data[index];
     }
 
-    const Element &At(SizeType index) const
+    const Element &At(int32 index) const
     {
         CheckRange(index);
+
         return data[index];
     }
 
     void Sort()
     {
-        Algo::Sort(data, size, Less<Element>());
+        Algo::Sort(data, count, Less<Element>());
     }
 
     template <typename Compare>
     void Sort(Compare compare)
     {
-        Algo::Sort(data, size, compare);
+        Algo::Sort(data, count, compare);
     }
 
-    Element &operator[](SizeType index)
+    Element &operator[](int32 index)
     {
         CheckRange(index);
+
         return data[index];
     }
 
-    const Element &operator[](SizeType index) const
+    const Element &operator[](int32 index) const
     {
         CheckRange(index);
+
         return data[index];
     }
 
     bool operator==(const Array &other) const
     {
-        if (size != other.size)
+        if (count != other.count)
         {
             return false;
         }
 
-        for (SizeType i = 0; i < size; ++i)
+        for (int32 i = 0; i < count; ++i)
         {
             if (data[i] != other.data[i])
                 return false;
@@ -475,155 +490,155 @@ public:
 
     Element *end()
     {
-        return data ? data + size : nullptr;
+        return data ? data + count : nullptr;
     }
 
     const Element *end() const
     {
-        return data ? data + size : nullptr;
+        return data ? data + count : nullptr;
     }
 
 private:
-    void CheckRange(SizeType index) const
+    void CheckRange(int32 index) const
     {
-        CT_ASSERT(index >= 0 && index < size);
+        CT_CHECK(index >= 0 && index < count);
     }
 
-    SizeType FixCapacity(SizeType inputCapacity) const
+    int32 FixCapacity(int32 newCapacity) const
     {
-        return (inputCapacity < 8) ? 8 : CT_ALIGN(inputCapacity, 8);
+        return (newCapacity < 8) ? 8 : CT_ALIGN(newCapacity, 8);
     }
 
-    void DestroyAndDeallocate(Element *ptr, SizeType destroySize, SizeType deallocSize)
+    void DestroyAndDeallocate(Element *ptr, int32 destroyNum, int32 deallocNum)
     {
-        Alloc::Destroy(ptr, destroySize);
-        Alloc::Deallocate(ptr, deallocSize);
+        Alloc::Destroy(ptr, destroyNum);
+        Alloc::Deallocate(ptr, deallocNum);
     }
 
-    void ReservePrivate(SizeType newCapacity)
+    void ReservePrivate(int32 newCapacity)
     {
         Element *newData = Alloc::Allocate(newCapacity);
-        Memory::UninitializedMove(newData, data, size);
-        DestroyAndDeallocate(data, size, capacity);
+        Memory::UninitializedMove(newData, data, count);
+        DestroyAndDeallocate(data, count, capacity);
         data = newData;
         capacity = newCapacity;
     }
 
-    void RemovePrivate(SizeType index, SizeType count)
+    void RemovePrivate(int32 index, int32 num)
     {
-        const SizeType moveCount = size - index - count;
-        size -= count;
-        Memory::Move(data + index, data + index + count, moveCount);
-        Alloc::Destroy(data + size, count);
+        const int32 moveNum = count - index - num;
+        count -= num;
+        Memory::Move(data + index, data + index + num, moveNum);
+        Alloc::Destroy(data + count, num);
     }
 
-    void InsertPrivate(SizeType index, const Element &value, SizeType count = 1)
+    void InsertPrivate(int32 index, const Element &value, int32 num = 1)
     {
-        const SizeType oldSize = size;
-        size += count;
+        const int32 oldCount = count;
+        count += num;
 
-        if (index == oldSize && size <= capacity)
+        if (index == oldCount && count <= capacity)
         {
-            Memory::UninitializedFill(data + oldSize, count, value);
+            Memory::UninitializedFill(data + oldCount, num, value);
         }
-        else if (size <= capacity)
+        else if (count <= capacity)
         {
-            SizeType moveNum = oldSize - index;
-            if (moveNum > count)
+            const int32 moveNum = oldCount - index;
+            if (moveNum > num)
             {
-                Memory::UninitializedMove(data + oldSize, data + oldSize - count, count);
-                Memory::MoveBackward(data + oldSize - 1, data + oldSize - count - 1, moveNum - count);
-                Memory::Fill(data + index, count, value);
+                Memory::UninitializedMove(data + oldCount, data + oldCount - num, num);
+                Memory::MoveBackward(data + oldCount - 1, data + oldCount - num - 1, moveNum - num);
+                Memory::Fill(data + index, num, value);
             }
             else
             {
-                Memory::UninitializedMove(data + index + count, data + index, moveNum);
+                Memory::UninitializedMove(data + index + num, data + index, moveNum);
                 Memory::Fill(data + index, moveNum, value);
-                Memory::UninitializedFill(data + index + moveNum, count - moveNum, value);
+                Memory::UninitializedFill(data + index + moveNum, num - moveNum, value);
             }
         }
         else
         {
-            const SizeType oldCapacity = capacity;
+            const int32 oldCapacity = capacity;
             Element *oldData = data;
-            capacity = FixCapacity((oldCapacity * 2) >= size ? (oldCapacity * 2) : size);
+            capacity = FixCapacity((oldCapacity * 2) >= count ? (oldCapacity * 2) : count);
             data = Alloc::Allocate(capacity);
             Memory::UninitializedMove(data, oldData, index);
             Memory::UninitializedFill(data + index, count, value);
-            Memory::UninitializedMove(data + index + count, oldData + index, oldSize - index);
-            DestroyAndDeallocate(oldData, oldSize, oldCapacity);
+            Memory::UninitializedMove(data + index + count, oldData + index, oldCount - index);
+            DestroyAndDeallocate(oldData, oldCount, oldCapacity);
         }
     }
 
-    void InsertPrivate(SizeType index, Element &&value)
+    void InsertPrivate(int32 index, Element &&value)
     {
-        const SizeType oldSize = size++;
+        const int32 oldCount = count++;
 
-        if (index == oldSize && size <= capacity)
+        if (index == oldCount && count <= capacity)
         {
-            Alloc::Construct(data + oldSize, std::move(value));
+            Alloc::Construct(data + oldCount, std::move(value));
         }
-        else if (size <= capacity)
+        else if (count <= capacity)
         {
-            SizeType moveNum = oldSize - index;
-            Memory::UninitializedMove(data + oldSize, data + oldSize - 1, 1);
-            Memory::MoveBackward(data + oldSize - 1, data + oldSize - 2, moveNum - 1);
+            const int32 moveNum = oldCount - index;
+            Memory::UninitializedMove(data + oldCount, data + oldCount - 1, 1);
+            Memory::MoveBackward(data + oldCount - 1, data + oldCount - 2, moveNum - 1);
             Alloc::Construct(data + index, std::move(value));
         }
         else
         {
-            const SizeType oldCapacity = capacity;
+            const int32 oldCapacity = capacity;
             Element *oldData = data;
-            capacity = FixCapacity((oldCapacity * 2) >= size ? (oldCapacity * 2) : size);
+            capacity = FixCapacity((oldCapacity * 2) >= count ? (oldCapacity * 2) : count);
             data = Alloc::Allocate(capacity);
             Memory::UninitializedMove(data, oldData, index);
             Alloc::Construct(data + index, std::move(value));
-            Memory::UninitializedMove(data + index + 1, oldData + index, oldSize - index);
-            DestroyAndDeallocate(oldData, oldSize, oldCapacity);
+            Memory::UninitializedMove(data + index + 1, oldData + index, oldCount - index);
+            DestroyAndDeallocate(oldData, oldCount, oldCapacity);
         }
     }
 
-    void InsertPrivate(SizeType index, const Element *src, SizeType count)
+    void InsertPrivate(int32 index, const Element *ptr, int32 num)
     {
-        const SizeType oldSize = size;
-        size += count;
+        const int32 oldCount = count;
+        count += num;
 
-        if (index == oldSize && size <= capacity)
+        if (index == oldCount && count <= capacity)
         {
-            Memory::UninitializedCopy(data + oldSize, src, count);
+            Memory::UninitializedCopy(data + oldCount, ptr, num);
         }
-        else if (size <= capacity)
+        else if (count <= capacity)
         {
-            SizeType moveNum = oldSize - index;
-            if (moveNum > count)
+            const int32 moveNum = oldCount - index;
+            if (moveNum > num)
             {
-                Memory::UninitializedMove(data + oldSize, data + oldSize - count, count);
-                Memory::MoveBackward(data + oldSize - 1, data + oldSize - count - 1, moveNum - count);
-                Memory::Copy(data + index, src, count);
+                Memory::UninitializedMove(data + oldCount, data + oldCount - num, num);
+                Memory::MoveBackward(data + oldCount - 1, data + oldCount - num - 1, moveNum - num);
+                Memory::Copy(data + index, ptr, num);
             }
             else
             {
-                Memory::UninitializedMove(data + index + count, data + index, moveNum);
-                Memory::Copy(data + index, src, moveNum);
-                Memory::UninitializedCopy(data + index + moveNum, src + moveNum, count - moveNum);
+                Memory::UninitializedMove(data + index + num, data + index, moveNum);
+                Memory::Copy(data + index, ptr, moveNum);
+                Memory::UninitializedCopy(data + index + moveNum, ptr + moveNum, num - moveNum);
             }
         }
         else
         {
-            const SizeType oldCapacity = capacity;
+            const int32 oldCapacity = capacity;
             Element *oldData = data;
-            capacity = FixCapacity((oldCapacity * 2) >= size ? (oldCapacity * 2) : size);
+            capacity = FixCapacity((oldCapacity * 2) >= count ? (oldCapacity * 2) : count);
             data = Alloc::Allocate(capacity);
             Memory::UninitializedMove(data, oldData, index);
-            Memory::Copy(data + index, src, count);
-            Memory::UninitializedMove(data + index + count, oldData + index, oldSize - index);
-            DestroyAndDeallocate(oldData, oldSize, oldCapacity);
+            Memory::Copy(data + index, ptr, num);
+            Memory::UninitializedMove(data + index + num, oldData + index, oldCount - index);
+            DestroyAndDeallocate(oldData, oldCount, oldCapacity);
         }
     }
 
 private:
-    SizeType size = 0;
-    SizeType capacity = 0;
+    int32 count = 0;
+    int32 capacity = 0;
     Element *data = nullptr;
 };
 

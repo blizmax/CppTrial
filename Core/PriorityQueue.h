@@ -27,7 +27,7 @@ public:
 
     SizeType Size() const
     {
-        return container.Size();
+        return container.Count();
     }
 
     bool IsEmpty() const

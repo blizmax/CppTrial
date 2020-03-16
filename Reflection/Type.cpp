@@ -10,11 +10,11 @@ Type::Type(Enum* e) : MetaBase(e->GetName()), innerEnum(e)
 
 bool Type::MatchParams(const Array<ParamInfo> &params, const Array<QualifiedType> &types)
 {
-    if (params.Size() != types.Size())
+    if (params.Count() != types.Count())
     {
         return false;
     }
-    for (decltype(params.Size()) i = 0; i < params.Size(); ++i)
+    for (int32 i = 0; i < params.Count(); ++i)
     {
         if (params[i].GetType() != types[i])
         {

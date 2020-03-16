@@ -35,11 +35,11 @@ public:
 
     bool operator==(const UUID &other) const
     {
-        if (data.Size() != other.data.Size())
+        if (data.Count() != other.data.Count())
         {
             return false;
         }
-        for (SizeType i = 0; i < data.Size(); ++i)
+        for (int32 i = 0; i < data.Count(); ++i)
         {
             if (data[i] != other.data[i])
             {
@@ -56,15 +56,15 @@ public:
 
     bool operator<(const UUID &other) const
     {
-        if (data.Size() < other.data.Size())
+        if (data.Count() < other.data.Count())
         {
             return true;
         }
-        if (data.Size() > other.data.Size())
+        if (data.Count() > other.data.Count())
         {
             return false;
         }
-        for (SizeType i = 0; i < data.Size(); ++i)
+        for (int32 i = 0; i < data.Count(); ++i)
         {
             if (other.data[i] < data[i])
             {

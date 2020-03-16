@@ -166,7 +166,7 @@ CT_INLINE void WriteBytes(Array<uint8> &bytes, const T &value)
 CT_INLINE void WriteBytes(Array<uint8> &bytes, const String &value)
 {
     auto strArr = value.GetCharArray();
-    SizeType byteNum = sizeof(CharType) * strArr.Size();
+    SizeType byteNum = sizeof(CharType) * strArr.Count();
     bytes.AppendUninitialized(byteNum);
     std::memcpy(bytes.GetData(), strArr.GetData(), byteNum);
 }
@@ -179,10 +179,10 @@ CT_INLINE void ReadBytes(const Array<uint8> &bytes, T &value)
 
 CT_INLINE void ReadBytes(const Array<uint8> &bytes, String &value)
 {
-    SizeType charNum = bytes.Size() / sizeof(CharType);
+    SizeType charNum = bytes.Count() / sizeof(CharType);
     Array<CharType> temp;
     temp.AppendUninitialized(charNum);
-    std::memcpy(temp.GetData(), bytes.GetData(), bytes.Size());
+    std::memcpy(temp.GetData(), bytes.GetData(), bytes.Count());
     value = temp.GetData();
 }
 

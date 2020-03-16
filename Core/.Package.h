@@ -12,8 +12,13 @@
 #endif
 
 #define CT_DEBUG_BREAK() debug_break()
-
 #define CT_ASSERT(cond) assert(cond)
+
+#if CT_DEBUG
+#define CT_CHECK(cond) if(!(cond)) {CT_DEBUG_BREAK();}
+#else
+#define CT_CHECK(cond)
+#endif
 
 #define CT_ALIGN(x, a) (((x) + ((a)-1)) & ~((a)-1))
 
@@ -36,10 +41,10 @@ typedef char16_t char16;
 typedef char32_t char32;
 typedef wchar_t wchar;
 
+constexpr int32 INDEX_NONE = -1;
+
 typedef wchar CharType;
 typedef size_t SizeType;
-
-constexpr SizeType INDEX_NONE = static_cast<SizeType>(-1);
 
 template <typename T>
 using SPtr = std::shared_ptr<T>;

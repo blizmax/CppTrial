@@ -42,19 +42,19 @@ public:
         return underlyingType;
     }
 
-    SizeType GetElementSize() const;
-    bool IsValidIndex(SizeType index) const;
+    int32 GetElementCount() const;
+    bool IsValidIndex(int32 index) const;
     bool IsValidName(const Name &name) const;
     bool IsValidValue(int64 value) const;
-    SizeType GetIndexByName(const Name &name) const;
-    SizeType GetIndexByValue(int64 value) const;
+    int32 GetIndexByName(const Name &name) const;
+    int32 GetIndexByValue(int64 value) const;
     int64 GetValueByName(const Name &name) const;
-    int64 GetValueByIndex(SizeType index) const;
+    int64 GetValueByIndex(int32 index) const;
     Name GetNameByValue(int64 value) const;
-    Name GetNameByIndex(SizeType index) const;
+    Name GetNameByIndex(int32 index) const;
 
 protected:
-    void CheckRange(SizeType index) const;
+    void CheckRange(int32 index) const;
 
     Type *underlyingType = nullptr;
     Array<Element> elements;

@@ -88,7 +88,7 @@ public:
 
     bool IsTemplate() const
     {
-        return templates.Size() > 1;
+        return templates.Count() > 1;
     }
 
     const Array<QualifiedType> &GetTemplates() const

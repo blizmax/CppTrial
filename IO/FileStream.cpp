@@ -129,11 +129,11 @@ SizeType IO::FileOutputStream::Write(const void* buf, SizeType count)
 
 void IO::FileOutputStream::WriteBytes(const Array<uint8>& bytes)
 {
-    Write(bytes.GetData(), bytes.Size());
+    Write(bytes.GetData(), bytes.Count());
 }
 
 void IO::FileOutputStream::WriteString(const String& str)
 {
     auto arr = StringEncode::UTF8::ToBytes(str);
-    Write(arr.GetData(), arr.Size());
+    Write(arr.GetData(), arr.Count());
 }

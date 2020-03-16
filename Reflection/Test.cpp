@@ -70,7 +70,7 @@ void Reflection::TestTypeMacro()
 
     Type *enumType = TypeOf<TestEnum1>();
     Enum *innerEnum = enumType->GetEnum();
-    for (SizeType i = 0; i < innerEnum->GetElementSize(); ++i)
+    for (SizeType i = 0; i < innerEnum->GetElementCount(); ++i)
     {
         std::wcout << L"TestEnum1 values index:" << i << L" name: " << *innerEnum->GetNameByIndex(i).ToString() << L" value: " << innerEnum->GetValueByIndex(i) << std::endl;
     }

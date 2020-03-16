@@ -57,7 +57,7 @@ void TestArraySort()
     //std::sort(arr.begin(), arr.end(), Less<int>());
     arr.Sort();
 
-    for (SizeType i = 1; i < arr.Size(); ++i)
+    for (SizeType i = 1; i < arr.Count(); ++i)
     {
         if (arr[i - 1] > arr[i])
         {

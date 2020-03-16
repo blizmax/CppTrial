@@ -10,7 +10,7 @@ void *ImageLoader::Load(const String &path, int32& width, int32& height, int32& 
     IO::FileHandle file(path);
     auto bytes = file.ReadBytes();
     stbi_set_flip_vertically_on_load(flipY ? 1 : 0);
-    void *data = stbi_load_from_memory(bytes.GetData(), (int)bytes.Size(), &width, &height, &channels, 0);
+    void *data = stbi_load_from_memory(bytes.GetData(), (int)bytes.Count(), &width, &height, &channels, 0);
     if (!data)
         CT_LOG(Error, "Load image failed. Path: {0}", path);
 

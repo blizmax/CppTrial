@@ -36,7 +36,7 @@ void TestName()
         CT_LOG(Info, CT_TEXT("Name :{0}"), data->string);
     }
 
-    CT_LOG(Info, CT_TEXT("Count : {0}"), nameDatas.Size());
+    CT_LOG(Info, CT_TEXT("Count : {0}"), nameDatas.Count());
 #endif
 }
 }

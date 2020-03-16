@@ -3,14 +3,14 @@
 namespace Reflection
 {
 
-SizeType Enum::GetElementSize() const
+int32 Enum::GetElementCount() const
 {
-    return elements.Size();
+    return elements.Count();
 }
 
-bool Enum::IsValidIndex(SizeType index) const
+bool Enum::IsValidIndex(int32 index) const
 {
-    return index <= elements.Size();
+    return index <= elements.Count();
 }
 
 bool Enum::IsValidName(const Name &name) const
@@ -23,9 +23,9 @@ bool Enum::IsValidValue(int64 value) const
     return GetIndexByValue(value) != INDEX_NONE;
 }
 
-SizeType Enum::GetIndexByName(const Name &name) const
+int32 Enum::GetIndexByName(const Name &name) const
 {
-    for (SizeType i = 0; i < elements.Size(); ++i)
+    for (int32 i = 0; i < elements.Count(); ++i)
     {
         if (elements[i].name == name)
         {
@@ -35,9 +35,9 @@ SizeType Enum::GetIndexByName(const Name &name) const
     return INDEX_NONE;
 }
 
-SizeType Enum::GetIndexByValue(int64 value) const
+int32 Enum::GetIndexByValue(int64 value) const
 {
-    for (SizeType i = 0; i < elements.Size(); ++i)
+    for (int32 i = 0; i < elements.Count(); ++i)
     {
         if (elements[i].value == value)
         {
@@ -49,12 +49,12 @@ SizeType Enum::GetIndexByValue(int64 value) const
 
 int64 Enum::GetValueByName(const Name &name) const
 {
-    SizeType index = GetIndexByName(name);
+    int32 index = GetIndexByName(name);
     CheckRange(index);
     return elements[index].value;
 }
 
-int64 Enum::GetValueByIndex(SizeType index) const
+int64 Enum::GetValueByIndex(int32 index) const
 {
     CheckRange(index);
     return elements[index].value;
@@ -62,19 +62,19 @@ int64 Enum::GetValueByIndex(SizeType index) const
 
 Name Enum::GetNameByValue(int64 value) const
 {
-    SizeType index = GetIndexByValue(value);
+    int32 index = GetIndexByValue(value);
     CheckRange(index);
     return elements[index].name;
 }
 
-Name Enum::GetNameByIndex(SizeType index) const
+Name Enum::GetNameByIndex(int32 index) const
 {
     CheckRange(index);
     return elements[index].name;
 }
 
-void Enum::CheckRange(SizeType index) const
+void Enum::CheckRange(int32 index) const
 {
-    CT_ASSERT(IsValidIndex(index));
+    CT_CHECK(IsValidIndex(index));
 }
 } // namespace Reflection

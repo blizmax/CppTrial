@@ -54,7 +54,7 @@ UUID::UUID()
 
 bool UUID::IsValid() const
 {
-    return data.Size() == 16;
+    return data.Count() == 16;
 }
 
 String UUID::ToString() const

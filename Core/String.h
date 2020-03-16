@@ -96,17 +96,17 @@ public:
 
     bool IsEmpty() const
     {
-        return data.Size() <= 1;
+        return data.Count() <= 1;
     }
 
     SizeType Length() const
     {
-        return data.Size() ? data.Size() - 1 : 0;
+        return data.Count() ? data.Count() - 1 : 0;
     }
 
     SizeType Size() const
     {
-        return data.Size() ? data.Size() - 1 : 0;
+        return data.Count() ? data.Count() - 1 : 0;
     }
 
     SizeType Capacity() const
@@ -117,7 +117,7 @@ public:
     const CharType *CStr() const
     {
         constexpr static CharType EMPTY[] = {0, 0};
-        return data.Size() ? data.GetData() : EMPTY;
+        return data.Count() ? data.GetData() : EMPTY;
     }
 
     CharArray &GetCharArray()
@@ -159,21 +159,21 @@ public:
         return *this;
     }
 
-    void Remove(SizeType index)
+    void RemoveAt(SizeType index)
     {
-        data.Remove(index);
+        data.RemoveAt(index);
     }
 
-    void Remove(SizeType index, SizeType count)
+    void RemoveAt(SizeType index, SizeType count)
     {
-        data.Remove(index, count);
+        data.RemoveAt(index, count);
     }
 
     void Insert(SizeType index, CharType chr)
     {
         if (chr != 0)
         {
-            if (data.Size() == 0)
+            if (data.Count() == 0)
             {
                 *this += chr;
             }
@@ -188,7 +188,7 @@ public:
     {
         if (str.Length())
         {
-            if (data.Size() == 0)
+            if (data.Count() == 0)
             {
                 *this += str;
             }
@@ -820,7 +820,7 @@ public:
             SizeType len = CString::Length(str);
             if (len > 0)
             {
-                const SizeType curSize = data.Size();
+                const SizeType curSize = data.Count();
                 data.AppendUninitialized(len + (curSize ? 0 : 1));
                 CharType *curPtr = data.GetData() + curSize - (curSize ? 1 : 0);
                 CString::Copy(curPtr, str, len);
@@ -834,7 +834,7 @@ public:
     {
         if (chr != 0)
         {
-            const SizeType curSize = data.Size();
+            const SizeType curSize = data.Count();
             data.AppendUninitialized(1 + (curSize ? 0 : 1));
             CharType *curPtr = data.GetData() + curSize - (curSize ? 1 : 0);
             *curPtr = chr;
@@ -1057,7 +1057,7 @@ public:
     CharType *end()
     {
         auto ptr = data.end();
-        if (data.Size())
+        if (data.Count())
         {
             --ptr;
         }
@@ -1067,7 +1067,7 @@ public:
     const CharType *end() const
     {
         auto ptr = data.end();
-        if (data.Size())
+        if (data.Count())
         {
             --ptr;
         }
@@ -1105,7 +1105,7 @@ private:
                 auto ptr = data.GetData() + index;
                 CString::Move(ptr + repCount, ptr + count, len - index - count + 1);
                 CString::Copy(ptr, repStr, repCount);
-                data.Resize(data.Size() - count + repCount);
+                data.Resize(data.Count() - count + repCount);
             }
             else
             {
