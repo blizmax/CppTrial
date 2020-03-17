@@ -34,7 +34,7 @@ CT_INLINE void ParseParams(Array<FormatParam> &params, T &&first, Args &&... arg
 template <typename... Args>
 CT_INLINE String FormatImpl(const String &src, Args &&... args)
 {
-    const SizeType paramSize = sizeof...(args);
+    const auto paramSize = sizeof...(args);
     if (paramSize == 0)
     {
         return src;
@@ -43,7 +43,7 @@ CT_INLINE String FormatImpl(const String &src, Args &&... args)
     Array<FormatParam> params;
     ParseParams(params, std::forward<Args>(args)...);
 
-    SizeType pos0 = 0, pos1 = 0, pos2 = 0;
+    int32 pos0 = 0, pos1 = 0, pos2 = 0;
     auto cstr = src.CStr();
     String output;
 

@@ -16,12 +16,12 @@
 */
 namespace StringEncode
 {
-CT_INLINE SizeType UTF8ToUTF32(const char8 *start, const char8 *end, char32 *output)
+CT_INLINE int32 UTF8ToUTF32(const char8 *start, const char8 *end, char32 *output)
 {
     if (start >= end)
         return 0;
 
-    SizeType byteNum = 0;
+    int32 byteNum = 0;
     uint8 first = (uint8)*start;
 
     if (first < 192)
@@ -42,7 +42,7 @@ CT_INLINE SizeType UTF8ToUTF32(const char8 *start, const char8 *end, char32 *out
 
     constexpr uint32 OFFSETS[6] = {0x00000000, 0x00003080, 0x000E2080, 0x03C82080, 0xFA082080, 0x82082080};
     char32 temp = 0;
-    SizeType pos = 0;
+    int32 pos = 0;
 
     for (; pos < byteNum - 1; ++pos)
     {
@@ -56,7 +56,7 @@ CT_INLINE SizeType UTF8ToUTF32(const char8 *start, const char8 *end, char32 *out
     return byteNum;
 }
 
-CT_INLINE SizeType UTF32ToUTF8(const char32 *start, char8 *output)
+CT_INLINE int32 UTF32ToUTF8(const char32 *start, char8 *output)
 {
     uint32 input = (uint32)*start;
     if (input > 0x0010FFFF)
@@ -65,7 +65,7 @@ CT_INLINE SizeType UTF32ToUTF8(const char32 *start, char8 *output)
         return 0;
 
     constexpr uint8 HEADERS[7] = {0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC};
-    SizeType byteNum = 0;
+    int32 byteNum = 0;
 
     if (input < 0x80)
         byteNum = 1;
@@ -96,7 +96,7 @@ CT_INLINE SizeType UTF32ToUTF8(const char32 *start, char8 *output)
     return byteNum;
 }
 
-CT_INLINE SizeType UTF16ToUTF32(const char16 *start, const char16 *end, char32 *output)
+CT_INLINE int32 UTF16ToUTF32(const char16 *start, const char16 *end, char32 *output)
 {
     if (start >= end)
         return 0;
@@ -123,7 +123,7 @@ CT_INLINE SizeType UTF16ToUTF32(const char16 *start, const char16 *end, char32 *
     return 1;
 }
 
-CT_INLINE SizeType UTF32ToUTF16(const char32 *start, char16 *output)
+CT_INLINE int32 UTF32ToUTF16(const char32 *start, char16 *output)
 {
     uint32 input = (uint32)*start;
     if (input > 0x0010FFFF)
@@ -148,7 +148,7 @@ CT_INLINE SizeType UTF32ToUTF16(const char32 *start, char16 *output)
     return 2;
 }
 
-CT_INLINE SizeType WideToUTF32(const wchar *start, const wchar *end, char32 *output)
+CT_INLINE int32 WideToUTF32(const wchar *start, const wchar *end, char32 *output)
 {
     if (start >= end)
         return 0;
@@ -162,7 +162,7 @@ CT_INLINE SizeType WideToUTF32(const wchar *start, const wchar *end, char32 *out
     return UTF16ToUTF32((const char16 *)start, (const char16 *)end, output);
 }
 
-CT_INLINE SizeType UTF32ToWide(const char32 *start, wchar *output)
+CT_INLINE int32 UTF32ToWide(const char32 *start, wchar *output)
 {
     if (sizeof(wchar) == 4)
     {
@@ -171,12 +171,12 @@ CT_INLINE SizeType UTF32ToWide(const char32 *start, wchar *output)
     }
 
     char16 buffer[2] = {0};
-    SizeType size = UTF32ToUTF16(start, buffer);
-    if (size > 0)
+    int32 count = UTF32ToUTF16(start, buffer);
+    if (count > 0)
         output[0] = (wchar)buffer[0];
-    if (size > 1)
+    if (count > 1)
         output[1] = (wchar)buffer[1];
-    return size;
+    return count;
 }
 
 class UTF8
@@ -184,23 +184,23 @@ class UTF8
 public:
     static String FromChars(const char8 *value)
     {
-        SizeType len = strlen(value);
-        SizeType pos = 0;
-        SizeType size;
+        int32 len = strlen(value);
+        int32 pos = 0;
+        int32 count;
         char32 charUTF32;
         wchar buffer[2] = {0};
         String str;
 
         while (true)
         {
-            size = UTF8ToUTF32(value + pos, value + len, &charUTF32);
-            if (size == 0)
+            count = UTF8ToUTF32(value + pos, value + len, &charUTF32);
+            if (count == 0)
                 break;
-            pos += size;
-            size = UTF32ToWide(&charUTF32, buffer);
-            if (size == 0)
+            pos += count;
+            count = UTF32ToWide(&charUTF32, buffer);
+            if (count == 0)
                 break;
-            for (SizeType i = 0; i < size; ++i)
+            for (int32 i = 0; i < count; ++i)
             {
                 str += buffer[i];
             }
@@ -220,23 +220,23 @@ public:
 
         arr.Clear();
 
-        SizeType len = value.Length();
-        SizeType pos = 0;
-        SizeType size;
+        int32 len = value.Length();
+        int32 pos = 0;
+        int32 count;
         const CharType *cstr = value.CStr();
         char32 charUTF32;
         char8 buffer[6] = {0};
 
         while (true)
         {
-            size = WideToUTF32(cstr + pos, cstr + len, &charUTF32);
-            if (size == 0)
+            count = WideToUTF32(cstr + pos, cstr + len, &charUTF32);
+            if (count == 0)
                 break;
-            pos += size;
-            size = UTF32ToUTF8(&charUTF32, buffer);
-            if (size == 0)
+            pos += count;
+            count = UTF32ToUTF8(&charUTF32, buffer);
+            if (count == 0)
                 break;
-            for (SizeType i = 0; i < size; ++i)
+            for (int32 i = 0; i < count; ++i)
             {
                 arr.Add(static_cast<ByteT>(buffer[i]));
             }
@@ -258,5 +258,4 @@ public:
         return arr;
     }
 };
-
-} // namespace StringEncode
+}

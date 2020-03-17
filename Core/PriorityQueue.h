@@ -4,7 +4,7 @@
 #include "Core/Array.h"
 #include "Core/Algorithm.h"
 
-template<typename Element, typename InnerContainer = Array<Element>, typename Compare = Less<Element>>
+template <typename Element, typename InnerContainer = Array<Element>, typename Compare = Less<Element>>
 class PriorityQueue
 {
 public:
@@ -16,7 +16,7 @@ public:
     PriorityQueue &operator=(const PriorityQueue &) = default;
     PriorityQueue &operator=(PriorityQueue &&) noexcept = default;
     ~PriorityQueue() = default;
- 
+
     PriorityQueue(std::initializer_list<Element> initList)
     {
         for (const Element &value : initList)
@@ -25,7 +25,7 @@ public:
         }
     }
 
-    SizeType Size() const
+    int32 Count() const
     {
         return container.Count();
     }
@@ -35,11 +35,11 @@ public:
         return container.IsEmpty();
     }
 
-    void Swap(PriorityQueue &other)
+    void Swap(PriorityQueue &other) noexcept
     {
         if (this != &other)
         {
-            std::swap(container, other.container);
+            container.Swap(other.container);
         }
     }
 
@@ -61,28 +61,28 @@ public:
     void Push(const Element &value)
     {
         container.Add(value);
-        AlgoInternal::SiftUp(container.GetData(), Size(), Size() - 1, compare); 
+        AlgoInternal::SiftUp(container.GetData(), Count(), Count() - 1, compare);
     }
 
     void Push(Element &&value)
     {
         container.Add(std::move(value));
-        AlgoInternal::SiftUp(container.GetData(), Size(), Size() - 1, compare); 
+        AlgoInternal::SiftUp(container.GetData(), Count(), Count() - 1, compare);
     }
 
     void Pop()
     {
-        SizeType size = Size();
-        if(size >= 2)
+        int32 count = Count();
+        if (count >= 2)
         {
             auto heap = container.GetData();
-            std::swap(heap[0], heap[size - 1]);
+            std::swap(heap[0], heap[count - 1]);
         }
-        if(size >= 1)
+        if (count >= 1)
         {
             container.RemoveLast();
         }
-        AlgoInternal::SiftDown(container.GetData(), Size(), 0, compare); 
+        AlgoInternal::SiftDown(container.GetData(), Count(), 0, compare);
     }
 
     bool operator==(const PriorityQueue &other) const

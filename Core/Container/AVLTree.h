@@ -41,14 +41,14 @@ public:
 public:
     AVLTree() = default;
 
-    AVLTree(const AVLTree &other) : size(other.size)
+    AVLTree(const AVLTree &other) : count(other.count)
     {
         root = CopyFrom(other.root);
     }
 
-    AVLTree(AVLTree &&other) noexcept : size(other.size), root(other.root)
+    AVLTree(AVLTree &&other) noexcept : count(other.count), root(other.root)
     {
-        other.size = 0;
+        other.count = 0;
         other.root = nullptr;
     }
 
@@ -66,12 +66,8 @@ public:
     {
         if (this != &other)
         {
-            ClearPrivate(root);
-
-            size = other.size;
-            root = other.root;
-            other.size = 0;
-            other.root = nullptr;
+            AVLTree temp(std::move(other));
+            Swap(temp);
         }
         return *this;
     }
@@ -81,21 +77,21 @@ public:
         ClearPrivate(root);
     }
 
-    SizeType Size() const
+    int32 Count() const
     {
-        return size;
+        return count;
     }
 
     bool IsEmpty() const
     {
-        return size == 0;
+        return count == 0;
     }
 
-    void Swap(AVLTree &other)
+    void Swap(AVLTree &other) noexcept
     {
         if (this != &other)
         {
-            std::swap(size, other.size);
+            std::swap(count, other.count);
             std::swap(root, other.root);
         }
     }
@@ -104,7 +100,7 @@ public:
     {
         ClearPrivate(root);
         root = nullptr;
-        size = 0;
+        count = 0;
     }
 
     NodeType *Find(const Element &value) const
@@ -202,16 +198,16 @@ public:
 
     bool operator==(const AVLTree &other) const
     {
-        if (size != other.size)
+        if (count != other.count)
         {
             return false;
         }
 
         auto iter0 = begin();
         auto iter1 = other.begin();
-        while(iter0 != end() && iter1 != other.end())
+        while (iter0 != end() && iter1 != other.end())
         {
-            if(*iter0 != *iter1)
+            if (*iter0 != *iter1)
             {
                 return false;
             }
@@ -277,6 +273,7 @@ public:
     {
     private:
         using IteratorBase::stack;
+
     public:
         Iterator(NodeType *root)
         {
@@ -311,6 +308,7 @@ public:
     {
     private:
         using IteratorBase::stack;
+
     public:
         ConstIterator(NodeType *root)
         {
@@ -364,7 +362,7 @@ public:
 private:
     void CheckRange(NodeType *node) const
     {
-        CT_ASSERT(node != nullptr);
+        CT_CHECK(node != nullptr);
     }
 
     int32 Compare(const Key &key1, const Key &key2) const
@@ -464,7 +462,7 @@ private:
     {
         if (!node)
         {
-            ++size;
+            ++count;
             return CreateNode(value);
         }
 
@@ -499,7 +497,7 @@ private:
     {
         if (!node)
         {
-            ++size;
+            ++count;
             return CreateNode(std::move(value));
         }
 
@@ -546,7 +544,7 @@ private:
             {
                 DeleteNode(node);
                 ret = nullptr;
-                --size;
+                --count;
             }
             else if (node->left && node->right)
             {
@@ -566,7 +564,7 @@ private:
 
                 DeleteNode(node);
                 ret = temp;
-                --size;
+                --count;
             }
         }
         else if (val < 0)
@@ -652,5 +650,5 @@ private:
     using NodeAlloc = Alloc<NodeType>;
 
     NodeType *root = nullptr;
-    SizeType size = 0;
+    int32 count = 0;
 };

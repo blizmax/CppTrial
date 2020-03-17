@@ -55,7 +55,10 @@ int main()
 
     //Test::TestDelegate();
   
-    TestEncode();
+    //TestEncode();
+
+    Test::TestArray();
+    Test::TestHashMap();
 
     system("pause");
     return 0;

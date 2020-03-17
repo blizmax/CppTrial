@@ -3,6 +3,9 @@
 namespace Test
 {
 
+void TestArray();
+void TestString();
+
 void TestMath();
 
 void TestLogger();

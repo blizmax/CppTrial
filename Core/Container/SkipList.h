@@ -10,7 +10,7 @@ template <typename Element, template <typename T> class Alloc = Allocator>
 class Node
 {
 public:
-    using NodePtrAlloc = Alloc<Node*>;
+    using NodePtrAlloc = Alloc<Node *>;
 
     Element element;
     Node **forward;
@@ -79,9 +79,9 @@ public:
         }
     }
 
-    SkipList(SkipList &&other) noexcept : size(other.size), level(other.level), head(other.head)
+    SkipList(SkipList &&other) noexcept : count(other.count), level(other.level), head(other.head)
     {
-        other.size = 0;
+        other.count = 0;
         other.level = 0;
         other.head = nullptr;
     }
@@ -100,14 +100,8 @@ public:
     {
         if (this != &other)
         {
-            Clear();
-
-            size = other.size;
-            level = other.level;
-            head = other.head;
-            other.size = 0;
-            other.level = 0;
-            other.head = nullptr;
+            SkipList temp(std::move(other));
+            Swap(temp);
         }
         return *this;
     }
@@ -118,21 +112,21 @@ public:
         DeleteHead();
     }
 
-    SizeType Size() const
+    int32 Count() const
     {
-        return size;
+        return count;
     }
 
     bool IsEmpty() const
     {
-        return size == 0;
+        return count == 0;
     }
 
-    void Swap(SkipList &other)
+    void Swap(SkipList &other) noexcept
     {
         if (this != &other)
         {
-            std::swap(size, other.size);
+            std::swap(count, other.count);
             std::swap(level, other.level);
             std::swap(head, other.head);
         }
@@ -155,7 +149,7 @@ public:
 
         head->forward[0] = nullptr;
         level = 0;
-        size = 0;
+        count = 0;
     }
 
     NodeType *Find(const Element &value) const
@@ -283,7 +277,7 @@ public:
 
     bool operator==(const SkipList &other) const
     {
-        if (size != other.size)
+        if (count != other.count)
         {
             return false;
         }
@@ -431,7 +425,7 @@ public:
 private:
     void CheckRange(NodeType *node) const
     {
-        CT_ASSERT(node != nullptr);
+        CT_CHECK(node != nullptr);
     }
 
     void CreateHead()
@@ -534,7 +528,7 @@ private:
             cache[i]->forward[i] = newNode;
         }
 
-        ++size;
+        ++count;
     }
 
     void InsertPrivate(const Key &key, Element &&value, NodeType **cache)
@@ -552,7 +546,7 @@ private:
             cache[i]->forward[i] = newNode;
         }
 
-        ++size;
+        ++count;
     }
 
     bool RemovePrivate(const Key &key)
@@ -580,7 +574,7 @@ private:
             --level;
         }
 
-        --size;
+        --count;
 
         return true;
     }
@@ -590,5 +584,5 @@ private:
 
     NodeType *head = nullptr;
     int32 level = 0;
-    SizeType size = 0;
+    int32 count = 0;
 };

@@ -25,9 +25,9 @@ public:
         }
     }
 
-    SizeType Size() const
+    int32 Count() const
     {
-        return container.Size();
+        return container.Count();
     }
 
     bool IsEmpty() const
@@ -35,11 +35,11 @@ public:
         return container.IsEmpty();
     }
 
-    void Swap(Queue &other)
+    void Swap(Queue &other) noexcept
     {
         if (this != &other)
         {
-            std::swap(container, other.container);
+            container.Swap(other.container);
         }
     }
 
@@ -95,7 +95,7 @@ public:
 
 private:
     ContainerType container;
-}
+};
 
 namespace std
 {

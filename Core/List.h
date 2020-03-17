@@ -79,11 +79,11 @@ public:
     }
 
     List(List &&other) noexcept
-        : head(other.head), tail(other.tail), size(other.size)
+        : head(other.head), tail(other.tail), count(other.count)
     {
         other.head = nullptr;
         other.tail = nullptr;
-        other.size = 0;
+        other.count = 0;
     }
 
     List(std::initializer_list<Element> initList)
@@ -126,14 +126,14 @@ public:
         Clear();
     }
 
-    SizeType Size() const
+    int32 Count() const
     {
-        return size;
+        return count;
     }
 
     bool IsEmpty() const
     {
-        return size == 0;
+        return count == 0;
     }
 
     NodeType *GetHead() const
@@ -146,13 +146,13 @@ public:
         return tail;
     }
 
-    void Swap(List &other)
+    void Swap(List &other) noexcept
     {
         if (this != &other)
         {
             std::swap(head, other.head);
             std::swap(tail, other.tail);
-            std::swap(size, other.size);
+            std::swap(count, other.count);
         }
     }
 
@@ -167,7 +167,7 @@ public:
         }
 
         head = tail = nullptr;
-        size = 0;
+        count = 0;
     }
 
     bool Contains(const Element &value) const
@@ -189,9 +189,9 @@ public:
         return node;
     }
 
-    NodeType *FindNodeByIndex(SizeType index) const
+    NodeType *FindNodeByIndex(int32 index) const
     {
-        if (index >= size)
+        if (index >= count || index < 0)
         {
             return nullptr;
         }
@@ -253,12 +253,12 @@ public:
         InsertPrivate(before, node);
     }
 
-    void Insert(SizeType index, const Element &value)
+    void Insert(int32 index, const Element &value)
     {
         Insert(FindNodeByIndex(index), value);
     }
 
-    void Insert(SizeType index, Element &&value)
+    void Insert(int32 index, Element &&value)
     {
         Insert(FindNodeByIndex(index), std::move(value));
     }
@@ -289,14 +289,15 @@ public:
                 next->SetPrev(prev);
             }
             DeleteNode(node);
-            --size;
+            --count;
         }
     }
 
     void RemoveFirst()
     {
-        if (size == 0)
+        if (count == 0)
             return;
+
         NodeType *node = head->GetNext();
         if (node)
         {
@@ -309,13 +310,14 @@ public:
             DeleteNode(head);
             head = tail = nullptr;
         }
-        --size;
+        --count;
     }
 
     void RemoveLast()
     {
-        if (size == 0)
+        if (count == 0)
             return;
+
         NodeType *node = tail->GetPrev();
         if (node)
         {
@@ -328,17 +330,25 @@ public:
             DeleteNode(tail);
             head = tail = nullptr;
         }
-        --size;
+        --count;
     }
 
-    void Remove(SizeType index)
+    void RemoveAt(int32 index)
     {
-        RemoveNode(FindNodeByIndex(index));
+        NodeType *node = FindNodeByIndex(index);
+        CheckRange(node);
+        RemoveNode(node);
     }
 
-    void RemoveValue(const Element &value)
+    bool RemoveValue(const Element &value)
     {
-        RemoveNode(FindNode(value));
+        NodeType *node = FindNode(value);
+        if (node)
+        {
+            RemoveNode(node);
+            return true;
+        }
+        return false;
     }
 
     Element &First()
@@ -374,33 +384,33 @@ public:
         RemoveLast();
     }
 
-    Element &At(SizeType index)
+    Element &At(int32 index)
     {
         NodeType *node = FindNodeByIndex(index);
         CheckRange(node);
         return node->GetValue();
     }
 
-    const Element &At(SizeType index) const
+    const Element &At(int32 index) const
     {
         const NodeType *node = FindNodeByIndex(index);
         CheckRange(node);
         return node->GetValue();
     }
 
-    Element &operator[](SizeType index)
+    Element &operator[](int32 index)
     {
         return At(index);
     }
 
-    const Element &operator[](SizeType index) const
+    const Element &operator[](int32 index) const
     {
         return At(index);
     }
 
     bool operator==(const List &other) const
     {
-        if (size != other.size)
+        if (count != other.count)
         {
             return false;
         }
@@ -462,13 +472,13 @@ public:
 
         Element &operator*()
         {
-            CT_ASSERT(current);
+            CT_CHECK(current);
             return current->GetValue();
         }
 
         Element *operator->()
         {
-            CT_ASSERT(current);
+            CT_CHECK(current);
             return &(current->GetValue());
         }
 
@@ -516,13 +526,13 @@ public:
 
         const Element &operator*()
         {
-            CT_ASSERT(current);
+            CT_CHECK(current);
             return current->GetValue();
         }
 
         const Element *operator->()
         {
-            CT_ASSERT(current);
+            CT_CHECK(current);
             return &(current->GetValue());
         }
 
@@ -560,7 +570,7 @@ public:
 private:
     void CheckRange(NodeType *node) const
     {
-        CT_ASSERT(node != nullptr);
+        CT_Check(node != nullptr);
     }
 
     NodeType *CreateNode(const Element &value)
@@ -595,7 +605,7 @@ private:
         {
             head = tail = node;
         }
-        ++size;
+        ++count;
     }
 
     void AddLastPrivate(NodeType *node)
@@ -610,7 +620,7 @@ private:
         {
             head = tail = node;
         }
-        ++size;
+        ++count;
     }
 
     void InsertPrivate(NodeType *before, NodeType *node)
@@ -628,7 +638,7 @@ private:
             }
             node->SetNext(before);
             before->SetPrev(node);
-            ++size;
+            ++count;
         }
     }
 
@@ -637,7 +647,7 @@ private:
 
     NodeType *head = nullptr;
     NodeType *tail = nullptr;
-    SizeType size = 0;
+    int32 count = 0;
 };
 
 namespace std
@@ -647,4 +657,4 @@ inline void swap(List<E, N, A> &lhs, List<E, N, A> &rhs)
 {
     lhs.Swap(rhs);
 }
-} // namespace std
+}

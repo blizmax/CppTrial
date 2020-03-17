@@ -120,7 +120,7 @@ Json::JsonWriter &Json::JsonWriter::WriteValue(const String &value, bool quote)
 
 int32 Json::JsonWriter::GetIndentLevel() const
 {
-    return stack.Size();
+    return stack.Count();
 }
 
 Json::JsonWriter::State &Json::JsonWriter::GetCurrentState()
