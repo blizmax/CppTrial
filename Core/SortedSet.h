@@ -32,9 +32,9 @@ public:
     }
 
 public:
-    SizeType Size() const
+    int32 Count() const
     {
-        return container.Size();
+        return container.Count();
     }
 
     bool IsEmpty() const
@@ -42,7 +42,7 @@ public:
         return container.IsEmpty();
     }
 
-    void Swap(SortedSet &other)
+    void Swap(SortedSet &other) noexcept
     {
         container.Swap(other.container);
     }

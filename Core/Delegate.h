@@ -70,8 +70,8 @@ public:
         Handle() = default;
         Handle(const Handle &) = default;
         Handle(Handle &&) = default;
-        Handle& operator=(const Handle &) = default;
-        Handle& operator=(Handle &&) = default;
+        Handle &operator=(const Handle &) = default;
+        Handle &operator=(Handle &&) = default;
         ~Handle() = default;
 
         Handle(const SPtr<InnerData> &data) : data(data)
@@ -103,6 +103,11 @@ public:
     bool IsEmpty() const
     {
         return chain.IsEmpty();
+    }
+
+    int32 Count() const
+    {
+        return chain.Count();
     }
 
     void Clear()

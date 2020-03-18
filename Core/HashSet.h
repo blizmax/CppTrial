@@ -18,13 +18,13 @@ public:
     HashSet &operator=(HashSet &&) noexcept = default;
     ~HashSet() = default;
 
-    explicit HashSet(SizeType initCapacity) : hashTable(HashTableType(initCapacity))
+    explicit HashSet(int32 initCapacity) : hashTable(HashTableType(initCapacity))
     {
     }
 
     HashSet(std::initializer_list<Key> initList)
     {
-        SizeType initSize = initList.size();
+        int32 initSize = initList.size();
         hashTable = HashTableType(initSize); // may make waste when has same keys
         for (const Key &key : initList)
         {
@@ -40,12 +40,12 @@ public:
     }
 
 public:
-    SizeType Size() const
+    int32 Count() const
     {
-        return hashTable.Size();
+        return hashTable.Count();
     }
 
-    SizeType Capacity() const
+    int32 Capacity() const
     {
         return hashTable.Capacity();
     }
@@ -60,7 +60,7 @@ public:
         return hashTable.IsFull();
     }
 
-    void Swap(HashSet &other)
+    void Swap(HashSet &other) noexcept
     {
         hashTable.Swap(other.hashTable);
     }

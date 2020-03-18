@@ -25,7 +25,7 @@ public:
         }
     }
 
-    SizeType Size() const
+    int32 Count() const
     {
         return container.Count();
     }
@@ -35,7 +35,7 @@ public:
         return container.IsEmpty();
     }
 
-    void Swap(Stack &other)
+    void Swap(Stack &other) noexcept
     {
         if (this != &other)
         {

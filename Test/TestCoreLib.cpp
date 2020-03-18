@@ -23,6 +23,68 @@
 
 namespace Test
 {
+void TestArray()
+{
+    Array<int32> arr;
+    arr = {1, 2, 3, 5, 6, 7, 8, 9};
+
+
+    arr.Insert(0, 999);
+    arr.Insert(2, 0);
+    arr.Add(2);
+    arr.Add(-5);
+    arr.RemoveAt(10);
+    arr.RemoveValue(999);
+
+    String str;
+    for(int32 i = 0; i < arr.Count(); ++i)
+    {
+        str += String::Format("[{0}]={1}, ", i, arr[i]);
+    }
+    CT_LOG(Info, str);
+    CT_LOG(Info, "Reverse===================");
+
+    arr.Reverse();
+    str.Clear();
+    for (int32 i = 0; i < arr.Count(); ++i)
+    {
+        str += String::Format("[{0}]={1}, ", i, arr[i]);
+    }
+    CT_LOG(Info, str);
+
+    int32 cmp = 3;
+    bool ok = arr.Find([cmp](auto v){
+        return v > cmp;
+    });
+    CT_LOG(Info, "Find any value > {0}? {1}", cmp, ok);
+
+    for (int32 i = 0; i < 10; ++i)
+    {
+        int32 v0 = Math::RandInt(0, 10);
+        int32 v1 = Math::RandInt(0, 10);
+        int32 v2 = 2;//Math::RandInt(0, 10);
+
+        CT_LOG(Info, "Find {0}:{1}, Contains {2}:{3}, Indexof {4}:{5}, LastIndexof {6}:{7}", 
+            v0, arr.Find(v0), v1, arr.Contains(v1), v2, arr.IndexOf(v2), v2, arr.LastIndexOf(v2));
+    }
+
+    CT_LOG(Info, "Capacity:{0}", arr.Capacity());
+    Array temp{200};
+    arr.Swap(temp);
+    CT_LOG(Info, "Capacity:{0}, Count:{1}", arr.Capacity(), arr.Count());
+
+    arr.Resize(500);
+    CT_LOG(Info, "Resize(500) Capacity:{0}, Count:{1}", arr.Capacity(), arr.Count());
+    arr.Shrink();
+    CT_LOG(Info, "Shrink() Capacity:{0}, Count:{1}", arr.Capacity(), arr.Count());
+    arr.Resize(1);
+    CT_LOG(Info, "Resize(1) Capacity:{0}, Count:{1}", arr.Capacity(), arr.Count());
+    arr.Shrink();
+    CT_LOG(Info, "Shrink() Capacity:{0}, Count:{1}", arr.Capacity(), arr.Count());
+    arr.Reserve(0);
+    CT_LOG(Info, "Reserve(0) Capacity:{0}, Count:{1}", arr.Capacity(), arr.Count());
+}
+
 void TestMath()
 {
     int i1 = Math::TruncToInt(-5.6f);
@@ -74,6 +136,8 @@ void TestHashMap()
 
     map1.Put(CT_TEXT("A"), 1);
     map1.Put(CT_TEXT("2"), 2);
+
+    CT_LOG(Info, "Capacity:{0}, Count:{1}", map1.Capacity(), map1.Count());
 }
 
 void TestSortedMap()

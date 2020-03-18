@@ -8,12 +8,11 @@ template <typename Element, typename Hasher, typename KeyEqual, typename KeyTrai
 class HashTable
 {
 private:
-    enum
-    {
-        DELETED = 0x80000000,
-        FREE = 0x00000000,
-        DEFAULT = 0x0123abcd,
-    };
+    static constexpr uint32 DELETED = 0x80000000;
+    static constexpr uint32 FREE = 0x00000000;
+    static constexpr uint32 DEFAULT = 0x0123abcd;
+
+    static constexpr float LOAD_FACTOR = 0.9f;
 
     struct Index
     {
@@ -26,7 +25,7 @@ public:
 
     HashTable() = default;
 
-    explicit HashTable(SizeType initCapacity)
+    explicit HashTable(int32 initCapacity)
     {
         if (initCapacity > 0)
         {
@@ -38,7 +37,7 @@ public:
         }
     }
 
-    HashTable(const HashTable &other) : size(other.size), capacity(other.capacity), mask(other.mask)
+    HashTable(const HashTable &other) : count(other.count), capacity(other.capacity), mask(other.mask)
     {
         if (capacity > 0)
         {
@@ -50,9 +49,9 @@ public:
         }
     }
 
-    HashTable(HashTable &&other) noexcept : size(other.size), capacity(other.capacity), mask(other.mask), data(other.data), indexData(other.indexData)
+    HashTable(HashTable &&other) noexcept : count(other.count), capacity(other.capacity), mask(other.mask), data(other.data), indexData(other.indexData)
     {
-        other.size = 0;
+        other.count = 0;
         other.capacity = 0;
         other.mask = 0;
         other.data = nullptr;
@@ -73,19 +72,8 @@ public:
     {
         if (this != &other)
         {
-            DestroyAllKeys();
-            DataAlloc::Deallocate(data, capacity);
-            IndexAlloc::Deallocate(indexData, capacity);
-            size = other.size;
-            capacity = other.capacity;
-            mask = other.mask;
-            data = other.data;
-            indexData = other.indexData;
-            other.size = 0;
-            other.capacity = 0;
-            other.mask = 0;
-            other.data = nullptr;
-            other.indexData = nullptr;
+            HashTable temp(std::move(other));
+            Swap(temp);
         }
         return *this;
     }
@@ -97,34 +85,34 @@ public:
         IndexAlloc::Deallocate(indexData, capacity);
         data = nullptr;
         indexData = nullptr;
-        size = capacity = mask = 0;
+        count = capacity = mask = 0;
     }
 
-    SizeType Size() const
+    int32 Count() const
     {
-        return size;
+        return count;
     }
 
-    SizeType Capacity() const
+    int32 Capacity() const
     {
         return capacity;
     }
 
     bool IsEmpty() const
     {
-        return size == 0;
+        return count == 0;
     }
 
     bool IsFull() const
     {
-        return size >= capacity * 0.9;
+        return count >= capacity * LOAD_FACTOR;
     }
 
-    void Swap(HashTable &other)
+    void Swap(HashTable &other) noexcept
     {
         if (this != &other)
         {
-            std::swap(size, other.size);
+            std::swap(count, other.count);
             std::swap(capacity, other.capacity);
             std::swap(mask, other.mask);
             std::swap(data, other.data);
@@ -136,14 +124,14 @@ public:
     {
         DestroyAllKeys();
         FreeAllIndices();
-        size = 0;
+        count = 0;
     }
 
     void Shrink()
     {
-        if (size != capacity)
+        if (count != capacity)
         {
-            SizeType newCapacity = FixCapacity(size);
+            int32 newCapacity = FixCapacity(count);
             if (newCapacity < capacity)
             {
                 RehashPrivate(newCapacity);
@@ -151,13 +139,13 @@ public:
         }
     }
 
-    SizeType Find(const Element &value) const
+    int32 Find(const Element &value) const
     {
         const Key &key = KeyTraits::GetKey(value);
         return FindPrivate(HashKey(key), key);
     }
 
-    SizeType FindByKey(const Key &key) const
+    int32 FindByKey(const Key &key) const
     {
         return FindPrivate(HashKey(key), key);
     }
@@ -176,7 +164,7 @@ public:
     {
         const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
-        SizeType pos = FindPrivate(hash, key);
+        int32 pos = FindPrivate(hash, key);
         if (pos != INDEX_NONE)
         {
             data[pos] = value;
@@ -188,7 +176,7 @@ public:
                 RehashPrivate(FixCapacity(capacity * 2));
             }
             InsertPrivate(hash, value);
-            ++size;
+            ++count;
         }
     }
 
@@ -196,7 +184,7 @@ public:
     {
         const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
-        SizeType pos = FindPrivate(hash, key);
+        int32 pos = FindPrivate(hash, key);
         if (pos != INDEX_NONE)
         {
             data[pos] = std::move(value);
@@ -208,7 +196,7 @@ public:
                 RehashPrivate(FixCapacity(capacity * 2));
             }
             InsertPrivate(hash, std::move(value));
-            ++size;
+            ++count;
         }
     }
 
@@ -216,7 +204,7 @@ public:
     {
         const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
-        SizeType pos = FindPrivate(hash, key);
+        int32 pos = FindPrivate(hash, key);
         if (pos == INDEX_NONE)
         {
             if (IsFull())
@@ -224,7 +212,7 @@ public:
                 RehashPrivate(FixCapacity(capacity * 2));
             }
             InsertPrivate(hash, value);
-            ++size;
+            ++count;
             return true;
         }
         return false;
@@ -234,7 +222,7 @@ public:
     {
         const Key &key = KeyTraits::GetKey(value);
         auto hash = HashKey(key);
-        SizeType pos = FindPrivate(hash, key);
+        int32 pos = FindPrivate(hash, key);
         if (pos == INDEX_NONE)
         {
             if (IsFull())
@@ -242,7 +230,7 @@ public:
                 RehashPrivate(FixCapacity(capacity * 2));
             }
             InsertPrivate(hash, std::move(value));
-            ++size;
+            ++count;
             return true;
         }
         return false;
@@ -250,28 +238,28 @@ public:
 
     Element &Get(const Element &value)
     {
-        SizeType pos = Find(value);
+        auto pos = Find(value);
         CheckRange(pos);
         return data[pos];
     }
 
     const Element &Get(const Element &value) const
     {
-        SizeType pos = Find(value);
+        auto pos = Find(value);
         CheckRange(pos);
         return data[pos];
     }
 
     Element &GetByKey(const Key &key)
     {
-        SizeType pos = FindByKey(key);
+        auto pos = FindByKey(key);
         CheckRange(pos);
         return data[pos];
     }
 
     const Element &GetByKey(const Key &key) const
     {
-        SizeType pos = FindByKey(key);
+        auto pos = FindByKey(key);
         CheckRange(pos);
         return data[pos];
     }
@@ -288,12 +276,12 @@ public:
 
     bool operator==(const HashTable &other) const
     {
-        if (size != other.size)
+        if (count != other.count)
         {
             return false;
         }
 
-        for (SizeType i = 0; i < capacity; ++i)
+        for (int32 i = 0; i < capacity; ++i)
         {
             if (IsInited(indexData[i].flag))
             {
@@ -325,14 +313,14 @@ public:
     class Iterator
     {
     private:
-        HashTable *table;
-        SizeType index;
+        HashTable &table;
+        int32 index;
 
         void Step()
         {
-            for (SizeType i = index; i < table->capacity; ++i)
+            for (int32 i = index; i < table.capacity; ++i)
             {
-                if (table->IsInited(table->indexData[i].flag))
+                if (table.IsInited(table.indexData[i].flag))
                 {
                     index = i;
                     return;
@@ -342,7 +330,7 @@ public:
         }
 
     public:
-        Iterator(HashTable *ht, SizeType idx) : table(ht), index(idx)
+        Iterator(HashTable &table, int32 index) : table(table), index(index)
         {
             Step();
         }
@@ -374,38 +362,38 @@ public:
 
         Element &operator*()
         {
-            table->CheckRange(index);
-            return table->data[index];
+            table.CheckRange(index);
+            return table.data[index];
         }
 
         Element *operator->()
         {
-            table->CheckRange(index);
-            return &(table->data[index]);
+            table.CheckRange(index);
+            return &(table.data[index]);
         }
 
         bool operator==(const Iterator &other) const
         {
-            return (table == other.table) && (index == other.index);
+            return (&table == &other.table) && (index == other.index);
         }
 
         bool operator!=(const Iterator &other) const
         {
-            return (table != other.table) || (index != other.index);
+            return (&table != &other.table) || (index != other.index);
         }
     };
 
     class ConstIterator
     {
     private:
-        const HashTable *table;
-        SizeType index;
+        const HashTable &table;
+        int32 index;
 
         void Step()
         {
-            for (SizeType i = index; i < table->capacity; ++i)
+            for (int32 i = index; i < table.capacity; ++i)
             {
-                if (table->IsInited(table->indexData[i].flag))
+                if (table.IsInited(table.indexData[i].flag))
                 {
                     index = i;
                     return;
@@ -415,7 +403,7 @@ public:
         }
 
     public:
-        ConstIterator(const HashTable *ht, SizeType idx) : table(ht), index(idx)
+        ConstIterator(const HashTable &table, int32 index) : table(table), index(index)
         {
             Step();
         }
@@ -447,51 +435,51 @@ public:
 
         const Element &operator*()
         {
-            table->CheckRange(index);
-            return table->data[index];
+            table.CheckRange(index);
+            return table.data[index];
         }
 
         const Element *operator->()
         {
-            table->CheckRange(index);
-            return &(table->data[index]);
+            table.CheckRange(index);
+            return &(table.data[index]);
         }
 
         bool operator==(const ConstIterator &other) const
         {
-            return (table == other.table) && (index == other.index);
+            return (&table == &other.table) && (index == other.index);
         }
 
         bool operator!=(const ConstIterator &other) const
         {
-            return (table != other.table) || (index != other.index);
+            return (&table != &other.table) || (index != other.index);
         }
     };
 
     Iterator begin()
     {
-        return Iterator(this, 0);
+        return Iterator(*this, 0);
     }
 
     ConstIterator begin() const
     {
-        return ConstIterator(const_cast<HashTable *>(this), 0);
+        return ConstIterator(*this, 0);
     }
 
     Iterator end()
     {
-        return Iterator(this, INDEX_NONE);
+        return Iterator(*this, INDEX_NONE);
     }
 
     ConstIterator end() const
     {
-        return ConstIterator(const_cast<HashTable *>(this), INDEX_NONE);
+        return ConstIterator(*this, INDEX_NONE);
     }
 
 private:
-    void CheckRange(SizeType index) const
+    void CheckRange(int32 index) const
     {
-        CT_ASSERT(index < capacity);
+        CT_CHECK(index < capacity);
     }
 
     uint32 HashKey(const Key &key) const
@@ -516,13 +504,13 @@ private:
         return flag && !IsDeleted(flag);
     }
 
-    SizeType ProbeDistance(uint32 hash, SizeType pos) const
+    int32 ProbeDistance(uint32 hash, int32 pos) const
     {
-        SizeType desiredPos = static_cast<SizeType>(hash) & mask;
+        int32 desiredPos = static_cast<int32>(hash) & mask;
         return (pos + capacity - desiredPos) & mask;
     }
 
-    SizeType FixCapacity(SizeType newCapacity) const
+    int32 FixCapacity(int32 newCapacity) const
     {
         newCapacity = newCapacity < 8 ? 8 : newCapacity;
         if (Math::IsPowerOfTwo(newCapacity))
@@ -534,7 +522,7 @@ private:
 
     void DestroyAllKeys()
     {
-        for (SizeType i = 0; i < capacity; ++i)
+        for (int32 i = 0; i < capacity; ++i)
         {
             if (indexData[i].flag == DEFAULT)
             {
@@ -550,9 +538,9 @@ private:
 
     void CopyFrom(const HashTable &other)
     {
-        if (other.size > 0)
+        if (other.count > 0)
         {
-            for (SizeType i = 0; i < other.capacity; ++i)
+            for (int32 i = 0; i < other.capacity; ++i)
             {
                 if (IsInited(other.indexData[i].flag))
                 {
@@ -564,9 +552,9 @@ private:
 
     void MoveFrom(HashTable &&other)
     {
-        if (other.size > 0)
+        if (other.count > 0)
         {
-            for (SizeType i = 0; i < other.capacity; ++i)
+            for (int32 i = 0; i < other.capacity; ++i)
             {
                 if (IsInited(other.indexData[i].flag))
                 {
@@ -576,15 +564,15 @@ private:
         }
     }
 
-    SizeType FindPrivate(uint32 hash, const Key &key) const
+    int32 FindPrivate(uint32 hash, const Key &key) const
     {
-        if (size == 0)
+        if (count == 0)
         {
             return INDEX_NONE;
         }
 
-        SizeType pos = static_cast<SizeType>(hash) & mask;
-        SizeType dist = 0;
+        int32 pos = static_cast<int32>(hash) & mask;
+        int32 dist = 0;
         while (true)
         {
             const auto flag = indexData[pos].flag;
@@ -607,21 +595,21 @@ private:
 
     bool RemovePrivate(const Key &key)
     {
-        SizeType index = FindByKey(key);
+        int32 index = FindByKey(key);
         if (index == INDEX_NONE)
         {
             return false;
         }
         DataAlloc::Destroy(data + index);
         indexData[index].flag |= DELETED;
-        --size;
+        --count;
         return true;
     }
 
     bool PreInsert(uint32 hash, Element *&insertPtr)
     {
-        SizeType pos = static_cast<SizeType>(hash) & mask;
-        SizeType dist = 0;
+        int32 pos = static_cast<int32>(hash) & mask;
+        int32 dist = 0;
         Element *tempPtr = nullptr;
         while (true)
         {
@@ -629,7 +617,7 @@ private:
             {
                 break;
             }
-            SizeType existingDist = ProbeDistance(indexData[pos].hash, pos);
+            auto existingDist = ProbeDistance(indexData[pos].hash, pos);
             if (existingDist < dist)
             {
                 std::swap(hash, indexData[pos].hash);
@@ -689,10 +677,10 @@ private:
         }
     }
 
-    void RehashPrivate(SizeType newCapacity)
+    void RehashPrivate(int32 newCapacity)
     {
         HashTable temp(newCapacity);
-        temp.size = size;
+        temp.count = count;
         temp.MoveFrom(std::move(*this));
         Swap(temp);
     }
@@ -701,9 +689,9 @@ private:
     using DataAlloc = Alloc<Element>;
     using IndexAlloc = Alloc<Index>;
 
-    SizeType size = 0;
-    SizeType capacity = 0;
-    SizeType mask = 0;
+    int32 count = 0;
+    int32 capacity = 0;
+    int32 mask = 0;
     Element *data = nullptr;
     Index *indexData = nullptr;
 };
