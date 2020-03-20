@@ -9,7 +9,9 @@
 
 class ImGuiLab : public Module
 {
-public:    
+public:
+    Delegate<void(void)> drawEventHandler;
+
     virtual void OnLoad() override;
     virtual void OnUnload() override;
     virtual void OnUpdate() override;

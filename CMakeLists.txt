@@ -32,6 +32,7 @@ add_subdirectory(Render)
 
 if(WIN32)
     add_subdirectory(Application)
+    add_subdirectory(Demo)
 endif(WIN32)
 
 add_subdirectory(Test)

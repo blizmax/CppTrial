@@ -23,301 +23,174 @@ private:
     }
 
 public:
-    static float Sin(float value)
+    static constexpr float Sin(float value)
     {
         return std::sin(value);
     }
 
-    static double Sin(double value)
-    {
-        return std::sin(value);
-    }
-
-    static float Cos(float value)
+    static constexpr float Cos(float value)
     {
         return std::cos(value);
     }
 
-    static double Cos(double value)
-    {
-        return std::cos(value);
-    }
-
-    static float Tan(float value)
+    static constexpr float Tan(float value)
     {
         return std::tan(value);
     }
 
-    static double Tan(double value)
-    {
-        return std::tan(value);
-    }
-
-    static float Asin(float value)
+    static constexpr float Asin(float value)
     {
         return std::asin(value);
     }
 
-    static double Asin(double value)
-    {
-        return std::asin(value);
-    }
-
-    static float Acos(float value)
+    static constexpr float Acos(float value)
     {
         return std::acos(value);
     }
 
-    static double Acos(double value)
-    {
-        return std::acos(value);
-    }
-
-    static float Atan(float value)
+    static constexpr float Atan(float value)
     {
         return std::atan(value);
     }
 
-    static double Atan(double value)
-    {
-        return std::atan(value);
-    }
-
-    static float Atan2(float y, float x)
+    static constexpr float Atan2(float y, float x)
     {
         return std::atan2(y, x);
     }
 
-    static double Atan2(double y, double x)
-    {
-        return std::atan2(y, x);
-    }
-
-    static int32 TruncToInt(float value)
+    static constexpr int32 TruncToInt(float value)
     {
         return (int32)value;
     }
 
-    static int64 TruncToInt(double value)
-    {
-        return (int64)value;
-    }
-
-    static float Trunc(float value)
+    static constexpr float Trunc(float value)
     {
         return (float)TruncToInt(value);
     }
 
-    static double Trunc(double value)
-    {
-        return (double)TruncToInt(value);
-    }
-
-    static float Ceil(float value)
+    static constexpr float Ceil(float value)
     {
         return std::ceil(value);
     }
 
-    static double Ceil(double value)
-    {
-        return std::ceil(value);
-    }
-
-    static int32 CeilToInt(float value)
+    static constexpr int32 CeilToInt(float value)
     {
         return TruncToInt(Ceil(value));
     }
 
-    static int64 CeilToInt(double value)
-    {
-        return TruncToInt(Ceil(value));
-    }
-
-    static float Floor(float value)
+    static constexpr float Floor(float value)
     {
         return std::floor(value);
     }
 
-    static double Floor(double value)
-    {
-        return std::floor(value);
-    }
-
-    static int32 FloorToInt(float value)
+    static constexpr int32 FloorToInt(float value)
     {
         return TruncToInt(Floor(value));
     }
 
-    static int64 FloorToInt(double value)
-    {
-        return TruncToInt(Floor(value));
-    }
-
-    static float Round(float value)
+    static constexpr float Round(float value)
     {
         return std::round(value);
     }
 
-    static double Round(double value)
-    {
-        return std::round(value);
-    }
-
-    static int32 RoundToInt(float value)
+    static constexpr int32 RoundToInt(float value)
     {
         return FloorToInt(value + 0.5f);
     }
 
-    static int64 RoundToInt(double value)
-    {
-        return FloorToInt(value + 0.5);
-    }
-
-    static float Sqrt(float value)
+    static constexpr float Sqrt(float value)
     {
         return std::sqrt(value);
     }
 
-    static double Sqrt(double value)
-    {
-        return std::sqrt(value);
-    }
-
-    static float Exp(float value)
+    static constexpr float Exp(float value)
     {
         return std::exp(value);
     }
 
-    static double Exp(double value)
-    {
-        return std::exp(value);
-    }
-
-    static float Exp2(float value)
+    static constexpr float Exp2(float value)
     {
         return std::exp2(value);
     }
 
-    static double Exp2(double value)
-    {
-        return std::exp2(value);
-    }
-
-    static float Pow(float a, float b)
+    static constexpr float Pow(float a, float b)
     {
         return std::pow(a, b);
     }
 
-    static double Pow(double a, double b)
-    {
-        return std::pow(a, b);
-    }
-
-    static float Loge(float value)
+    static constexpr float Loge(float value)
     {
         return std::log(value);
     }
 
-    static double Loge(double value)
-    {
-        return std::log(value);
-    }
-
-    static float Log2(float value)
+    static constexpr float Log2(float value)
     {
         return std::log2(value);
     }
 
-    static double Log2(double value)
-    {
-        return std::log2(value);
-    }
-
-    static float Log10(float value)
-    {
-        return std::log10(value);
-    }
-
-    static double Log10(double value)
+    static constexpr float Log10(float value)
     {
         return std::log10(value);
     }
 
     // Return the remainder of a/b
-    static float Fmod(float a, float b)
-    {
-        return std::fmod(a, b);
-    }
-
-    // Return the remainder of x/y
-    static double Fmod(double a, double b)
+    static constexpr float Fmod(float a, float b)
     {
         return std::fmod(a, b);
     }
 
     // Return the frac part of the number, and use a ptr to receive the int part
-    static float Modf(float value, float *intPart)
-    {
-        return std::modf(value, intPart);
-    }
-
-    // Return the frac part of the number, and use a ptr to receive the int part
-    static double Modf(double value, double *intPart)
+    static CT_INLINE float Modf(float value, float *intPart)
     {
         return std::modf(value, intPart);
     }
 
     template <typename T>
-    static T Abs(T value)
+    static constexpr T Abs(T value)
     {
         return (value < 0) ? -value : value;
     }
 
     template <typename T>
-    static auto Max(T value)
+    static constexpr auto Max(T value)
     {
         return value;
     }
 
     template <typename T1, typename... T2>
-    static auto Max(T1 a, T2... b)
+    static constexpr auto Max(T1 a, T2... b)
     {
         auto max = Max(b...);
         return (max < a) ? a : max;
     }
 
     template <typename T>
-    static auto Min(T value)
+    static constexpr auto Min(T value)
     {
         return value;
     }
 
     template <typename T1, typename... T2>
-    static auto Min(T1 a, T2... b)
+    static constexpr auto Min(T1 a, T2... b)
     {
         auto min = Min(b...);
         return (a < min) ? a : min;
     }
 
     template <typename T>
-    static T Clamp(T value, T min, T max)
+    static CT_INLINE T Clamp(T value, T min, T max)
     {
-        CT_ASSERT(!(max < min));
+        CT_CHECK(!(max < min));
         return Max(Min(value, max), min);
     }
 
-    static float Clamp01(float value)
+    static CT_INLINE float Clamp01(float value)
     {
         return Clamp(value, 0.0f, 1.0f);
     }
 
-    static double Clamp01(double value)
-    {
-        return Clamp(value, 0.0, 1.0);
-    }
-
     template <typename T>
-    static bool IsPowerOfTwo(T value)
+    static constexpr bool IsPowerOfTwo(T value)
     {
         return (value & (value - 1)) == (T)0;
     }

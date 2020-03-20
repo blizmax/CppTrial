@@ -11,7 +11,7 @@ set(DIR_IMGUI
     ${PROJECT_SOURCE_DIR}/External/Common/imgui/imgui_widgets.cpp
 )
 
-add_executable(Application 
+add_library(Application 
     ${DIR_APPLICATION}
     ${DIR_IMGUI}
 )

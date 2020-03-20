@@ -18,3 +18,5 @@ else()
         ${DIR_APPLICATION_WINDOWS_COMMON}
     )
 endif(CT_USE_OPENGL)
+
+target_link_libraries(ApplicationWindows Application)

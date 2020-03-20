@@ -4,6 +4,7 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+#include <shared_mutex>
 
 CT_INLINE uint32 GetCurrentThreadID()
 {

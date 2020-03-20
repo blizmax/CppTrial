@@ -37,6 +37,8 @@ void ImGuiLab::OnUpdate()
     static bool open = false;
     ImGui::ShowDemoWindow(&open);
 
+    drawEventHandler();
+
     End();
 }
 

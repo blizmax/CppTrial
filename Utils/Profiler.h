@@ -50,23 +50,23 @@ public:
 
     void BeginSession(const String &name)
     {
-        std::unique_lock<std::mutex> lock(mutex);
+        std::unique_lock<std::shared_mutex> lock(mutex);
 
         BeginSessionUnlocked(name);
     }
 
     void EndSession()
     {
-        std::unique_lock<std::mutex> lock(mutex);
+        std::unique_lock<std::shared_mutex> lock(mutex);
 
         EndSessionUnlocked();
     }
 
-    Scope NewScope(const String& name)
+    Scope NewScope(const String &name)
     {
-        std::unique_lock<std::mutex> lock(mutex);
+        std::unique_lock<std::shared_mutex> lock(mutex);
 
-        if(!sessionOpen)
+        if (!sessionOpen)
         {
             CT_LOG(Warning, CT_TEXT("No session open, begin a temp session."));
             BeginSessionUnlocked(CT_TEXT("Temp"));
@@ -79,11 +79,15 @@ public:
 
     bool IsSessionOpen() const
     {
-        return sessionOpen; 
+        std::shared_lock<std::shared_mutex> lock(mutex);
+
+        return sessionOpen;
     }
 
-    const SessionData &GetSessionData() const
+    SessionData GetSessionData() const
     {
+        std::shared_lock<std::shared_mutex> lock(mutex);
+
         return sessionData;
     }
 
@@ -116,8 +120,8 @@ private:
     static Profiler gProfiler;
 
     bool sessionOpen = false;
+    mutable std::shared_mutex mutex;
     SessionData sessionData;
-    std::mutex mutex;
 };
 
 inline Profiler Profiler::gProfiler;
