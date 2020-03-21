@@ -1,4 +1,5 @@
 #include "Application/Application.h"
+#include "Application/ImGuiLab.h"
 #include "Render/Shader.h"
 #include "Render/RenderAPI.h"
 #include "Render/OrthographicCamera.h"
@@ -6,6 +7,7 @@
 #include "Render/Texture.h"
 #include "IO/FileWatcher.h"
 #include "Core/Thread.h"
+#include "Demo/Page1.h"
 
 class Demon : public Logic
 {
@@ -18,27 +20,39 @@ private:
     UPtr<IO::FileWatcher> watcher;
     bool reloadShader = false;
 
+    UPtr<Page> page;
+    int32 pageIndex = -1;
+
+private:
+    void SetCurrentPage(int32 index)
+    {
+        static Array<std::function<UPtr<Page>(void)>> creators{
+            []() { return Page1::Create(); }};
+
+        if (index < 0 || index >= creators.Count())
+        {
+            CT_EXCEPTION(Demo, "Invalid index.");
+            return;
+        }
+
+        if (index == pageIndex)
+        {
+            return;
+        }
+
+        pageIndex = index;
+        page = creators[index]();
+
+        auto &window = gApp->GetWindow();
+        window.SetTitle(page->GetName());
+    }
+
 public:
     virtual void OnLoad() override
     {
-        // Input &input = gApp->GetInput();
-        // input.mouseMovedEventHandler.On([](InputEvent &event) {
-        //     CT_LOG(Debug, event.ToString());
-        // });
+        SetCurrentPage(0);
 
         auto &window = gApp->GetWindow();
-        window.SetTitle(CT_TEXT("New Title"));
-
-        //gApp->GetClipboard().SetString(CT_TEXT("XXXXXXX"));
-
-        // window.filesDroppedEventHandler.On([](WindowEvent &event)
-        // {
-        //     auto &e = static_cast<FilesDroppedEvent&>(event);
-        //     CT_LOG(Debug, CT_TEXT("count:{0}, path1:{1}"), e.paths.Size(), e.paths[0]);
-
-        //     gApp->GetWindow().Flash();
-        // });
-
         float width = window.GetWidth();
         float height = window.GetHeight();
         camera.viewportWidth = width;
@@ -52,6 +66,10 @@ public:
             camera.viewportWidth = (float)e.width;
             camera.viewportHeight = (float)e.height;
             camera.Update();
+        });
+
+        gImGuiLab->drawEventHandler.On([this]() {
+            page->OnImGuiDraw();
         });
 
         float vertexData[] = {
@@ -78,23 +96,19 @@ public:
 
         texture = Texture::Create(CT_TEXT("Assets/Textures/wheel.png"));
 
-        shader = Shader::Create(CT_TEXT("Assets/Shaders/Shader1.glsl"));
+        shader = Shader::Create(page->GetShaderPath());
 
-        watcher = Memory::MakeUnique<IO::FileWatcher>(CT_TEXT("Assets/Shaders"),
+        watcher = Memory::MakeUnique<IO::FileWatcher>(
+            CT_TEXT("Assets/Shaders"),
             [this](const String &path, IO::FileWatcher::FileStatus status) {
                 if (status == IO::FileWatcher::FileStatus::Changed)
                 {
-                    if (path.EndsWith(CT_TEXT("Shader1.glsl")))
-                    {
-                        reloadShader = true;
-                    }
+                    reloadShader = true;
                 }
             });
 
         std::thread watchThread([this]() {
-            CT_LOG(Debug, CT_TEXT("Watch thread created."));
             watcher->Start();
-            CT_LOG(Debug, CT_TEXT("Watch thread destroyed."));
         });
         watchThread.detach();
     }
@@ -112,7 +126,7 @@ public:
         if (reloadShader)
         {
             reloadShader = false;
-            shader = Shader::Create(CT_TEXT("Assets/Shaders/Shader1.glsl"));
+            shader = Shader::Create(page->GetShaderPath());
         }
 
         shader->Bind();
@@ -127,8 +141,6 @@ public:
         vertexArray->Bind();
 
         RenderAPI::DrawIndexed(vertexArray);
-
-        //CT_LOG(Info, CT_TEXT("FPS:{0}"), gApp->GetFramesPerSecond());
     }
 };
 
