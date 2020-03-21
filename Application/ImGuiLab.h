@@ -10,7 +10,7 @@
 class ImGuiLab : public Module
 {
 public:
-    Delegate<void(void)> drawEventHandler;
+    Delegate<void(void)> drawHandler;
 
     virtual void OnLoad() override;
     virtual void OnUnload() override;
@@ -34,13 +34,13 @@ private:
     void RenderDrawData(ImDrawData *drawData);
 
 private:
-    Input::InputEventHandler::Handle KeyTypedHandle;
-    Input::InputEventHandler::Handle keyUpHandle;
-    Input::InputEventHandler::Handle keyDownHandle;
-    Input::InputEventHandler::Handle touchUpHandle;
-    Input::InputEventHandler::Handle touchDownHandle;
-    Input::InputEventHandler::Handle mouseMovedHandle;
-    Input::InputEventHandler::Handle mouseScrolledHandle;
+    Input::KeyTypedEventDelegate::Handle KeyTypedHandle;
+    Input::KeyDownEventDelegate::Handle keyDownHandle;
+    Input::KeyUpEventDelegate::Handle keyUpHandle;
+    Input::TouchDownEventDelegate::Handle touchDownHandle;
+    Input::TouchUpEventDelegate::Handle touchUpHandle;
+    Input::MouseMovedEventDelegate::Handle mouseMovedHandle;
+    Input::MouseScrolledEventDelegate::Handle mouseScrolledHandle;
 
     SPtr<Shader> shader;
     SPtr<Texture> texture;

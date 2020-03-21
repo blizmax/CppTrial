@@ -6,8 +6,9 @@ enum class WindowEventType
 {
     Unknown,
 
-    WindowResize,
-    WindowFocus,
+    WindowResized,
+    FocusGained,
+    FocusLost,
     FilesDropped,
 };
 
@@ -19,14 +20,14 @@ public:
     virtual String ToString() const = 0;
 };
 
-class WindowResizeEvent : public WindowEvent
+class WindowResizedEvent : public WindowEvent
 {
 public:
-    static constexpr WindowEventType eventType = WindowEventType::WindowResize;
-    uint32 width;
-    uint32 height;
+    static constexpr WindowEventType eventType = WindowEventType::WindowResized;
+    int32 width;
+    int32 height;
 
-    WindowResizeEvent(uint32 width, uint32 height) : width(width), height(height)
+    WindowResizedEvent(int32 width, int32 height) : width(width), height(height)
     {
     }
 
@@ -37,7 +38,7 @@ public:
 
     String GetName() const override
     {
-        return CT_TEXT("WindowResizeEvent");
+        return CT_TEXT("WindowResizedEvent");
     }
 
     String ToString() const override
@@ -46,13 +47,12 @@ public:
     }
 };
 
-class WindowFocusEvent : public WindowEvent
+class FocusGainedEvent : public WindowEvent
 {
 public:
-    static constexpr WindowEventType eventType = WindowEventType::WindowFocus;
-    bool focused;
+    static constexpr WindowEventType eventType = WindowEventType::FocusGained;
 
-    WindowFocusEvent(bool focused) : focused(focused)
+    FocusGainedEvent()
     {
     }
 
@@ -63,12 +63,37 @@ public:
 
     String GetName() const override
     {
-        return CT_TEXT("WindowFocusEvent");
+        return CT_TEXT("FocusGainedEvent");
     }
 
     String ToString() const override
     {
-        return String::Format(CT_TEXT("[name:{0}, focused:{1}]"), GetName(), focused);
+        return String::Format(CT_TEXT("[name:{0}, focused:{1}]"), GetName(), true);
+    }
+};
+
+class FocusLostEvent : public WindowEvent
+{
+public:
+    static constexpr WindowEventType eventType = WindowEventType::FocusLost;
+
+    FocusLostEvent()
+    {
+    }
+
+    WindowEventType GetEventType() const override
+    {
+        return eventType;
+    }
+
+    String GetName() const override
+    {
+        return CT_TEXT("FocusLostEvent");
+    }
+
+    String ToString() const override
+    {
+        return String::Format(CT_TEXT("[name:{0}, focused:{1}]"), GetName(), false);
     }
 };
 

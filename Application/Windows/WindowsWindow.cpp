@@ -181,14 +181,13 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
     case WM_MOUSEWHEEL:
     case WM_MOUSEHWHEEL:
     {
-        const int16 amount = HIWORD(wParam);
-        thisWindow->input.ProcessMouseScrolled(amount);
+        thisWindow->input.ProcessMouseScrolled((int16)HIWORD(wParam) / WHEEL_DELTA);
         break;
     }
     case WM_SIZE:
     {
-        const uint32 width = LOWORD(lParam);
-        const uint32 height = HIWORD(lParam);
+        const int32 width = LOWORD(lParam);
+        const int32 height = HIWORD(lParam);
         thisWindow->ProcessWindowResize(width, height);
         break;
     }
@@ -204,12 +203,12 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
     }
     case WM_DROPFILES:
     {
-        HDROP drop = (HDROP) wParam;
+        HDROP drop = (HDROP)wParam;
         const int32 count = DragQueryFileW(drop, 0xffffffff, NULL, 0);
         Array<String> paths(count);
         WCHAR buffer[MAX_PATH];
 
-        for (int32 i = 0;  i < count; ++i)
+        for (int32 i = 0; i < count; ++i)
         {
             DragQueryFileW(drop, i, buffer, MAX_PATH);
             paths.Add(buffer);
@@ -231,27 +230,35 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
     return result;
 }
 
-void WindowsWindow::ProcessWindowResize(uint32 width, uint32 height)    
+void WindowsWindow::ProcessWindowResize(int32 width, int32 height)
 {
-    WindowResizeEvent event(width, height);
-    windowResizeEventHandler(event);
+    WindowResizedEvent event(width, height);
+    windowResizedHandler(event);
 }
 
 void WindowsWindow::ProcessWindowFocus(bool focused)
 {
-    WindowFocusEvent event(focused);
-    windowFocusEventHandler(event);
+    if (focused)
+    {
+        FocusGainedEvent event{};
+        focusGainedHandler(event);
+    }
+    else
+    {
+        FocusLostEvent event{};
+        focusLostHandler(event);
+    }
 
-    if(!focused)
+    if (!focused)
     {
         input.RelasePressed();
     }
 }
 
-void WindowsWindow::ProcessFilesDropped(Array<String> &&paths)    
+void WindowsWindow::ProcessFilesDropped(Array<String> &&paths)
 {
     FilesDroppedEvent event(std::forward<Array<String>>(paths));
-    filesDroppedEventHandler(event);
+    fileDroppedHandler(event);
 }
 
 uint32 WindowsWindow::GetPositionX() const

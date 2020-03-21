@@ -37,7 +37,7 @@ void ImGuiLab::OnUpdate()
     static bool open = false;
     ImGui::ShowDemoWindow(&open);
 
-    drawEventHandler();
+    drawHandler();
 
     End();
 }
@@ -82,16 +82,14 @@ void ImGuiLab::BindPlatform()
 
     // Input events
 
-    KeyTypedHandle = gApp->GetInput().keyTypedEventHandler.On([](InputEvent &event) {
-        auto &e = static_cast<KeyTypedEvent &>(event);
+    KeyTypedHandle = gApp->GetInput().keyTypedHandler.On([](auto &event) {
         ImGuiIO &io = ImGui::GetIO();
-        io.AddInputCharacter(e.character);
+        io.AddInputCharacter(event.character);
     });
 
-    keyUpHandle = gApp->GetInput().keyUpEventHandler.On([](InputEvent &event) {
-        auto &e = static_cast<KeyUpEvent &>(event);
+    keyUpHandle = gApp->GetInput().keyUpHandler.On([](auto &event) {
         ImGuiIO &io = ImGui::GetIO();
-        io.KeysDown[e.key] = false;
+        io.KeysDown[event.key] = false;
         io.KeyCtrl = io.KeysDown[CT_KEY_LEFT_CONTROL] || io.KeysDown[CT_KEY_RIGHT_CONTROL];
         io.KeyShift = io.KeysDown[CT_KEY_LEFT_SHIFT] || io.KeysDown[CT_KEY_RIGHT_SHIFT];
         io.KeyAlt = io.KeysDown[CT_KEY_LEFT_ALT] || io.KeysDown[CT_KEY_RIGHT_ALT];
@@ -102,10 +100,9 @@ void ImGuiLab::BindPlatform()
 #endif
     });
 
-    keyDownHandle = gApp->GetInput().keyDownEventHandler.On([](InputEvent &event) {
-        auto &e = static_cast<KeyDownEvent &>(event);
+    keyDownHandle = gApp->GetInput().keyDownHandler.On([](auto &event) {
         ImGuiIO &io = ImGui::GetIO();
-        io.KeysDown[e.key] = true;
+        io.KeysDown[event.key] = true;
         io.KeyCtrl = io.KeysDown[CT_KEY_LEFT_CONTROL] || io.KeysDown[CT_KEY_RIGHT_CONTROL];
         io.KeyShift = io.KeysDown[CT_KEY_LEFT_SHIFT] || io.KeysDown[CT_KEY_RIGHT_SHIFT];
         io.KeyAlt = io.KeysDown[CT_KEY_LEFT_ALT] || io.KeysDown[CT_KEY_RIGHT_ALT];
@@ -116,28 +113,24 @@ void ImGuiLab::BindPlatform()
 #endif
     });
 
-    touchUpHandle = gApp->GetInput().touchUpEventHandler.On([](InputEvent &event) {
-        auto &e = static_cast<TouchUpEvent &>(event);
+    touchUpHandle = gApp->GetInput().touchUpHandler.On([](auto &event) {
         ImGuiIO &io = ImGui::GetIO();
-        io.MouseDown[e.button] = false;
+        io.MouseDown[event.button] = false;
     });
 
-    touchDownHandle = gApp->GetInput().touchDownEventHandler.On([](InputEvent &event) {
-        auto &e = static_cast<TouchDownEvent &>(event);
+    touchDownHandle = gApp->GetInput().touchDownHandler.On([](auto &event) {
         ImGuiIO &io = ImGui::GetIO();
-        io.MouseDown[e.button] = true;
+        io.MouseDown[event.button] = true;
     });
 
-    mouseMovedHandle = gApp->GetInput().mouseMovedEventHandler.On([](InputEvent &event) {
-        auto &e = static_cast<MouseMovedEvent &>(event);
+    mouseMovedHandle = gApp->GetInput().mouseMovedHandler.On([](auto &event) {
         ImGuiIO &io = ImGui::GetIO();
-        io.MousePos = ImVec2((float)e.x, (float)e.y);
+        io.MousePos = ImVec2((float)event.x, (float)event.y);
     });
 
-    mouseScrolledHandle = gApp->GetInput().mouseScrolledEventHandler.On([](InputEvent &event) {
-        auto &e = static_cast<MouseScrolledEvent &>(event);
+    mouseScrolledHandle = gApp->GetInput().mouseScrolledHandler.On([](auto &event) {
         ImGuiIO &io = ImGui::GetIO();
-        io.MouseWheel += (float)e.amount;
+        io.MouseWheel += (float)event.amount;
         //io.MouseWheelH += (float)e.amount;
     });
 }

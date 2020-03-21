@@ -5,15 +5,21 @@
 class Input
 {
 public:
-    using InputEventHandler = Delegate<void(InputEvent &)>;
+    using KeyTypedEventDelegate = Delegate<void(KeyTypedEvent &)>;
+    using KeyDownEventDelegate = Delegate<void(KeyDownEvent &)>;
+    using KeyUpEventDelegate = Delegate<void(KeyUpEvent &)>;
+    using TouchDownEventDelegate = Delegate<void(TouchDownEvent &)>;
+    using TouchUpEventDelegate = Delegate<void(TouchUpEvent &)>;
+    using MouseMovedEventDelegate = Delegate<void(MouseMovedEvent &)>;
+    using MouseScrolledEventDelegate = Delegate<void(MouseScrolledEvent &)>;
 
-    InputEventHandler keyTypedEventHandler;
-    InputEventHandler keyDownEventHandler;
-    InputEventHandler keyUpEventHandler;
-    InputEventHandler touchDownEventHandler;
-    InputEventHandler touchUpEventHandler;
-    InputEventHandler mouseMovedEventHandler;
-    InputEventHandler mouseScrolledEventHandler;
+    KeyTypedEventDelegate keyTypedHandler;
+    KeyDownEventDelegate keyDownHandler;
+    KeyUpEventDelegate keyUpHandler;
+    TouchDownEventDelegate touchDownHandler;
+    TouchUpEventDelegate touchUpHandler;
+    MouseMovedEventDelegate mouseMovedHandler;
+    MouseScrolledEventDelegate mouseScrolledHandler;
 
     int32 GetMouseX() const
     {

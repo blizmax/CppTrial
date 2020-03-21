@@ -18,11 +18,16 @@ public:
     Window() = default;
     virtual ~Window() = default;
 
-public:    
-    using WindowEventHandler = Delegate<void(WindowEvent &)>;
-    WindowEventHandler windowResizeEventHandler;
-    WindowEventHandler windowFocusEventHandler;
-    WindowEventHandler filesDroppedEventHandler;
+public:
+    using WindowResizedEventDelegate = Delegate<void(WindowResizedEvent &)>;
+    using FocusGainedEventDelegate = Delegate<void(FocusGainedEvent &)>;
+    using FocusLostEventDelegate = Delegate<void(FocusLostEvent &)>;
+    using FileDroppedEventDelegate = Delegate<void(FilesDroppedEvent &)>;
+
+    WindowResizedEventDelegate windowResizedHandler;
+    FocusGainedEventDelegate focusGainedHandler;
+    FocusLostEventDelegate focusLostHandler;
+    FileDroppedEventDelegate fileDroppedHandler;
 
     virtual Input &GetInput() = 0;
 

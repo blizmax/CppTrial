@@ -45,7 +45,7 @@ public:
     virtual void CreateNativeWindow(const WindowConfig &config) override;
 
 private:
-    void ProcessWindowResize(uint32 width, uint32 height);
+    void ProcessWindowResize(int32 width, int32 height);
     void ProcessWindowFocus(bool focused);
     void ProcessFilesDropped(Array<String> &&paths);
 

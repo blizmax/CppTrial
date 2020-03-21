@@ -59,16 +59,15 @@ public:
         camera.viewportHeight = height;
         camera.Update();
 
-        window.windowResizeEventHandler.On([this](WindowEvent &event) {
-            auto &e = static_cast<WindowResizeEvent &>(event);
-            RenderAPI::SetViewport(0, 0, e.width, e.height);
+        window.windowResizedHandler.On([this](auto &event) {
+            RenderAPI::SetViewport(0, 0, event.width, event.height);
 
-            camera.viewportWidth = (float)e.width;
-            camera.viewportHeight = (float)e.height;
+            camera.viewportWidth = (float)event.width;
+            camera.viewportHeight = (float)event.height;
             camera.Update();
         });
 
-        gImGuiLab->drawEventHandler.On([this]() {
+        gImGuiLab->drawHandler.On([this]() {
             page->OnImGuiDraw();
         });
 

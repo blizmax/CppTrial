@@ -32,4 +32,9 @@ public:
 
     void Update();
     void Normalize();
+
+    static SPtr<OrthographicCamera> Create(float viewportWidth, float viewportHeight)
+    {
+        return Memory::MakeShared<OrthographicCamera>(viewportWidth, viewportHeight);
+    }
 };

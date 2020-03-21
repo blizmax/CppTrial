@@ -3,7 +3,7 @@
 void Input::ProcessKeyTyped(int32 character)
 {
     KeyTypedEvent event((wchar)character);
-    keyTypedEventHandler(event);
+    keyTypedHandler(event);
 }
 
 void Input::ProcessKeyDown(int32 key)
@@ -18,7 +18,7 @@ void Input::ProcessKeyDown(int32 key)
     }
 
     KeyDownEvent event(key, repeat);
-    keyDownEventHandler(event);
+    keyDownHandler(event);
 }
 
 void Input::ProcessKeyUp(int32 key)
@@ -29,7 +29,7 @@ void Input::ProcessKeyUp(int32 key)
         pressedKeys[key] = false;
 
     KeyUpEvent event(key);
-    keyUpEventHandler(event);
+    keyUpHandler(event);
 }
 
 void Input::ProcessTouchDown(int32 button)
@@ -41,7 +41,7 @@ void Input::ProcessTouchDown(int32 button)
         pressedButtons[button] = true;
 
     TouchDownEvent event(button);
-    touchDownEventHandler(event);
+    touchDownHandler(event);
 }
 
 void Input::ProcessTouchUp(int32 button)
@@ -53,7 +53,7 @@ void Input::ProcessTouchUp(int32 button)
         pressedButtons[button] = false;
 
     TouchUpEvent event(button);
-    touchUpEventHandler(event);
+    touchUpHandler(event);
 }
 
 void Input::ProcessMouseMoved(int32 posX, int32 posY)
@@ -64,13 +64,13 @@ void Input::ProcessMouseMoved(int32 posX, int32 posY)
     mouseY = posY;
 
     MouseMovedEvent event(mouseX, mouseY);
-    mouseMovedEventHandler(event);
+    mouseMovedHandler(event);
 }
 
 void Input::ProcessMouseScrolled(int32 amount)
 {
     MouseScrolledEvent event(amount);
-    mouseScrolledEventHandler(event);
+    mouseScrolledHandler(event);
 }
 
 void Input::RelasePressed()
