@@ -2,31 +2,33 @@
 
 #include "Demo/Page.h"
 
-class Page1 : public Page
+class Page2 : public Page
 {
 public:
+    float progress = 0.0f;
+
     virtual String GetName() override
     {
-        return CT_TEXT("Builtin Functions");
+        return CT_TEXT("Shader Functions");
     }
 
     virtual String GetShaderPath() override
     {
-        return CT_TEXT("Assets/Shaders/Demos/Shader1.glsl");
+        return CT_TEXT("Assets/Shaders/Demos/Shader2.glsl");
     }
 
     virtual void OnImGuiDraw() override
     {
-        
+        ImGui::SliderFloat("Progress", &progress, 0.0f, 1.0f);
     }
 
     virtual void OnShaderUpdate(SPtr<Shader> &shader) override
     {
-
+        shader->SetFloat(CT_TEXT("Progress"), progress);
     }
 
     static UPtr<Page> Create()
     {
-        return Memory::MakeUnique<Page1>();
+        return Memory::MakeUnique<Page2>();
     }
 };

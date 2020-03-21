@@ -8,6 +8,7 @@
 #include "IO/FileWatcher.h"
 #include "Core/Thread.h"
 #include "Demo/Page1.h"
+#include "Demo/Page2.h"
 
 class Demon : public Logic
 {
@@ -18,7 +19,7 @@ private:
     OrthographicCamera camera{0.0f, 0.0f};
 
     UPtr<IO::FileWatcher> watcher;
-    bool reloadShader = false;
+    std::atomic_bool reloadShader = false;
 
     UPtr<Page> page;
     int32 pageIndex = -1;
@@ -27,11 +28,12 @@ private:
     void SetCurrentPage(int32 index)
     {
         static Array<std::function<UPtr<Page>(void)>> creators{
-            []() { return Page1::Create(); }};
+            []() { return Page1::Create(); },
+            []() { return Page2::Create(); }
+        };
 
         if (index < 0 || index >= creators.Count())
         {
-            CT_EXCEPTION(Demo, "Invalid index.");
             return;
         }
 
@@ -45,6 +47,8 @@ private:
 
         auto &window = gApp->GetWindow();
         window.SetTitle(page->GetName());
+
+        reloadShader = true;
     }
 
 public:
@@ -68,7 +72,26 @@ public:
         });
 
         gImGuiLab->drawHandler.On([this]() {
+            ImGui::Begin("Demo");
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("Current page: %d", pageIndex);
+            ImGui::SameLine();
+
+            float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
+            ImGui::PushButtonRepeat(true);
+            if (ImGui::ArrowButton("##left", ImGuiDir_Left))
+            {
+                SetCurrentPage(pageIndex - 1);
+            }
+            ImGui::SameLine(0.0f, spacing);
+            if (ImGui::ArrowButton("##right", ImGuiDir_Right))
+            {
+                SetCurrentPage(pageIndex + 1);
+            }
+            ImGui::PopButtonRepeat();
+
             page->OnImGuiDraw();
+            ImGui::End();
         });
 
         float vertexData[] = {
@@ -83,8 +106,8 @@ public:
 
         auto vertexBuffer = VertexBuffer::Create(vertexData, sizeof(vertexData));
         vertexBuffer->SetLayout({
-            {CT_TEXT("position"), VertexDataType::Float3},
-            {CT_TEXT("texCoord"), VertexDataType::Float2},
+            {CT_TEXT("Position"), VertexDataType::Float3},
+            {CT_TEXT("UV"), VertexDataType::Float2},
         });
 
         auto indexBuffer = IndexBuffer::Create(indexData, 6);
@@ -94,8 +117,6 @@ public:
         vertexArray->SetIndexBuffer(indexBuffer);
 
         texture = Texture::Create(CT_TEXT("Assets/Textures/wheel.png"));
-
-        shader = Shader::Create(page->GetShaderPath());
 
         watcher = Memory::MakeUnique<IO::FileWatcher>(
             CT_TEXT("Assets/Shaders"),
@@ -129,12 +150,15 @@ public:
         }
 
         shader->Bind();
+        page->OnShaderUpdate(shader);
 
-        Matrix4 scaleMat = Matrix4::Scale(texture->GetWidth(), texture->GetHeight(), 1.0f);
-        shader->SetMatrix4(CT_TEXT("model"), scaleMat);
-        shader->SetMatrix4(CT_TEXT("view"), camera.view);
-        shader->SetMatrix4(CT_TEXT("projection"), camera.projection);
-        shader->SetInt(CT_TEXT("mainTex"), 0);
+        float factor = 3.0f;
+        Matrix4 scaleMat = Matrix4::Scale(texture->GetWidth() * factor, texture->GetHeight() * factor, 1.0f);
+
+        shader->SetMatrix4(CT_TEXT("Model"), scaleMat);
+        shader->SetMatrix4(CT_TEXT("View"), camera.view);
+        shader->SetMatrix4(CT_TEXT("Projection"), camera.projection);
+        shader->SetInt(CT_TEXT("Texture"), 0);
 
         texture->Bind();
         vertexArray->Bind();

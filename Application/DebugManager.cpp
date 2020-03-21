@@ -49,9 +49,9 @@ void DebugManager::OnLoad()
     // gProfiler.sessionEndEventHandler.On([](const auto& data){
     //     CT_LOG(Debug, CT_TEXT("SessionEnd, name:{0}"), data.name);
     // });
-    gProfiler.scopeEndEventHandler.On([](const auto& data){
-        CT_LOG(Debug, CT_TEXT("ScopeEnd, name:{0}, elapsed:{1}, frameID:{2}"), data.name, data.elapsedTime, gApp->GetTotalFrames());
-    });
+    // gProfiler.scopeEndEventHandler.On([](const auto& data){
+    //     CT_LOG(Debug, CT_TEXT("ScopeEnd, name:{0}, elapsed:{1}, frameID:{2}"), data.name, data.elapsedTime, gApp->GetTotalFrames());
+    // });
 }
 
 void DebugManager::OnUnload()
