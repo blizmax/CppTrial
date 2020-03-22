@@ -9,12 +9,7 @@ public:
 
     virtual String GetName() override
     {
-        return CT_TEXT("Shader Functions");
-    }
-
-    virtual String GetShaderPath() override
-    {
-        return CT_TEXT("Assets/Shaders/Demos/Shader2.glsl");
+        return CT_TEXT("Slider");
     }
 
     virtual void OnImGuiDraw() override

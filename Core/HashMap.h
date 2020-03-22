@@ -113,6 +113,26 @@ public:
         return hashTable.GetByKey(key).Value();
     }
 
+    Value *TryGet(const Key &key)
+    {
+        auto pos = hashTable.FindByKey(key);
+        if (pos == INDEX_NONE)
+        {
+            return nullptr;
+        }
+        return &(hashTable.GetData()[pos].Value());
+    }
+
+    const Value *TryGet(const Key &key) const
+    {
+        auto pos = hashTable.FindByKey(key);
+        if (pos == INDEX_NONE)
+        {
+            return nullptr;
+        }
+        return &(hashTable.GetData()[pos].Value());
+    }
+
     bool Remove(const Key &key)
     {
         return hashTable.RemoveByKey(key);
@@ -174,4 +194,4 @@ inline void swap(HashMap<K, V, H, E, A> &lhs, HashMap<K, V, H, E, A> &rhs)
 {
     lhs.Swap(rhs);
 }
-}
+} // namespace std

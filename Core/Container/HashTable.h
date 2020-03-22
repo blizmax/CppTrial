@@ -88,6 +88,16 @@ public:
         count = capacity = mask = 0;
     }
 
+    Element *GetData()
+    {
+        return data;
+    }
+
+    const Element *GetData() const
+    {
+        return data;
+    }
+
     int32 Count() const
     {
         return count;

@@ -67,11 +67,6 @@ public:
         return container.Add(std::move(key));
     }
 
-    const Key &Get(const Key &key) const
-    {
-        return container.GetByKey(key);
-    }
-
     bool Remove(const Key &key)
     {
         return container.RemoveByKey(key);

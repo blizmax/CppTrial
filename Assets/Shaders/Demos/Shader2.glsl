@@ -19,14 +19,13 @@ void main()
 #type fragment
 #version 330 core
 
-layout(location = 0) out vec4 FragmentColor;
+#include "Assets/Shaders/Utility.glsl"
 
-#define PI 3.1415927
+layout(location = 0) out vec4 FragmentColor;
 
 in vec2 UV;
 
 uniform sampler2D Texture;
-
 uniform float Progress = 0.5;
 
 void main()

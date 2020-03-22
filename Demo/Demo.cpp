@@ -9,6 +9,7 @@
 #include "Core/Thread.h"
 #include "Demo/Page1.h"
 #include "Demo/Page2.h"
+#include "Demo/Page3.h"
 
 class Demon : public Logic
 {
@@ -29,7 +30,8 @@ private:
     {
         static Array<std::function<UPtr<Page>(void)>> creators{
             []() { return Page1::Create(); },
-            []() { return Page2::Create(); }
+            []() { return Page2::Create(); },
+            []() { return Page3::Create(); }
         };
 
         if (index < 0 || index >= creators.Count())
@@ -146,7 +148,7 @@ public:
         if (reloadShader)
         {
             reloadShader = false;
-            shader = Shader::Create(page->GetShaderPath());
+            shader = Shader::Create(String::Format(CT_TEXT("{0}Shader{1}.glsl"), page->GetShaderDirectory(), pageIndex + 1));
         }
 
         shader->Bind();

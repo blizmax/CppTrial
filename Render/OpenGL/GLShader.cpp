@@ -53,8 +53,9 @@ void GLShader::Unbind() const
 
 int32 GLShader::GetUniformLocation(const String &name)
 {
-    if (uniformLocations.Contains(name))
-        return uniformLocations.Get(name);
+    auto valPtr = uniformLocations.TryGet(name);
+    if(valPtr)
+        return *valPtr;
 
     int32 location = glGetUniformLocation(id, StringEncode::UTF8::ToChars(name).GetData());
     uniformLocations.Put(name, location);
@@ -116,17 +117,50 @@ GLShader::ShaderSource GLShader::Parse(const String &path)
 
     if (vertexPos == INDEX_NONE)
     {
-        CT_EXCEPTION(Render, "Parse vertex source error!");
+        CT_EXCEPTION(Render, "Undefined shader type: vertex.");
         return result;
     }
     if (fragPos == INDEX_NONE)
     {
-        CT_EXCEPTION(Render, "Parse fragment source error!");
+        CT_EXCEPTION(Render, "Undefined shader type: fragment.");
         return result;
     }
 
     result.vertex = src.Substring(vertexPos + vertexPrefix.Length(), fragPos - vertexPos - vertexPrefix.Length());
     result.fragment = src.Substring(fragPos + fragPrefix.Length());
+
+    constexpr auto ProcessInclude = [](String &src) {
+        auto pos = src.IndexOf(CT_TEXT("#include"));
+        if (pos == INDEX_NONE)
+            return false;
+
+        int32 dqPos0, dqPos1;
+        if (!src.Find(CT_TEXT('"'), pos, dqPos0))
+        {
+            CT_EXCEPTION(Render, "Parse include error!");
+            return false;
+        }
+        if (!src.Find(CT_TEXT('"'), dqPos0 + 1, dqPos1))
+        {
+            CT_EXCEPTION(Render, "Parse include error!");
+            return false;
+        }
+        String includePath = src.Substring(dqPos0 + 1, dqPos1 - dqPos0 - 1);
+        IO::FileHandle includeFile(includePath);
+        if (!includeFile.IsFile())
+        {
+            CT_EXCEPTION(Render, "Cannot find include file.");
+            return false;
+        }
+
+        String includeSrc = includeFile.ReadString();
+        src = src.Replace(pos, dqPos1 - pos + 1, includeSrc);
+        return true;
+    };
+
+    while (ProcessInclude(result.vertex));
+    while (ProcessInclude(result.fragment));
+
     return result;
 }
 

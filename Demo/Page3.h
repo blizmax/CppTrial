@@ -2,17 +2,17 @@
 
 #include "Demo/Page.h"
 
-class Page1 : public Page
+class Page3 : public Page
 {
 public:
     virtual String GetName() override
     {
-        return CT_TEXT("Builtin Functions");
+        return CT_TEXT("Shapes");
     }
 
     virtual void OnImGuiDraw() override
     {
-        
+
     }
 
     virtual void OnShaderUpdate(SPtr<Shader> &shader) override
@@ -22,6 +22,6 @@ public:
 
     static UPtr<Page> Create()
     {
-        return Memory::MakeUnique<Page1>();
+        return Memory::MakeUnique<Page3>();
     }
 };

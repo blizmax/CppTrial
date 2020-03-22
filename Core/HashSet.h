@@ -90,11 +90,6 @@ public:
         return hashTable.Add(std::move(key));
     }
 
-    const Key &Get(const Key &key) const
-    {
-        return hashTable.GetByKey(key);
-    }
-
     bool Remove(const Key &key)
     {
         return hashTable.RemoveByKey(key);
