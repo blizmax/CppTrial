@@ -3,13 +3,14 @@
 #include <cassert>
 #include <cstdint>
 #include <initializer_list>
-#include <memory>
 
 #include "debugbreak.h"
 
 #ifdef _DEBUG
 #define CT_DEBUG 1
 #endif
+
+#define CT_PROFILE 1
 
 #define CT_DEBUG_BREAK() debug_break()
 #define CT_ASSERT(cond) assert(cond)
@@ -45,10 +46,3 @@ constexpr int32 INDEX_NONE = -1;
 
 typedef wchar CharType;
 typedef size_t SizeType;
-
-template <typename T>
-using SPtr = std::shared_ptr<T>;
-template <typename T>
-using WPtr = std::weak_ptr<T>;
-template <typename T>
-using UPtr = std::unique_ptr<T>;

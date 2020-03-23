@@ -15,6 +15,9 @@ using TConditional = std::conditional<B, T, F>;
 template <typename T1, typename T2>
 using TIsSame = std::is_same<T1, T2>;
 
+template <typename T1, typename T2>
+using TIsConvertible = std::is_convertible<T1, T2>;
+
 template <typename T>
 using TDecay = std::decay<T>;
 

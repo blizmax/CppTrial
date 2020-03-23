@@ -4,6 +4,45 @@
 #include "Core/Template.h"
 #include <cstring>
 #include <new>
+#include <memory>
+
+template <typename T>
+struct Deleter;
+
+template <typename T>
+using SPtr = std::shared_ptr<T>;
+template <typename T>
+using WPtr = std::weak_ptr<T>;
+template <typename T, typename D = Deleter<T>>
+using UPtr = std::unique_ptr<T, D>;
+
+class MemoryTracker
+{
+public:
+    static int32 GetAllocCount()
+    {
+        return allocCount;
+    }
+
+    static int32 GetFreeCount()
+    {
+        return freeCount;
+    }
+
+    static void IncAllocCount()
+    {
+        ++allocCount;
+    }
+
+    static void IncFreeCount()
+    {
+        ++freeCount;
+    }
+
+private:
+    inline static thread_local int32 allocCount = 0;
+    inline static thread_local int32 freeCount = 0;
+};
 
 class Memory
 {
@@ -41,11 +80,17 @@ public:
 
     static CT_INLINE void *Alloc(SizeType size)
     {
+#if CT_PROFILE
+        MemoryTracker::IncAllocCount();
+#endif
         return ::operator new(size);
     }
 
     static CT_INLINE void Free(void *ptr)
     {
+#if CT_PROFILE
+        MemoryTracker::IncFreeCount();
+#endif
         ::operator delete(ptr);
     }
 
@@ -83,18 +128,6 @@ public:
             Destory(ptr + i);
         }
         Free(ptr);
-    }
-
-    template <typename T, typename... Args>
-    static CT_INLINE SPtr<T> MakeShared(Args &&... args)
-    {
-        return std::make_shared<T>(std::forward<Args>(args)...);
-    }
-
-    template <typename T, typename... Args>
-    static CT_INLINE UPtr<T> MakeUnique(Args &&... args)
-    {
-        return std::make_unique<T>(std::forward<Args>(args)...);
     }
 
     template <typename T>
@@ -250,4 +283,40 @@ public:
             ++first;
         }
     }
+
+    template <typename T, typename... Args>
+    static CT_INLINE SPtr<T> MakeShared(Args &&... args);
+
+    template <typename T, typename... Args>
+    static CT_INLINE UPtr<T> MakeUnique(Args &&... args);
 };
+
+template <typename T>
+struct Deleter
+{
+    Deleter() = default;
+
+    template <typename OtherType, typename = typename TEnableIf<TIsConvertible<OtherType *, T *>::value, OtherType>::type>
+    Deleter(const Deleter<OtherType> &other)
+    {
+    }
+
+    void operator()(T *ptr) const
+    {
+        Memory::Delete<T>(ptr);
+    }
+};
+
+template <typename T, typename... Args>
+CT_INLINE SPtr<T> Memory::MakeShared(Args &&... args)
+{
+    T *ptr = New<T>(std::forward<Args>(args)...);
+    return SPtr<T>(ptr, Deleter<T>());
+}
+
+template <typename T, typename... Args>
+CT_INLINE UPtr<T> Memory::MakeUnique(Args &&... args)
+{
+    T *ptr = New<T>(std::forward<Args>(args)...);
+    return UPtr<T>(ptr, Deleter<T>());
+}
