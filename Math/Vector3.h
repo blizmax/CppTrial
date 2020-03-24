@@ -24,15 +24,15 @@ public:
     {
     }
 
-    float operator[](uint32 i) const
+    float operator[](int32 i) const
     {
-        CT_ASSERT(i < 3);
+        CT_CHECK(i >= 0 && i < 3);
         return *(&x + i);
     }
 
-    float &operator[](uint32 i)
+    float &operator[](int32 i)
     {
-        CT_ASSERT(i < 3);
+        CT_CHECK(i >= 0 && i < 3);
         return *(&x + i);
     }
 

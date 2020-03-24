@@ -19,6 +19,7 @@ public:
     virtual void SetVector3(const String &name, const Vector3 &value) override;
     virtual void SetVector4(const String &name, const Vector4 &valeu) override;
     virtual void SetMatrix4(const String &name, const Matrix4 &value) override;
+    virtual void SetColor(const String &name, const Color &value) override;
 
 private:
     struct ShaderSource
@@ -36,4 +37,4 @@ private:
 private:
     uint32 id = 0;
     HashMap<String, int32> uniformLocations;
-};
+}; 

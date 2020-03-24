@@ -98,6 +98,12 @@ void GLShader::SetMatrix4(const String &name, const Matrix4 &value)
     glUniformMatrix4fv(location, 1, GL_FALSE, value.GetPtr());
 }
 
+void GLShader::SetColor(const String &name, const Color &value)
+{
+    int32 location = GetUniformLocation(name);
+    glUniform4f(location, value.r, value.g, value.b, value.a);
+}
+
 GLShader::ShaderSource GLShader::Parse(const String &path)
 {
     ShaderSource result;

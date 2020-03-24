@@ -5,6 +5,7 @@
 #include "Math/Vector3.h"
 #include "Math/Vector4.h"
 #include "Math/Matrix4.h"
+#include "Render/Color.h"
 
 class Shader
 {
@@ -20,6 +21,7 @@ public:
     virtual void SetVector3(const String &name, const Vector3 &value) = 0;
     virtual void SetVector4(const String &name, const Vector4 &valeu) = 0;
     virtual void SetMatrix4(const String &name, const Matrix4 &value) = 0;
+    virtual void SetColor(const String &name, const Color &value) = 0;
 
     static SPtr<Shader> Create(const String &path);
 };
