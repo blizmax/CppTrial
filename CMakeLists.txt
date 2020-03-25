@@ -11,6 +11,10 @@ if(MSVC)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D _CRT_SECURE_NO_WARNINGS /MP")
 endif(MSVC)
 
+if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
+    message(FATAL_ERROR "64 bits compiler required.")
+endif()
+
 # Render API
 set (CT_USE_OPENGL 1)
 
@@ -22,6 +26,11 @@ include_directories("${PROJECT_SOURCE_DIR}/")
 include_directories("${CT_EXTERNAL_COMMON}/glad/include")
 include_directories("${CT_EXTERNAL_COMMON}/imgui")
 include_directories("${CT_EXTERNAL_COMMON}/stb")
+
+# Freetype
+set (CT_FREETYPE_VERSION freetype-2.10.1)
+include_directories("${CT_EXTERNAL_COMMON}/${CT_FREETYPE_VERSION}/include")
+add_subdirectory("${CT_EXTERNAL_COMMON}/${CT_FREETYPE_VERSION}")
 
 add_subdirectory(Math)
 add_subdirectory(Utils)

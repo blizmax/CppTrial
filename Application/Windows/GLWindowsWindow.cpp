@@ -1,5 +1,5 @@
 #include "Application/Windows/GLWindowsWindow.h"
-#include "glad/glad_wgl.h"
+#include <glad/glad_wgl.h>
 #include <tchar.h>
 
 Window *Window::Create(const WindowConfig &config)

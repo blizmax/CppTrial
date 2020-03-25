@@ -201,7 +201,7 @@ public:
         const float f = x - i;
         const float f1 = v * (1.0f - s);
         const float f2 = v * (1.0f - s * f);
-        const float f3 = v * (1 - s * (1 - f));
+        const float f3 = v * (1.0f - s * (1.0f - f));
 
         float r, g, b;
         switch (i)
