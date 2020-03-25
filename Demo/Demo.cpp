@@ -10,6 +10,8 @@
 #include "Demo/Page1.h"
 #include "Demo/Page2.h"
 #include "Demo/Page3.h"
+#include "Demo/Page4.h"
+#include "Demo/Page5.h"
 
 class Demon : public Logic
 {
@@ -31,7 +33,9 @@ private:
         static Array<std::function<UPtr<Page>(void)>> creators{
             []() { return Page1::Create(); },
             []() { return Page2::Create(); },
-            []() { return Page3::Create(); }
+            []() { return Page3::Create(); },
+            []() { return Page4::Create(); },
+            []() { return Page5::Create(); }
         };
 
         if (index < 0 || index >= creators.Count())
@@ -161,6 +165,10 @@ public:
         shader->SetMatrix4(CT_TEXT("View"), camera.view);
         shader->SetMatrix4(CT_TEXT("Projection"), camera.projection);
         shader->SetInt(CT_TEXT("Texture"), 0);
+
+        static float totalTime = 0.0f;
+        totalTime += gApp->GetDeltaTime();
+        shader->SetFloat(CT_TEXT("Time"), totalTime);
 
         texture->Bind();
         vertexArray->Bind();

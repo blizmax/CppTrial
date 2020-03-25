@@ -42,7 +42,7 @@ void Application::Run()
     while (!requestingQuit)
     {
         auto time = Time::NanoTime();
-        deltaTime = (time - lastTime) / 1000000000.0f;
+        deltaTime = lastTime > 0 ? (time - lastTime) / 1000000000.0f : 0.0f;
         lastTime = time;
         if(time - frameCountTime >= 1000000000)
         {
