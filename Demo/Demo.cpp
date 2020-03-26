@@ -2,7 +2,7 @@
 #include "Application/ImGuiLab.h"
 #include "Render/Shader.h"
 #include "Render/RenderAPI.h"
-#include "Render/OrthographicCamera.h"
+#include "Render/OrthographicCameraController.h"
 #include "Render/VertexArray.h"
 #include "Render/Texture.h"
 #include "IO/FileWatcher.h"
@@ -19,7 +19,7 @@ private:
     SPtr<VertexArray> vertexArray;
     SPtr<Shader> shader;
     SPtr<Texture> texture;
-    OrthographicCamera camera{0.0f, 0.0f};
+    OrthographicCameraController cameraController;
 
     UPtr<IO::FileWatcher> watcher;
     std::atomic_bool reloadShader = false;
@@ -63,18 +63,36 @@ public:
         SetCurrentPage(0);
 
         auto &window = gApp->GetWindow();
+        auto &input = window.GetInput();
         float width = window.GetWidth();
         float height = window.GetHeight();
-        camera.viewportWidth = width;
-        camera.viewportHeight = height;
-        camera.Update();
+
+        auto camera = OrthographicCamera::Create(width, height);
+        cameraController.SetCamera(camera);
+
+        input.touchDownHandler.On([this](auto &event) {
+            cameraController.OnTouchDown(event);
+        });
+        input.touchUpHandler.On([this](auto &event) {
+            cameraController.OnTouchUp(event);
+        });
+        input.mouseMovedHandler.On([this](auto &event) {
+            cameraController.OnMouseMoved(event);
+        });
+        input.mouseScrolledHandler.On([this](auto &event) {
+            cameraController.OnMouseScrolled(event);
+        });
+        input.keyDownHandler.On([this](auto &event) {
+            cameraController.OnKeyDown(event);
+        });
+        input.keyUpHandler.On([this](auto &event) {
+            cameraController.OnKeyUp(event);
+        });
 
         window.windowResizedHandler.On([this](auto &event) {
             RenderAPI::SetViewport(0, 0, event.width, event.height);
 
-            camera.viewportWidth = (float)event.width;
-            camera.viewportHeight = (float)event.height;
-            camera.Update();
+            cameraController.OnWindowResized(event);
         });
 
         gImGuiLab->drawHandler.On([this]() {
@@ -100,15 +118,19 @@ public:
             ImGui::End();
         });
 
-        float vertexData[] = {
+        float vertexData[] = 
+        {
             -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
             0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
             0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
-            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f};
+            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f
+        };
 
-        uint32 indexData[] = {
+        uint32 indexData[] = 
+        {
             0, 1, 2,
-            2, 3, 0};
+            2, 3, 0
+        };
 
         auto vertexBuffer = VertexBuffer::Create(vertexData, sizeof(vertexData));
         vertexBuffer->SetLayout({
@@ -146,6 +168,9 @@ public:
 
     virtual void OnUpdate() override
     {
+        cameraController.Update();
+        auto camera = cameraController.GetCamera();
+
         RenderAPI::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         RenderAPI::Clear();
 
@@ -162,8 +187,8 @@ public:
         Matrix4 scaleMat = Matrix4::Scale(texture->GetWidth() * factor, texture->GetHeight() * factor, 1.0f);
 
         shader->SetMatrix4(CT_TEXT("Model"), scaleMat);
-        shader->SetMatrix4(CT_TEXT("View"), camera.view);
-        shader->SetMatrix4(CT_TEXT("Projection"), camera.projection);
+        shader->SetMatrix4(CT_TEXT("View"), camera->view);
+        shader->SetMatrix4(CT_TEXT("Projection"), camera->projection);
         shader->SetInt(CT_TEXT("Texture"), 0);
 
         static float totalTime = 0.0f;

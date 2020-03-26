@@ -1,21 +1,27 @@
 #pragma once
 
 #include "Render/OrthographicCamera.h"
-#include "Application/Input.h"
+#include "Application/InputEvent.h"
+#include "Application/WindowEvent.h"
+#include "Math/Vector2.h"
 
 class OrthographicCameraController
 {
 public:
     OrthographicCameraController() = default;
-    OrthographicCameraController(SPtr<OrthographicCamera> camera);
+    OrthographicCameraController(SPtr<OrthographicCamera> camera) : camera(camera)
+    {
+    }
 
     void Update();
-    void OnTouchDown();
-    void OnTouchUp();
-    void OnKeyDown();
-    void OnKeyUp();
-    void OnMouseScrolled();
-    void OnWindowResized();
+
+    void OnTouchDown(TouchDownEvent &event);
+    void OnTouchUp(TouchUpEvent &event);
+    void OnMouseMoved(MouseMovedEvent &event);
+    void OnMouseScrolled(MouseScrolledEvent &event);
+    void OnKeyDown(KeyDownEvent &event);
+    void OnKeyUp(KeyUpEvent &event);
+    void OnWindowResized(WindowResizedEvent &event);
 
     void SetCamera(SPtr<OrthographicCamera> newCamera)
     {
@@ -26,7 +32,14 @@ public:
     {
         return camera;
     }
+protected:
+    void ProcessDrag(int32 deltaX, int32 deltaY, int32 button);
+    void ProcessZoom(int32 amount);
 
-private:
+protected:
     SPtr<OrthographicCamera> camera;
+    bool dragging = false;
+    int32 button;
+    int32 startX;
+    int32 startY;
 };

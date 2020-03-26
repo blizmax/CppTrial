@@ -246,9 +246,11 @@ class TouchDownEvent : public InputEvent
 {
 public:
     static constexpr InputEventType eventType = InputEventType::TouchDown;
+    int32 x;
+    int32 y;
     int32 button;
 
-    TouchDownEvent(int32 button) : button(button)
+    TouchDownEvent(int32 x, int32 y, int32 button) : x(x), y(y), button(button)
     {
     }
 
@@ -272,9 +274,11 @@ class TouchUpEvent : public InputEvent
 {
 public:
     static constexpr InputEventType eventType = InputEventType::TouchUp;
+    int32 x;
+    int32 y;
     int32 button;
 
-    TouchUpEvent(int32 button) : button(button)
+    TouchUpEvent(int32 x, int32 y, int32 button) : x(x), y(y), button(button)
     {
     }
 

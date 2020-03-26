@@ -1,12 +1,12 @@
 #include "Render/OpenGL/.Package.h"
 #include "Render/RenderAPI.h"
 
-void RenderAPI::SetViewport(uint32 x, uint32 y, uint32 width, uint32 height)
+void RenderAPI::SetViewport(int32 x, int32 y, uint32 width, uint32 height)
 {
     glViewport(x, y, width, height);
 }
 
-void RenderAPI::SetScissor(uint32 x, uint32 y, uint32 width, uint32 height)
+void RenderAPI::SetScissor(int32 x, int32 y, uint32 width, uint32 height)
 {
     glScissor(x, y, width, height);
 }

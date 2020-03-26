@@ -32,7 +32,7 @@ void Input::ProcessKeyUp(int32 key)
     keyUpHandler(event);
 }
 
-void Input::ProcessTouchDown(int32 button)
+void Input::ProcessTouchDown(int32 posX, int32 posY, int32 button)
 {
     if (button < 0 || button > CT_BUTTON_LAST)
         button = CT_BUTTON_UNKNOWN;
@@ -40,11 +40,11 @@ void Input::ProcessTouchDown(int32 button)
     if (button != CT_BUTTON_UNKNOWN)
         pressedButtons[button] = true;
 
-    TouchDownEvent event(button);
+    TouchDownEvent event(posX, posY, button);
     touchDownHandler(event);
 }
 
-void Input::ProcessTouchUp(int32 button)
+void Input::ProcessTouchUp(int32 posX, int32 posY, int32 button)
 {
     if (button < 0 || button > CT_BUTTON_LAST)
         button = CT_BUTTON_UNKNOWN;
@@ -52,7 +52,7 @@ void Input::ProcessTouchUp(int32 button)
     if (button != CT_BUTTON_UNKNOWN)
         pressedButtons[button] = false;
 
-    TouchUpEvent event(button);
+    TouchUpEvent event(posX, posY, button);
     touchUpHandler(event);
 }
 

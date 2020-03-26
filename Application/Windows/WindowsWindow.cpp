@@ -123,6 +123,9 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
     case WM_MBUTTONUP:
     case WM_XBUTTONUP:
     {
+        const int32 x = GET_X_LPARAM(lParam);
+        const int32 y = GET_Y_LPARAM(lParam);
+
         int button;
         bool down = false;
 
@@ -153,9 +156,9 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
         //     SetCapture(hWnd);
 
         if (down)
-            thisWindow->input.ProcessTouchDown(button);
+            thisWindow->input.ProcessTouchDown(x, y, button);
         else
-            thisWindow->input.ProcessTouchUp(button);
+            thisWindow->input.ProcessTouchUp(x, y, button);
 
         // for (i = 0;  i <= GLFW_MOUSE_BUTTON_LAST;  i++)
         // {

@@ -68,8 +68,8 @@ protected:
     virtual void ProcessKeyTyped(int32 character);
     virtual void ProcessKeyDown(int32 key);
     virtual void ProcessKeyUp(int32 key);
-    virtual void ProcessTouchDown(int32 button);
-    virtual void ProcessTouchUp(int32 button);
+    virtual void ProcessTouchDown(int32 posX, int32 posY, int32 button);
+    virtual void ProcessTouchUp(int32 posX, int32 posY, int32 button);
     virtual void ProcessMouseMoved(int32 posX, int32 posY);
     virtual void ProcessMouseScrolled(int32 amount);
 
