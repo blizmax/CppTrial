@@ -20,6 +20,7 @@
 #include "Core/Any.h"
 #include "Core/Exception.h"
 #include "Core/Delegate.h"
+#include "Core/Tuple.h"
 
 namespace Test
 {
@@ -237,6 +238,21 @@ void TestAny()
     int32 &ref = any.RefCast<int32>();
     ref = 300;
     CT_LOG(Info, CT_TEXT("RefCast int64 : {0}"), any.RefCast<int64>());
+}
+
+void TestTuple()
+{
+    auto tup = MakeTuple(String("Tom"), 100);
+    auto [first, second] = tup;
+    tup.Head() = CT_TEXT("Jerry");
+
+    //std::tuple
+    // auto tup = std::make_tuple(String("Tom"), 100);
+    // auto [first, second] = tup;
+    // std::get<0>(tup) = CT_TEXT("Jerry");
+
+
+    CT_LOG(Info, CT_TEXT("First:{0}, Second:{1}"), first, second);
 }
 
 void TestDelegate()

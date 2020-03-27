@@ -17,6 +17,7 @@ void TestSortedMap();
 void TestPriorityQueue();
 void TestVariant();
 void TestAny();
+void TestTuple();
 
 void TestStringEncode();
 void TestStringConvert();

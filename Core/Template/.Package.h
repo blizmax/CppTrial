@@ -6,7 +6,7 @@
 using TTrueType = std::true_type;
 using TFalseType = std::false_type;
 
-template <bool B, typename T>
+template <bool B, typename T = void>
 using TEnableIf = std::enable_if<B, T>;
 
 template <bool B, typename T, typename F>
