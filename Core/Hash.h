@@ -92,7 +92,7 @@ CT_INLINE uint32 HashValue(double value)
     return HashValue(u.i);
 }
 
-template <typename CharT, typename = typename TEnableIf<TIsCharType<CharT>::value, CharT>::type>
+template <typename CharT, typename = typename TEnableIf<TIsCharType<CharT>::value>::type>
 CT_INLINE uint32 HashValue(const CharT *ptr)
 {
     uint32 seed = 131;

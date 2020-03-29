@@ -22,6 +22,9 @@ template <typename T>
 using TDecay = std::decay<T>;
 
 template <typename T>
+using TAddConst = std::add_const<T>;
+
+template <typename T>
 using TIsVoid = std::is_void<T>;
 template <typename T>
 using TIsPointer = std::is_pointer<T>;

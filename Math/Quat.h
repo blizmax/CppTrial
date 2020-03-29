@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/.Package.h"
+#include "Math/Vector3.h"
 
 class Quat
 {
@@ -16,25 +17,35 @@ public:
     {
     }
 
-    Quat(const Matrix3 &mat)
+    explicit Quat(const Matrix3 &mat)
     {
         FromMatrix(mat);
     }
 
-    Quat(const Vector3 &axis, float angle)
+    explicit Quat(const Matrix4 &mat)
     {
-        FromAxisAngle(axis, angle);
+        FromMatrix(mat);
     }
 
-    Quat(float yaw, float pitch, float roll)
+    explicit Quat(const Vector3 &axis, float rad)
     {
-        FromEulerAngles(yaw, pitch, roll);
+        FromAxisRad(axis, rad);
     }
 
-    //TODO
+    explicit Quat(float yaw, float pitch, float roll)
+    {
+        FromEulerRad(yaw, pitch, roll);
+    }
+
     Quat &FromMatrix(const Matrix3 &mat);
-    Quat &FromAxisAngle(const Vector3 &axis, float angle);
-    Quat &FromEulerAngles(float yaw, float pitch, float roll);
+    Quat &FromMatrix(const Matrix4 &mat);
+    Quat &FromAxes(const Vector3 &xAxis, const Vector3 &yAxis, const Vector3 &zAxis);
+    Quat &FromAxisRad(const Vector3 &axis, float rad);
+    Quat &FromEulerRad(float yaw, float pitch, float roll);
+    Quat &SetFromToRotation(const Vector3 &from, const Vector3 &to);
+    Quat &SetLookRotation(const Vector3 &forward, const Vector3 &up = Vector3(0.0f, 1.0f, 0.0f));
+
+    Matrix4 ToMatrix() const;
 
     Quat &Normalize()
     {
@@ -53,7 +64,7 @@ public:
         return *this;
     }
 
-    Quat &Indentity()
+    Quat &SetIndentity()
     {
         x = 0.0f;
         y = 0.0f;
@@ -62,12 +73,22 @@ public:
         return *this;
     }
 
-    Quat &Conjugate()
+    Quat Conjugate() const
     {
-        x = -x;
-        y = -y;
-        z = -z;
-        return *this;
+        return Quat(-x, -y, -z, w);
+    }
+
+    Quat Inverse() const
+    {
+        float len2 = Length2();
+        if (len2 < Math::EPSILON)
+        {
+            return Quat(0.0f, 0.0f, 0.0f, 0.0f);
+        }
+        else
+        {
+            return Quat(-x / len2, -y / len2, -z / len2, w);
+        }
     }
 
     float Length2() const
@@ -85,15 +106,15 @@ public:
         return x * other.x + y * other.y + z * other.z + w * other.w;
     }
 
-    float operator[](uint32 i) const
+    float operator[](int32 i) const
     {
-        CT_ASSERT(i < 4);
+        CT_CHECK(i >= 0 && i < 4);
         return *(&x + i);
     }
 
-    float &operator[](uint32 i)
+    float &operator[](int32 i)
     {
-        CT_ASSERT(i < 4);
+        CT_CHECK(i >= 0 && i < 4);
         return *(&x + i);
     }
 

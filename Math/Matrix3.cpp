@@ -1,8 +1,8 @@
 #include "Math/Matrix3.h"
 
-Matrix3 &Matrix3::SetRow(uint32 i, const Vector3 &row)
+Matrix3 &Matrix3::SetRow(int32 i, const Vector3 &row)
 {
-    CT_ASSERT(i < 3);
+    CT_CHECK(i >= 0 && i < 3);
 
     v[0][i] = row.x;
     v[1][i] = row.y;
@@ -10,16 +10,16 @@ Matrix3 &Matrix3::SetRow(uint32 i, const Vector3 &row)
     return *this;
 }
 
-Vector3 Matrix3::GetRow(uint32 i) const
+Vector3 Matrix3::GetRow(int32 i) const
 {
-    CT_ASSERT(i < 3);
+    CT_CHECK(i >= 0 && i < 3);
 
     return Vector3(v[0][i], v[1][i], v[2][i]);
 }
 
-Matrix3 &Matrix3::SetColumn(uint32 i, const Vector3 &col)
+Matrix3 &Matrix3::SetColumn(int32 i, const Vector3 &col)
 {
-    CT_ASSERT(i < 3);
+    CT_CHECK(i >= 0 && i < 3);
 
     v[i][0] = col.x;
     v[i][1] = col.y;
@@ -27,9 +27,9 @@ Matrix3 &Matrix3::SetColumn(uint32 i, const Vector3 &col)
     return *this;
 }
 
-Vector3 Matrix3::GetColumn(uint32 i) const
+Vector3 Matrix3::GetColumn(int32 i) const
 {
-    CT_ASSERT(i < 3);
+    CT_CHECK(i >= 0 && i < 3);
 
     return Vector3(v[i][0], v[i][1], v[i][2]);
 }
@@ -44,9 +44,9 @@ float Matrix3::Determinant() const
 Matrix3 Matrix3::Transpose() const
 {
     Matrix3 ret;
-    for (uint32 col = 0; col < 3; ++col)
+    for (int32 col = 0; col < 3; ++col)
     {
-        for (uint32 row = 0; row < 3; ++row)
+        for (int32 row = 0; row < 3; ++row)
         {
             ret.v[col][row] = v[row][col];
         }

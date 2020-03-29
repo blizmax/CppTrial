@@ -58,8 +58,8 @@ int main()
     //TestEncode();
 
     //Test::TestArray();
-    //Test::TestHashMap();
-    Test::TestTuple();
+    Test::TestHashMap();
+    //Test::TestTuple();
 
     system("pause");
     return 0;

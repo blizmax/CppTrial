@@ -1,8 +1,9 @@
 #include "Math/Matrix4.h"
+#include "Math/Quat.h"
 
-Matrix4 &Matrix4::SetRow(uint32 i, const Vector4 &row)
+Matrix4 &Matrix4::SetRow(int32 i, const Vector4 &row)
 {
-    CT_ASSERT(i < 4);
+    CT_CHECK(i >= 0 && i < 4);
 
     v[0][i] = row.x;
     v[1][i] = row.y;
@@ -11,16 +12,16 @@ Matrix4 &Matrix4::SetRow(uint32 i, const Vector4 &row)
     return *this;
 }
 
-Vector4 Matrix4::GetRow(uint32 i) const
+Vector4 Matrix4::GetRow(int32 i) const
 {
-    CT_ASSERT(i < 4);
+    CT_CHECK(i >= 0 && i < 4);
 
     return Vector4(v[0][i], v[1][i], v[2][i], v[3][i]);
 }
 
-Matrix4 &Matrix4::SetColumn(uint32 i, const Vector4 &col)
+Matrix4 &Matrix4::SetColumn(int32 i, const Vector4 &col)
 {
-    CT_ASSERT(i < 4);
+    CT_CHECK(i >= 0 && i < 4);
 
     v[i][0] = col.x;
     v[i][1] = col.y;
@@ -29,9 +30,9 @@ Matrix4 &Matrix4::SetColumn(uint32 i, const Vector4 &col)
     return *this;
 }
 
-Vector4 Matrix4::GetColumn(uint32 i) const
+Vector4 Matrix4::GetColumn(int32 i) const
 {
-    CT_ASSERT(i < 4);
+    CT_CHECK(i >= 0 && i < 4);
 
     return Vector4(v[i][0], v[i][1], v[i][2], v[i][3]);
 }
@@ -64,9 +65,9 @@ float Matrix4::Determinant() const
 Matrix4 Matrix4::Transpose() const
 {
     Matrix4 ret;
-    for (uint32 col = 0; col < 4; ++col)
+    for (int32 col = 0; col < 4; ++col)
     {
-        for (uint32 row = 0; row < 4; ++row)
+        for (int32 row = 0; row < 4; ++row)
         {
             ret.v[col][row] = v[row][col];
         }
@@ -98,7 +99,7 @@ Matrix4 Matrix4::Inverse() const
     float p20 = n10 * (n21 * n33 - n23 * n31) + n11 * (n23 * n30 - n20 * n33) + n13 * (n20 * n31 - n21 * n30);
     float p30 = n10 * (n22 * n31 - n21 * n32) + n11 * (n20 * n32 - n22 * n30) + n12 * (n21 * n30 - n20 * n31);
 
-    float t = 1.0F / (n00 * p00 + n01 * p10 + n02 * p20 + n03 * p30);
+    float t = 1.0f / (n00 * p00 + n01 * p10 + n02 * p20 + n03 * p30);
 
     return Matrix4(p00 * t,
                    (n01 * (n23 * n32 - n22 * n33) + n02 * (n21 * n33 - n23 * n31) + n03 * (n22 * n31 - n21 * n32)) * t,
@@ -162,6 +163,23 @@ String Matrix4::ToString() const
                           v[0][2], v[1][2], v[2][2], v[3][2], v[0][3], v[1][3], v[2][3], v[3][3]);
 }
 
+Matrix4 Matrix4::Rotate(const Vector3 &axis, float rad)
+{
+    Quat quat = Quat(axis, rad);
+    return quat.ToMatrix();
+}
+
+Matrix4 Matrix4::Rotate(float yaw, float pitch, float roll)
+{
+    Quat quat = Quat(yaw, pitch, roll);
+    return quat.ToMatrix();
+}
+
+Matrix4 Matrix4::Rotate(const Quat &quat)
+{
+    return quat.ToMatrix();
+}
+
 Matrix4 Matrix4::Scale(const Vector3 &v)
 {
     Matrix4 m = Matrix4();
@@ -214,17 +232,17 @@ Matrix4 Matrix4::Ortho(float left, float right, float bottom, float top, float n
     float tz = -(f + n) / (f - n);
 
     m.v[0][0] = xOrth;
-    m.v[0][1] = 0;
-    m.v[0][2] = 0;
-    m.v[0][3] = 0;
-    m.v[1][0] = 0;
+    m.v[0][1] = 0.0f;
+    m.v[0][2] = 0.0f;
+    m.v[0][3] = 0.0f;
+    m.v[1][0] = 0.0f;
     m.v[1][1] = yOrth;
-    m.v[1][2] = 0;
-    m.v[1][3] = 0;
-    m.v[2][0] = 0;
-    m.v[2][1] = 0;
+    m.v[1][2] = 0.0f;
+    m.v[1][3] = 0.0f;
+    m.v[2][0] = 0.0f;
+    m.v[2][1] = 0.0f;
     m.v[2][2] = zOrth;
-    m.v[2][3] = 0;
+    m.v[2][3] = 0.0f;
     m.v[3][0] = tx;
     m.v[3][1] = ty;
     m.v[3][2] = tz;
@@ -244,21 +262,21 @@ Matrix4 Matrix4::Projection(float left, float right, float bottom, float top, fl
     float l_a2 = (2.0f * f * n) / (n - f);
 
     m.v[0][0] = x;
-    m.v[0][1] = 0;
-    m.v[0][2] = 0;
-    m.v[0][3] = 0;
-    m.v[1][0] = 0;
+    m.v[0][1] = 0.0f;
+    m.v[0][2] = 0.0f;
+    m.v[0][3] = 0.0f;
+    m.v[1][0] = 0.0f;
     m.v[1][1] = y;
-    m.v[1][2] = 0;
-    m.v[1][3] = 0;
+    m.v[1][2] = 0.0f;
+    m.v[1][3] = 0.0f;
     m.v[2][0] = a;
     m.v[2][1] = b;
     m.v[2][2] = l_a1;
     m.v[2][3] = -1.0f;
-    m.v[3][0] = 0;
-    m.v[3][1] = 0;
+    m.v[3][0] = 0.0f;
+    m.v[3][1] = 0.0f;
     m.v[3][2] = l_a2;
-    m.v[3][3] = 0;
+    m.v[3][3] = 0.0f;
     return m;
 }
 
@@ -270,21 +288,21 @@ Matrix4 Matrix4::Projection(float fovY, float aspect, float n, float f)
     float l_a2 = (2.0f * f * n) / (n - f);
 
     m.v[0][0] = l_fd / aspect;
-    m.v[0][1] = 0;
-    m.v[0][2] = 0;
-    m.v[0][3] = 0;
-    m.v[1][0] = 0;
+    m.v[0][1] = 0.0f;
+    m.v[0][2] = 0.0f;
+    m.v[0][3] = 0.0f;
+    m.v[1][0] = 0.0f;
     m.v[1][1] = l_fd;
-    m.v[1][2] = 0;
-    m.v[1][3] = 0;
-    m.v[2][0] = 0;
-    m.v[2][1] = 0;
+    m.v[1][2] = 0.0f;
+    m.v[1][3] = 0.0f;
+    m.v[2][0] = 0.0f;
+    m.v[2][1] = 0.0f;
     m.v[2][2] = l_a1;
     m.v[2][3] = -1.0f;
-    m.v[3][0] = 0;
-    m.v[3][1] = 0;
+    m.v[3][0] = 0.0f;
+    m.v[3][1] = 0.0f;
     m.v[3][2] = l_a2;
-    m.v[3][3] = 0;
+    m.v[3][3] = 0.0f;
     return m;
 }
 

@@ -44,10 +44,10 @@ public:
     {
     }
 
-    Matrix4 &SetRow(uint32 i, const Vector4 &row);
-    Vector4 GetRow(uint32 i) const;
-    Matrix4 &SetColumn(uint32 i, const Vector4 &col);
-    Vector4 GetColumn(uint32 i) const;
+    Matrix4 &SetRow(int32 i, const Vector4 &row);
+    Vector4 GetRow(int32 i) const;
+    Matrix4 &SetColumn(int32 i, const Vector4 &col);
+    Vector4 GetColumn(int32 i) const;
 
     float Determinant() const;
     Matrix4 Transpose() const;
@@ -55,7 +55,9 @@ public:
     Matrix4 Adjugate() const;
     String ToString() const;
 
-    //TODO Rotate
+    static Matrix4 Rotate(const Vector3 &axis, float rad);
+    static Matrix4 Rotate(float yaw, float pitch, float roll);
+    static Matrix4 Rotate(const Quat &quat);
     static Matrix4 Scale(const Vector3 &v);
     static Matrix4 Scale(float x, float y, float z);
     static Matrix4 Translate(const Vector3 &v);
@@ -83,21 +85,23 @@ public:
         return &(v[0][0]);
     }
 
-    float &operator()(uint32 r, uint32 c)
+    float &operator()(int32 r, int32 c)
     {
+        CT_CHECK(r >= 0 && r < 4 && c >= 0 && c < 4);
         return v[c][r];
     }
 
-    float operator()(uint32 r, uint32 c) const
+    float operator()(int32 r, int32 c) const
     {
+        CT_CHECK(r >= 0 && r < 4 && c >= 0 && c < 4);
         return v[c][r];
     }
 
     bool operator==(const Matrix4 &rhs) const
     {
-        for (uint32 i = 0; i < 4; ++i)
+        for (int32 i = 0; i < 4; ++i)
         {
-            for (uint32 j = 0; j < 4; ++j)
+            for (int32 j = 0; j < 4; ++j)
             {
                 if (v[i][j] != rhs.v[i][j])
                     return false;
@@ -120,9 +124,9 @@ public:
 
     Matrix4 &operator*=(float rhs)
     {
-        for (uint32 col = 0; col < 4; ++col)
+        for (int32 col = 0; col < 4; ++col)
         {
-            for (uint32 row = 0; row < 4; ++row)
+            for (int32 row = 0; row < 4; ++row)
             {
                 v[col][row] *= rhs;
             }
@@ -132,9 +136,9 @@ public:
 
     Matrix4 &operator/=(float rhs)
     {
-        for (uint32 col = 0; col < 4; ++col)
+        for (int32 col = 0; col < 4; ++col)
         {
-            for (uint32 row = 0; row < 4; ++row)
+            for (int32 row = 0; row < 4; ++row)
             {
                 v[col][row] /= rhs;
             }
@@ -145,9 +149,9 @@ public:
     Matrix4 operator+(const Matrix4 &rhs)
     {
         Matrix4 ret;
-        for (uint32 col = 0; col < 4; ++col)
+        for (int32 col = 0; col < 4; ++col)
         {
-            for (uint32 row = 0; row < 4; ++row)
+            for (int32 row = 0; row < 4; ++row)
             {
                 ret.v[col][row] = v[col][row] + rhs.v[col][row];
             }
@@ -158,9 +162,9 @@ public:
     Matrix4 operator-(const Matrix4 &rhs)
     {
         Matrix4 ret;
-        for (uint32 col = 0; col < 4; ++col)
+        for (int32 col = 0; col < 4; ++col)
         {
-            for (uint32 row = 0; row < 4; ++row)
+            for (int32 row = 0; row < 4; ++row)
             {
                 ret.v[col][row] = v[col][row] - rhs.v[col][row];
             }
@@ -171,9 +175,9 @@ public:
     Matrix4 operator*(const Matrix4 &rhs)
     {
         Matrix4 ret;
-        for (uint32 col = 0; col < 4; ++col)
+        for (int32 col = 0; col < 4; ++col)
         {
-            for (uint32 row = 0; row < 4; ++row)
+            for (int32 row = 0; row < 4; ++row)
             {
                 ret.v[col][row] =
                     v[0][row] * rhs.v[col][0] + v[1][row] * rhs.v[col][1] + v[2][row] * rhs.v[col][2] + v[3][row] * rhs.v[col][3];
@@ -199,7 +203,7 @@ public:
     friend Vector4 operator*(const Vector4 &lhs, const Matrix4 &rhs)
     {
         Vector4 ret;
-        for (uint32 col = 0; col < 4; ++col)
+        for (int32 col = 0; col < 4; ++col)
         {
             ret[col] =
                 rhs.v[col][0] * lhs[0] + rhs.v[col][1] * lhs[1] + rhs.v[col][2] * lhs[2] + rhs.v[col][3] * lhs[3];
@@ -210,7 +214,7 @@ public:
     friend Vector4 operator*(const Matrix4 &lhs, const Vector4 &rhs)
     {
         Vector4 ret;
-        for (uint32 row = 0; row < 4; ++row)
+        for (int32 row = 0; row < 4; ++row)
         {
             ret[row] =
                 lhs.v[0][row] * rhs[0] + lhs.v[1][row] * rhs[1] + lhs.v[2][row] * rhs[2] + lhs.v[3][row] * rhs[3];

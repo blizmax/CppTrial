@@ -139,6 +139,15 @@ void TestHashMap()
     map1.Put(CT_TEXT("2"), 2);
 
     CT_LOG(Info, "Capacity:{0}, Count:{1}", map1.Capacity(), map1.Count());
+
+    for(auto& [k, v] : map1)
+    {   v += 100;
+        CT_LOG(Info, "Key:{0}, Value:{1}", k, v);
+    }
+    for (const auto& [k, v] : map1)
+    {
+        CT_LOG(Info, "Key:{0}, Value:{1}", k, v);
+    }
 }
 
 void TestSortedMap()

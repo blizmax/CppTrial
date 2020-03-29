@@ -22,10 +22,10 @@ public:
     {
     }
 
-    Matrix3 &SetRow(uint32 i, const Vector3 &row);
-    Vector3 GetRow(uint32 i) const;
-    Matrix3 &SetColumn(uint32 i, const Vector3 &col);
-    Vector3 GetColumn(uint32 i) const;
+    Matrix3 &SetRow(int32 i, const Vector3 &row);
+    Vector3 GetRow(int32 i) const;
+    Matrix3 &SetColumn(int32 i, const Vector3 &col);
+    Vector3 GetColumn(int32 i) const;
 
     float Determinant() const;
     Matrix3 Transpose() const;
@@ -50,21 +50,23 @@ public:
         return &(v[0][0]);
     }
 
-    float &operator()(uint32 r, uint32 c)
+    float &operator()(int32 r, int32 c)
     {
+        CT_CHECK(r >= 0 && r < 3 && c >= 0 && c < 3);
         return v[c][r];
     }
 
-    float operator()(uint32 r, uint32 c) const
+    float operator()(int32 r, int32 c) const
     {
+        CT_CHECK(r >= 0 && r < 3 && c >= 0 && c < 3);
         return v[c][r];
     }
 
     bool operator==(const Matrix3 &rhs) const
     {
-        for (uint32 i = 0; i < 3; ++i)
+        for (int32 i = 0; i < 3; ++i)
         {
-            for (uint32 j = 0; j < 3; ++j)
+            for (int32 j = 0; j < 3; ++j)
             {
                 if (v[i][j] != rhs.v[i][j])
                     return false;
@@ -87,9 +89,9 @@ public:
 
     Matrix3 &operator*=(float rhs)
     {
-        for (uint32 col = 0; col < 3; ++col)
+        for (int32 col = 0; col < 3; ++col)
         {
-            for (uint32 row = 0; row < 3; ++row)
+            for (int32 row = 0; row < 3; ++row)
             {
                 v[col][row] *= rhs;
             }
@@ -99,9 +101,9 @@ public:
 
     Matrix3 &operator/=(float rhs)
     {
-        for (uint32 col = 0; col < 3; ++col)
+        for (int32 col = 0; col < 3; ++col)
         {
-            for (uint32 row = 0; row < 3; ++row)
+            for (int32 row = 0; row < 3; ++row)
             {
                 v[col][row] /= rhs;
             }
@@ -112,9 +114,9 @@ public:
     Matrix3 operator+(const Matrix3 &rhs)
     {
         Matrix3 ret;
-        for (uint32 col = 0; col < 3; ++col)
+        for (int32 col = 0; col < 3; ++col)
         {
-            for (uint32 row = 0; row < 3; ++row)
+            for (int32 row = 0; row < 3; ++row)
             {
                 ret.v[col][row] = v[col][row] + rhs.v[col][row];
             }
@@ -125,9 +127,9 @@ public:
     Matrix3 operator-(const Matrix3 &rhs)
     {
         Matrix3 ret;
-        for (uint32 col = 0; col < 3; ++col)
+        for (int32 col = 0; col < 3; ++col)
         {
-            for (uint32 row = 0; row < 3; ++row)
+            for (int32 row = 0; row < 3; ++row)
             {
                 ret.v[col][row] = v[col][row] - rhs.v[col][row];
             }
@@ -138,9 +140,9 @@ public:
     Matrix3 operator*(const Matrix3 &rhs)
     {
         Matrix3 ret;
-        for (uint32 col = 0; col < 3; ++col)
+        for (int32 col = 0; col < 3; ++col)
         {
-            for (uint32 row = 0; row < 3; ++row)
+            for (int32 row = 0; row < 3; ++row)
             {
                 ret.v[col][row] =
                     v[0][row] * rhs.v[col][0] + v[1][row] * rhs.v[col][1] + v[2][row] * rhs.v[col][2];
@@ -166,7 +168,7 @@ public:
     friend Vector3 operator*(const Vector3 &lhs, const Matrix3 &rhs)
     {
         Vector3 ret;
-        for (uint32 col = 0; col < 3; ++col)
+        for (int32 col = 0; col < 3; ++col)
         {
             ret[col] =
                 rhs.v[col][0] * lhs[0] + rhs.v[col][1] * lhs[1] + rhs.v[col][2] * lhs[2];
@@ -177,7 +179,7 @@ public:
     friend Vector3 operator*(const Matrix3 &lhs, const Vector3 &rhs)
     {
         Vector3 ret;
-        for (uint32 row = 0; row < 3; ++row)
+        for (int32 row = 0; row < 3; ++row)
         {
             ret[row] =
                 lhs.v[0][row] * rhs[0] + lhs.v[1][row] * rhs[1] + lhs.v[2][row] * rhs[2];

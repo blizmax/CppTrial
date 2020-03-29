@@ -184,9 +184,11 @@ public:
         page->OnShaderUpdate(shader);
 
         float factor = 3.0f;
+        //Matrix4 rotateMat = Matrix4::Rotate(Vector3(0.0f, 0.0f, 1.0f), 30.0f * Math::DEG_TO_RAD);
+        Matrix4 rotateMat = Matrix4::Rotate(0.0f, 0.0f, 30.0f * Math::DEG_TO_RAD);
         Matrix4 scaleMat = Matrix4::Scale(texture->GetWidth() * factor, texture->GetHeight() * factor, 1.0f);
 
-        shader->SetMatrix4(CT_TEXT("Model"), scaleMat);
+        shader->SetMatrix4(CT_TEXT("Model"), scaleMat * rotateMat);
         shader->SetMatrix4(CT_TEXT("View"), camera->view);
         shader->SetMatrix4(CT_TEXT("Projection"), camera->projection);
         shader->SetInt(CT_TEXT("Texture"), 0);
