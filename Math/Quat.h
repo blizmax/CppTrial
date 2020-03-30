@@ -43,9 +43,11 @@ public:
     Quat &FromAxisRad(const Vector3 &axis, float rad);
     Quat &FromEulerRad(float yaw, float pitch, float roll);
     Quat &SetFromToRotation(const Vector3 &from, const Vector3 &to);
-    Quat &SetLookRotation(const Vector3 &forward, const Vector3 &up = Vector3(0.0f, 1.0f, 0.0f));
+    Quat &SetLookRotation(const Vector3 &forward, const Vector3 &up = Vector3::Y);
 
-    Matrix4 ToMatrix() const;
+    Vector3 Rotate(const Vector3 &vec) const;
+    Matrix3 ToMatrix3() const;
+    Matrix4 ToMatrix4() const;
 
     Quat &Normalize()
     {

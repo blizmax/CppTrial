@@ -48,6 +48,7 @@ public:
     Vector4 GetRow(int32 i) const;
     Matrix4 &SetColumn(int32 i, const Vector4 &col);
     Vector4 GetColumn(int32 i) const;
+    Matrix3 ToMatrix3() const;
 
     float Determinant() const;
     Matrix4 Transpose() const;
@@ -62,6 +63,7 @@ public:
     static Matrix4 Scale(float x, float y, float z);
     static Matrix4 Translate(const Vector3 &v);
     static Matrix4 Translate(float x, float y, float z);
+    static Matrix4 TRS(const Vector3 &translation, const Quat &rotation, const Vector3 &scale);
     static Matrix4 Ortho(float left, float right, float bottom, float top, float near, float far);
     static Matrix4 Projection(float left, float right, float bottom, float top, float near, float far);
     static Matrix4 Projection(float fovY, float aspectRatio, float near, float far);

@@ -37,6 +37,21 @@ Vector4 Matrix4::GetColumn(int32 i) const
     return Vector4(v[i][0], v[i][1], v[i][2], v[i][3]);
 }
 
+Matrix3 Matrix4::ToMatrix3() const
+{
+    Matrix3 m;
+    m.v[0][0] = v[0][0];
+    m.v[0][1] = v[0][1];
+    m.v[0][2] = v[0][2];
+    m.v[1][0] = v[1][0];
+    m.v[1][1] = v[1][1];
+    m.v[1][2] = v[1][2];
+    m.v[2][0] = v[2][0];
+    m.v[2][1] = v[2][1];
+    m.v[2][2] = v[2][2];
+    return m;
+}
+
 float Matrix4::Determinant() const
 {
     float n00 = v[0][0];
@@ -56,10 +71,10 @@ float Matrix4::Determinant() const
     float n32 = v[2][3];
     float n33 = v[3][3];
 
-    return (n00 * (n11 * (n22 * n33 - n23 * n32) + n12 * (n23 * n31 - n21 * n33) + n13 * (n21 * n32 - n22 * n31)) +
-            n01 * (n10 * (n23 * n32 - n22 * n33) + n12 * (n20 * n33 - n23 * n30) + n13 * (n22 * n30 - n20 * n32)) +
-            n02 * (n10 * (n21 * n33 - n23 * n31) + n11 * (n23 * n30 - n20 * n33) + n13 * (n20 * n31 - n21 * n30)) +
-            n03 * (n10 * (n22 * n31 - n21 * n32) + n11 * (n20 * n32 - n22 * n30) + n12 * (n21 * n30 - n20 * n31)));
+    return n00 * (n11 * (n22 * n33 - n23 * n32) + n12 * (n23 * n31 - n21 * n33) + n13 * (n21 * n32 - n22 * n31)) +
+           n01 * (n10 * (n23 * n32 - n22 * n33) + n12 * (n20 * n33 - n23 * n30) + n13 * (n22 * n30 - n20 * n32)) +
+           n02 * (n10 * (n21 * n33 - n23 * n31) + n11 * (n23 * n30 - n20 * n33) + n13 * (n20 * n31 - n21 * n30)) +
+           n03 * (n10 * (n22 * n31 - n21 * n32) + n11 * (n20 * n32 - n22 * n30) + n12 * (n21 * n30 - n20 * n31));
 }
 
 Matrix4 Matrix4::Transpose() const
@@ -166,18 +181,18 @@ String Matrix4::ToString() const
 Matrix4 Matrix4::Rotate(const Vector3 &axis, float rad)
 {
     Quat quat = Quat(axis, rad);
-    return quat.ToMatrix();
+    return quat.ToMatrix4();
 }
 
 Matrix4 Matrix4::Rotate(float yaw, float pitch, float roll)
 {
     Quat quat = Quat(yaw, pitch, roll);
-    return quat.ToMatrix();
+    return quat.ToMatrix4();
 }
 
 Matrix4 Matrix4::Rotate(const Quat &quat)
 {
-    return quat.ToMatrix();
+    return quat.ToMatrix4();
 }
 
 Matrix4 Matrix4::Scale(const Vector3 &v)
@@ -216,6 +231,36 @@ Matrix4 Matrix4::Translate(float x, float y, float z)
     m.v[3][0] = x;
     m.v[3][1] = y;
     m.v[3][2] = z;
+    m.v[3][3] = 1.0f;
+    return m;
+}
+
+Matrix4 Matrix4::TRS(const Vector3 &translation, const Quat &rotation, const Vector3 &scale)
+{
+    Matrix4 m = Matrix4();
+    const float xs = rotation.x * 2.0f, ys = rotation.y * 2.0f, zs = rotation.z * 2.0f;
+    const float wx = rotation.w * xs, wy = rotation.w * ys, wz = rotation.w * zs;
+    const float xx = rotation.x * xs, xy = rotation.x * ys, xz = rotation.x * zs;
+    const float yy = rotation.y * ys, yz = rotation.y * zs, zz = rotation.z * zs;
+
+    m.v[0][0] = scale.x * (1.0f - (yy + zz));
+    m.v[1][0] = scale.y * (xy - wz);
+    m.v[2][0] = scale.z * (xz + wy);
+    m.v[3][0] = translation.x;
+
+    m.v[0][1] = scale.x * (xy + wz);
+    m.v[1][1] = scale.y * (1.0f - (xx + zz));
+    m.v[2][1] = scale.z * (yz - wx);
+    m.v[3][1] = translation.y;
+
+    m.v[0][2] = scale.x * (xz - wy);
+    m.v[1][2] = scale.y * (yz + wx);
+    m.v[2][2] = scale.z * (1.0f - (xx + yy));
+    m.v[3][2] = translation.z;
+
+    m.v[0][3] = 0.0f;
+    m.v[1][3] = 0.0f;
+    m.v[2][3] = 0.0f;
     m.v[3][3] = 1.0f;
     return m;
 }

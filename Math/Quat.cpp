@@ -102,7 +102,7 @@ Quat &Quat::FromEulerRad(float yaw, float pitch, float roll)
     Quat quatRoll(0.0f, 0.0f, shr, chr);
 
     //Rotate order : yaw -> pitch -> roll
-    *this = quatRoll * quatPitch * quatYaw;
+    *this = quatRoll * (quatPitch * quatYaw);
     return *this;
 }
 
@@ -129,7 +129,38 @@ Quat &Quat::SetFromToRotation(const Vector3 &from, const Vector3 &to)
     return FromAxisRad(from.Cross(to), rad);
 }
 
-Matrix4 Quat::ToMatrix() const
+Vector3 Quat::Rotate(const Vector3 &vec) const
+{
+    Quat conj = Conjugate();
+    Quat temp = *this * Quat(vec.x, vec.y, vec.z, 0.0f) * conj;
+	return Vector3(temp.x, temp.y, temp.z);
+}
+
+Matrix3 Quat::ToMatrix3() const
+{
+    const float xx = x * x;
+    const float xy = x * y;
+    const float xz = x * z;
+    const float xw = x * w;
+    const float yy = y * y;
+    const float yz = y * z;
+    const float yw = y * w;
+    const float zz = z * z;
+    const float zw = z * w;
+
+    return {
+        1.0f - 2.0f * (yy + zz),
+        2.0f * (xy - zw),
+        2.0f * (xz + yw),
+        2.0f * (xy + zw),
+        1.0f - 2.0f * (xx + zz),
+        2.0f * (yz - xw),
+        2.0f * (xz - yw),
+        2.0f * (yz + xw),
+        1.0f - 2.0f * (xx + yy)};
+}
+
+Matrix4 Quat::ToMatrix4() const
 {
     const float xx = x * x;
     const float xy = x * y;
