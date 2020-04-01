@@ -143,6 +143,7 @@ public:
         vertexArray = VertexArray::Create();
         vertexArray->AddVertexBuffer(vertexBuffer);
         vertexArray->SetIndexBuffer(indexBuffer);
+        vertexArray->Unbind();
 
         texture = Texture::Create(CT_TEXT("Assets/Textures/wheel.png"));
 
@@ -201,6 +202,8 @@ public:
         vertexArray->Bind();
 
         RenderAPI::DrawIndexed(vertexArray);
+
+        vertexArray->Unbind();
     }
 };
 

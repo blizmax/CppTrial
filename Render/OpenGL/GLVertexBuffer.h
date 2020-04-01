@@ -6,11 +6,12 @@
 class GLVertexBuffer : public VertexBuffer
 {
 public:
-    GLVertexBuffer(float *vertices, uint32 size);
+    GLVertexBuffer(float *vertices, uint32 size, GpuBufferUsage usage);
     virtual ~GLVertexBuffer();
 
     virtual void Bind() const override;
     virtual void Unbind() const override;
+    virtual void SetData(float *vertices, uint32 size) override;
 
     virtual void SetLayout(const VertexBufferLayout &layout) override
     {
@@ -24,5 +25,6 @@ public:
 
 private:
     uint32 id = 0;
+    GpuBufferUsage usage;
     VertexBufferLayout layout;
 };

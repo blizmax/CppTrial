@@ -3,6 +3,7 @@
 #include "Application/Application.h"
 #include "Render/Shader.h"
 #include "Render/Texture.h"
+#include "Render/VertexArray.h"
 
 #include <imgui.h>
 
@@ -44,6 +45,9 @@ private:
 
     SPtr<Shader> shader;
     SPtr<Texture> texture;
+    SPtr<VertexArray> vertexArray;
+    SPtr<VertexBuffer> vertexBuffer;
+    SPtr<IndexBuffer> indexBuffer;
 };
 
 extern ImGuiLab *gImGuiLab;

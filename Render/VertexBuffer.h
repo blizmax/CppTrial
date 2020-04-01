@@ -111,9 +111,10 @@ public:
 
     virtual void Bind() const = 0;
     virtual void Unbind() const = 0;
+    virtual void SetData(float *vertices, uint32 size) = 0;
 
     virtual void SetLayout(const VertexBufferLayout &layout) = 0;
     virtual const VertexBufferLayout &GetLayout() const = 0;
 
-    static SPtr<VertexBuffer> Create(float *vertices, uint32 size);
+    static SPtr<VertexBuffer> Create(float *vertices, uint32 size, GpuBufferUsage usage = GpuBufferUsage::Static);
 };

@@ -17,3 +17,54 @@ enum class VertexDataType
     Int4,
     UByte4,
 };
+
+enum class GpuBufferUsage
+{
+    Static,
+    Dynamic,
+};
+
+enum class BlendFactor
+{
+    Zero,
+    One,
+    SrcColor,
+    OneMinusSrcColor,
+    DstColor,
+    OneMinusDstColor,
+    SrcAlpha,
+    OneMinusSrcAlpha,
+    DstAlpha,
+    OneMinusDstAlpha,
+};
+
+enum class BlendOperation
+{
+    Add,
+    Sub,        //src - dst
+    ReverseSub, //dst - src
+};
+
+enum class CompareOperation
+{
+    AlwaysFail,
+    AlwaysPass,
+    Less,
+    LessEqual,
+    Equal,
+    NotEqual,
+    Greater,
+    GreaterEqual,
+};
+
+enum class StencilOperation
+{
+    Zero,
+    Keep,
+    Replace,
+    Increment,
+    Decrement,
+    IncrementWrap,
+    DecrementWrap,
+    Invert,
+};

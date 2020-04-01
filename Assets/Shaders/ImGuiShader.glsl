@@ -1,33 +1,33 @@
 #type vertex
 #version 330 core
 
-layout(location = 0) in vec2 inPosition;
-layout(location = 1) in vec2 inUV;
-layout(location = 2) in vec4 inColor;
+layout(location = 0) in vec2 VertexPosition;
+layout(location = 1) in vec2 VertexUV;
+layout(location = 2) in vec4 VertexColor;
 
-out vec2 uv;
-out vec4 color;
+out vec2 UV;
+out vec4 Color;
 
-uniform mat4 mvp;
+uniform mat4 MVP;
 
 void main()
 {
-	gl_Position = mvp * vec4(inPosition, 0.0, 1.0);
-	uv = inUV;
-    color = inColor; 
+	gl_Position = MVP * vec4(VertexPosition, 0.0, 1.0);
+	UV = VertexUV;
+    Color = VertexColor; 
 }
 
 #type fragment
 #version 330 core
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 FragmentColor;
 
-in vec2 uv;
-in vec4 color;
+in vec2 UV;
+in vec4 Color;
 
-uniform sampler2D mainTex;
+uniform sampler2D MainTex;
 
 void main()
 {
-	outColor = color * texture(mainTex, uv);
+	FragmentColor = Color * texture(MainTex, UV);
 }

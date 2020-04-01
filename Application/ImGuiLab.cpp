@@ -1,6 +1,5 @@
 #include "Application/ImGuiLab.h"
 #include "Render/RenderAPI.H"
-#include "Render/VertexArray.h"
 #include "Render/OrthographicCamera.h"
 
 ImGuiLab imguiLab;
@@ -142,6 +141,19 @@ void ImGuiLab::BindRenderer()
 
     shader = Shader::Create(CT_TEXT("Assets/Shaders/ImGuiShader.glsl"));
 
+    vertexBuffer = VertexBuffer::Create(nullptr, 0, GpuBufferUsage::Dynamic);
+    vertexBuffer->SetLayout({
+        {CT_TEXT("VertexPosition"), VertexDataType::Float2},
+        {CT_TEXT("VertexUV"), VertexDataType::Float2},
+        {CT_TEXT("VertexColor"), VertexDataType::UByte4, true},
+    });
+
+    indexBuffer = IndexBuffer::Create(nullptr, 0, GpuBufferUsage::Dynamic);
+    vertexArray = VertexArray::Create();
+    vertexArray->AddVertexBuffer(vertexBuffer);
+    vertexArray->SetIndexBuffer(indexBuffer);
+    vertexArray->Unbind();
+
     uchar8 *pixels;
     int32 width, height;
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
@@ -219,8 +231,8 @@ void ImGuiLab::SetupRenderState(ImDrawData *drawData, uint32 width, uint32 heigh
 
     shader->Bind();
     texture->Bind(0);
-    shader->SetInt(CT_TEXT("mainTex"), 0);
-    shader->SetMatrix4(CT_TEXT("mvp"), mvp);
+    shader->SetInt(CT_TEXT("MainTex"), 0);
+    shader->SetMatrix4(CT_TEXT("MVP"), mvp);
 }
 
 void ImGuiLab::RenderDrawData(ImDrawData *drawData)
@@ -235,22 +247,13 @@ void ImGuiLab::RenderDrawData(ImDrawData *drawData)
     ImVec2 clip_off = drawData->DisplayPos;
     ImVec2 clip_scale = drawData->FramebufferScale;
 
+    vertexArray->Bind();
     for (int32 n = 0; n < drawData->CmdListsCount; n++)
     {
         const ImDrawList *cmd_list = drawData->CmdLists[n];
 
-        //FIXME: GL_STREAM_DRAW
-        auto vbo = VertexBuffer::Create((float *)cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
-        vbo->SetLayout({
-            {CT_TEXT("inPosition"), VertexDataType::Float2},
-            {CT_TEXT("inUV"), VertexDataType::Float2},
-            {CT_TEXT("inColor"), VertexDataType::UByte4, true},
-        });
-        auto ebo = IndexBuffer::Create((uint32 *)cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size);
-        auto vao = VertexArray::Create();
-        vao->AddVertexBuffer(vbo);
-        vao->SetIndexBuffer(ebo);
-        vao->Bind();
+        vertexBuffer->SetData((float *)cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
+        indexBuffer->SetData((uint32 *)cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size);
 
         for (int32 cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
         {
@@ -281,4 +284,6 @@ void ImGuiLab::RenderDrawData(ImDrawData *drawData)
             }
         }
     }
+
+    vertexArray->Unbind();
 }
