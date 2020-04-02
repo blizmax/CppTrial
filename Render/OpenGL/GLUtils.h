@@ -31,6 +31,64 @@ public:
         return 0;
     }
 
+    static uint32 GetGLTextureWrap(TextureWrap wrap)
+    {
+        switch (wrap)
+        {
+        case TextureWrap::Repeat:
+            return GL_REPEAT;
+        case TextureWrap::Mirror:
+            return GL_MIRRORED_REPEAT;
+        case TextureWrap::Clamp:
+            return GL_CLAMP_TO_EDGE;
+        case TextureWrap::Border:
+            return GL_CLAMP_TO_BORDER;
+        }
+
+        CT_EXCEPTION(Render, "Unsupported texture wrap!");
+        return 0;
+    }
+
+    static uint32 GetGLTextureFilter(TextureFilter filter)
+    {
+        switch (filter)
+        {
+        case TextureFilter::Nearest:
+            return GL_NEAREST;
+        case TextureFilter::Linear:
+            return GL_LINEAR;
+        }
+        CT_EXCEPTION(Render, "Unsupported texture filter!");
+        return 0;
+    }
+
+    static uint32 GetGLMinMipFilter(TextureFilter min, TextureFilter mip)
+    {
+        switch (min)
+        {
+        case TextureFilter::Nearest:
+            switch (mip)
+            {
+            case TextureFilter::Nearest:
+                return GL_NEAREST_MIPMAP_NEAREST;
+            case TextureFilter::Linear:
+                return GL_NEAREST_MIPMAP_LINEAR;
+            }
+            break;
+        case TextureFilter::Linear:
+            switch (mip)
+            {
+            case TextureFilter::Nearest:
+                return GL_LINEAR_MIPMAP_NEAREST;
+            case TextureFilter::Linear:
+                return GL_LINEAR_MIPMAP_LINEAR;
+            }
+            break;
+        }
+        CT_EXCEPTION(Render, "Unsupported texture filter!");
+        return 0;
+    }
+
     static uint32 GetGLUsage(GpuBufferUsage usage)
     {
         switch (usage)

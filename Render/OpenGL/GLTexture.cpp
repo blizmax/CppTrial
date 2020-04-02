@@ -1,4 +1,5 @@
 #include "Render/OpenGL/GLTexture.h"
+#include "Render/OpenGL/GLUtils.h"
 #include "Render/ImageLoader.h"
 
 SPtr<Texture> Texture::Create(uint32 width, uint32 height)
@@ -56,11 +57,10 @@ GLTexture::GLTexture(const String &path)
     glCreateTextures(GL_TEXTURE_2D, 1, &id);
     glTextureStorage2D(id, 1, internalFormat, width, height);
 
-    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glTextureParameteri(id, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTextureParameteri(id, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    SetMinFilter(minFilter);
+    SetMagFilter(magFilter);
+    SetUWrap(uWrap);
+    SetVWrap(vWrap);
 
     glTextureSubImage2D(id, 0, 0, 0, width, height, dataFormat, GL_UNSIGNED_BYTE, data);
 
@@ -86,4 +86,47 @@ void GLTexture::SetData(void *data, uint32 size)
 void GLTexture::Bind(uint32 slot) const
 {
     glBindTextureUnit(slot, id);
+}
+
+void GLTexture::SetMinFilter(TextureFilter filter)
+{
+    minFilter = filter;
+    if (useMip)
+    {
+        glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GLUtils::GetGLMinMipFilter(minFilter, mipFilter));
+    }
+    else
+    {
+        glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GLUtils::GetGLTextureFilter(filter));
+    }
+}
+
+void GLTexture::SetMagFilter(TextureFilter filter)
+{
+    magFilter = filter;
+
+    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GLUtils::GetGLTextureFilter(filter));
+}
+
+void GLTexture::SetMipFilter(TextureFilter filter)
+{
+    mipFilter = filter;
+    if (useMip)
+    {
+        glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GLUtils::GetGLMinMipFilter(minFilter, mipFilter));
+    }
+}
+
+void GLTexture::SetUWrap(TextureWrap wrap)
+{
+    uWrap = wrap;
+
+    glTextureParameteri(id, GL_TEXTURE_WRAP_S, GLUtils::GetGLTextureWrap(wrap));
+}
+
+void GLTexture::SetVWrap(TextureWrap wrap)
+{
+    vWrap = wrap;
+
+    glTextureParameteri(id, GL_TEXTURE_WRAP_T, GLUtils::GetGLTextureWrap(wrap));
 }

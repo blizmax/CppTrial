@@ -18,6 +18,21 @@ enum class VertexDataType
     UByte4,
 };
 
+enum class TextureFilter
+{
+    Nearest,
+    Linear,
+    //Anisotropic,
+};
+
+enum class TextureWrap
+{
+    Repeat,
+    Mirror,
+    Clamp,
+    Border,
+};
+
 enum class GpuBufferUsage
 {
     Static,

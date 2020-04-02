@@ -6,7 +6,7 @@
             "includePath": [
                 "${workspaceFolder}/"
             ],
-            "compilerPath": "D:\\msys64\\mingw64\\bin\\gcc.exe",
+            "compilerPath": "C:/msys64/mingw64/bin/gcc.exe",
             "cStandard": "c11",
             "cppStandard": "c++17",
             "configurationProvider": "vector-of-bool.cmake-tools",
