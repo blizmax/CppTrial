@@ -14,17 +14,17 @@ SPtr<Texture> Texture::Create(const String &path)
 
 GLTexture::GLTexture(uint32 width, uint32 height) : width(width), height(height)
 {
-    internalFormat = GL_RGBA8;
-    dataFormat = GL_RGBA;
+    uint32 internalFormat = GLUtils::GetGLPixelInternalFormat(format);
 
     glCreateTextures(GL_TEXTURE_2D, 1, &id);
+    Bind();
+
     glTextureStorage2D(id, 1, internalFormat, width, height);
 
-    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glTextureParameteri(id, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTextureParameteri(id, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    SetMinFilter(minFilter);
+    SetMagFilter(magFilter);
+    SetUWrap(uWrap);
+    SetVWrap(vWrap);
 }
 
 GLTexture::GLTexture(const String &path)
@@ -38,13 +38,11 @@ GLTexture::GLTexture(const String &path)
 
     if (channels == 4)
     {
-        internalFormat = GL_RGBA8;
-        dataFormat = GL_RGBA;
+        format = PixelFormat::RGBA8888;
     }
     else if (channels == 3)
     {
-        internalFormat = GL_RGB8;
-        dataFormat = GL_RGB;
+        format = PixelFormat::RGB888;
     }
     else
     {
@@ -54,7 +52,13 @@ GLTexture::GLTexture(const String &path)
     width = w;
     height = h;
 
+    uint32 internalFormat = GLUtils::GetGLPixelInternalFormat(format);
+    uint32 dataFormat = GLUtils::GetGLPixelFormat(format);
+    uint32 dataType = GLUtils::GetGLPixelDataType(format);
+
     glCreateTextures(GL_TEXTURE_2D, 1, &id);
+    Bind();
+
     glTextureStorage2D(id, 1, internalFormat, width, height);
 
     SetMinFilter(minFilter);
@@ -62,7 +66,7 @@ GLTexture::GLTexture(const String &path)
     SetUWrap(uWrap);
     SetVWrap(vWrap);
 
-    glTextureSubImage2D(id, 0, 0, 0, width, height, dataFormat, GL_UNSIGNED_BYTE, data);
+    glTextureSubImage2D(id, 0, 0, 0, width, height, dataFormat, dataType, data);
 
     ImageLoader::Free(data);
 }
@@ -74,22 +78,28 @@ GLTexture::~GLTexture()
 
 void GLTexture::SetData(void *data, uint32 size)
 {
-    uint32 bpp = dataFormat == GL_RGBA ? 4 : 3;
-    if (bpp * width * height != size)
-    {
-        CT_EXCEPTION(Render, "Update texture data failed, size error.");
-    }
+    Bind();
 
-    glTextureSubImage2D(id, 0, 0, 0, width, height, dataFormat, GL_UNSIGNED_BYTE, data);
+    uint32 dataFormat = GLUtils::GetGLPixelFormat(format);
+    uint32 dataType = GLUtils::GetGLPixelDataType(format);
+
+    glTextureSubImage2D(id, 0, 0, 0, width, height, dataFormat, dataType, data);
 }
 
-void GLTexture::Bind(uint32 slot) const
+void GLTexture::Bind(int32 slot) const
 {
-    glBindTextureUnit(slot, id);
+    glBindTexture(GL_TEXTURE_2D, id);
+    
+    if (slot >= 0)
+    {
+        glActiveTexture(GL_TEXTURE0 + slot);
+    }
 }
 
 void GLTexture::SetMinFilter(TextureFilter filter)
 {
+    Bind();
+
     minFilter = filter;
     if (useMip)
     {
@@ -103,6 +113,8 @@ void GLTexture::SetMinFilter(TextureFilter filter)
 
 void GLTexture::SetMagFilter(TextureFilter filter)
 {
+    Bind();
+
     magFilter = filter;
 
     glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GLUtils::GetGLTextureFilter(filter));
@@ -110,6 +122,8 @@ void GLTexture::SetMagFilter(TextureFilter filter)
 
 void GLTexture::SetMipFilter(TextureFilter filter)
 {
+    Bind();
+
     mipFilter = filter;
     if (useMip)
     {
@@ -119,6 +133,8 @@ void GLTexture::SetMipFilter(TextureFilter filter)
 
 void GLTexture::SetUWrap(TextureWrap wrap)
 {
+    Bind();
+
     uWrap = wrap;
 
     glTextureParameteri(id, GL_TEXTURE_WRAP_S, GLUtils::GetGLTextureWrap(wrap));
@@ -126,6 +142,8 @@ void GLTexture::SetUWrap(TextureWrap wrap)
 
 void GLTexture::SetVWrap(TextureWrap wrap)
 {
+    Bind();
+
     vWrap = wrap;
 
     glTextureParameteri(id, GL_TEXTURE_WRAP_T, GLUtils::GetGLTextureWrap(wrap));

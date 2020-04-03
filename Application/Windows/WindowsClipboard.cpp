@@ -40,7 +40,7 @@ void WindowsClipboard::SetString(const String &value)
     std::memcpy(buffer, *value, size);
     GlobalUnlock(object);
 
-    if (!OpenClipboard(static_cast<HWND>(gApp->GetWindow().GetNativeHandler())))
+    if (!OpenClipboard(static_cast<HWND>(gApp->GetWindow().GetNativeHandle())))
     {
         CT_LOG(Error, CT_TEXT("Open clipboard failed"));
         GlobalFree(object);
@@ -58,7 +58,7 @@ String WindowsClipboard::GetString()
     HANDLE object;
     LPVOID buffer;
 
-    if (!OpenClipboard(static_cast<HWND>(gApp->GetWindow().GetNativeHandler())))
+    if (!OpenClipboard(static_cast<HWND>(gApp->GetWindow().GetNativeHandle())))
     {
         CT_LOG(Error, CT_TEXT("Open clipboard failed"));
         return String();

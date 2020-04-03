@@ -32,4 +32,6 @@ void GLVertexBuffer::SetData(float *vertices, uint32 size)
 {
     Bind();
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GLUtils::GetGLUsage(usage));
+
+    Unbind();
 }

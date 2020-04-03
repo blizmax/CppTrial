@@ -47,6 +47,9 @@ void GLVertexArray::AddVertexBuffer(const SPtr<VertexBuffer> &buffer)
     }
 
     vertexBuffers.Add(buffer);
+
+    Unbind();
+    buffer->Unbind();
 }
 
 void GLVertexArray::SetIndexBuffer(const SPtr<IndexBuffer> &buffer)
@@ -55,4 +58,7 @@ void GLVertexArray::SetIndexBuffer(const SPtr<IndexBuffer> &buffer)
     buffer->Bind();
 
     indexBuffer = buffer;
+
+    Unbind();
+    buffer->Unbind();
 }

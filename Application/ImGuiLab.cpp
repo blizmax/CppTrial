@@ -72,7 +72,7 @@ void ImGuiLab::BindPlatform()
     io.KeyMap[ImGuiKey_Z] = CT_KEY_Z;
 
 #if defined(_WIN32)
-    io.ImeWindowHandle = gApp->GetWindow().GetNativeHandler();
+    io.ImeWindowHandle = gApp->GetWindow().GetNativeHandle();
 #endif
 
     // TODO: Clipboard
@@ -152,7 +152,6 @@ void ImGuiLab::BindRenderer()
     vertexArray = VertexArray::Create();
     vertexArray->AddVertexBuffer(vertexBuffer);
     vertexArray->SetIndexBuffer(indexBuffer);
-    vertexArray->Unbind();
 
     uchar8 *pixels;
     int32 width, height;
@@ -247,7 +246,6 @@ void ImGuiLab::RenderDrawData(ImDrawData *drawData)
     ImVec2 clip_off = drawData->DisplayPos;
     ImVec2 clip_scale = drawData->FramebufferScale;
 
-    vertexArray->Bind();
     for (int32 n = 0; n < drawData->CmdListsCount; n++)
     {
         const ImDrawList *cmd_list = drawData->CmdLists[n];
@@ -279,11 +277,11 @@ void ImGuiLab::RenderDrawData(ImDrawData *drawData)
                     RenderAPI::SetScissor((int32)clip_rect.x, (int32)(height - clip_rect.w), (int32)(clip_rect.z - clip_rect.x), (int32)(clip_rect.w - clip_rect.y));
 
                     //glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
+                    vertexArray->Bind();
                     RenderAPI::DrawIndexed(pcmd->IdxOffset, pcmd->ElemCount);
+                    vertexArray->Unbind();
                 }
             }
         }
     }
-
-    vertexArray->Unbind();
 }

@@ -11,7 +11,7 @@ public:
     virtual ~GLTexture();
 
     virtual void SetData(void *data, uint32 size) override;
-    virtual void Bind(uint32 slot) const override;
+    virtual void Bind(int32 slot = -1) const override;
 
     virtual void SetMinFilter(TextureFilter filter) override;
     virtual void SetMagFilter(TextureFilter filter) override;
@@ -55,12 +55,16 @@ public:
         return vWrap;
     }
 
+    virtual void *GetNativeHandle() const override
+    {
+        return reinterpret_cast<void*>(id);
+    }
+
 private:
     uint32 id = 0;
     uint32 width;
     uint32 height;
-    uint32 dataFormat = 0;
-    uint32 internalFormat = 0;
+    PixelFormat format = PixelFormat::RGBA8888;
     TextureFilter minFilter = TextureFilter::Nearest;
     TextureFilter magFilter = TextureFilter::Nearest;
     TextureFilter mipFilter = TextureFilter::Nearest;

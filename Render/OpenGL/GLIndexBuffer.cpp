@@ -34,4 +34,6 @@ void GLIndexBuffer::SetData(uint32 *indices, uint32 count)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32), indices, GLUtils::GetGLUsage(usage));
 
     this->count = count;
+
+    Unbind();
 }

@@ -31,6 +31,52 @@ public:
         return 0;
     }
 
+    static uint32 GetGLPixelFormat(PixelFormat format)
+    {
+        switch (format)
+        {
+        case PixelFormat::R8:
+            return GL_RED;
+        case PixelFormat::RGB888:
+            return GL_RGB;
+        case PixelFormat::RGBA8888:
+            return GL_RGBA;
+        }
+
+        CT_EXCEPTION(Render, "Unsupported pixel format!");
+        return 0;
+    }
+
+    static uint32 GetGLPixelDataType(PixelFormat format)
+    {
+        switch (format)
+        {
+        case PixelFormat::R8:
+        case PixelFormat::RGB888:
+        case PixelFormat::RGBA8888:
+            return GL_UNSIGNED_BYTE;
+        }
+
+        CT_EXCEPTION(Render, "Unsupported pixel format!");
+        return 0;
+    }
+
+    static uint32 GetGLPixelInternalFormat(PixelFormat format)
+    {
+        switch (format)
+        {
+        case PixelFormat::R8:
+            return GL_R8;
+        case PixelFormat::RGB888:
+            return GL_RGB8;
+        case PixelFormat::RGBA8888:
+            return GL_RGBA8;
+        }
+
+        CT_EXCEPTION(Render, "Unsupported pixel format!");
+        return 0;
+    }
+
     static uint32 GetGLTextureWrap(TextureWrap wrap)
     {
         switch (wrap)
@@ -58,6 +104,7 @@ public:
         case TextureFilter::Linear:
             return GL_LINEAR;
         }
+
         CT_EXCEPTION(Render, "Unsupported texture filter!");
         return 0;
     }
@@ -85,6 +132,7 @@ public:
             }
             break;
         }
+
         CT_EXCEPTION(Render, "Unsupported texture filter!");
         return 0;
     }

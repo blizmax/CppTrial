@@ -18,6 +18,13 @@ enum class VertexDataType
     UByte4,
 };
 
+enum class PixelFormat
+{
+    R8,
+    RGB888,
+    RGBA8888,
+};
+
 enum class TextureFilter
 {
     Nearest,

@@ -37,7 +37,7 @@ public:
     virtual bool Visible() const override;
     virtual bool Focused() const override;
 
-    virtual void *GetNativeHandler() const override
+    virtual void *GetNativeHandle() const override
     {
         return hwnd;
     }

@@ -77,7 +77,7 @@ void Renderer2D::Flush()
 
     ++drawCalls;
 
-    currentTexture->Bind();
+    currentTexture->Bind(0);
     //TODO
 }
 

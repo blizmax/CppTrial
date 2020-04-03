@@ -52,7 +52,7 @@ public:
     virtual bool Focused() const = 0;
 
     virtual void CreateNativeWindow(const WindowConfig &config) = 0;
-    virtual void *GetNativeHandler() const = 0;
+    virtual void *GetNativeHandle() const = 0;
 
     virtual String GetName() const override
     {

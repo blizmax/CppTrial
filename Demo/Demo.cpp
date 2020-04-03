@@ -143,7 +143,6 @@ public:
         vertexArray = VertexArray::Create();
         vertexArray->AddVertexBuffer(vertexBuffer);
         vertexArray->SetIndexBuffer(indexBuffer);
-        vertexArray->Unbind();
 
         texture = Texture::Create(CT_TEXT("Assets/Textures/wheel.png"));
 
@@ -198,7 +197,7 @@ public:
         totalTime += gApp->GetDeltaTime();
         shader->SetFloat(CT_TEXT("Time"), totalTime);
 
-        texture->Bind();
+        texture->Bind(0);
         vertexArray->Bind();
 
         RenderAPI::DrawIndexed(vertexArray);
