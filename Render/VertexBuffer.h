@@ -13,63 +13,7 @@ struct VertexAttribute
     VertexAttribute(const String &name, VertexDataType dataType, bool normalized = false)
         : name(name), dataType(dataType), normalized(normalized), offset(0)
     {
-        size = GetDataSize();
-    }
-
-    uint32 GetDataSize() const
-    {
-        switch (dataType)
-        {
-        case VertexDataType::Float1:
-            return 4;
-        case VertexDataType::Float2:
-            return 4 * 2;
-        case VertexDataType::Float3:
-            return 4 * 3;
-        case VertexDataType::Float4:
-            return 4 * 4;
-        case VertexDataType::Int1:
-            return 4;
-        case VertexDataType::Int2:
-            return 4 * 2;
-        case VertexDataType::Int3:
-            return 4 * 3;
-        case VertexDataType::Int4:
-            return 4 * 4;
-        case VertexDataType::UByte4:
-            return 4;
-        }
-
-        CT_EXCEPTION(Render, "Unknown data type!");
-        return 0;
-    }
-
-    uint32 GetComponentCount() const
-    {
-        switch (dataType)
-        {
-        case VertexDataType::Float1:
-            return 1;
-        case VertexDataType::Float2:
-            return 2;
-        case VertexDataType::Float3:
-            return 3;
-        case VertexDataType::Float4:
-            return 4;
-        case VertexDataType::Int1:
-            return 1;
-        case VertexDataType::Int2:
-            return 2;
-        case VertexDataType::Int3:
-            return 3;
-        case VertexDataType::Int4:
-            return 4;
-        case VertexDataType::UByte4:
-            return 4;
-        }
-
-        CT_EXCEPTION(Render, "Unknown data type!");
-        return 0;
+        size = Render::GetVertexDataSize(dataType);
     }
 };
 

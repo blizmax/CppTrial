@@ -156,9 +156,8 @@ void ImGuiLab::BindRenderer()
     uchar8 *pixels;
     int32 width, height;
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-
-    texture = Texture::Create(width, height);
-    texture->SetData(static_cast<void *>(pixels), width * height * 4);
+    auto pixmap = Pixmap::Create(width, height, PixelFormat::RGBA8888, pixels);
+    texture = Texture::Create(pixmap);
 
     //io.Fonts->TexID = 0;
 }

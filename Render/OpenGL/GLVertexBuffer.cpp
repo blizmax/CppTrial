@@ -1,5 +1,4 @@
 #include "Render/OpenGL/GLVertexBuffer.h"
-#include "Render/OpenGL/GLUtils.h"
 
 SPtr<VertexBuffer> VertexBuffer::Create(float *vertices, uint32 size, GpuBufferUsage usage)
 {
@@ -31,7 +30,7 @@ void GLVertexBuffer::Unbind() const
 void GLVertexBuffer::SetData(float *vertices, uint32 size)
 {
     Bind();
-    glBufferData(GL_ARRAY_BUFFER, size, vertices, GLUtils::GetGLUsage(usage));
+    glBufferData(GL_ARRAY_BUFFER, size, vertices, Render::GetGLUsage(usage));
 
     Unbind();
 }

@@ -1,5 +1,4 @@
 #include "Render/OpenGL/GLTexture.h"
-#include "Render/OpenGL/GLUtils.h"
 #include "Render/ImageLoader.h"
 
 SPtr<Texture> Texture::Create(uint32 width, uint32 height)
@@ -12,9 +11,15 @@ SPtr<Texture> Texture::Create(const String &path)
     return Memory::MakeShared<GLTexture>(path);
 }
 
-GLTexture::GLTexture(uint32 width, uint32 height) : width(width), height(height)
+SPtr<Texture> Texture::Create(const SPtr<Pixmap> &pixmap)
 {
-    uint32 internalFormat = GLUtils::GetGLPixelInternalFormat(format);
+    return Memory::MakeShared<GLTexture>(pixmap);
+}
+
+GLTexture::GLTexture(uint32 width, uint32 height)
+    : width(width), height(height)
+{
+    uint32 internalFormat = Render::GetGLPixelInternalFormat(format);
 
     glCreateTextures(GL_TEXTURE_2D, 1, &id);
     Bind();
@@ -52,9 +57,9 @@ GLTexture::GLTexture(const String &path)
     width = w;
     height = h;
 
-    uint32 internalFormat = GLUtils::GetGLPixelInternalFormat(format);
-    uint32 dataFormat = GLUtils::GetGLPixelFormat(format);
-    uint32 dataType = GLUtils::GetGLPixelDataType(format);
+    uint32 internalFormat = Render::GetGLPixelInternalFormat(format);
+    uint32 dataFormat = Render::GetGLPixelFormat(format);
+    uint32 dataType = Render::GetGLPixelDataType(format);
 
     glCreateTextures(GL_TEXTURE_2D, 1, &id);
     Bind();
@@ -71,17 +76,35 @@ GLTexture::GLTexture(const String &path)
     ImageLoader::Free(data);
 }
 
+GLTexture::GLTexture(const SPtr<Pixmap> &pixmap)
+    : width(pixmap->GetWidth()), height(pixmap->GetHeight()), format(pixmap->GetFormat())
+{
+    uint32 internalFormat = Render::GetGLPixelInternalFormat(format);
+
+    glCreateTextures(GL_TEXTURE_2D, 1, &id);
+    Bind();
+
+    glTextureStorage2D(id, 1, internalFormat, width, height);
+
+    SetMinFilter(minFilter);
+    SetMagFilter(magFilter);
+    SetUWrap(uWrap);
+    SetVWrap(vWrap);
+
+    SetData(pixmap->GetData(), pixmap->GetSize());
+}
+
 GLTexture::~GLTexture()
 {
     glDeleteTextures(1, &id);
 }
 
-void GLTexture::SetData(void *data, uint32 size)
+void GLTexture::SetData(const void *data, uint32 size)
 {
     Bind();
 
-    uint32 dataFormat = GLUtils::GetGLPixelFormat(format);
-    uint32 dataType = GLUtils::GetGLPixelDataType(format);
+    uint32 dataFormat = Render::GetGLPixelFormat(format);
+    uint32 dataType = Render::GetGLPixelDataType(format);
 
     glTextureSubImage2D(id, 0, 0, 0, width, height, dataFormat, dataType, data);
 }
@@ -103,11 +126,11 @@ void GLTexture::SetMinFilter(TextureFilter filter)
     minFilter = filter;
     if (useMip)
     {
-        glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GLUtils::GetGLMinMipFilter(minFilter, mipFilter));
+        glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, Render::GetGLMinMipFilter(minFilter, mipFilter));
     }
     else
     {
-        glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GLUtils::GetGLTextureFilter(filter));
+        glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, Render::GetGLTextureFilter(filter));
     }
 }
 
@@ -117,7 +140,7 @@ void GLTexture::SetMagFilter(TextureFilter filter)
 
     magFilter = filter;
 
-    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GLUtils::GetGLTextureFilter(filter));
+    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, Render::GetGLTextureFilter(filter));
 }
 
 void GLTexture::SetMipFilter(TextureFilter filter)
@@ -127,7 +150,7 @@ void GLTexture::SetMipFilter(TextureFilter filter)
     mipFilter = filter;
     if (useMip)
     {
-        glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GLUtils::GetGLMinMipFilter(minFilter, mipFilter));
+        glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, Render::GetGLMinMipFilter(minFilter, mipFilter));
     }
 }
 
@@ -137,7 +160,7 @@ void GLTexture::SetUWrap(TextureWrap wrap)
 
     uWrap = wrap;
 
-    glTextureParameteri(id, GL_TEXTURE_WRAP_S, GLUtils::GetGLTextureWrap(wrap));
+    glTextureParameteri(id, GL_TEXTURE_WRAP_S, Render::GetGLTextureWrap(wrap));
 }
 
 void GLTexture::SetVWrap(TextureWrap wrap)
@@ -146,5 +169,5 @@ void GLTexture::SetVWrap(TextureWrap wrap)
 
     vWrap = wrap;
 
-    glTextureParameteri(id, GL_TEXTURE_WRAP_T, GLUtils::GetGLTextureWrap(wrap));
+    glTextureParameteri(id, GL_TEXTURE_WRAP_T, Render::GetGLTextureWrap(wrap));
 }

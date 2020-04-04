@@ -1,5 +1,4 @@
 #include "Render/OpenGL/GLIndexBuffer.h"
-#include "Render/OpenGL/GLUtils.h"
 
 SPtr<IndexBuffer> IndexBuffer::Create(uint32 *indices, uint32 count, GpuBufferUsage usage)
 {
@@ -31,7 +30,7 @@ void GLIndexBuffer::Unbind() const
 void GLIndexBuffer::SetData(uint32 *indices, uint32 count)
 {
     Bind();
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32), indices, GLUtils::GetGLUsage(usage));
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32), indices, Render::GetGLUsage(usage));
 
     this->count = count;
 

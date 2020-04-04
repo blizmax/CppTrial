@@ -144,7 +144,10 @@ public:
         vertexArray->AddVertexBuffer(vertexBuffer);
         vertexArray->SetIndexBuffer(indexBuffer);
 
-        texture = Texture::Create(CT_TEXT("Assets/Textures/wheel.png"));
+        //texture = Texture::Create(CT_TEXT("Assets/Textures/wheel.png"));
+        auto pixmap = Pixmap::Create(100, 100);
+        pixmap->Fill(Color::GREEN);
+        texture = Texture::Create(pixmap);
 
         watcher = Memory::MakeUnique<IO::FileWatcher>(
             CT_TEXT("Assets/Shaders"),

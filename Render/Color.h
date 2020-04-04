@@ -166,6 +166,11 @@ public:
         return (b - a) * t + a;
     }
 
+    static uint8 GetAlpha(const Color &color)
+    {
+        return static_cast<uint8>(color.a * 255);
+    }
+
     static Color FromRGBA(uint32 value)
     {
         float r = value >> 24;
@@ -177,10 +182,10 @@ public:
 
     static uint32 ToRGBA(const Color &color)
     {
-        uint8 r = static_cast<uint8>(color.r * 255);
-        uint8 g = static_cast<uint8>(color.g * 255);
-        uint8 b = static_cast<uint8>(color.b * 255);
-        uint8 a = static_cast<uint8>(color.a * 255);
+        uint32 r = static_cast<uint8>(color.r * 255);
+        uint32 g = static_cast<uint8>(color.g * 255);
+        uint32 b = static_cast<uint8>(color.b * 255);
+        uint32 a = static_cast<uint8>(color.a * 255);
         return (r << 24) | (g << 16) | (b << 8) | (a << 0);
     }
 

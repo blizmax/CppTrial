@@ -8,9 +8,10 @@ class GLTexture : public Texture
 public:
     GLTexture(uint32 width, uint32 height);
     GLTexture(const String &path);
+    GLTexture(const SPtr<Pixmap> &pixmap);
     virtual ~GLTexture();
 
-    virtual void SetData(void *data, uint32 size) override;
+    virtual void SetData(const void *data, uint32 size) override;
     virtual void Bind(int32 slot = -1) const override;
 
     virtual void SetMinFilter(TextureFilter filter) override;

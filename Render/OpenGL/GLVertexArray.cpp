@@ -1,5 +1,4 @@
 #include "Render/OpenGL/GLVertexArray.h"
-#include "Render/OpenGL/GLUtils.h"
 
 SPtr<VertexArray> VertexArray::Create()
 {
@@ -37,8 +36,8 @@ void GLVertexArray::AddVertexBuffer(const SPtr<VertexBuffer> &buffer)
         glEnableVertexAttribArray(vertexBufferIndex);
         glVertexAttribPointer(
             vertexBufferIndex,
-            attr.GetComponentCount(),
-            GLUtils::GetGLDataType(attr.dataType),
+            Render::GetVertexDataComponentCount(attr.dataType),
+            Render::GetGLDataType(attr.dataType),
             attr.normalized ? GL_TRUE : GL_FALSE,
             layout.GetStride(),
             reinterpret_cast<void *>(attr.offset));
