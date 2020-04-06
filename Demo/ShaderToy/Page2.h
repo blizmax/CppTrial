@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Demo/Page.h"
+#include "Demo/ShaderToy/Page.h"
 
 class Page2 : public Page
 {

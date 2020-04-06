@@ -12,6 +12,6 @@ public:
 
     static String GetShaderDirectory()
     {
-        return CT_TEXT("Assets/Shaders/Demos/");
+        return CT_TEXT("Assets/Shaders/ShaderToy/");
     }
 };

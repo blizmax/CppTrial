@@ -7,13 +7,15 @@
 #include "Render/Texture.h"
 #include "IO/FileWatcher.h"
 #include "Core/Thread.h"
-#include "Demo/Page1.h"
-#include "Demo/Page2.h"
-#include "Demo/Page3.h"
-#include "Demo/Page4.h"
-#include "Demo/Page5.h"
+#include "Demo/ShaderToy/Page1.h"
+#include "Demo/ShaderToy/Page2.h"
+#include "Demo/ShaderToy/Page3.h"
+#include "Demo/ShaderToy/Page4.h"
+#include "Demo/ShaderToy/Page5.h"
+#include "Demo/ShaderToy/Page6.h"
+#include "Demo/ShaderToy/Page7.h"
 
-class Demon : public Logic
+class ShaderToy : public Logic
 {
 private:
     SPtr<VertexArray> vertexArray;
@@ -35,8 +37,9 @@ private:
             []() { return Page2::Create(); },
             []() { return Page3::Create(); },
             []() { return Page4::Create(); },
-            []() { return Page5::Create(); }
-        };
+            []() { return Page5::Create(); },
+            []() { return Page6::Create(); },
+            []() { return Page7::Create(); }};
 
         if (index < 0 || index >= creators.Count())
         {
@@ -96,7 +99,7 @@ public:
         });
 
         gImGuiLab->drawHandler.On([this]() {
-            ImGui::Begin("Demo");
+            ImGui::Begin("ShaderToy");
             ImGui::AlignTextToFramePadding();
             ImGui::Text("Current page: %d", pageIndex);
             ImGui::SameLine();
@@ -118,19 +121,17 @@ public:
             ImGui::End();
         });
 
-        float vertexData[] = 
-        {
-            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-            0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
-            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f
-        };
+        float vertexData[] =
+            {
+                -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+                0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+                0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
+                -0.5f, 0.5f, 0.0f, 0.0f, 1.0f};
 
-        uint32 indexData[] = 
-        {
-            0, 1, 2,
-            2, 3, 0
-        };
+        uint32 indexData[] =
+            {
+                0, 1, 2,
+                2, 3, 0};
 
         auto vertexBuffer = VertexBuffer::Create(vertexData, sizeof(vertexData));
         vertexBuffer->SetLayout({
@@ -187,8 +188,8 @@ public:
         page->OnShaderUpdate(shader);
 
         float factor = 3.0f;
-        //Matrix4 rotateMat = Matrix4::Rotate(Vector3(0.0f, 0.0f, 1.0f), 30.0f * Math::DEG_TO_RAD);
-        Matrix4 rotateMat = Matrix4::Rotate(0.0f, 0.0f, 30.0f * Math::DEG_TO_RAD);
+        //Matrix4 rotateMat = Matrix4::Rotate(0.0f, 0.0f, 30.0f * Math::DEG_TO_RAD);
+        Matrix4 rotateMat = Matrix4();
         Matrix4 scaleMat = Matrix4::Scale(texture->GetWidth() * factor, texture->GetHeight() * factor, 1.0f);
 
         shader->SetMatrix4(CT_TEXT("Model"), scaleMat * rotateMat);
@@ -209,5 +210,5 @@ public:
     }
 };
 
-Demon demon;
+ShaderToy demon;
 Logic *gLogic = &demon;

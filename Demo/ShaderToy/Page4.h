@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Demo/Page.h"
+#include "Demo/ShaderToy/Page.h"
 
-class Page5 : public Page
+class Page4 : public Page
 {
 public:
     virtual String GetName() override
     {
-        return CT_TEXT("Hello 3D");
+        return CT_TEXT("Color Wheel(HSV)");
     }
 
     virtual void OnImGuiDraw() override
@@ -20,6 +20,6 @@ public:
 
     static UPtr<Page> Create()
     {
-        return Memory::MakeUnique<Page5>();
+        return Memory::MakeUnique<Page4>();
     }
 };
