@@ -21,12 +21,9 @@ target_link_libraries(Application Utils)
 target_link_libraries(Application IO)
 target_link_libraries(Application Reflection)
 target_link_libraries(Application Json)
+target_link_libraries(Application Render)
 
 target_link_libraries(Application freetype)
-
-if(CT_USE_OPENGL)
-    target_link_libraries(Application RenderOpenGL)
-endif(CT_USE_OPENGL)
 
 if(WIN32)
     target_link_libraries(Application ApplicationWindows)
