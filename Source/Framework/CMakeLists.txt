@@ -1,0 +1,16 @@
+add_subdirectory(Utils)
+add_subdirectory(Math)
+add_subdirectory(IO)
+add_subdirectory(Reflection)
+add_subdirectory(Json)
+add_subdirectory(Assets)
+add_subdirectory(Render)
+add_subdirectory(RenderOpenGL)
+
+if(CT_USE_VULKAN)
+    add_subdirectory(RenderVulkan)
+endif()
+
+if(WIN32)
+    add_subdirectory(Application)
+endif()
