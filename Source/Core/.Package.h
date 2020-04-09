@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstdint>
 #include <initializer_list>
+#include <typeindex>
 
 #include "debugbreak.h"
 
@@ -16,7 +17,11 @@
 #define CT_ASSERT(cond) assert(cond)
 
 #if CT_DEBUG
-#define CT_CHECK(cond) if(!(cond)) {CT_DEBUG_BREAK();}
+#define CT_CHECK(cond)    \
+    if (!(cond))          \
+    {                     \
+        CT_DEBUG_BREAK(); \
+    }
 #else
 #define CT_CHECK(cond)
 #endif
@@ -46,3 +51,9 @@ constexpr int32 INDEX_NONE = -1;
 
 typedef wchar CharType;
 typedef size_t SizeType;
+
+template <typename T>
+CT_INLINE std::type_index TypeIndexOf()
+{
+    return std::type_index(typeid(T));
+}

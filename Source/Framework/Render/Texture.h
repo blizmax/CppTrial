@@ -2,8 +2,9 @@
 
 #include "Render/.Package.h"
 #include "Render/Pixmap.h"
+#include "Assets/AssetObject.h"
 
-class Texture
+class Texture : public AssetObject
 {
 public:
     virtual ~Texture() = default;

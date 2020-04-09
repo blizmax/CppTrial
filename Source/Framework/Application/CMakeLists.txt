@@ -22,6 +22,7 @@ target_link_libraries(Application IO)
 target_link_libraries(Application Reflection)
 target_link_libraries(Application Json)
 target_link_libraries(Application Render)
+target_link_libraries(Application Assets)
 
 target_link_libraries(Application freetype)
 

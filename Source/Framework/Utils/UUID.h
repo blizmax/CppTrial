@@ -17,28 +17,51 @@
 class UUID
 {
 public:
+    static const UUID EMPTY;
+
     UUID();
-    UUID(const UUID &other) = default;
-    UUID(UUID &&other) = default;
-    UUID &operator=(const UUID &other) = default;
-    UUID &operator=(UUID &&other) = default;
+    UUID(const UUID &) = default;
+    UUID(UUID &&)
+    noexcept = default;
+    UUID &operator=(const UUID &) = default;
+    UUID &operator=(UUID &&) noexcept = default;
     ~UUID() = default;
 
-    void Swap(UUID &other)
+    void Swap(UUID &other) noexcept
     {
         data.Swap(other.data);
     }
 
-    bool IsValid() const;
+    bool IsEmpty() const
+    {
+        for (int32 i = 0; i < data.Count(); ++i)
+        {
+            if (data[i] != 0)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool IsValid() const
+    {
+        return IsEmpty();
+    }
+
+    void Reset()
+    {
+        for (int32 i = 0; i < data.Count(); ++i)
+        {
+            data[i] = 0;
+        }
+    }
+
     String ToString() const;
     uint32 HashCode() const;
 
     bool operator==(const UUID &other) const
     {
-        if (data.Count() != other.data.Count())
-        {
-            return false;
-        }
         for (int32 i = 0; i < data.Count(); ++i)
         {
             if (data[i] != other.data[i])
@@ -56,14 +79,6 @@ public:
 
     bool operator<(const UUID &other) const
     {
-        if (data.Count() < other.data.Count())
-        {
-            return true;
-        }
-        if (data.Count() > other.data.Count())
-        {
-            return false;
-        }
         for (int32 i = 0; i < data.Count(); ++i)
         {
             if (other.data[i] < data[i])
@@ -73,6 +88,8 @@ public:
         }
         return true;
     }
+
+    static UUID Generate();
 
 private:
     Array<uint8> data = Array<uint8>(16);

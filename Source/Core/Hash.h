@@ -104,6 +104,11 @@ CT_INLINE uint32 HashValue(const CharT *ptr)
     return (hash & 0x7FFFFFFF);
 }
 
+CT_INLINE uint32 HashValue(const std::type_index &value)
+{
+    return static_cast<uint32>(value.hash_code());
+}
+
 template <typename T>
 CT_INLINE uint32 HashValue(T *ptr)
 {

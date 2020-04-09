@@ -21,49 +21,50 @@ static uint32 GetMachineID()
     return fakeID;
 }
 
-UUID::UUID()
+const UUID UUID::EMPTY;
+
+UUID UUID::Generate()
 {
+    UUID result;
+
     uint64 time = Time::MilliTime();
     for (int32 i = 5; i >= 0; --i)
     {
         uint8 v = (uint8)((time >> (i * 8)) & 0xFF);
-        data.Add(v);
+        result.data.Add(v);
     }
 
     uint32 runtimeId = NextRuntimeID();
     for (int32 i = 3; i >= 0; --i)
     {
         uint8 v = (uint8)((runtimeId >> (i * 8)) & 0xFF);
-        data.Add(v);
+        result.data.Add(v);
     }
 
     uint32 threadId = GetCurrentThreadID();
     for (int32 i = 1; i >= 0; --i)
     {
         uint8 v = (uint8)((threadId >> (i * 8)) & 0xFF);
-        data.Add(v);
+        result.data.Add(v);
     }
 
     uint32 machineId = GetMachineID();
     for (int32 i = 3; i >= 0; --i)
     {
         uint8 v = (uint8)((machineId >> (i * 8)) & 0xFF);
-        data.Add(v);
+        result.data.Add(v);
     }
+
+    return result;
 }
 
-bool UUID::IsValid() const
+UUID::UUID()
 {
-    return data.Count() == 16;
+    Reset();
 }
 
 String UUID::ToString() const
 {
-    if (!IsValid())
-    {
-        return String();
-    }
-
     CharType output[37];
     output[8] = output[13] = output[18] = output[23] = CT_TEXT('-');
     output[36] = 0;

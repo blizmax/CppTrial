@@ -1,5 +1,6 @@
 #include "Application/Application.h"
 #include "Render/RenderManager.h"
+#include "Assets/AssetManager.h"
 #include "Core/Time.h"
 
 #include "Application/ImGuiLab.h"
@@ -29,6 +30,9 @@ void Application::Init()
 {
     gRenderManager->Startup();
     CT_LOG(Info, CT_TEXT("RenderManager startup."));
+
+    gAssetManager->Startup();
+    CT_LOG(Info, CT_TEXT("AssetManager startup."));
 
     gImGuiLab->Startup();
     CT_LOG(Info, CT_TEXT("ImGuiLab startup."));
