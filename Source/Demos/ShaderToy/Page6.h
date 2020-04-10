@@ -2,7 +2,7 @@
 
 #include "Demos/ShaderToy/Page.h"
 
-class Page6 : public Page
+class Page6 : public TPage<Page6>
 {
 public:
     virtual String GetName() override
@@ -16,10 +16,5 @@ public:
 
     virtual void OnShaderUpdate(SPtr<Shader> &shader) override
     {
-    }
-
-    static UPtr<Page> Create()
-    {
-        return Memory::MakeUnique<Page6>();
     }
 };

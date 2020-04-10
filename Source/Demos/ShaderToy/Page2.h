@@ -2,7 +2,7 @@
 
 #include "Demos/ShaderToy/Page.h"
 
-class Page2 : public Page
+class Page2 : public TPage<Page2>
 {
 public:
     float progress = 0.0f;
@@ -20,10 +20,5 @@ public:
     virtual void OnShaderUpdate(SPtr<Shader> &shader) override
     {
         shader->SetFloat(CT_TEXT("Progress"), progress);
-    }
-
-    static UPtr<Page> Create()
-    {
-        return Memory::MakeUnique<Page2>();
     }
 };

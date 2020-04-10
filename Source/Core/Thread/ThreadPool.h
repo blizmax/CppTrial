@@ -13,8 +13,7 @@ public:
 
     ThreadProxy()
     {
-        thread = Memory::MakeUnique<std::thread>([this]()
-        {
+        thread = Memory::MakeUnique<std::thread>([this]() {
             this->Run();
         });
     }
@@ -22,6 +21,8 @@ public:
     ~ThreadProxy()
     {
         Wait();
+
+        startedCond.notify_one();
 
         thread->join();
     }
@@ -60,36 +61,35 @@ public:
     void Wait()
     {
         std::unique_lock<std::mutex> lock(mutex);
-        while(running)
+        while (running)
             finishedCond.wait(lock);
     }
 
     void WaitByID(int32 id)
     {
         std::unique_lock<std::mutex> lock(mutex);
-        while(running && id == workID)
+        while (running && id == workID)
             finishedCond.wait(lock);
     }
 
 private:
     void Run()
     {
-        while(true)
+        while (true)
         {
             WorkFunc func = nullptr;
 
             {
                 std::unique_lock<std::mutex> lock(mutex);
-                if(!running)
+                if (!running)
                     startedCond.wait(lock);
 
                 func = worker;
             }
 
-            if(func != nullptr)
-            {
-                func();
-            }
+            if (!func)
+                return;
+            func();
 
             {
                 std::unique_lock<std::mutex> lock(mutex);
@@ -102,6 +102,7 @@ private:
 
 private:
     String name;
+    class ThreadPool *pool;
     WorkFunc worker = nullptr;
     UPtr<std::thread> thread;
     mutable std::mutex mutex;
@@ -128,22 +129,29 @@ public:
 
         void Wait()
         {
-            proxy->WaitByID(workID);
+            auto ptr = proxy.lock();
+            if (ptr)
+                ptr->WaitByID(workID);
         }
 
     private:
-        SPtr<ThreadProxy> proxy;
+        WPtr<ThreadProxy> proxy;
         int32 workID;
     };
 
     ThreadPool(int32 initCapacity = MAX_CAPACITY)
     {
-        capacity = initCapacity;
+        if (initCapacity > MAX_CAPACITY)
+        {
+            CT_LOG(Warning, CT_TEXT("Init capacity cannot be greater than {0}."), MAX_CAPACITY);
+        }
+
+        capacity = initCapacity > MAX_CAPACITY ? MAX_CAPACITY : initCapacity;
     }
 
     ~ThreadPool()
     {
-        proxies.Clear();
+        StopAll();
     }
 
     const int32 Capacity() const
@@ -156,9 +164,9 @@ public:
         int32 num = 0;
 
         std::unique_lock<std::mutex> lock(mutex);
-        for(auto &e : proxies)
+        for (auto &e : proxies)
         {
-            if(e->IsRunning())
+            if (e->IsRunning())
                 ++num;
         }
         return num;
@@ -169,9 +177,9 @@ public:
         int32 num = 0;
 
         std::unique_lock<std::mutex> lock(mutex);
-        for(auto &e : proxies)
+        for (auto &e : proxies)
         {
-            if(!e->IsRunning())
+            if (!e->IsRunning())
                 ++num;
         }
         return num;
@@ -183,8 +191,10 @@ public:
         return proxies.Count();
     }
 
-    Handle Run(const String &name, WorkFunc func)
+    Handle Execute(const String &name, WorkFunc func)
     {
+        CT_CHECK(func != nullptr);
+
         std::unique_lock<std::mutex> lock(mutex);
 
         SPtr<ThreadProxy> proxy = GetAvailableProxyUnlocked();
@@ -203,13 +213,13 @@ public:
 private:
     SPtr<ThreadProxy> GetAvailableProxyUnlocked()
     {
-        for(auto &e : proxies)
+        for (auto &e : proxies)
         {
-            if(!e->IsRunning())
+            if (!e->IsRunning())
                 return e;
         }
 
-        if(proxies.Count() < MAX_CAPACITY)
+        if (proxies.Count() < capacity)
         {
             proxies.Add(Memory::MakeShared<ThreadProxy>());
             return proxies.Last();

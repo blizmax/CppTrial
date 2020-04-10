@@ -1,4 +1,5 @@
 #include "Application/Application.h"
+#include "Application/ThreadManager.h"
 #include "Application/ImGuiLab.h"
 #include "Render/Shader.h"
 #include "Render/RenderAPI.h"
@@ -14,6 +15,7 @@
 #include "Demos/ShaderToy/Page5.h"
 #include "Demos/ShaderToy/Page6.h"
 #include "Demos/ShaderToy/Page7.h"
+#include "Demos/ShaderToy/Page8.h"
 
 class ShaderToy : public Logic
 {
@@ -39,7 +41,8 @@ private:
             []() { return Page4::Create(); },
             []() { return Page5::Create(); },
             []() { return Page6::Create(); },
-            []() { return Page7::Create(); }};
+            []() { return Page7::Create(); },
+            []() { return Page8::Create(); }};
 
         if (index < 0 || index >= creators.Count())
         {
@@ -159,10 +162,10 @@ public:
                 }
             });
 
-        std::thread watchThread([this]() {
+        gThreadManager->Execute(CT_TEXT("ShaderToy watcher"), [this]() 
+        {
             watcher->Start();
         });
-        watchThread.detach();
     }
 
     virtual void Shutdown() override

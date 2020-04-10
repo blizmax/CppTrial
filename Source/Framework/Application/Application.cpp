@@ -1,4 +1,5 @@
 #include "Application/Application.h"
+#include "Application/ThreadManager.h"
 #include "Render/RenderManager.h"
 #include "Assets/AssetManager.h"
 #include "Core/Time.h"
@@ -19,6 +20,10 @@ void Application::PreInit(const WindowConfig &config)
     gDebugManager->Startup();
     CT_LOG(Info, CT_TEXT("DebugManager startup."));
 #endif
+
+    gThreadManager->Startup();
+    CT_LOG(Info, CT_TEXT("ThreadManager startup."));
+
     window = Window::Create(config);
     CT_LOG(Info, CT_TEXT("Primary window created."));
     
@@ -57,6 +62,8 @@ void Application::Run()
         ++frames;
         ++totalFrames;
 
+        gThreadManager->Tick();
+
         CT_PROFILE_SESSION_BEGIN(CT_TEXT("Logic"));
         gLogic->Tick();
 
@@ -77,13 +84,20 @@ void Application::Run()
 void Application::Exit()
 {
     gLogic->Shutdown();
+    CT_LOG(Info, CT_TEXT("Logic shutdown."));
 
     gImGuiLab->Shutdown();
+    CT_LOG(Info, CT_TEXT("ImGui shutdown."));
 
     gRenderManager->Shutdown();
+    CT_LOG(Info, CT_TEXT("RenderManager shutdown."));
+
+    gThreadManager->Shutdown();
+    CT_LOG(Info, CT_TEXT("ThreadManager shutdown."));
 
 #if CT_DEBUG
     gDebugManager->Shutdown();
+    CT_LOG(Info, CT_TEXT("DebugManager shutdown."));
 #endif
 }
 

@@ -14,7 +14,7 @@ void FileWatcher::Start()
 
     while (running)
     {
-        std::this_thread::sleep_for(Time::Milliseconds(interval));
+        Thread::SleepFor(interval);
 
         Array<String> removedPaths;
         for (const auto &entry : pathMap)
@@ -56,4 +56,4 @@ void FileWatcher::Stop()
 {
     running = false;
 }
-} // namespace IO
+}

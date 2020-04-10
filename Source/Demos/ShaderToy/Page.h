@@ -15,3 +15,13 @@ public:
         return CT_TEXT("Assets/Shaders/ShaderToy/");
     }
 };
+
+template <typename T>
+class TPage : public Page
+{
+public:
+    static UPtr<TPage> Create()
+    {
+        return Memory::MakeUnique<T>();
+    }
+};
