@@ -41,7 +41,7 @@ UUID UUID::Generate()
         result.data.Add(v);
     }
 
-    uint32 threadId = GetCurrentThreadID();
+    uint32 threadId = Thread::GetCurrentThreadID();
     for (int32 i = 1; i >= 0; --i)
     {
         uint8 v = (uint8)((threadId >> (i * 8)) & 0xFF);
