@@ -24,7 +24,7 @@ bool AssetManager::IsExtensionSupported(const String &ext) const
     return GetImporter(ext) != nullptr;
 }
 
-const SPtr<AssetImporter> &AssetManager::GetImporter(const String &ext) const
+SPtr<AssetImporter> AssetManager::GetImporter(const String &ext) const
 {
     for (const auto &[k, v] : importers)
     {
@@ -57,16 +57,19 @@ APtr<AssetObject> AssetManager::Import(const String &path, const SPtr<AssetImpor
 APtr<AssetObject> AssetManager::ImportAsync(const String &path, const SPtr<AssetImportSettings> &settings)
 {
     //TODO
+    return nullptr;
 }
 
 APtr<AssetObject> AssetManager::Load(const String &path)
 {
     //TODO
+    return nullptr;
 }
 
 APtr<AssetObject> AssetManager::LoadAsync(const String &path)
 {
     //TODO
+    return nullptr;
 }
 
 void AssetManager::UnloadAll()

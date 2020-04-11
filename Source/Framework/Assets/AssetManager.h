@@ -18,7 +18,7 @@ public:
     APtr<AssetObject> Import(const String &path, const SPtr<AssetImportSettings> &settings = nullptr);
     APtr<AssetObject> ImportAsync(const String &path, const SPtr<AssetImportSettings> &settings = nullptr);
     bool IsExtensionSupported(const String &ext) const;
-    const SPtr<AssetImporter> &GetImporter(const String &ext) const;
+    SPtr<AssetImporter> GetImporter(const String &ext) const;
 
     APtr<AssetObject> Load(const String &path);
     APtr<AssetObject> LoadAsync(const String &path);
@@ -33,7 +33,7 @@ public:
     }
 
     template <typename T>
-    const SPtr<AssetImporter> &GetImporter() const
+    SPtr<AssetImporter> GetImporter() const
     {
         auto ptr = importers.TryGet(TypeIndexOf<T>());
         return *ptr;

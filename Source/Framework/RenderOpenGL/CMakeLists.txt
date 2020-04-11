@@ -10,8 +10,8 @@ aux_source_directory(. DIR_RENDER_OPENGL)
 add_library(RenderOpenGL
     ${DIR_RENDER_OPENGL}
     ${DIR_RENDER_OPENGL_PLATFORM}
-    ${PROJECT_SOURCE_DIR}/External/Common/glad/src/glad.c
-    ${PROJECT_SOURCE_DIR}/External/Common/glad/src/glad_wgl.c
+    ${CT_EXTERNAL_DIR}/glad/src/glad.c
+    ${CT_EXTERNAL_DIR}/glad/src/glad_wgl.c
 )
 
 target_link_libraries(RenderOpenGL

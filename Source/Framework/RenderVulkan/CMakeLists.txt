@@ -1,5 +1,5 @@
 if (WIN32)
-    find_library(VULKAN_LIBRARY NAMES vulkan-1 vulkan PATHS ${CT_EXTERNAL_COMMON}/vulkan/lib)
+    find_library(VULKAN_LIBRARY NAMES vulkan-1 vulkan PATHS ${CT_EXTERNAL_DIR}/vulkan/lib)
     if (VULKAN_LIBRARY)
         set(VULKAN_FOUND ON)
         message("<${PROJECT_NAME}> Using Vulkan version from External directory.")
