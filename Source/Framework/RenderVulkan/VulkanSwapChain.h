@@ -7,6 +7,10 @@ namespace RenderCore
 class VulkanSwapChain
 {
 public:
+    VulkanSwapChain();
+
+    void Rebuild(VkSurfaceKHR surface);
+
     static SPtr<VulkanSwapChain> Create();
 
 private:

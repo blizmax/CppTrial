@@ -13,10 +13,17 @@ public:
 
     virtual void SetRenderPipeline(const SPtr<RenderPipeline> &pipeline) override;    
 
-private:
-    void GetExtensions(Array<const char8 *> &result);
-    void GetValidationLayers(Array<const char8 *> &result);
+    VkInstance GetInstanceHandle() const
+    {
+        return instance;
+    }
 
+    const UPtr<VulkanDevice> &GetDevice() const
+    {
+        return device;
+    }
+
+private:
     void CreateInstance();
     void CreateDebugger();
     void CreateDevice();
@@ -24,7 +31,7 @@ private:
 private:    
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
-    SPtr<VulkanDevice> device;
+    UPtr<VulkanDevice> device;
 
     bool enableValidationLayers = false;
 };   

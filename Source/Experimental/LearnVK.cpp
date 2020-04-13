@@ -4,61 +4,46 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "RenderVulkan/VulkanRenderAPI.h"
+using namespace RenderCore;
+
+VulkanRenderAPI renderAPI;
+
 const int32 WIDTH = 800;
 const int32 HEIGHT = 600;
 
-GLFWwindow *window;
-VkInstance instance;
+bool enableValidationLayers = true;
 
-void CreateInstance()
+struct WindowData
 {
-    VkApplicationInfo appInfo = {};
-    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "LearnVK";
-    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.pEngineName = "WIP";
-    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_0;
-
-    VkInstanceCreateInfo createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.pApplicationInfo = &appInfo;
-
-    uint32 glfwExtensionCount = 0;
-    const char8**glfwExtensions;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-    createInfo.enabledExtensionCount = glfwExtensionCount;
-    createInfo.ppEnabledExtensionNames = glfwExtensions;
-
-    createInfo.enabledLayerCount = 0;
-
-    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
-    {
-        CT_EXCEPTION(LearnVK, "Create instance error.");
-    }
-
-    CT_LOG(Info, CT_TEXT("Create instance done."));
-
-    uint32 extensionCount = 0;
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-    Array<VkExtensionProperties> extensions;
-    extensions.AppendUninitialized(extensionCount);
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.GetData());
-    for (const auto &extension : extensions)
-    {
-        CT_LOG(Info, CT_TEXT("Extension: {0}"), String(extension.extensionName));
-    }
-}
+    GLFWwindow *window;
+    VkSurfaceKHR surface;
+};
+WindowData windowData;
 
 void InitVulkan()
 {
-    CreateInstance();
+    renderAPI.Init();
+
+    if (glfwCreateWindowSurface(renderAPI.GetInstanceHandle(), windowData.window, gVulkanAlloc, &windowData.surface) != VK_SUCCESS)
+    {
+        CT_EXCEPTION(LearnVK, "Create surface failed.");
+    }
+    VkBool32 supportsPresent;
+    auto physicalDevice = renderAPI.GetDevice()->GetPhysicalDeviceHandle();
+    auto familyIndex = renderAPI.GetDevice()->GetGraphicsQueueFamilyIndex();
+    vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, familyIndex, windowData.surface, &supportsPresent);
+    if (!supportsPresent)
+    {
+        CT_EXCEPTION(LearnVK, "Graphics queue cannot support presentation.");
+    }
 }
 
 void CleanupVulkan()
 {
-    vkDestroyInstance(instance, nullptr);
+    vkDestroySurfaceKHR(renderAPI.GetInstanceHandle(), windowData.surface, gVulkanAlloc);
+
+    renderAPI.Destroy();
 }
 
 int main(int argc, char **argv)
@@ -67,18 +52,18 @@ int main(int argc, char **argv)
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    window = glfwCreateWindow(WIDTH, HEIGHT, "LearnVK", nullptr, nullptr);
+    windowData.window = glfwCreateWindow(WIDTH, HEIGHT, "LearnVK", nullptr, nullptr);
 
     InitVulkan();
 
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(windowData.window))
     {
         glfwPollEvents();
     }
 
     CleanupVulkan();
 
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(windowData.window);
     glfwTerminate();
 
     return 0;

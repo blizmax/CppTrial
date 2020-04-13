@@ -49,36 +49,11 @@ void VulkanRenderAPI::Init()
 
 void VulkanRenderAPI::Destroy()
 {
-    vkDestroyInstance(instance, gVulkanAlloc);
+    device.reset();
 
     if (enableValidationLayers)
         DestroyDebugUtilsMessengerEXT(instance, debugMessenger, gVulkanAlloc);
-}
-
-void VulkanRenderAPI::SetRenderPipeline(const SPtr<RenderPipeline> &pipeline)
-{
-}
-
-void VulkanRenderAPI::GetExtensions(Array<const char8 *> &result)
-{
-    result.Clear();
-
-    result.Add(VK_KHR_SURFACE_EXTENSION_NAME);
-
-#if CT_PLATFORM_WIN32
-    result.Add("VK_KHR_win32_surface");
-#endif
-
-    if (enableValidationLayers)
-        result.Add(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-}
-
-void VulkanRenderAPI::GetValidationLayers(Array<const char8 *> &result)
-{
-    result.Clear();
-
-    if (enableValidationLayers)
-        result.Add("VK_LAYER_LUNARG_standard_validation");
+    vkDestroyInstance(instance, gVulkanAlloc);
 }
 
 void VulkanRenderAPI::CreateInstance()
@@ -92,19 +67,27 @@ void VulkanRenderAPI::CreateInstance()
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_0;
 
-    Array<const char8 *> tempArr;
+    Array<const char8 *> extensions;
+    extensions.Add(VK_KHR_SURFACE_EXTENSION_NAME);
+#if CT_PLATFORM_WIN32
+        extensions.Add("VK_KHR_win32_surface");
+#endif
+    if (enableValidationLayers)
+        extensions.Add(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
+    Array<const char8 *> validationLayers;
+    if (enableValidationLayers)
+        validationLayers.Add("VK_LAYER_LUNARG_standard_validation");
 
     VkInstanceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pNext = nullptr;
     createInfo.flags = 0;
     createInfo.pApplicationInfo = &appInfo;
-    GetExtensions(tempArr);
-    createInfo.enabledExtensionCount = tempArr.Count();
-    createInfo.ppEnabledExtensionNames = tempArr.GetData();
-    GetValidationLayers(tempArr);
-    createInfo.enabledLayerCount = tempArr.Count();
-    createInfo.ppEnabledLayerNames = tempArr.GetData();
+    createInfo.enabledExtensionCount = extensions.Count();
+    createInfo.ppEnabledExtensionNames = extensions.GetData();
+    createInfo.enabledLayerCount = validationLayers.Count();
+    createInfo.ppEnabledLayerNames = validationLayers.GetData();
 
     if (vkCreateInstance(&createInfo, gVulkanAlloc, &instance) != VK_SUCCESS)
     {
@@ -119,6 +102,7 @@ void VulkanRenderAPI::CreateDebugger()
 
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    createInfo.flags = 0;
     createInfo.pNext = nullptr;
     createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;

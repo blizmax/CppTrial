@@ -10,7 +10,22 @@ public:
     VulkanDevice(VkPhysicalDevice device);
     ~VulkanDevice();
 
-    static SPtr<VulkanDevice> Create(VkPhysicalDevice device);
+    auto GetGraphicsQueueFamilyIndex() const
+    {
+        return graphicsQueueData.familyIndex;
+    }
+
+    VkPhysicalDevice GetPhysicalDeviceHandle() const
+    {
+        return physicalDevice;
+    }
+
+    VkDevice GetLogicalDeviceHandle() const
+    {
+        return logicalDevice;
+    }
+
+    static UPtr<VulkanDevice> Create(VkPhysicalDevice device);
 
 private:
     struct QueueData
@@ -20,7 +35,7 @@ private:
     };
 
     VkPhysicalDevice physicalDevice;
-	VkDevice logicalDevice;
+    VkDevice logicalDevice;
 
     VkPhysicalDeviceProperties properties;
     VkPhysicalDeviceFeatures features;

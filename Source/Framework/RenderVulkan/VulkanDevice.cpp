@@ -3,9 +3,9 @@
 
 namespace RenderCore
 {
-SPtr<VulkanDevice> VulkanDevice::Create(VkPhysicalDevice device)
+UPtr<VulkanDevice> VulkanDevice::Create(VkPhysicalDevice device)
 {
-    return Memory::MakeShared<VulkanDevice>(device);
+    return Memory::MakeUnique<VulkanDevice>(device);
 }
 
 VulkanDevice::VulkanDevice(VkPhysicalDevice device) : physicalDevice(device)
@@ -41,11 +41,34 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice device) : physicalDevice(device)
             //create one queue now
             float priority = 1.0f;
             graphicsQueueData.familyIndex = i;
-            graphicsQueueData.queues.AppendUninitialized(1);
+            graphicsQueueData.queues.Add(nullptr);
 
             AppendQueueCreateInfo(queueCreateInfos, i, priority);
             break;
         }
+    }
+
+    Array<const char8 *> extensions;
+    extensions.Add(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
+    uint32 extensionCount;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+    Array<VkExtensionProperties> availableExtensions;
+    availableExtensions.AppendUninitialized(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.GetData());
+    for(const auto &e : extensions)
+    {
+        bool match = false;
+        for(const auto &p : availableExtensions)
+        {
+            if(std::strcmp(p.extensionName, e) == 0)
+            {
+                match = true;
+                break;
+            }
+        }
+        if(!match)
+            CT_EXCEPTION(RenderCore, "Device extension unsupported.");
     }
 
     // Create logic device
@@ -56,8 +79,8 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice device) : physicalDevice(device)
     deviceInfo.queueCreateInfoCount = queueCreateInfos.Count();
     deviceInfo.pQueueCreateInfos = queueCreateInfos.GetData();
     deviceInfo.pEnabledFeatures = &features;
-    deviceInfo.enabledExtensionCount = 0;
-    deviceInfo.ppEnabledExtensionNames = nullptr;
+    deviceInfo.enabledExtensionCount = extensions.Count();
+    deviceInfo.ppEnabledExtensionNames = extensions.GetData();
     deviceInfo.enabledLayerCount = 0;
     deviceInfo.ppEnabledLayerNames = nullptr;
 
