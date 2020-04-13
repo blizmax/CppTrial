@@ -6,6 +6,8 @@ namespace RenderCore
 {
 class RenderPipeline
 {
-public:    
+public: 
+    SPtr<BlendState> blendState;
+    SPtr<DepthStencilState> depthStencilState;
 };
 }

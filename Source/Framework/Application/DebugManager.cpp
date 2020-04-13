@@ -7,13 +7,13 @@ DebugManager *gDebugManager = &debugManager;
 
 #include "Application/Application.h"
 
-#if defined(_WIN32)
+#if CT_PLATFORM_WIN32
 #include <windows.h>
 #endif
 
 void DebugManager::Startup()
 {
-#if defined(_WIN32)
+#if CT_PLATFORM_WIN32
     auto &gLog = Logger::GetGlobalLogger();
     gLog.printHandler.Clear();
     gLog.printHandler.On([](LogLevel l, const String &s) {

@@ -46,6 +46,11 @@ enum class GpuBufferUsage
     Dynamic,
 };
 
+enum class GpuQueueType
+{
+    Graphics,
+};
+
 enum class BlendFactor
 {
     Zero,

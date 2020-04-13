@@ -7,6 +7,12 @@
 
 #include "debugbreak.h"
 
+#if defined(_WIN32)
+#define CT_PLATFORM_WIN32 1
+#else
+#error "Unsupported platform"
+#endif
+
 #ifdef _DEBUG
 #define CT_DEBUG 1
 #endif
