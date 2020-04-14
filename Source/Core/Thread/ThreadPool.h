@@ -213,10 +213,10 @@ public:
 private:
     SPtr<ThreadProxy> GetAvailableProxyUnlocked()
     {
-        for (auto &e : proxies)
+        for (int32 i = proxies.Count() - 1; i >= 0; --i)
         {
-            if (!e->IsRunning())
-                return e;
+            if (!proxies[i]->IsRunning())
+                return proxies[i];
         }
 
         if (proxies.Count() < capacity)

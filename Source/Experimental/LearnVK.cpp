@@ -35,11 +35,17 @@ void InitVulkan()
     vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, familyIndex, windowData.surface, &supportsPresent);
     if (!supportsPresent)
         CT_EXCEPTION(LearnVK, "Graphics queue cannot support presentation.");
+
+
+    windowData.swapChain = VulkanSwapChain::Create();
+    windowData.swapChain->Rebuild(windowData.surface, WIDTH, HEIGHT);
 }
 
 void CleanupVulkan()
 {
     auto &context = VulkanContext::Get();
+
+    windowData.swapChain->Destroy();
     vkDestroySurfaceKHR(context.GetInstanceHandle(), windowData.surface, gVulkanAlloc);
 
     context.Destroy();
