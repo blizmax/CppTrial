@@ -1,14 +1,16 @@
 #pragma once
 
-#include "RenderVulkan/.Package.h"
+#include "RenderVulkan/VulkanMemory.h"
 
 namespace RenderCore
 {
-class VulkanDevice
+class VulkanDevice : public VulkanResource
 {
 public:
     VulkanDevice(VkPhysicalDevice device);
     ~VulkanDevice();
+
+    virtual void Destroy() override;
 
     auto GetGraphicsQueueFamilyIndex() const
     {
@@ -25,7 +27,7 @@ public:
         return logicalDevice;
     }
 
-    static UPtr<VulkanDevice> Create(VkPhysicalDevice device);
+    static SPtr<VulkanDevice> Create(VkPhysicalDevice device);
 
 private:
     struct QueueData

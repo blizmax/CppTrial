@@ -1,19 +1,29 @@
 #pragma once
 
-#include "RenderVulkan/.Package.h"
+#include "RenderVulkan/VulkanMemory.h"
 
 namespace RenderCore
 {
-class VulkanSwapChain
+class VulkanSwapChain : public VulkanResource
 {
 public:
     VulkanSwapChain();
+    ~VulkanSwapChain();
 
-    void Rebuild(VkSurfaceKHR surface);
+    virtual void Destroy() override;
+    void Rebuild(VkSurfaceKHR surface, uint32 width, uint32 height);
 
     static SPtr<VulkanSwapChain> Create();
 
 private:
-    VkSwapchainKHR swapChain;  
+    VkSurfaceFormatKHR ChooseSurfaceFormat(const Array<VkSurfaceFormatKHR> formats, bool gamma = false);
+    VkPresentModeKHR ChoosePresentMode(const Array<VkPresentModeKHR> modes, bool vsync = false);
+    VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, uint32 width, uint32 height);
+
+private:
+    VkSwapchainKHR swapChain = VK_NULL_HANDLE;
+    uint32 width = 0;
+    uint32 height = 0;
+    Array<SPtr<VulkanImage>> images;
 };
 }

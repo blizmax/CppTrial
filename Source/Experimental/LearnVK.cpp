@@ -4,10 +4,9 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include "RenderVulkan/VulkanRenderAPI.h"
+#include "RenderVulkan/VulkanContext.h"
+#include "RenderVulkan/VulkanSwapChain.h"
 using namespace RenderCore;
-
-VulkanRenderAPI renderAPI;
 
 const int32 WIDTH = 800;
 const int32 HEIGHT = 600;
@@ -18,32 +17,32 @@ struct WindowData
 {
     GLFWwindow *window;
     VkSurfaceKHR surface;
+    SPtr<VulkanSwapChain> swapChain;
 };
 WindowData windowData;
 
 void InitVulkan()
 {
-    renderAPI.Init();
+    auto &context = VulkanContext::Get();
+    context.Init();
 
-    if (glfwCreateWindowSurface(renderAPI.GetInstanceHandle(), windowData.window, gVulkanAlloc, &windowData.surface) != VK_SUCCESS)
-    {
+    if (glfwCreateWindowSurface(context.GetInstanceHandle(), windowData.window, gVulkanAlloc, &windowData.surface) != VK_SUCCESS)
         CT_EXCEPTION(LearnVK, "Create surface failed.");
-    }
+
     VkBool32 supportsPresent;
-    auto physicalDevice = renderAPI.GetDevice()->GetPhysicalDeviceHandle();
-    auto familyIndex = renderAPI.GetDevice()->GetGraphicsQueueFamilyIndex();
+    auto physicalDevice = context.GetDevice()->GetPhysicalDeviceHandle();
+    auto familyIndex = context.GetDevice()->GetGraphicsQueueFamilyIndex();
     vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, familyIndex, windowData.surface, &supportsPresent);
     if (!supportsPresent)
-    {
         CT_EXCEPTION(LearnVK, "Graphics queue cannot support presentation.");
-    }
 }
 
 void CleanupVulkan()
 {
-    vkDestroySurfaceKHR(renderAPI.GetInstanceHandle(), windowData.surface, gVulkanAlloc);
+    auto &context = VulkanContext::Get();
+    vkDestroySurfaceKHR(context.GetInstanceHandle(), windowData.surface, gVulkanAlloc);
 
-    renderAPI.Destroy();
+    context.Destroy();
 }
 
 int main(int argc, char **argv)

@@ -1,12 +1,32 @@
 #pragma once
 
-#include "RenderVulkan/.Package.h"
+#include "RenderVulkan/VulkanMemory.h"
 
 namespace RenderCore
 {
-class VulkanImage
+
+struct VulkanImageCreateParams
+{
+    VkImage image;
+    VkFormat format;
+    VkImageLayout layout;
+};
+
+class VulkanImage : public VulkanResource
 {
 public:
+    VulkanImage(const VulkanImageCreateParams &params, bool ownsImage);
+    ~VulkanImage();
 
+    virtual void Destroy() override;
+
+    static SPtr<VulkanImage> Create(const VulkanImageCreateParams &params, bool ownsImage = true);
+
+private:
+    void CreateImageView(const VulkanImageCreateParams &params);
+private:
+    VkImage image = VK_NULL_HANDLE;
+    VkImageView imageView = VK_NULL_HANDLE;
+    bool ownsImage;
 };
 }

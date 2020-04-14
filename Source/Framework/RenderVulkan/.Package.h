@@ -10,4 +10,5 @@ namespace RenderCore
 
     class VulkanDevice;
     class VulkanQueue;
+    class VulkanImage;
 }

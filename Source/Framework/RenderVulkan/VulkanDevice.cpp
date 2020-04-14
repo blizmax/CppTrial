@@ -3,9 +3,9 @@
 
 namespace RenderCore
 {
-UPtr<VulkanDevice> VulkanDevice::Create(VkPhysicalDevice device)
+SPtr<VulkanDevice> VulkanDevice::Create(VkPhysicalDevice device)
 {
-    return Memory::MakeUnique<VulkanDevice>(device);
+    return Memory::MakeShared<VulkanDevice>(device);
 }
 
 VulkanDevice::VulkanDevice(VkPhysicalDevice device) : physicalDevice(device)
@@ -85,9 +85,7 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice device) : physicalDevice(device)
     deviceInfo.ppEnabledLayerNames = nullptr;
 
     if (vkCreateDevice(device, &deviceInfo, gVulkanAlloc, &logicalDevice) != VK_SUCCESS)
-    {
         CT_EXCEPTION(RenderCore, "Create logic device failed.");
-    }
 
     for (int32 i = 0; i < graphicsQueueData.queues.Count(); ++i)
     {
@@ -99,8 +97,10 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice device) : physicalDevice(device)
 
 VulkanDevice::~VulkanDevice()
 {
-    graphicsQueueData.queues.Clear();
+}
 
+void VulkanDevice::Destroy()
+{
     vkDestroyDevice(logicalDevice, gVulkanAlloc);
 }
 
