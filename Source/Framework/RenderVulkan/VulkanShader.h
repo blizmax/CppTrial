@@ -1,20 +1,14 @@
 #pragma once
 
+#include "RenderCore/Shader.h"
 #include "RenderVulkan/VulkanMemory.h"
 
 namespace RenderCore
 {
-
-struct VulkanShaderCreateParams
-{
-    Array<uchar8> vertexSource;
-    Array<uchar8> fragmentSource;
-};
-
-class VulkanShader : public VulkanResource
+class VulkanShader : public Shader, public IVulkanResource
 {
 public:
-    VulkanShader(const VulkanShaderCreateParams &params);
+    VulkanShader(const ShaderCreateParams &params);
     virtual void Destroy() override;
 
     VkShaderModule GetVertexModuleHandle() const
@@ -26,9 +20,6 @@ public:
     {
         return fragmentModule;
     }
-
-    static SPtr<VulkanShader> Create(const VulkanShaderCreateParams &params);
-
 private:
     VkShaderModule CreateShaderModule(const Array<uchar8> &code);
 

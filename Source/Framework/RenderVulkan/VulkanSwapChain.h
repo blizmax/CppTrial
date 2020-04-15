@@ -4,7 +4,7 @@
 
 namespace RenderCore
 {
-class VulkanSwapChain : public VulkanResource
+class VulkanSwapChain : public IVulkanResource
 {
 public:
     VulkanSwapChain();

@@ -3,12 +3,12 @@
 
 namespace RenderCore
 {
-SPtr<VulkanShader> VulkanShader::Create(const VulkanShaderCreateParams &params)
+SPtr<Shader> Shader::Create(const ShaderCreateParams &params)
 {
     return Memory::MakeShared<VulkanShader>(params);
 }
 
-VulkanShader::VulkanShader(const VulkanShaderCreateParams &params)
+VulkanShader::VulkanShader(const ShaderCreateParams &params)
 {
     vertexModule = CreateShaderModule(params.vertexSource);
     fragmentModule = CreateShaderModule(params.fragmentSource);

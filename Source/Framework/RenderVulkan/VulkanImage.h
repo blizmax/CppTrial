@@ -11,8 +11,8 @@ struct VulkanImageCreateParams
     VkFormat format;
     VkImageLayout layout;
 };
-
-class VulkanImage : public VulkanResource
+ 
+class VulkanImage : public IVulkanResource
 {
 public:
     VulkanImage(const VulkanImageCreateParams &params, bool ownsImage);

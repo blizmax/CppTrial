@@ -1,13 +1,14 @@
 #pragma once
 
+#include "RenderCore/RenderPipeline.h"
 #include "RenderVulkan/VulkanMemory.h"
 
 namespace RenderCore
 {
-class VulkanRenderPipeline : public VulkanResource
+class VulkanRenderPipeline : public RenderPipeline, public IVulkanResource
 {
 public:
-    VulkanRenderPipeline();
+    VulkanRenderPipeline(const RenderPipelineCreateParams &params);
 
     virtual void Destroy() override;
 

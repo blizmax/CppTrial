@@ -17,6 +17,6 @@ uint32 GetGLUsage(GpuBufferUsage usage);
 uint32 GetGLBlendFactor(BlendFactor factor);
 uint32 GetGLBlendOperation(BlendOperation operation);
 uint32 GetGLStencilOperation(StencilOperation operation);
-uint32 GetCompareOperation(CompareOperation operation);
+uint32 GetGLCompareOperation(CompareOperation operation);
 
 }

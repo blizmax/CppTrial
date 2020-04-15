@@ -1,13 +1,23 @@
 #pragma once
 
-#include "RenderCore/RenderState.h"
+#include "RenderCore/BlendState.h"
+#include "RenderCore/DepthStencilState.h"
+#include "RenderCore/RasterizationState.h"
+#include "RenderCore/Shader.h"
 
 namespace RenderCore
 {
+struct RenderPipelineCreateParams
+{
+    SPtr<RasterizationState> rasterizationState;
+    SPtr<BlendState> blendState;
+    SPtr<DepthStencilState> depthStencilState;
+    SPtr<Shader> shader;
+};
+
 class RenderPipeline
 {
 public: 
-    SPtr<BlendState> blendState;
-    SPtr<DepthStencilState> depthStencilState;
+    static SPtr<RenderPipeline> Create(const RenderPipelineCreateParams &params);
 };
 }

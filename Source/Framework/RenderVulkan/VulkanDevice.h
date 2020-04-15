@@ -4,7 +4,7 @@
 
 namespace RenderCore
 {
-class VulkanDevice : public VulkanResource
+class VulkanDevice : public IVulkanResource
 {
 public:
     VulkanDevice(VkPhysicalDevice device);

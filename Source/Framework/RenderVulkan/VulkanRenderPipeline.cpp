@@ -1,26 +1,29 @@
 #include "RenderVulkan/VulkanRenderPipeline.h"
 #include "RenderVulkan/VulkanContext.h"
+#include "RenderVulkan/VulkanShader.h"
 
 namespace RenderCore
 {
-VulkanRenderPipeline::VulkanRenderPipeline()
+VulkanRenderPipeline::VulkanRenderPipeline(const RenderPipelineCreateParams &params)
 {
     auto &device = VulkanContext::Get().GetDevice();
     auto logicalDevice = device->GetLogicalDeviceHandle();
+    auto shader = std::static_pointer_cast<VulkanShader>(params.shader);
+    auto rasterizationState = params.rasterizationState;
+    auto blendState = params.blendState;
+    auto depthStencilState = params.depthStencilState;
 
-    // VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
-    // vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    // vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-    // vertShaderStageInfo.module = vertShaderModule;
-    // vertShaderStageInfo.pName = "main";
-
-    // VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
-    // fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    // fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    // fragShaderStageInfo.module = fragShaderModule;
-    // fragShaderStageInfo.pName = "main";
-
-    //VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+    VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
+    vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    vertShaderStageInfo.module = shader->GetVertexModuleHandle();
+    vertShaderStageInfo.pName = "main";
+    VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
+    fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    fragShaderStageInfo.module = shader->GetFragmentModuleHandle();
+    fragShaderStageInfo.pName = "main";
+    VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -56,69 +59,89 @@ VulkanRenderPipeline::VulkanRenderPipeline()
     viewportState.scissorCount = 1;
     viewportState.pScissors = nullptr;  // Use command
 
+    auto rasterizationData = rasterizationState->GetData();
     VkPipelineRasterizationStateCreateInfo rasterizer = {};
     rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizer.pNext = nullptr;
     rasterizer.flags = 0;
-    rasterizer.depthClampEnable = VK_FALSE;
+    rasterizer.depthClampEnable = rasterizationData.depthClampEnabled;
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
-    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+    rasterizer.polygonMode = ToVkPolygonMode(rasterizationData.polygonMode);
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.cullMode = ToVkCullMode(rasterizationData.cullMode);
     rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-    rasterizer.depthBiasEnable = VK_FALSE;
-    rasterizer.depthBiasConstantFactor = 0.0f; //Unused
-    rasterizer.depthBiasSlopeFactor = 0.0f;    //Unused
-    rasterizer.depthBiasClamp = 0.0f;          //Unused
+    rasterizer.depthBiasEnable = rasterizationData.depthBiasEnabled;
+    rasterizer.depthBiasConstantFactor = rasterizationData.depthBias;
+    rasterizer.depthBiasSlopeFactor = rasterizationData.slopeScaledDepthBias;
+    rasterizer.depthBiasClamp = rasterizationData.depthBiasClamp;
 
     VkPipelineMultisampleStateCreateInfo multisampling = {};
     multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampling.pNext = nullptr;
     multisampling.flags = 0;
     multisampling.sampleShadingEnable = VK_FALSE;
-    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT; //TODO 1bit means no sampling.
     multisampling.minSampleShading = 1.0f;
     multisampling.pSampleMask = nullptr;
     multisampling.alphaToCoverageEnable = VK_FALSE; //TODO
     multisampling.alphaToOneEnable = VK_FALSE;
 
-    // VkStencilOpState stencilFrontInfo;
-    // VkStencilOpState stencilBackInfo;
-    // VkPipelineDepthStencilStateCreateInfo depthStencilInfo = {};
-    // depthStencilInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    // depthStencilInfo.pNext = nullptr;
-    // depthStencilInfo.flags = 0;
-    // depthStencilInfo.depthBoundsTestEnable = false;
-    // depthStencilInfo.minDepthBounds = 0.0f;
-    // depthStencilInfo.maxDepthBounds = 1.0f;
-    // depthStencilInfo.depthTestEnable = VK_FALSE;
-    // depthStencilInfo.depthWriteEnable = VK_FALSE;
-    // depthStencilInfo.depthCompareOp = 0;
-    // depthStencilInfo.front = stencilFrontInfo;
-    // depthStencilInfo.back = stencilBackInfo;
-    // depthStencilInfo.stencilTestEnable = VK_FALSE;
+    auto depthStencilData = depthStencilState->GetData();
+    VkStencilOpState stencilFrontInfo;
+    stencilFrontInfo.compareOp = ToVkCompareOperation(depthStencilData.frontStencilCompareOp);
+    stencilFrontInfo.depthFailOp = ToVkStencilOperation(depthStencilData.frontStencilZFailOp);
+    stencilFrontInfo.passOp = ToVkStencilOperation(depthStencilData.frontStencilZFailOp);
+    stencilFrontInfo.failOp = ToVkStencilOperation(depthStencilData.frontStencilZFailOp);
+    stencilFrontInfo.reference = 0; //TODO
+    stencilFrontInfo.compareMask = depthStencilData.stencilReadMask;
+    stencilFrontInfo.writeMask = depthStencilData.stencilWriteMask;
+    VkStencilOpState stencilBackInfo;
+    stencilBackInfo.compareOp = ToVkCompareOperation(depthStencilData.backStencilCompareOp);
+    stencilBackInfo.depthFailOp = ToVkStencilOperation(depthStencilData.backStencilZFailOp);
+    stencilBackInfo.passOp = ToVkStencilOperation(depthStencilData.backStencilZFailOp);
+    stencilBackInfo.failOp = ToVkStencilOperation(depthStencilData.backStencilZFailOp);
+    stencilBackInfo.reference = 0; //TODO
+    stencilBackInfo.compareMask = depthStencilData.stencilReadMask;
+    stencilBackInfo.writeMask = depthStencilData.stencilWriteMask;
+    VkPipelineDepthStencilStateCreateInfo depthStencilInfo = {};
+    depthStencilInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depthStencilInfo.pNext = nullptr;
+    depthStencilInfo.flags = 0;
+    depthStencilInfo.depthBoundsTestEnable = false;
+    depthStencilInfo.minDepthBounds = 0.0f;
+    depthStencilInfo.maxDepthBounds = 1.0f;
+    depthStencilInfo.depthTestEnable = depthStencilData.depthReadEnabled;
+    depthStencilInfo.depthWriteEnable = depthStencilData.depthWriteEnabled;
+    depthStencilInfo.depthCompareOp = ToVkCompareOperation(depthStencilData.depthCompareOp);
+    depthStencilInfo.front = stencilFrontInfo;
+    depthStencilInfo.back = stencilBackInfo;
+    depthStencilInfo.stencilTestEnable = depthStencilData.stencilEnabled;
 
-    //TODO
-    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-    colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    colorBlendAttachment.blendEnable = VK_TRUE;
-    colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-    colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-    colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
-
-    VkPipelineColorBlendStateCreateInfo colorBlending = {};
-    colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlending.logicOpEnable = VK_FALSE;
-    colorBlending.logicOp = VK_LOGIC_OP_NO_OP;
-    colorBlending.attachmentCount = 1;
-    colorBlending.pAttachments = &colorBlendAttachment;
-    colorBlending.blendConstants[0] = 0.0f;
-    colorBlending.blendConstants[1] = 0.0f;
-    colorBlending.blendConstants[2] = 0.0f;
-    colorBlending.blendConstants[3] = 0.0f;
+    auto blendData = blendState->GetData();
+    VkPipelineColorBlendAttachmentState colorBlendAttachments[CT_COLOR_ATTCHMENT_MAX_NUM];
+    for(int32 i = 0; i < CT_COLOR_ATTCHMENT_MAX_NUM; ++i)
+    {
+        auto &attach = blendData.attachments[i];
+        VkPipelineColorBlendAttachmentState blendAttachment = {};
+        blendAttachment.colorWriteMask = attach.writeMask;
+        blendAttachment.blendEnable = attach.enabled;
+        blendAttachment.srcColorBlendFactor = ToVkBlendFactor(attach.srcFactor);
+        blendAttachment.dstColorBlendFactor = ToVkBlendFactor(attach.dstFactor);
+        blendAttachment.colorBlendOp = ToVkBlendOperation(attach.blendOp);
+        blendAttachment.srcAlphaBlendFactor = ToVkBlendFactor(attach.srcAlphaFactor);
+        blendAttachment.dstAlphaBlendFactor = ToVkBlendFactor(attach.dstAlphaFactor);
+        blendAttachment.alphaBlendOp = ToVkBlendOperation(attach.alphaBlendOp);
+    }
+    VkPipelineColorBlendStateCreateInfo blendStateInfo = {};
+    blendStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    blendStateInfo.logicOpEnable = VK_FALSE;
+    blendStateInfo.logicOp = VK_LOGIC_OP_NO_OP;
+    blendStateInfo.attachmentCount = 1; //TODO
+    blendStateInfo.pAttachments = colorBlendAttachments;
+    blendStateInfo.blendConstants[0] = 0.0f;
+    blendStateInfo.blendConstants[1] = 0.0f;
+    blendStateInfo.blendConstants[2] = 0.0f;
+    blendStateInfo.blendConstants[3] = 0.0f;
 
     auto dynamicStates = {
         VK_DYNAMIC_STATE_VIEWPORT,

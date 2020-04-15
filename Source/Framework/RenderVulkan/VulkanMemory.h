@@ -4,10 +4,10 @@
 
 namespace RenderCore
 {
-class VulkanResource
+class IVulkanResource
 {
 public:
-    virtual ~VulkanResource() = default;
+    virtual ~IVulkanResource() = default;
     virtual void Destroy() = 0;
 };
 

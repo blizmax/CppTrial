@@ -4,6 +4,8 @@
 #include "Core/Logger.h"
 #include "Core/Exception.h"
 
+#define CT_COLOR_ATTCHMENT_MAX_NUM 4
+
 enum class VertexDataType
 {
     Unknown,
@@ -38,6 +40,19 @@ enum class TextureWrap
     Mirror,
     Clamp,
     Border,
+};
+
+enum class PolygonMode
+{
+    Fill,
+    Wireframe,
+};
+
+enum class CullMode
+{
+    None,
+    Front,
+    Back,
 };
 
 enum class GpuBufferUsage

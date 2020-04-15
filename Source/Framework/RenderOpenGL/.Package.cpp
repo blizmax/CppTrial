@@ -220,7 +220,7 @@ uint32 GetGLStencilOperation(StencilOperation operation)
     return 0;
 }
 
-uint32 GetCompareOperation(CompareOperation operation)
+uint32 GetGLCompareOperation(CompareOperation operation)
 {
     switch (operation)
     {
