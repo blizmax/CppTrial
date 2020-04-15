@@ -101,7 +101,11 @@ VulkanDevice::~VulkanDevice()
 
 void VulkanDevice::Destroy()
 {
-    vkDestroyDevice(logicalDevice, gVulkanAlloc);
+    if(logicalDevice != VK_NULL_HANDLE)
+    {
+        vkDestroyDevice(logicalDevice, gVulkanAlloc);
+        logicalDevice = VK_NULL_HANDLE;
+    }
 }
 
 }

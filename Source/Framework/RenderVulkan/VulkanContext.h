@@ -15,9 +15,25 @@ public:
         return instance;
     }
 
-    const SPtr<VulkanDevice> &GetDevice() const
+    VkPhysicalDevice GetPhysicalDeviceHandle() const
+    {
+        return device->GetPhysicalDeviceHandle();
+    }
+
+    VkDevice GetLogicalDeviceHandle() const
+    {
+        return device->GetLogicalDeviceHandle();
+    }
+
+    SPtr<VulkanDevice> GetDevice() const
     {
         return device;
+    }
+
+    SPtr<VulkanRenderPass> GetRenderPass() const
+    {
+        //TODO
+        return nullptr;
     }
 
     static VulkanContext &Get()

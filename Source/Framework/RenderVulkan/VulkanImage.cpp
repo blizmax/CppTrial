@@ -20,20 +20,23 @@ VulkanImage::~VulkanImage()
 
 void VulkanImage::Destroy()
 {
-    auto device = VulkanContext::Get().GetDevice();
-    auto logicDevice = device->GetLogicalDeviceHandle();
+    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
 
     if(imageView != VK_NULL_HANDLE)
-        vkDestroyImageView(logicDevice, imageView, gVulkanAlloc);
-    
+    {
+        vkDestroyImageView(device, imageView, gVulkanAlloc);
+        imageView = VK_NULL_HANDLE;
+    }    
     if(ownsImage && image != VK_NULL_HANDLE)
-        vkDestroyImage(logicDevice, image, gVulkanAlloc);
+    {
+        vkDestroyImage(device, image, gVulkanAlloc);
+        image = VK_NULL_HANDLE;
+    }
 }
 
 void VulkanImage::CreateImageView(const VulkanImageCreateParams &params)
 {
-    auto device = VulkanContext::Get().GetDevice();
-    auto logicDevice = device->GetLogicalDeviceHandle();
+    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
 
     VkImageViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -52,8 +55,10 @@ void VulkanImage::CreateImageView(const VulkanImageCreateParams &params)
     createInfo.subresourceRange.baseArrayLayer = 0;
     createInfo.subresourceRange.layerCount = 1;
 
-    if (vkCreateImageView(logicDevice, &createInfo, gVulkanAlloc, &imageView) != VK_SUCCESS)
+    if (vkCreateImageView(device, &createInfo, gVulkanAlloc, &imageView) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create image view failed.");
+
+    format = params.format;
 }
 
 }

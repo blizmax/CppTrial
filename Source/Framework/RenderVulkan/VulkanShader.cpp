@@ -16,19 +16,23 @@ VulkanShader::VulkanShader(const ShaderCreateParams &params)
 
 void VulkanShader::Destroy()
 {
-    auto &device = VulkanContext::Get().GetDevice();
-    auto logicalDevice = device->GetLogicalDeviceHandle();
+    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
 
     if(vertexModule != VK_NULL_HANDLE)
-        vkDestroyShaderModule(logicalDevice, vertexModule, gVulkanAlloc);
+    {
+        vkDestroyShaderModule(device, vertexModule, gVulkanAlloc);
+        vertexModule = VK_NULL_HANDLE;
+    }
     if (fragmentModule != VK_NULL_HANDLE)
-        vkDestroyShaderModule(logicalDevice, fragmentModule, gVulkanAlloc);
+    {
+        vkDestroyShaderModule(device, fragmentModule, gVulkanAlloc);
+        vertexModule = VK_NULL_HANDLE;
+    }
 }
 
 VkShaderModule VulkanShader::CreateShaderModule(const Array<uchar8> &code)
 {
-    auto &device = VulkanContext::Get().GetDevice();
-    auto logicalDevice = device->GetLogicalDeviceHandle();
+    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
 
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -38,7 +42,7 @@ VkShaderModule VulkanShader::CreateShaderModule(const Array<uchar8> &code)
     createInfo.pCode = reinterpret_cast<const uint32 *>(code.GetData());
 
     VkShaderModule shaderModule;
-    if (vkCreateShaderModule(logicalDevice, &createInfo, gVulkanAlloc, &shaderModule) != VK_SUCCESS)
+    if (vkCreateShaderModule(device, &createInfo, gVulkanAlloc, &shaderModule) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create shader module failed.");
 
     return shaderModule;

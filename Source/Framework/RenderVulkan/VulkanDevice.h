@@ -36,8 +36,8 @@ private:
         Array<SPtr<VulkanQueue>> queues;
     };
 
-    VkPhysicalDevice physicalDevice;
-    VkDevice logicalDevice;
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    VkDevice logicalDevice = VK_NULL_HANDLE;
 
     VkPhysicalDeviceProperties properties;
     VkPhysicalDeviceFeatures features;

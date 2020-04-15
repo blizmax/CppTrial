@@ -27,10 +27,8 @@ void VulkanSwapChain::Destroy()
 
     if (swapChain != VK_NULL_HANDLE)
     {
-        auto device = VulkanContext::Get().GetDevice();
-        auto logicDevice = device->GetLogicalDeviceHandle();
+        auto logicDevice = VulkanContext::Get().GetLogicalDeviceHandle();
         vkDestroySwapchainKHR(logicDevice, swapChain, gVulkanAlloc);
-
         swapChain = VK_NULL_HANDLE;
     }
 }

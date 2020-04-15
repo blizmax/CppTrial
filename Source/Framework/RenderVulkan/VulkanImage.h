@@ -20,6 +20,21 @@ public:
 
     virtual void Destroy() override;
 
+    VkFormat GetFormat() const
+    {
+        return format;
+    }
+
+    VkImage GetHandle() const
+    {
+        return image;
+    }
+
+    VkImageView GetViewHandle() const
+    {
+        return imageView;
+    }
+
     static SPtr<VulkanImage> Create(const VulkanImageCreateParams &params, bool ownsImage = true);
 
 private:
@@ -27,6 +42,7 @@ private:
 private:
     VkImage image = VK_NULL_HANDLE;
     VkImageView imageView = VK_NULL_HANDLE;
+    VkFormat format = VK_FORMAT_UNDEFINED;
     bool ownsImage;
 };
 }

@@ -12,7 +12,7 @@ public:
     static SPtr<VulkanQueue> Create(GpuQueueType queueType, VkQueue queue);
 
 private:
-    VkQueue queue;
+    VkQueue queue = VK_NULL_HANDLE;
     GpuQueueType queueType;
 };    
 }

@@ -11,6 +11,7 @@ namespace RenderCore
     class VulkanDevice;
     class VulkanQueue;
     class VulkanImage;
+    class VulkanRenderPass;
 
     VkPolygonMode ToVkPolygonMode(PolygonMode mode);
     VkCullModeFlagBits ToVkCullMode(CullMode mode);
@@ -18,4 +19,5 @@ namespace RenderCore
     VkBlendOp ToVkBlendOperation(BlendOperation operation);
     VkStencilOp ToVkStencilOperation(StencilOperation operation);
     VkCompareOp ToVkCompareOperation(CompareOperation operation);
+    VkSampleCountFlagBits ToVkSampleCount(int32 sample);
 }
