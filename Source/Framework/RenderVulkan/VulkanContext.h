@@ -30,10 +30,14 @@ public:
         return device;
     }
 
-    SPtr<VulkanRenderPass> GetRenderPass() const
+    SPtr<VulkanFrameBuffer> GetFrameBuffer() const
     {
-        //TODO
-        return nullptr;
+        return frameBuffer; //TODO
+    }
+
+    SPtr<VulkanRenderPipeline> GetRenderPipeline() const
+    {
+        return pipeline; //TODO
     }
 
     static VulkanContext &Get()
@@ -53,6 +57,8 @@ private:
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
     SPtr<VulkanDevice> device;
+    SPtr<VulkanFrameBuffer> frameBuffer;
+    SPtr<VulkanRenderPipeline> pipeline;
 
     bool enableValidationLayers = false;
 };

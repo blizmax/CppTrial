@@ -4,12 +4,24 @@
 
 namespace RenderCore
 {
+
+struct VulkanQueueCreateParams
+{
+    GpuQueueType queueType = GpuQueueType::Graphics;
+    VkQueue queue = VK_NULL_HANDLE;
+};
+
 class VulkanQueue
 {
 public:
-    VulkanQueue(GpuQueueType queueType, VkQueue queue);
+    VulkanQueue(const VulkanQueueCreateParams &params);
 
-    static SPtr<VulkanQueue> Create(GpuQueueType queueType, VkQueue queue);
+    VkQueue GetHandle() const
+    {
+        return queue;
+    }
+
+    static SPtr<VulkanQueue> Create(const VulkanQueueCreateParams &params);
 
 private:
     VkQueue queue = VK_NULL_HANDLE;

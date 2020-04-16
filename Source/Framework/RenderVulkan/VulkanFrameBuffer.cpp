@@ -17,9 +17,19 @@ VulkanFrameBuffer::VulkanFrameBuffer(const VulkanFrameBufferCreateParams &params
     for(int32 i = 0; i < params.colorAttachmentCount; ++i)
         colorAttachs[i] = params.colorAttachments[i]->GetViewHandle();
 
+    if(params.renderPass != nullptr)
+    {
+        renderPass = params.renderPass;
+    }
+    else
+    {
+        //TODO
+        //Create render pass
+    }
+
     VkFramebufferCreateInfo framebufferInfo = {};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    framebufferInfo.renderPass = params.renderPass->GetHandle();
+    framebufferInfo.renderPass = renderPass->GetHandle();
     framebufferInfo.attachmentCount = params.colorAttachmentCount;
     framebufferInfo.pAttachments = colorAttachs;
     framebufferInfo.width = params.width;
@@ -28,6 +38,9 @@ VulkanFrameBuffer::VulkanFrameBuffer(const VulkanFrameBufferCreateParams &params
 
     if (vkCreateFramebuffer(device, &framebufferInfo, gVulkanAlloc, &frameBuffer) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create frame buffer failed.");
+
+    width = params.width;
+    height = params.height;
 }
 
 void VulkanFrameBuffer::Destroy()

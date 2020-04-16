@@ -12,6 +12,12 @@ namespace RenderCore
     class VulkanQueue;
     class VulkanImage;
     class VulkanRenderPass;
+    class VulkanFrameBuffer;
+    class VulkanCommandBuffer;
+    class VulkanRenderPipeline;
+    class VulkanSemaphore;
+    class VulkanShader;
+    class VulkanSwapChain;
 
     VkPolygonMode ToVkPolygonMode(PolygonMode mode);
     VkCullModeFlagBits ToVkCullMode(CullMode mode);

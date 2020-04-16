@@ -88,8 +88,7 @@ void VulkanSwapChain::Rebuild(VkSurfaceKHR surface, uint32 width, uint32 height)
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
     createInfo.presentMode = presentMode;
     createInfo.clipped = VK_TRUE;
-    //TODO
-    createInfo.oldSwapchain = VK_NULL_HANDLE;
+    createInfo.oldSwapchain = VK_NULL_HANDLE; //TODO
 
     if (vkCreateSwapchainKHR(logicDevice, &createInfo, gVulkanAlloc, &swapChain) != VK_SUCCESS) 
         CT_EXCEPTION(RenderCore, "Create swap chain failed.");

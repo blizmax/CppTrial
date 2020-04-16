@@ -1,13 +1,15 @@
 #include "RenderVulkan/VulkanRenderPipeline.h"
 #include "RenderVulkan/VulkanContext.h"
 #include "RenderVulkan/VulkanShader.h"
+#include "RenderVulkan/VulkanFrameBuffer.h"
 #include "RenderVulkan/VulkanRenderPass.h"
 
 namespace RenderCore
 {
 VulkanRenderPipeline::VulkanRenderPipeline(const RenderPipelineCreateParams &params)
 {
-    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
+    auto &context = VulkanContext::Get();
+    auto device = context.GetLogicalDeviceHandle();
 
     auto shader = std::static_pointer_cast<VulkanShader>(params.shader);
     auto rasterizationState = params.rasterizationState;
@@ -195,7 +197,7 @@ VulkanRenderPipeline::VulkanRenderPipeline(const RenderPipelineCreateParams &par
     pipelineInfo.pMultisampleState = &multisampleInfo;
     pipelineInfo.pColorBlendState = &blendInfo;
     pipelineInfo.layout = pipelineLayout;
-    pipelineInfo.renderPass = VulkanContext::Get().GetRenderPass()->GetHandle();
+    pipelineInfo.renderPass = context.GetFrameBuffer()->GetRenderPass()->GetHandle();
     pipelineInfo.subpass = 0; //subpass index
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; //TODO
     pipelineInfo.basePipelineIndex = -1; //TODO

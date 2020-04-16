@@ -3,15 +3,14 @@
 namespace RenderCore
 {
 
-SPtr<VulkanQueue> VulkanQueue::Create(GpuQueueType queueType, VkQueue queue)
+SPtr<VulkanQueue> VulkanQueue::Create(const VulkanQueueCreateParams &params)
 {
-    return Memory::MakeShared<VulkanQueue>(queueType, queue);
+    return Memory::MakeShared<VulkanQueue>(params);
 }
 
-VulkanQueue::VulkanQueue(GpuQueueType queueType, VkQueue queue)
-    : queueType(queueType), queue(queue)
+VulkanQueue::VulkanQueue(const VulkanQueueCreateParams &params)
+    : queueType(params.queueType), queue(params.queue)
 {
-    
 }
 
 }

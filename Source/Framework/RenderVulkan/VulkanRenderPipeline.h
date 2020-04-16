@@ -12,6 +12,11 @@ public:
 
     virtual void Destroy() override;
 
+    VkPipeline GetHandle() const
+    {
+        return pipeline;
+    }
+
 private:
 
 private:

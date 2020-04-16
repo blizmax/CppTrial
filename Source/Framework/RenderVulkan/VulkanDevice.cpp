@@ -91,7 +91,8 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice device) : physicalDevice(device)
     {
         VkQueue queue;
         vkGetDeviceQueue(logicalDevice, graphicsQueueData.familyIndex, i, &queue);
-        graphicsQueueData.queues[i] = VulkanQueue::Create(GpuQueueType::Graphics, queue);
+        VulkanQueueCreateParams params = {GpuQueueType::Graphics, queue};
+        graphicsQueueData.queues[i] = VulkanQueue::Create(params);
     }
 }
 

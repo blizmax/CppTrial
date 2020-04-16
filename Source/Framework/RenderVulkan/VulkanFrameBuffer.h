@@ -22,9 +22,32 @@ public:
 
     virtual void Destroy() override;
 
+    SPtr<VulkanRenderPass> GetRenderPass() const
+    {
+        return renderPass;
+    }
+
+    VkFramebuffer GetHandle() const
+    {
+        return frameBuffer;
+    }
+
+    uint32 GetWidth() const
+    {
+        return width;
+    }
+
+    uint32 GetHeight() const
+    {
+        return height;
+    }
+
     static SPtr<VulkanFrameBuffer> Create(const VulkanFrameBufferCreateParams &params);
 
 private:
     VkFramebuffer frameBuffer = VK_NULL_HANDLE;
+    SPtr<VulkanRenderPass> renderPass;
+    uint32 width;
+    uint32 height;
 };
 }
