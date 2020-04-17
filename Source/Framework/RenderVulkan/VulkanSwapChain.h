@@ -4,14 +4,43 @@
 
 namespace RenderCore
 {
+
+struct VulkanSwapChainCreateParams
+{
+    VkSurfaceKHR surface;
+    uint32 width;
+    uint32 height;
+};
+
 class VulkanSwapChain : public IVulkanResource
 {
 public:
+    struct SurfaceData
+    {
+        SPtr<VulkanImage> image;
+        SPtr<VulkanFrameBuffer> frameBuffer;
+    };
+
     VulkanSwapChain();
     ~VulkanSwapChain();
 
     virtual void Destroy() override;
-    void Rebuild(VkSurfaceKHR surface, uint32 width, uint32 height);
+    void Rebuild(const VulkanSwapChainCreateParams &params);
+
+    VkSwapchainKHR GetHandle() const
+    {
+        return swapChain;
+    }
+
+    uint32 GetWidth() const
+    {
+        return width;
+    }
+
+    uint32 GetHeight() const
+    {
+        return height;
+    }
 
     static SPtr<VulkanSwapChain> Create();
 
@@ -24,6 +53,8 @@ private:
     VkSwapchainKHR swapChain = VK_NULL_HANDLE;
     uint32 width = 0;
     uint32 height = 0;
-    Array<SPtr<VulkanImage>> images;
+    SPtr<VulkanRenderPass> renderPass;
+    Array<SurfaceData> surfaces;
+    int32 surfaceIndex = 0;
 };
 }

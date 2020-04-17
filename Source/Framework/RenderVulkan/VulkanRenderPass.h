@@ -12,7 +12,7 @@ struct VulkanColorAttachmentDesc
 
 struct VulkanRenderPassCreateParams
 {
-    VulkanColorAttachmentDesc colorAttachmentDescs[CT_COLOR_ATTCHMENT_MAX_NUM];
+    VulkanColorAttachmentDesc colorAttachmentDescs[COLOR_ATTCHMENT_MAX_NUM];
     int32 colorAttachmentCount = 0;
     VkSampleCountFlagBits sampleFlagBits = VK_SAMPLE_COUNT_1_BIT; 
 };

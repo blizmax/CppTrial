@@ -10,12 +10,13 @@ struct VulkanImageCreateParams
     VkImage image;
     VkFormat format;
     VkImageLayout layout;
+    bool ownsImage = true;
 };
  
 class VulkanImage : public IVulkanResource
 {
 public:
-    VulkanImage(const VulkanImageCreateParams &params, bool ownsImage);
+    VulkanImage(const VulkanImageCreateParams &params);
     ~VulkanImage();
 
     virtual void Destroy() override;
@@ -35,7 +36,7 @@ public:
         return imageView;
     }
 
-    static SPtr<VulkanImage> Create(const VulkanImageCreateParams &params, bool ownsImage = true);
+    static SPtr<VulkanImage> Create(const VulkanImageCreateParams &params);
 
 private:
     void CreateImageView(const VulkanImageCreateParams &params);
@@ -43,6 +44,6 @@ private:
     VkImage image = VK_NULL_HANDLE;
     VkImageView imageView = VK_NULL_HANDLE;
     VkFormat format = VK_FORMAT_UNDEFINED;
-    bool ownsImage;
+    bool ownsImage = true;
 };
 }

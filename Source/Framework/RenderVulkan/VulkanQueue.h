@@ -16,9 +16,16 @@ class VulkanQueue
 public:
     VulkanQueue(const VulkanQueueCreateParams &params);
 
+    void WaitIdle() const;
+
     VkQueue GetHandle() const
     {
         return queue;
+    }
+
+    GpuQueueType GetQueueType() const
+    {
+        return queueType;
     }
 
     static SPtr<VulkanQueue> Create(const VulkanQueueCreateParams &params);

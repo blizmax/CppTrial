@@ -21,4 +21,22 @@ public:
 private:
     VkSemaphore semaphore = VK_NULL_HANDLE;
 };
+
+class VulkanFence : public IVulkanResource
+{
+public:
+    VulkanFence();
+
+    virtual void Destroy() override;
+
+    VkFence GetHandle() const
+    {
+        return fence;
+    }
+
+    static SPtr<VulkanFence> Create();
+
+private:
+    VkFence fence = VK_NULL_HANDLE;
+};
 }

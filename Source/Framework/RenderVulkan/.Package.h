@@ -6,6 +6,8 @@
 
 namespace RenderCore
 {
+    constexpr int32 VULKAN_FRAME_NUM = 2;
+
     extern VkAllocationCallbacks *gVulkanAlloc;
 
     class VulkanDevice;
@@ -16,6 +18,7 @@ namespace RenderCore
     class VulkanCommandBuffer;
     class VulkanRenderPipeline;
     class VulkanSemaphore;
+    class VulkanFence;
     class VulkanShader;
     class VulkanSwapChain;
 

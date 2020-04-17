@@ -11,7 +11,7 @@ struct VulkanFrameBufferCreateParams
     uint32 height = 0;
     uint32 layers = 0;
     int32 colorAttachmentCount = 0;
-    SPtr<VulkanImage> colorAttachments[CT_COLOR_ATTCHMENT_MAX_NUM];
+    SPtr<VulkanImage> colorAttachments[COLOR_ATTCHMENT_MAX_NUM];
     SPtr<VulkanRenderPass> renderPass; //Shared render pass
 };
 

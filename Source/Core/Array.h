@@ -162,7 +162,7 @@ public:
         }
     }
 
-    void Resize(int32 newCount)
+    void SetCount(int32 newCount)
     {
         CT_CHECK(newCount >= 0);
 
@@ -172,9 +172,7 @@ public:
         }
         else if (newCount > count)
         {
-            AppendUninitialized(newCount - count);
-            //FIXME
-            //Init use default value Element() ?
+            InsertPrivate(count, Element(), newCount - count);
         }
     }
 
@@ -306,6 +304,16 @@ public:
     void Add(const Element &value)
     {
         InsertPrivate(count, value);
+    }
+
+    void Add(const Element &value, int32 num)
+    {
+        CT_CHECK(num >= 0);
+    
+        if(num > 0)
+        {
+            InsertPrivate(count, value, num);
+        }
     }
 
     void Add(Element &&value)

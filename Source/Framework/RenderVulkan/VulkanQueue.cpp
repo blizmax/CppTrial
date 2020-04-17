@@ -13,4 +13,10 @@ VulkanQueue::VulkanQueue(const VulkanQueueCreateParams &params)
 {
 }
 
+void VulkanQueue::WaitIdle() const
+{
+    if (vkQueueWaitIdle(queue) != VK_SUCCESS)
+        CT_EXCEPTION(RenderCore, "Queue wait idle failed.");
+}
+
 }

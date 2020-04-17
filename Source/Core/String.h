@@ -1107,7 +1107,7 @@ private:
                 auto ptr = data.GetData() + index;
                 CString::Move(ptr + otherNum, ptr + num, len - index - num + 1);
                 CString::Copy(ptr, otherSrc, otherNum);
-                data.Resize(data.Count() - num + otherNum);
+                data.SetCount(data.Count() - num + otherNum);
             }
             else
             {

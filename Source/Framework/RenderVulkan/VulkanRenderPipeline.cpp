@@ -136,8 +136,8 @@ VulkanRenderPipeline::VulkanRenderPipeline(const RenderPipelineCreateParams &par
     depthStencilInfo.stencilTestEnable = depthStencilData.stencilEnabled;
 
     auto blendData = blendState->GetData();
-    VkPipelineColorBlendAttachmentState colorBlendAttachments[CT_COLOR_ATTCHMENT_MAX_NUM];
-    for(int32 i = 0; i < CT_COLOR_ATTCHMENT_MAX_NUM; ++i)
+    VkPipelineColorBlendAttachmentState colorBlendAttachments[COLOR_ATTCHMENT_MAX_NUM];
+    for(int32 i = 0; i < COLOR_ATTCHMENT_MAX_NUM; ++i)
     {
         auto &attach = blendData.attachments[i];
         VkPipelineColorBlendAttachmentState blendAttachment = {};

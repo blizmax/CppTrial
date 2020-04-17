@@ -18,7 +18,7 @@ struct BlendStateAttachmentData
 
 struct BlendStateData
 {
-    BlendStateAttachmentData attachments[CT_COLOR_ATTCHMENT_MAX_NUM];
+    BlendStateAttachmentData attachments[COLOR_ATTCHMENT_MAX_NUM];
 };
 
 using BlendStateCreateParams = BlendStateData;
@@ -37,13 +37,8 @@ public:
 
     auto GetAttachmentData(int32 i) const
     {
-        CT_CHECK(i >= 0 && i < GetMaxAttachmentCount());
+        CT_CHECK(i >= 0 && i < COLOR_ATTCHMENT_MAX_NUM);
         return data.attachments[i];
-    }
-
-    static int32 GetMaxAttachmentCount()
-    {
-        return CT_COLOR_ATTCHMENT_MAX_NUM;
     }
 
     static SPtr<BlendState> Create(const BlendStateCreateParams &params)

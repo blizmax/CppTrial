@@ -13,7 +13,7 @@ SPtr<VulkanFrameBuffer> VulkanFrameBuffer::Create(const VulkanFrameBufferCreateP
 VulkanFrameBuffer::VulkanFrameBuffer(const VulkanFrameBufferCreateParams &params)
 {
     auto device = VulkanContext::Get().GetLogicalDeviceHandle();
-    VkImageView colorAttachs[CT_COLOR_ATTCHMENT_MAX_NUM];
+    VkImageView colorAttachs[COLOR_ATTCHMENT_MAX_NUM];
     for(int32 i = 0; i < params.colorAttachmentCount; ++i)
         colorAttachs[i] = params.colorAttachments[i]->GetViewHandle();
 

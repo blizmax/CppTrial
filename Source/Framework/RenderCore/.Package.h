@@ -4,8 +4,6 @@
 #include "Core/Logger.h"
 #include "Core/Exception.h"
 
-#define CT_COLOR_ATTCHMENT_MAX_NUM 4
-
 enum class VertexDataType
 {
     Unknown,
@@ -110,3 +108,8 @@ enum class StencilOperation
     DecrementWrap,
     Invert,
 };
+
+namespace RenderCore
+{
+    constexpr int32 COLOR_ATTCHMENT_MAX_NUM = 4;
+}

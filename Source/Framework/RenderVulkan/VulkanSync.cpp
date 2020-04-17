@@ -1,4 +1,4 @@
-#include "RenderVulkan/VulkanSemaphore.h"
+#include "RenderVulkan/VulkanSync.h"
 #include "RenderVulkan/VulkanContext.h"
 
 namespace RenderCore
@@ -28,6 +28,34 @@ void VulkanSemaphore::Destroy()
         auto device = VulkanContext::Get().GetLogicalDeviceHandle();
         vkDestroySemaphore(device, semaphore, gVulkanAlloc);
         semaphore = VK_NULL_HANDLE;
+    }
+}
+
+SPtr<VulkanFence> VulkanFence::Create()
+{
+    return Memory::MakeShared<VulkanFence>();
+}
+
+VulkanFence::VulkanFence()
+{
+    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
+
+    VkFenceCreateInfo fenceInfo = {};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.pNext = nullptr;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    if(vkCreateFence(device, &fenceInfo, gVulkanAlloc, &fence))
+        CT_EXCEPTION(RenderCore, "Create fence failed.");
+}
+
+void VulkanFence::Destroy()
+{
+    if(fence != VK_NULL_HANDLE)
+    {
+        auto device = VulkanContext::Get().GetLogicalDeviceHandle();
+        vkDestroyFence(device, fence, gVulkanAlloc);
+        fence = VK_NULL_HANDLE;
     }
 }
 

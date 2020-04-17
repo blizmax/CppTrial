@@ -7,6 +7,12 @@ namespace RenderCore
 class VulkanDevice : public IVulkanResource
 {
 public:
+    struct QueueData
+    {
+        uint32 familyIndex;
+        Array<SPtr<VulkanQueue>> queues;
+    };
+
     VulkanDevice(VkPhysicalDevice device);
     ~VulkanDevice();
 
@@ -15,6 +21,11 @@ public:
     auto GetGraphicsQueueFamilyIndex() const
     {
         return graphicsQueueData.familyIndex;
+    }
+
+    SPtr<VulkanQueue> GetGraphicsQueue() const
+    {
+        return graphicsQueueData.queues[0];
     }
 
     VkPhysicalDevice GetPhysicalDeviceHandle() const
@@ -30,12 +41,6 @@ public:
     static SPtr<VulkanDevice> Create(VkPhysicalDevice device);
 
 private:
-    struct QueueData
-    {
-        uint32 familyIndex;
-        Array<SPtr<VulkanQueue>> queues;
-    };
-
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkDevice logicalDevice = VK_NULL_HANDLE;
 

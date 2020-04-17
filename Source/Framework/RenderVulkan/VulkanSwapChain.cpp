@@ -2,6 +2,9 @@
 #include "RenderVulkan/VulkanDevice.h"
 #include "RenderVulkan/VulkanImage.h"
 #include "RenderVulkan/VulkanContext.h"
+#include "RenderVulkan/VulkanFrameBuffer.h"
+#include "RenderVulkan/VulkanRenderPass.h"
+#include "RenderVulkan/VulkanSync.h"
 #include "Core/Math.h"
 
 namespace RenderCore
@@ -21,9 +24,15 @@ VulkanSwapChain::~VulkanSwapChain()
 
 void VulkanSwapChain::Destroy()
 {
-    for(auto &e : images)
-        e->Destroy();
-    images.Clear();
+    for(auto &e : surfaces)
+    {
+        e.frameBuffer->Destroy();
+        e.image->Destroy();
+    }
+    surfaces.Clear();
+
+    if(renderPass)
+        renderPass->Destroy();
 
     if (swapChain != VK_NULL_HANDLE)
     {
@@ -33,7 +42,7 @@ void VulkanSwapChain::Destroy()
     }
 }
 
-void VulkanSwapChain::Rebuild(VkSurfaceKHR surface, uint32 width, uint32 height)
+void VulkanSwapChain::Rebuild(const VulkanSwapChainCreateParams &params)
 {
     Destroy();
 
@@ -42,22 +51,22 @@ void VulkanSwapChain::Rebuild(VkSurfaceKHR surface, uint32 width, uint32 height)
     auto physicalDevice = device->GetPhysicalDeviceHandle();
 
     VkSurfaceCapabilitiesKHR surfaceCaps;
-    if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCaps) != VK_SUCCESS)
+    if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, params.surface, &surfaceCaps) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Get surface capabilities failed.");
 
     Array<VkSurfaceFormatKHR> formats;
     uint32 formatCount;
-    if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr) != VK_SUCCESS)
+    if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, params.surface, &formatCount, nullptr) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Get surface formats failed.");
     formats.AppendUninitialized(formatCount);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, formats.GetData());
+    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, params.surface, &formatCount, formats.GetData());
 
     Array<VkPresentModeKHR> presentModes;
     uint32 presentModeCount;
-    if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr) != VK_SUCCESS)
+    if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, params.surface, &presentModeCount, nullptr) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Get surface present modes failed.");
     presentModes.AppendUninitialized(presentModeCount);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes.GetData());
+    vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, params.surface, &presentModeCount, presentModes.GetData());
 
     if (formatCount == 0 || presentModeCount == 0)
         CT_EXCEPTION(RenderCore, "No suitable format or present mode.");
@@ -67,14 +76,14 @@ void VulkanSwapChain::Rebuild(VkSurfaceKHR surface, uint32 width, uint32 height)
     VkExtent2D extent = ChooseSwapExtent(surfaceCaps, width, height);
     uint32 imageCount = surfaceCaps.minImageCount;
 
-    this->width = extent.width;
-    this->height = extent.height;
+    width = extent.width;
+    height = extent.height;
 
     VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.pNext = nullptr;
     createInfo.flags = 0;
-    createInfo.surface = surface;
+    createInfo.surface = params.surface;
     createInfo.minImageCount = imageCount;
     createInfo.imageFormat = surfaceFormat.format;
     createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -99,14 +108,31 @@ void VulkanSwapChain::Rebuild(VkSurfaceKHR surface, uint32 width, uint32 height)
     swapChainImages.AppendUninitialized(imageCount);
     vkGetSwapchainImagesKHR(logicDevice, swapChain, &imageCount, swapChainImages.GetData());
     
+    VulkanRenderPassCreateParams renderPassParams;
+    renderPassParams.colorAttachmentCount = 1;
+    renderPassParams.colorAttachmentDescs[0].format = surfaceFormat.format;
+    renderPassParams.colorAttachmentDescs[0].offscreen = false;
+    renderPassParams.sampleFlagBits = ToVkSampleCount(1);
+    renderPass = VulkanRenderPass::Create(renderPassParams);
+
+    surfaces.SetCount(imageCount);
     for(int32 i = 0; i < imageCount; ++i)
     {
-        VulkanImageCreateParams params;
-        params.image = swapChainImages[i];
-        params.format = surfaceFormat.format;
-        params.layout = VK_IMAGE_LAYOUT_UNDEFINED;
+        VulkanImageCreateParams imageParams;
+        imageParams.image = swapChainImages[i];
+        imageParams.format = surfaceFormat.format;
+        imageParams.layout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageParams.ownsImage = false;
+        surfaces[i].image = VulkanImage::Create(imageParams);
 
-        images.Add(VulkanImage::Create(params, false));
+        VulkanFrameBufferCreateParams frameBufferParams;
+        frameBufferParams.width = width;
+        frameBufferParams.height = height;
+        frameBufferParams.colorAttachments[0] = surfaces[i].image;
+        frameBufferParams.colorAttachmentCount = 1;
+        frameBufferParams.layers = 1;
+        frameBufferParams.renderPass = renderPass;
+        surfaces[i].frameBuffer = VulkanFrameBuffer::Create(frameBufferParams);
     }
 }
 

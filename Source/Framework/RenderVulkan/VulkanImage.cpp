@@ -3,13 +3,13 @@
 
 namespace RenderCore
 {
-SPtr<VulkanImage> VulkanImage::Create(const VulkanImageCreateParams &params, bool ownsImage)
+SPtr<VulkanImage> VulkanImage::Create(const VulkanImageCreateParams &params)
 {
-    return Memory::MakeShared<VulkanImage>(params, ownsImage);
+    return Memory::MakeShared<VulkanImage>(params);
 }
 
-VulkanImage::VulkanImage(const VulkanImageCreateParams &params, bool ownsImage)
-    : image(params.image), ownsImage(ownsImage)
+VulkanImage::VulkanImage(const VulkanImageCreateParams &params)
+    : image(params.image), ownsImage(params.ownsImage)
 {
     CreateImageView(params);
 }

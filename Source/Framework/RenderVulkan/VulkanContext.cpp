@@ -1,4 +1,7 @@
 #include "RenderVulkan/VulkanContext.h"
+#include "RenderVulkan/VulkanQueue.h"
+#include "RenderVulkan/VulkanSync.h"
+#include "RenderVulkan/VulkanSwapChain.h"
 
 namespace RenderCore
 {
@@ -39,15 +42,39 @@ void VulkanContext::Init()
     CreateInstance();
     CreateDebugger();
     CreateDevice();
+    CreateFrameDatas();
 }
 
 void VulkanContext::Destroy()
 {
+    DestroyFrameDatas();
+
     device->Destroy();
 
     if (enableValidationLayers)
         DestroyDebugUtilsMessengerEXT(instance, debugMessenger, gVulkanAlloc);
     vkDestroyInstance(instance, gVulkanAlloc);
+}
+
+void VulkanContext::Present()
+{
+    // VkPresentInfoKHR presentInfo = {};
+    // presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    // presentInfo.pNext = nullptr;
+
+    // VkSemaphore waitSemaphores[] = {frames[frameIndex].renderFinishedSemaphore->GetHandle()};
+    // presentInfo.waitSemaphoreCount = 1;
+    // presentInfo.pWaitSemaphores = waitSemaphores;
+
+    // VkSwapchainKHR swapChains[] = {swapChain->GetHandle()};
+    // presentInfo.swapchainCount = 1;
+    // presentInfo.pSwapchains = swapChains;
+
+    // presentInfo.pImageIndices = &imageIndex; //TODO
+
+    // vkQueuePresentKHR(device->GetGraphicsQueue()->GetHandle(), &presentInfo);
+
+    // frameIndex = (frameIndex + 1) % VULKAN_FRAME_NUM;
 }
 
 void VulkanContext::CreateInstance()
@@ -133,6 +160,26 @@ void VulkanContext::CreateDevice()
     }
     else
         CT_EXCEPTION(RenderCore, "Enumerate physical devices failed.");
+}
+
+void VulkanContext::CreateFrameDatas()
+{
+    for(int32 i = 0; i < VULKAN_FRAME_NUM; ++i)
+    {
+        frames[i].renderFinishedSemaphore = VulkanSemaphore::Create();
+        frames[i].swapChainImageSemaphore = VulkanSemaphore::Create();
+        frames[i].fence = VulkanFence::Create();
+    }
+}
+
+void VulkanContext::DestroyFrameDatas()
+{
+    for(int32 i = 0; i < VULKAN_FRAME_NUM; ++i)
+    {
+        frames[i].renderFinishedSemaphore->Destroy();
+        frames[i].swapChainImageSemaphore->Destroy();
+        frames[i].fence->Destroy();
+    }
 }
 
 }
