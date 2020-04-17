@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderCore/RenderPipeline.h"
+#include "RenderCore/RenderPipelineState.h"
 
 namespace RenderCore
 {
@@ -12,6 +12,6 @@ public:
     virtual void Init() = 0;
     virtual void Destroy() = 0;
 
-    virtual void SetRenderPipeline(const SPtr<RenderPipeline> &pipeline) = 0;
+    //virtual void SetRenderPipeline(const SPtr<RenderPipelineState> &pipeline) = 0;
 };
 }

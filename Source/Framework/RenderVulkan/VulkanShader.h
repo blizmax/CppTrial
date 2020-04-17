@@ -9,6 +9,7 @@ class VulkanShader : public Shader, public IVulkanResource
 {
 public:
     VulkanShader(const ShaderCreateParams &params);
+    ~VulkanShader();
     virtual void Destroy() override;
 
     VkShaderModule GetVertexModuleHandle() const

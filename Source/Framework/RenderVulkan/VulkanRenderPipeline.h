@@ -1,14 +1,41 @@
 #pragma once
 
-#include "RenderCore/RenderPipeline.h"
+#include "RenderCore/RenderPipelineState.h"
 #include "RenderVulkan/VulkanMemory.h"
 
 namespace RenderCore
 {
-class VulkanRenderPipeline : public RenderPipeline, public IVulkanResource
+
+class VulkanRenderPipelineState : public RenderPipelineState
 {
 public:
-    VulkanRenderPipeline(const RenderPipelineCreateParams &params);
+    VulkanRenderPipelineState(const RenderPipelineStateCreateParams &params);
+
+private:
+    friend class VulkanRenderPipeline;
+
+    VkPipelineShaderStageCreateInfo vertexShaderStageInfo;
+    VkPipelineShaderStageCreateInfo fragmentShaderStageInfo;
+
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+    VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
+    VkPipelineViewportStateCreateInfo viewportInfo;
+    VkPipelineRasterizationStateCreateInfo rasterizationInfo;
+    VkPipelineMultisampleStateCreateInfo multisampleInfo;
+    VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+    VkPipelineColorBlendStateCreateInfo blendInfo;
+};
+
+struct VulkanRenderPipelineCreateParams
+{
+    SPtr<VulkanRenderPipelineState> state;
+    SPtr<VulkanRenderPass> renderPass;
+};
+
+class VulkanRenderPipeline : public IVulkanResource
+{
+public:
+    VulkanRenderPipeline(const VulkanRenderPipelineCreateParams &params);
 
     virtual void Destroy() override;
 
@@ -17,10 +44,16 @@ public:
         return pipeline;
     }
 
-private:
+    bool IsMatch(const SPtr<VulkanRenderPass> &pass) const
+    {
+        return renderPass == pass;
+    }
 
-private:
+    static SPtr<VulkanRenderPipeline> Create(const VulkanRenderPipelineCreateParams &params);
+
+private: 
     VkPipeline pipeline = VK_NULL_HANDLE;
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+    SPtr<VulkanRenderPass> renderPass;
 };
 }

@@ -5,13 +5,20 @@ namespace RenderCore
 {
 SPtr<Shader> Shader::Create(const ShaderCreateParams &params)
 {
-    return Memory::MakeShared<VulkanShader>(params);
+    auto result = Memory::MakeShared<VulkanShader>(params);
+    VulkanContext::Get().GetShaderRegistry().Register(result.get());
+    return result;
 }
 
 VulkanShader::VulkanShader(const ShaderCreateParams &params)
 {
     vertexModule = CreateShaderModule(params.vertexSource);
     fragmentModule = CreateShaderModule(params.fragmentSource);
+}
+
+VulkanShader::~VulkanShader()
+{
+    VulkanContext::Get().GetShaderRegistry().Remove(this);
 }
 
 void VulkanShader::Destroy()

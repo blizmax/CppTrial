@@ -10,7 +10,5 @@ class VulkanRenderAPI : public RenderAPI
 public:
     virtual void Init() override;
     virtual void Destroy() override;
-
-    virtual void SetRenderPipeline(const SPtr<RenderPipeline> &pipeline) override;
 };   
 }

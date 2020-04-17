@@ -17,6 +17,7 @@ namespace RenderCore
     class VulkanFrameBuffer;
     class VulkanCommandBuffer;
     class VulkanRenderPipeline;
+    class VulkanRenderPipelineState;
     class VulkanSemaphore;
     class VulkanFence;
     class VulkanShader;

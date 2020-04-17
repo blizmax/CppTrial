@@ -42,31 +42,32 @@ void VulkanSwapChain::Destroy()
     }
 }
 
-void VulkanSwapChain::Rebuild(const VulkanSwapChainCreateParams &params)
+void VulkanSwapChain::Recreate(const VulkanSwapChainCreateParams &params)
 {
     Destroy();
 
     auto device = VulkanContext::Get().GetDevice();
     auto logicDevice = device->GetLogicalDeviceHandle();
     auto physicalDevice = device->GetPhysicalDeviceHandle();
+    auto surface = VulkanContext::Get().GetSurfaceKHR();
 
     VkSurfaceCapabilitiesKHR surfaceCaps;
-    if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, params.surface, &surfaceCaps) != VK_SUCCESS)
+    if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCaps) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Get surface capabilities failed.");
 
     Array<VkSurfaceFormatKHR> formats;
     uint32 formatCount;
-    if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, params.surface, &formatCount, nullptr) != VK_SUCCESS)
+    if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Get surface formats failed.");
     formats.AppendUninitialized(formatCount);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, params.surface, &formatCount, formats.GetData());
+    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, formats.GetData());
 
     Array<VkPresentModeKHR> presentModes;
     uint32 presentModeCount;
-    if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, params.surface, &presentModeCount, nullptr) != VK_SUCCESS)
+    if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Get surface present modes failed.");
     presentModes.AppendUninitialized(presentModeCount);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, params.surface, &presentModeCount, presentModes.GetData());
+    vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes.GetData());
 
     if (formatCount == 0 || presentModeCount == 0)
         CT_EXCEPTION(RenderCore, "No suitable format or present mode.");
@@ -83,7 +84,7 @@ void VulkanSwapChain::Rebuild(const VulkanSwapChainCreateParams &params)
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.pNext = nullptr;
     createInfo.flags = 0;
-    createInfo.surface = params.surface;
+    createInfo.surface = surface;
     createInfo.minImageCount = imageCount;
     createInfo.imageFormat = surfaceFormat.format;
     createInfo.imageColorSpace = surfaceFormat.colorSpace;

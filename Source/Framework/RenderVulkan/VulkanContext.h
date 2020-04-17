@@ -1,6 +1,8 @@
 #pragma once
 
 #include "RenderVulkan/VulkanDevice.h"
+#include "RenderVulkan/VulkanSwapChain.h"
+#include "RenderVulkan/VulkanShader.h"
 
 namespace RenderCore
 {
@@ -14,30 +16,42 @@ public:
         SPtr<VulkanFence> fence;
     };
 
-    void Init();
-    void Destroy();
-
-    VkInstance GetInstanceHandle() const
+    VkInstance GetInstanceHandle()
     {
         return instance;
     }
 
-    VkPhysicalDevice GetPhysicalDeviceHandle() const
+    VkPhysicalDevice GetPhysicalDeviceHandle()
     {
         return device->GetPhysicalDeviceHandle();
     }
 
-    VkDevice GetLogicalDeviceHandle() const
+    VkDevice GetLogicalDeviceHandle()
     {
         return device->GetLogicalDeviceHandle();
     }
 
-    SPtr<VulkanDevice> GetDevice() const
+    SPtr<VulkanDevice> GetDevice()
     {
         return device;
     }
 
-    SPtr<VulkanFrameBuffer> GetFrameBuffer() const
+    VkSurfaceKHR GetSurfaceKHR()
+    {
+        return surface;
+    }
+
+    void SetSurfaceKHR(VkSurfaceKHR surfaceKHR)
+    {
+        surface = surfaceKHR;
+    }
+    
+    SPtr<VulkanSwapChain> GetSwapChain()
+    {
+        return swapChain;
+    }
+
+    SPtr<VulkanFrameBuffer> GetFrameBuffer()
     {
         return frameBuffer;
     }
@@ -47,17 +61,27 @@ public:
         frameBuffer = buffer;
     }
 
-    SPtr<VulkanRenderPipeline> GetRenderPipeline() const
+    SPtr<VulkanRenderPipelineState> GetRenderPipelineState()
     {
-        return renderPipeline;
+        return renderPipelineState;
     }
 
-    void SetRenderPipeline(const SPtr<VulkanRenderPipeline> &pipeline)
+    void SetRenderPipelineState(const SPtr<VulkanRenderPipelineState> &state)
     {
-        renderPipeline = pipeline;
+        renderPipelineState = state;
     }
 
+    VulkanResourceRegistry<VulkanShader> &GetShaderRegistry()
+    {
+        return shaderRegistry;
+    }
+
+    void Init();
+    void Destroy();
+    void RecreateSwapChain(const VulkanSwapChainCreateParams &params);
     void Present();
+
+    SPtr<VulkanRenderPipeline> GetRenderPipeline();
 
     static VulkanContext &Get()
     {
@@ -76,15 +100,18 @@ private:
 
 private:
     bool enableValidationLayers = false;
-    VkInstance instance;
-    VkDebugUtilsMessengerEXT debugMessenger;
-    VkSurfaceKHR surface; //TODO
+    VkInstance instance = VK_NULL_HANDLE;
+    VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
+    VkSurfaceKHR surface = VK_NULL_HANDLE;
 
     SPtr<VulkanDevice> device;
-    SPtr<VulkanSwapChain> swapChain; //TODO
+    SPtr<VulkanSwapChain> swapChain;
 
     SPtr<VulkanFrameBuffer> frameBuffer;
-    SPtr<VulkanRenderPipeline> renderPipeline;
+    SPtr<VulkanRenderPipelineState> renderPipelineState;
+    Array<SPtr<VulkanRenderPipeline>> renderPipelines;
+
+    VulkanResourceRegistry<VulkanShader> shaderRegistry;
 
     FrameData frames[VULKAN_FRAME_NUM];
     int32 frameIndex = 0;

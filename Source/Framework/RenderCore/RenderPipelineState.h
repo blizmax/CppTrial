@@ -7,7 +7,7 @@
 
 namespace RenderCore
 {
-struct RenderPipelineCreateParams
+struct RenderPipelineStateCreateParams
 {
     SPtr<RasterizationState> rasterizationState;
     SPtr<BlendState> blendState;
@@ -15,9 +15,9 @@ struct RenderPipelineCreateParams
     SPtr<Shader> shader;
 };
 
-class RenderPipeline
+class RenderPipelineState
 {
-public: 
-    static SPtr<RenderPipeline> Create(const RenderPipelineCreateParams &params);
+public:
+    static SPtr<RenderPipelineState> Create(const RenderPipelineStateCreateParams &params);
 };
 }

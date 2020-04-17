@@ -7,7 +7,6 @@ namespace RenderCore
 
 struct VulkanSwapChainCreateParams
 {
-    VkSurfaceKHR surface;
     uint32 width;
     uint32 height;
 };
@@ -25,7 +24,7 @@ public:
     ~VulkanSwapChain();
 
     virtual void Destroy() override;
-    void Rebuild(const VulkanSwapChainCreateParams &params);
+    void Recreate(const VulkanSwapChainCreateParams &params);
 
     VkSwapchainKHR GetHandle() const
     {

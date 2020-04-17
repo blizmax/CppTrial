@@ -2,6 +2,8 @@
 #include "RenderVulkan/VulkanQueue.h"
 #include "RenderVulkan/VulkanSync.h"
 #include "RenderVulkan/VulkanSwapChain.h"
+#include "RenderVulkan/VulkanRenderPipeline.h"
+#include "RenderVulkan/VulkanFrameBuffer.h"
 
 namespace RenderCore
 {
@@ -47,13 +49,31 @@ void VulkanContext::Init()
 
 void VulkanContext::Destroy()
 {
+    shaderRegistry.Cleanup();
+
+    for(auto &e : renderPipelines)
+        e->Destroy();
+    renderPipelines.Clear();
+
+    if(swapChain)
+        swapChain->Destroy();
+    if(surface != VK_NULL_HANDLE)
+        vkDestroySurfaceKHR(instance, surface, gVulkanAlloc);
+
     DestroyFrameDatas();
 
     device->Destroy();
 
-    if (enableValidationLayers)
+    if (enableValidationLayers && debugMessenger != VK_NULL_HANDLE)
         DestroyDebugUtilsMessengerEXT(instance, debugMessenger, gVulkanAlloc);
     vkDestroyInstance(instance, gVulkanAlloc);
+}
+
+void VulkanContext::RecreateSwapChain(const VulkanSwapChainCreateParams &params)
+{
+    if(!swapChain)
+        swapChain = VulkanSwapChain::Create();
+    swapChain->Recreate(params);
 }
 
 void VulkanContext::Present()
@@ -75,6 +95,34 @@ void VulkanContext::Present()
     // vkQueuePresentKHR(device->GetGraphicsQueue()->GetHandle(), &presentInfo);
 
     // frameIndex = (frameIndex + 1) % VULKAN_FRAME_NUM;
+}
+
+SPtr<VulkanRenderPipeline> VulkanContext::GetRenderPipeline()
+{
+    if(!frameBuffer)
+    {
+        CT_EXCEPTION(RenderCore, "Current frame buffer is null.");
+        return nullptr;
+    }
+    if (!renderPipelineState)
+    {
+        CT_EXCEPTION(RenderCore, "Current pipeline state is null.");
+        return nullptr;
+    }
+
+    auto renderPass = frameBuffer->GetRenderPass();
+    for (const auto &e : renderPipelines)
+    {
+        if(e->IsMatch(renderPass))
+            return e;
+    }
+
+    VulkanRenderPipelineCreateParams params;
+    params.renderPass = renderPass;
+    params.state = renderPipelineState;
+    SPtr<VulkanRenderPipeline> result = VulkanRenderPipeline::Create(params);
+    renderPipelines.Add(result);
+    return result;
 }
 
 void VulkanContext::CreateInstance()
