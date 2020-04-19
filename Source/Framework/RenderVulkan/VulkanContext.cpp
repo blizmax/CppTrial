@@ -4,6 +4,7 @@
 #include "RenderVulkan/VulkanSwapChain.h"
 #include "RenderVulkan/VulkanRenderPipeline.h"
 #include "RenderVulkan/VulkanFrameBuffer.h"
+#include "RenderVulkan/VulkanCommandBuffer.h"
 
 namespace RenderCore
 {
@@ -45,22 +46,24 @@ void VulkanContext::Init()
     CreateDebugger();
     CreateDevice();
     CreateFrameDatas();
+    CreateCommandPools();
 }
 
 void VulkanContext::Destroy()
 {
     shaderRegistry.Cleanup();
 
-    for(auto &e : renderPipelines)
+    DestroyCommandPools();
+    DestroyFrameDatas();
+
+    for (auto &e : renderPipelines)
         e->Destroy();
     renderPipelines.Clear();
 
-    if(swapChain)
+    if (swapChain)
         swapChain->Destroy();
-    if(surface != VK_NULL_HANDLE)
+    if (surface != VK_NULL_HANDLE)
         vkDestroySurfaceKHR(instance, surface, gVulkanAlloc);
-
-    DestroyFrameDatas();
 
     device->Destroy();
 
@@ -71,35 +74,60 @@ void VulkanContext::Destroy()
 
 void VulkanContext::RecreateSwapChain(const VulkanSwapChainCreateParams &params)
 {
-    if(!swapChain)
+    if (!swapChain)
         swapChain = VulkanSwapChain::Create();
     swapChain->Recreate(params);
 }
 
+void VulkanContext::Submit(const SPtr<VulkanCommandBuffer> &buffer)
+{
+    auto &frameData = frames[currentFrameIndex];
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkSemaphore waitSemaphores[] = {frameData.swapChainImageSemaphore->GetHandle()};
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+
+    auto commandBuffer = buffer->GetHandle();
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    VkSemaphore signalSemaphores[] = {frameData.renderFinishedSemaphore->GetHandle()};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    if (vkQueueSubmit(buffer->GetQueue()->GetHandle(), 1, &submitInfo, frameData.fence->GetHandle()) != VK_SUCCESS)
+        CT_EXCEPTION(RenderCore, "Submit failed.");
+}
+
 void VulkanContext::Present()
 {
-    // VkPresentInfoKHR presentInfo = {};
-    // presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    // presentInfo.pNext = nullptr;
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.pNext = nullptr;
 
-    // VkSemaphore waitSemaphores[] = {frames[frameIndex].renderFinishedSemaphore->GetHandle()};
-    // presentInfo.waitSemaphoreCount = 1;
-    // presentInfo.pWaitSemaphores = waitSemaphores;
+    VkSemaphore waitSemaphores[] = {frames[currentFrameIndex].renderFinishedSemaphore->GetHandle()};
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = waitSemaphores;
 
-    // VkSwapchainKHR swapChains[] = {swapChain->GetHandle()};
-    // presentInfo.swapchainCount = 1;
-    // presentInfo.pSwapchains = swapChains;
+    uint32 imageIndex = swapChain->GetCurrentBackBufferIndex();
+    VkSwapchainKHR swapChains[] = {swapChain->GetHandle()};
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+    presentInfo.pImageIndices = &imageIndex;
 
-    // presentInfo.pImageIndices = &imageIndex; //TODO
+    vkQueuePresentKHR(device->GetGraphicsQueue()->GetHandle(), &presentInfo);
 
-    // vkQueuePresentKHR(device->GetGraphicsQueue()->GetHandle(), &presentInfo);
-
-    // frameIndex = (frameIndex + 1) % VULKAN_FRAME_NUM;
+    currentFrameIndex = (currentFrameIndex + 1) % VULKAN_FRAME_NUM;
 }
 
 SPtr<VulkanRenderPipeline> VulkanContext::GetRenderPipeline()
 {
-    if(!frameBuffer)
+    if (!frameBuffer)
     {
         CT_EXCEPTION(RenderCore, "Current frame buffer is null.");
         return nullptr;
@@ -113,7 +141,7 @@ SPtr<VulkanRenderPipeline> VulkanContext::GetRenderPipeline()
     auto renderPass = frameBuffer->GetRenderPass();
     for (const auto &e : renderPipelines)
     {
-        if(e->IsMatch(renderPass))
+        if (e->IsMatch(renderPass))
             return e;
     }
 
@@ -139,7 +167,7 @@ void VulkanContext::CreateInstance()
     Array<const char8 *> extensions;
     extensions.Add(VK_KHR_SURFACE_EXTENSION_NAME);
 #if CT_PLATFORM_WIN32
-        extensions.Add("VK_KHR_win32_surface");
+    extensions.Add("VK_KHR_win32_surface");
 #endif
     if (enableValidationLayers)
         extensions.Add(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -184,19 +212,19 @@ void VulkanContext::CreateDevice()
     Array<VkPhysicalDevice> devices;
     uint32 deviceCount = 0;
 
-    if(vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr) == VK_SUCCESS && deviceCount > 0)
+    if (vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr) == VK_SUCCESS && deviceCount > 0)
     {
         devices.AppendUninitialized(deviceCount);
         vkEnumeratePhysicalDevices(instance, &deviceCount, devices.GetData());
 
         int32 selected = 0;
-        if(deviceCount > 1)
+        if (deviceCount > 1)
         {
-            for(int32 i = 0; i < devices.Count(); ++i)
+            for (int32 i = 0; i < devices.Count(); ++i)
             {
                 VkPhysicalDeviceProperties props;
                 vkGetPhysicalDeviceProperties(devices[i], &props);
-                if(props.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+                if (props.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
                 {
                     selected = i;
                     break;
@@ -212,7 +240,7 @@ void VulkanContext::CreateDevice()
 
 void VulkanContext::CreateFrameDatas()
 {
-    for(int32 i = 0; i < VULKAN_FRAME_NUM; ++i)
+    for (int32 i = 0; i < VULKAN_FRAME_NUM; ++i)
     {
         frames[i].renderFinishedSemaphore = VulkanSemaphore::Create();
         frames[i].swapChainImageSemaphore = VulkanSemaphore::Create();
@@ -220,14 +248,27 @@ void VulkanContext::CreateFrameDatas()
     }
 }
 
+void VulkanContext::CreateCommandPools()
+{
+    VulkanCommandPoolCreateParams params;
+    params.familyIndex = device->GetGraphicsQueueFamilyIndex();
+    params.queue = device->GetGraphicsQueue();
+    renderCommandPool = VulkanCommandPool::Create(params);
+}
+
 void VulkanContext::DestroyFrameDatas()
 {
-    for(int32 i = 0; i < VULKAN_FRAME_NUM; ++i)
+    for (int32 i = 0; i < VULKAN_FRAME_NUM; ++i)
     {
         frames[i].renderFinishedSemaphore->Destroy();
         frames[i].swapChainImageSemaphore->Destroy();
         frames[i].fence->Destroy();
     }
+}
+
+void VulkanContext::DestroyCommandPools()
+{
+    renderCommandPool->Destroy();
 }
 
 }

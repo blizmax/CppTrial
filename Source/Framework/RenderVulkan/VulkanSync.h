@@ -29,6 +29,9 @@ public:
 
     virtual void Destroy() override;
 
+    void Wait();
+    void Reset();
+
     VkFence GetHandle() const
     {
         return fence;

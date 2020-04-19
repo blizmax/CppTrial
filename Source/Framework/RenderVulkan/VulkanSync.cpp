@@ -59,4 +59,16 @@ void VulkanFence::Destroy()
     }
 }
 
+void VulkanFence::Wait()
+{
+    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
+    vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX);
+}
+
+void VulkanFence::Reset()
+{
+    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
+    vkResetFences(device, 1, &fence);
+}
+
 }

@@ -24,14 +24,14 @@ VulkanSwapChain::~VulkanSwapChain()
 
 void VulkanSwapChain::Destroy()
 {
-    for(auto &e : surfaces)
+    for (auto &e : backBuffers)
     {
         e.frameBuffer->Destroy();
         e.image->Destroy();
     }
-    surfaces.Clear();
+    backBuffers.Clear();
 
-    if(renderPass)
+    if (renderPass)
         renderPass->Destroy();
 
     if (swapChain != VK_NULL_HANDLE)
@@ -93,22 +93,22 @@ void VulkanSwapChain::Recreate(const VulkanSwapChainCreateParams &params)
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     createInfo.queueFamilyIndexCount = 0;
-	createInfo.pQueueFamilyIndices = nullptr;
+    createInfo.pQueueFamilyIndices = nullptr;
     createInfo.preTransform = surfaceCaps.currentTransform;
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
     createInfo.presentMode = presentMode;
     createInfo.clipped = VK_TRUE;
     createInfo.oldSwapchain = VK_NULL_HANDLE; //TODO
 
-    if (vkCreateSwapchainKHR(logicDevice, &createInfo, gVulkanAlloc, &swapChain) != VK_SUCCESS) 
+    if (vkCreateSwapchainKHR(logicDevice, &createInfo, gVulkanAlloc, &swapChain) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create swap chain failed.");
 
     Array<VkImage> swapChainImages;
-    if(vkGetSwapchainImagesKHR(logicDevice, swapChain, &imageCount, nullptr) != VK_SUCCESS)
+    if (vkGetSwapchainImagesKHR(logicDevice, swapChain, &imageCount, nullptr) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Get swap chain images failed.");
     swapChainImages.AppendUninitialized(imageCount);
     vkGetSwapchainImagesKHR(logicDevice, swapChain, &imageCount, swapChainImages.GetData());
-    
+
     VulkanRenderPassCreateParams renderPassParams;
     renderPassParams.colorAttachmentCount = 1;
     renderPassParams.colorAttachmentDescs[0].format = surfaceFormat.format;
@@ -116,28 +116,45 @@ void VulkanSwapChain::Recreate(const VulkanSwapChainCreateParams &params)
     renderPassParams.sampleFlagBits = ToVkSampleCount(1);
     renderPass = VulkanRenderPass::Create(renderPassParams);
 
-    surfaces.SetCount(imageCount);
-    for(int32 i = 0; i < imageCount; ++i)
+    backBuffers.SetCount(imageCount);
+    for (int32 i = 0; i < imageCount; ++i)
     {
         VulkanImageCreateParams imageParams;
         imageParams.image = swapChainImages[i];
         imageParams.format = surfaceFormat.format;
         imageParams.layout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageParams.ownsImage = false;
-        surfaces[i].image = VulkanImage::Create(imageParams);
+        backBuffers[i].image = VulkanImage::Create(imageParams);
 
         VulkanFrameBufferCreateParams frameBufferParams;
         frameBufferParams.width = width;
         frameBufferParams.height = height;
-        frameBufferParams.colorAttachments[0] = surfaces[i].image;
+        frameBufferParams.colorAttachments[0] = backBuffers[i].image;
         frameBufferParams.colorAttachmentCount = 1;
         frameBufferParams.layers = 1;
         frameBufferParams.renderPass = renderPass;
-        surfaces[i].frameBuffer = VulkanFrameBuffer::Create(frameBufferParams);
+        backBuffers[i].frameBuffer = VulkanFrameBuffer::Create(frameBufferParams);
     }
 }
 
-VkSurfaceFormatKHR VulkanSwapChain::ChooseSurfaceFormat(const Array<VkSurfaceFormatKHR> formats, bool gamma)
+void VulkanSwapChain::AcquireBackBuffer()
+{
+    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
+    auto &frameData = VulkanContext::Get().GetCurrentFrameData();
+    auto semaphore = frameData.swapChainImageSemaphore;
+
+    uint32 imageIndex;
+    VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, semaphore->GetHandle(), VK_NULL_HANDLE, &imageIndex);
+    CT_CHECK(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR);
+
+    if(backBuffers[imageIndex].fence)
+        backBuffers[imageIndex].fence->Wait();
+    backBuffers[imageIndex].fence = frameData.fence;
+
+    currentBackBufferIndex = imageIndex;
+}
+
+VkSurfaceFormatKHR VulkanSwapChain::ChooseSurfaceFormat(const Array<VkSurfaceFormatKHR> &formats, bool gamma)
 {
     VkSurfaceFormatKHR desired = {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
     if (gamma)
@@ -153,7 +170,7 @@ VkSurfaceFormatKHR VulkanSwapChain::ChooseSurfaceFormat(const Array<VkSurfaceFor
     return formats[0];
 }
 
-VkPresentModeKHR VulkanSwapChain::ChoosePresentMode(const Array<VkPresentModeKHR> modes, bool vsync)
+VkPresentModeKHR VulkanSwapChain::ChoosePresentMode(const Array<VkPresentModeKHR> &modes, bool vsync)
 {
     VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
     if (!vsync)

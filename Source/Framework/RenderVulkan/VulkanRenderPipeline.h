@@ -14,6 +14,9 @@ public:
 private:
     friend class VulkanRenderPipeline;
 
+    SPtr<VulkanShader> shader;
+    VkPipelineColorBlendAttachmentState colorBlendAttachments[COLOR_ATTCHMENT_MAX_NUM];
+
     VkPipelineShaderStageCreateInfo vertexShaderStageInfo;
     VkPipelineShaderStageCreateInfo fragmentShaderStageInfo;
 
@@ -24,6 +27,7 @@ private:
     VkPipelineMultisampleStateCreateInfo multisampleInfo;
     VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
     VkPipelineColorBlendStateCreateInfo blendInfo;
+    VkPipelineDynamicStateCreateInfo dynamicInfo;
 };
 
 struct VulkanRenderPipelineCreateParams

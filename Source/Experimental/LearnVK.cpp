@@ -8,20 +8,16 @@
 #include "RenderVulkan/VulkanContext.h"
 #include "RenderVulkan/VulkanSwapChain.h"
 #include "RenderVulkan/VulkanRenderPipeline.h"
+#include "RenderVulkan/VulkanSync.h"
+#include "RenderVulkan/VulkanCommandBuffer.h"
 using namespace RenderCore;
 
 const int32 WIDTH = 800;
 const int32 HEIGHT = 600;
 
-bool enableValidationLayers = true;
-
-struct WindowData
-{
-    GLFWwindow *window;
-};
-
-WindowData windowData;
+GLFWwindow *window;
 SPtr<VulkanRenderPipelineState> pipelineState;
+Array<SPtr<VulkanCommandBuffer>> commandBuffers;
 
 SPtr<Shader> CreateShader()
 {
@@ -39,7 +35,7 @@ void InitVulkan()
     context.Init();
 
     VkSurfaceKHR surface;
-    if (glfwCreateWindowSurface(context.GetInstanceHandle(), windowData.window, gVulkanAlloc, &surface) != VK_SUCCESS)
+    if (glfwCreateWindowSurface(context.GetInstanceHandle(), window, gVulkanAlloc, &surface) != VK_SUCCESS)
         CT_EXCEPTION(LearnVK, "Create surface failed.");
  
     VkBool32 supportsPresent;
@@ -68,7 +64,6 @@ void InitVulkan()
     pipelineStateParams.shader = CreateShader();
     pipelineState = std::static_pointer_cast<VulkanRenderPipelineState>(RenderPipelineState::Create(pipelineStateParams));
 
-    context.SetRenderPipelineState(pipelineState);
 }
 
 void CleanupVulkan()
@@ -83,18 +78,48 @@ int main(int argc, char **argv)
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    windowData.window = glfwCreateWindow(WIDTH, HEIGHT, "LearnVK", nullptr, nullptr);
+    window = glfwCreateWindow(WIDTH, HEIGHT, "LearnVK", nullptr, nullptr);
 
     InitVulkan();
 
-    while (!glfwWindowShouldClose(windowData.window))
+    auto &context = VulkanContext::Get();
+    while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
+
+        auto &frameData = context.GetCurrentFrameData();
+
+        frameData.fence->Wait();
+        context.GetSwapChain()->AcquireBackBuffer();
+        frameData.fence->Reset();
+
+        context.SetFrameBuffer(context.GetSwapChain()->GetCurentBackBufferData().frameBuffer);
+        context.SetRenderPipelineState(pipelineState);
+
+        auto backBufferIndex = context.GetSwapChain()->GetCurrentBackBufferIndex();
+        if (commandBuffers.Count() <= backBufferIndex)
+        {
+            auto commandBuffer = context.GetRenderCommandPool()->GetIdleBuffer();
+            commandBuffer->Begin();
+            commandBuffer->BeginRenderPass();
+            commandBuffer->BindRenderPipeline();
+            commandBuffer->SetViewport(0, 0, WIDTH, HEIGHT);
+            commandBuffer->SetScissor(0, 0, WIDTH, HEIGHT);
+            commandBuffer->Draw(0, 3, 1);
+            commandBuffer->EndRenderPass();
+            commandBuffer->End();
+
+            commandBuffers.Add(commandBuffer);
+        }
+
+        const auto &commandBuffer = commandBuffers[backBufferIndex];
+        context.Submit(commandBuffer);
+        context.Present();
     }
 
     CleanupVulkan();
 
-    glfwDestroyWindow(windowData.window);
+    glfwDestroyWindow(window);
     glfwTerminate();
 
     return 0;

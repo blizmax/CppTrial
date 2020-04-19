@@ -45,7 +45,7 @@ public:
     {
         surface = surfaceKHR;
     }
-    
+
     SPtr<VulkanSwapChain> GetSwapChain()
     {
         return swapChain;
@@ -71,6 +71,16 @@ public:
         renderPipelineState = state;
     }
 
+    FrameData &GetCurrentFrameData()
+    {
+        return frames[currentFrameIndex];
+    }
+
+    SPtr<VulkanCommandPool> GetRenderCommandPool()
+    {
+        return renderCommandPool;
+    }
+
     VulkanResourceRegistry<VulkanShader> &GetShaderRegistry()
     {
         return shaderRegistry;
@@ -79,6 +89,7 @@ public:
     void Init();
     void Destroy();
     void RecreateSwapChain(const VulkanSwapChainCreateParams &params);
+    void Submit(const SPtr<VulkanCommandBuffer> &buffer);
     void Present();
 
     SPtr<VulkanRenderPipeline> GetRenderPipeline();
@@ -96,7 +107,9 @@ private:
     void CreateDebugger();
     void CreateDevice();
     void CreateFrameDatas();
+    void CreateCommandPools();
     void DestroyFrameDatas();
+    void DestroyCommandPools();
 
 private:
     bool enableValidationLayers = false;
@@ -111,9 +124,11 @@ private:
     SPtr<VulkanRenderPipelineState> renderPipelineState;
     Array<SPtr<VulkanRenderPipeline>> renderPipelines;
 
+    SPtr<VulkanCommandPool> renderCommandPool;
+
     VulkanResourceRegistry<VulkanShader> shaderRegistry;
 
     FrameData frames[VULKAN_FRAME_NUM];
-    int32 frameIndex = 0;
+    uint32 currentFrameIndex = 0;
 };
 }

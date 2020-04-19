@@ -6,7 +6,13 @@
 
 namespace RenderCore
 {
-VulkanCommandPool::VulkanCommandPool(uint32 familyIndex) : familyIndex(familyIndex)
+SPtr<VulkanCommandPool> VulkanCommandPool::Create(const VulkanCommandPoolCreateParams &params)
+{
+    return Memory::MakeShared<VulkanCommandPool>(params);
+}
+
+VulkanCommandPool::VulkanCommandPool(const VulkanCommandPoolCreateParams &params) 
+    : familyIndex(params.familyIndex), queue(params.queue)
 {
     auto device = VulkanContext::Get().GetDevice();
     auto logicDevice = device->GetLogicalDeviceHandle();
@@ -33,13 +39,29 @@ void VulkanCommandPool::Destroy()
     }
 }
 
+SPtr<VulkanCommandBuffer> VulkanCommandPool::GetIdleBuffer()
+{
+    for(auto &e : buffers)
+    {
+        if(e->IsReady())
+            return e;
+    }
+
+    buffers.Add(CreateBuffer());
+    return buffers.Last();
+}
+
 SPtr<VulkanCommandBuffer> VulkanCommandPool::CreateBuffer()
 {
-    //TODO
-    return nullptr;
+    VulkanCommandBufferCreateParams params;
+    params.pool = pool;
+    params.secondary = false;
+    params.queue = queue;
+    return Memory::MakeShared<VulkanCommandBuffer>(params);
 }
 
 VulkanCommandBuffer::VulkanCommandBuffer(const VulkanCommandBufferCreateParams& params)
+     : queue(params.queue)
 {
     auto logicDevice = VulkanContext::Get().GetLogicalDeviceHandle();
 
@@ -56,6 +78,8 @@ VulkanCommandBuffer::VulkanCommandBuffer(const VulkanCommandBufferCreateParams& 
 
 void VulkanCommandBuffer::Begin()
 {
+    CT_CHECK(state == State::Ready);
+
     VkCommandBufferBeginInfo beginInfo;
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.pNext = nullptr;
@@ -64,16 +88,24 @@ void VulkanCommandBuffer::Begin()
 
 	if(vkBeginCommandBuffer(buffer, &beginInfo) != VK_SUCCESS)
 	    CT_EXCEPTION(RenderCore, "Begin command buffer failed.");
+
+    state = State::Recording;
 }
 
 void VulkanCommandBuffer::End()
 {
+    CT_CHECK(state == State::Recording);
+
     if(vkEndCommandBuffer(buffer) != VK_SUCCESS)
 	    CT_EXCEPTION(RenderCore, "End command buffer failed.");
+
+    state == State::Recorded;
 }
 
 void VulkanCommandBuffer::BeginRenderPass()
 {
+    CT_CHECK(state == State::Recording);
+
     auto frameBuffer = VulkanContext::Get().GetFrameBuffer();
 
     VkRenderPassBeginInfo renderPassInfo = {};
@@ -93,17 +125,54 @@ void VulkanCommandBuffer::BeginRenderPass()
     renderPassInfo.pClearValues = &clearColor;
 
     vkCmdBeginRenderPass(buffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    state = State::RecordingRenderPass;
 }
 
 void VulkanCommandBuffer::EndRenderPass()
 {
+    CT_CHECK(state == State::RecordingRenderPass);
+
     vkCmdEndRenderPass(buffer);
+
+    state = State::Recording;
+}
+
+void VulkanCommandBuffer::Reset()
+{
+    //TODO
+    // VkCommandBufferResetFlags flags = 0; //VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT
+    // vkResetCommandBuffer(buffer, flags);
+
+    // state = State::Ready;
 }
 
 void VulkanCommandBuffer::BindRenderPipeline()
 {
     auto pipeline = VulkanContext::Get().GetRenderPipeline();
     vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetHandle());
+}
+
+void VulkanCommandBuffer::SetViewport(float x, float y, float width, float height)
+{
+    VkViewport viewport;
+    viewport.x = x;
+    viewport.y = y;
+    viewport.width = width;
+    viewport.height = height;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    vkCmdSetViewport(buffer, 0, 1, &viewport);
+}
+
+void VulkanCommandBuffer::SetScissor(int32 x, int32 y, uint32 width, uint32 height)
+{
+    VkRect2D scissorRect;
+    scissorRect.offset.x = x;
+    scissorRect.offset.y = y;
+    scissorRect.extent.width = width;
+    scissorRect.extent.height = height;
+    vkCmdSetScissor(buffer, 0, 1, &scissorRect);
 }
 
 void VulkanCommandBuffer::Draw(uint32 vertexOffset, uint32 vertexCount, uint32 instanceCount)
