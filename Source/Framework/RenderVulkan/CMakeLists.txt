@@ -17,4 +17,6 @@ add_library(RenderVulkan
 
 target_link_libraries(RenderVulkan
     ${VULKAN_LIBRARY}
+    glslang
+    SPIRV
 )

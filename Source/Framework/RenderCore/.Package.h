@@ -4,6 +4,16 @@
 #include "Core/Logger.h"
 #include "Core/Exception.h"
 
+enum class ShaderType
+{
+    Vertex,
+    Fragment,
+    Geometry,
+    TessControl,
+    TessEvaluation,
+    Compute
+};
+
 enum class VertexDataType
 {
     Unknown,

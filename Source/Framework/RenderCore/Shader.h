@@ -6,8 +6,8 @@ namespace RenderCore
 {
 struct ShaderCreateParams
 {
-    Array<uchar8> vertexSource;
-    Array<uchar8> fragmentSource;
+    String vertexSource;
+    String fragmentSource;
 };
 
 class Shader

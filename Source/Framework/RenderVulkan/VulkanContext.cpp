@@ -5,6 +5,7 @@
 #include "RenderVulkan/VulkanRenderPipeline.h"
 #include "RenderVulkan/VulkanFrameBuffer.h"
 #include "RenderVulkan/VulkanCommandBuffer.h"
+#include "RenderVulkan/VulkanShader.h"
 
 namespace RenderCore
 {
@@ -42,6 +43,8 @@ void VulkanContext::Init()
     enableValidationLayers = true;
 #endif
 
+    VulkanShaderCompiler::Get().Init();
+
     CreateInstance();
     CreateDebugger();
     CreateDevice();
@@ -70,6 +73,8 @@ void VulkanContext::Destroy()
     if (enableValidationLayers && debugMessenger != VK_NULL_HANDLE)
         DestroyDebugUtilsMessengerEXT(instance, debugMessenger, gVulkanAlloc);
     vkDestroyInstance(instance, gVulkanAlloc);
+
+    VulkanShaderCompiler::Get().Destroy();
 }
 
 void VulkanContext::RecreateSwapChain(const VulkanSwapChainCreateParams &params)

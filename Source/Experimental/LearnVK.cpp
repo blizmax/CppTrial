@@ -22,10 +22,10 @@ Array<SPtr<VulkanCommandBuffer>> commandBuffers;
 SPtr<Shader> CreateShader()
 {
     ShaderCreateParams params;
-    IO::FileHandle vertSrcFile(CT_TEXT("External/vulkan/vert.spv"));
-    IO::FileHandle fragSrcFile(CT_TEXT("External/vulkan/frag.spv"));
-    params.vertexSource = vertSrcFile.ReadBytes();
-    params.fragmentSource = fragSrcFile.ReadBytes();
+    IO::FileHandle vertSrcFile(CT_TEXT("External/vulkan/shader.vert"));
+    IO::FileHandle fragSrcFile(CT_TEXT("External/vulkan/shader.frag"));
+    params.vertexSource = vertSrcFile.ReadString();
+    params.fragmentSource = fragSrcFile.ReadString();
     return Shader::Create(params);
 }
 
