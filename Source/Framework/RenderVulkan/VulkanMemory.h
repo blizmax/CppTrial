@@ -3,6 +3,8 @@
 #include "RenderVulkan/.Package.h"
 #include "Core/HashSet.h"
 
+#include <vk_mem_alloc.h>
+
 namespace RenderCore
 {
 class IVulkanResource

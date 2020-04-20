@@ -24,6 +24,7 @@ namespace RenderCore
     class VulkanShader;
     class VulkanSwapChain;
 
+    VkFormat ToVkDataFormat(VertexDataType dataType);
     VkPolygonMode ToVkPolygonMode(PolygonMode mode);
     VkCullModeFlagBits ToVkCullMode(CullMode mode);
     VkBlendFactor ToVkBlendFactor(BlendFactor factor);

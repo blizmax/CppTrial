@@ -94,6 +94,13 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice device) : physicalDevice(device)
         VulkanQueueCreateParams params = {GpuQueueType::Graphics, queue};
         graphicsQueueData.queues[i] = VulkanQueue::Create(params);
     }
+
+    VmaAllocatorCreateInfo allocatorInfo = {};
+    allocatorInfo.physicalDevice = physicalDevice;
+    allocatorInfo.device = logicalDevice;
+    allocatorInfo.pAllocationCallbacks = gVulkanAlloc;
+    allocatorInfo.flags = 0;
+    vmaCreateAllocator(&allocatorInfo, &allocator);
 }
 
 VulkanDevice::~VulkanDevice()
@@ -102,11 +109,16 @@ VulkanDevice::~VulkanDevice()
 
 void VulkanDevice::Destroy()
 {
+    if(allocator != VK_NULL_HANDLE)
+    {
+        vmaDestroyAllocator(allocator);
+        allocator = VK_NULL_HANDLE;
+    }
+
     if(logicalDevice != VK_NULL_HANDLE)
     {
         vkDestroyDevice(logicalDevice, gVulkanAlloc);
         logicalDevice = VK_NULL_HANDLE;
     }
 }
-
 }

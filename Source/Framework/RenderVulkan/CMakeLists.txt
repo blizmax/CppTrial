@@ -1,4 +1,4 @@
-if (WIN32)
+if(WIN32)
     find_library(VULKAN_LIBRARY NAMES vulkan-1 vulkan PATHS ${CT_EXTERNAL_DIR}/vulkan/lib)
     if (VULKAN_LIBRARY)
         set(VULKAN_FOUND ON)
@@ -17,6 +17,7 @@ add_library(RenderVulkan
 
 target_link_libraries(RenderVulkan
     ${VULKAN_LIBRARY}
+    RenderCore
     glslang
     SPIRV
 )

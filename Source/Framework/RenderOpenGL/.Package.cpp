@@ -14,6 +14,8 @@ uint32 GetGLDataType(VertexDataType dataType)
         return GL_FLOAT;
     case VertexDataType::Float4:
         return GL_FLOAT;
+    case VertexDataType::Int1:
+        return GL_INT;
     case VertexDataType::Int2:
         return GL_INT;
     case VertexDataType::Int3:

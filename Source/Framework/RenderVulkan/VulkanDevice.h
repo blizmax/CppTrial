@@ -38,11 +38,17 @@ public:
         return logicalDevice;
     }
 
+    VmaAllocator GetAllocator() const
+    {
+        return allocator;
+    }
+
     static SPtr<VulkanDevice> Create(VkPhysicalDevice device);
 
 private:
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkDevice logicalDevice = VK_NULL_HANDLE;
+    VmaAllocator allocator = VK_NULL_HANDLE;
 
     VkPhysicalDeviceProperties properties;
     VkPhysicalDeviceFeatures features;
