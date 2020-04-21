@@ -170,7 +170,7 @@ void VulkanShaderCompiler::Init()
     glslang::InitializeProcess();
 }
 
-void VulkanShaderCompiler::Destroy()
+void VulkanShaderCompiler::Deinit()
 {
     glslang::FinalizeProcess();
 }

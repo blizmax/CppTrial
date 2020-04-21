@@ -5,23 +5,23 @@
 namespace RenderCore
 {
 
-struct VertexBufferCreateParams
+struct IndexBufferCreateParams
 {
-    uint32 vertexCount;
+    uint32 indexCount;
     uint32 size;
     GpuBufferUsage usage = GpuBufferUsage::Static;
 };
 
-class VertexBuffer
+class IndexBuffer
 {
 public:
-    virtual ~VertexBuffer() = default;
+    virtual ~IndexBuffer() = default;
 
     virtual void *Map() = 0;
     virtual void Unmap() = 0;
     virtual uint32 GetSize() const = 0;
 
-    static SPtr<VertexBuffer> Create(const VertexBufferCreateParams &params);
+    static SPtr<IndexBuffer> Create(const IndexBufferCreateParams &params);
 };
 
 }

@@ -10,12 +10,16 @@
 #include "RenderVulkan/VulkanRenderPipeline.h"
 #include "RenderVulkan/VulkanSync.h"
 #include "RenderVulkan/VulkanCommandBuffer.h"
+#include "RenderVulkan/VulkanVertexBuffer.h"
+#include "RenderVulkan/VulkanVertexLayout.h"
 using namespace RenderCore;
 
 const int32 WIDTH = 800;
 const int32 HEIGHT = 600;
 
 GLFWwindow *window;
+SPtr<VulkanVertexBuffer> vertexBuffer;
+SPtr<VulkanVertexLayout> vertexLayout;
 SPtr<VulkanRenderPipelineState> pipelineState;
 Array<SPtr<VulkanCommandBuffer>> commandBuffers;
 
@@ -53,7 +57,7 @@ void InitVulkan()
     swapChainParams.height = HEIGHT;
     context.RecreateSwapChain(swapChainParams);
 
-
+    //Pipeline
     RenderPipelineStateCreateParams pipelineStateParams;
     BlendStateCreateParams blendParams;
     pipelineStateParams.blendState = BlendState::Create(blendParams);
@@ -64,6 +68,26 @@ void InitVulkan()
     pipelineStateParams.shader = CreateShader();
     pipelineState = std::static_pointer_cast<VulkanRenderPipelineState>(RenderPipelineState::Create(pipelineStateParams));
 
+    //VertexBuffer
+    float vertices[] = {
+        0.0f, -0.5f, 1.0f, 0.0f, 0.0f,
+        0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+        -0.5f, 0.5f, 0.0f, 0.0f, 1.0f
+    };
+    VertexBufferCreateParams vbParams;
+    vbParams.size = sizeof(vertices);
+    vbParams.vertexCount = 3;
+    vertexBuffer = std::static_pointer_cast<VulkanVertexBuffer>(VertexBuffer::Create(vbParams));
+    void *mapped = vertexBuffer->Map();
+    std::memcpy(mapped, vertices, vbParams.size);
+    vertexBuffer->Unmap();
+
+    //VertexLayout
+    VertexLayoutCreateParams vlParams {
+        {CT_TEXT("VertexPosition"), VertexDataType::Float2},
+        {CT_TEXT("VertexColor"), VertexDataType::Float3}
+    };
+    VertexLayout::Create(vlParams);
 }
 
 void CleanupVulkan()

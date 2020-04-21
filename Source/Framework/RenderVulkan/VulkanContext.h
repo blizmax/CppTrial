@@ -3,6 +3,8 @@
 #include "RenderVulkan/VulkanDevice.h"
 #include "RenderVulkan/VulkanSwapChain.h"
 #include "RenderVulkan/VulkanShader.h"
+#include "RenderVulkan/VulkanVertexBuffer.h"
+#include "RenderVulkan/VulkanVertexLayout.h"
 
 namespace RenderCore
 {
@@ -14,6 +16,13 @@ public:
         SPtr<VulkanSemaphore> renderFinishedSemaphore;
         SPtr<VulkanSemaphore> swapChainImageSemaphore;
         SPtr<VulkanFence> fence;
+    };
+
+    struct StateData
+    {
+        SPtr<VulkanRenderPipelineState> pipelineState;
+        SPtr<VulkanVertexLayout> vertexLayout;
+        SPtr<VulkanFrameBuffer> frameBuffer;
     };
 
     VkInstance GetInstanceHandle()
@@ -39,6 +48,11 @@ public:
     VkSurfaceKHR GetSurfaceKHR()
     {
         return surface;
+    }
+
+    VmaAllocator GetVmaAllocator()
+    {
+        return allocator;
     }
 
     void SetSurfaceKHR(VkSurfaceKHR surfaceKHR)
@@ -86,6 +100,11 @@ public:
         return shaderRegistry;
     }
 
+    VulkanResourceRegistry<VulkanVertexBuffer> &GetVertexBufferRegistry()
+    {
+        return vertexBufferRegistry;
+    }
+
     void Init();
     void Destroy();
     void RecreateSwapChain(const VulkanSwapChainCreateParams &params);
@@ -106,8 +125,12 @@ private:
     void CreateInstance();
     void CreateDebugger();
     void CreateDevice();
+    void CreateVmaAllocator();
     void CreateFrameDatas();
     void CreateCommandPools();
+
+    void DestroyDebugger();
+    void DestroyVmaAllocator();
     void DestroyFrameDatas();
     void DestroyCommandPools();
 
@@ -116,6 +139,7 @@ private:
     VkInstance instance = VK_NULL_HANDLE;
     VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
     VkSurfaceKHR surface = VK_NULL_HANDLE;
+    VmaAllocator allocator = VK_NULL_HANDLE;
 
     SPtr<VulkanDevice> device;
     SPtr<VulkanSwapChain> swapChain;
@@ -127,8 +151,11 @@ private:
     SPtr<VulkanCommandPool> renderCommandPool;
 
     VulkanResourceRegistry<VulkanShader> shaderRegistry;
+    VulkanResourceRegistry<VulkanVertexBuffer> vertexBufferRegistry;
 
     FrameData frames[VULKAN_FRAME_NUM];
     uint32 currentFrameIndex = 0;
+
+    StateData currentState;
 };
 }

@@ -83,7 +83,7 @@ void VulkanCommandBuffer::Begin()
     VkCommandBufferBeginInfo beginInfo;
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.pNext = nullptr;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	beginInfo.flags = 0;//VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 	beginInfo.pInheritanceInfo = nullptr;
 
 	if(vkBeginCommandBuffer(buffer, &beginInfo) != VK_SUCCESS)
@@ -153,13 +153,13 @@ void VulkanCommandBuffer::BindRenderPipeline()
     vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetHandle());
 }
 
-void VulkanCommandBuffer::SetViewport(float x, float y, float width, float height)
+void VulkanCommandBuffer::SetViewport(int32 x, int32 y, uint32 width, uint32 height)
 {
     VkViewport viewport;
-    viewport.x = x;
-    viewport.y = y;
-    viewport.width = width;
-    viewport.height = height;
+    viewport.x = (float)x;
+    viewport.y = (float)y;
+    viewport.width = (float)width;
+    viewport.height = (float)height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     vkCmdSetViewport(buffer, 0, 1, &viewport);
@@ -173,6 +173,32 @@ void VulkanCommandBuffer::SetScissor(int32 x, int32 y, uint32 width, uint32 heig
     scissorRect.extent.width = width;
     scissorRect.extent.height = height;
     vkCmdSetScissor(buffer, 0, 1, &scissorRect);
+}
+
+void VulkanCommandBuffer::SetStencilRef(uint32 ref)
+{
+    vkCmdSetStencilReference(buffer, VK_STENCIL_FRONT_AND_BACK, ref);
+}
+
+void VulkanCommandBuffer::SetVertexLayout(const SPtr<VertexLayout> &layout)
+{
+    //TODO
+}
+
+void VulkanCommandBuffer::SetVertexBuffers(uint32 startIndex, SPtr<VertexBuffer> *vertexBuffers, uint32 count)
+{
+    static VkBuffer tempBuffers[VERTEX_INPUT_MAX_NUM] = {};
+    static VkDeviceSize tempOffsets[VERTEX_INPUT_MAX_NUM] = {};
+
+    CT_CHECK(count <= VERTEX_INPUT_MAX_NUM);
+
+    auto src = reinterpret_cast<SPtr<VulkanVertexBuffer> *>(vertexBuffers);
+    for(int32 i = 0; i < count; ++i)
+    {
+        tempBuffers[i] = src[i]->GetHandle();
+    }
+
+    vkCmdBindVertexBuffers(buffer, startIndex, count, tempBuffers, tempOffsets);
 }
 
 void VulkanCommandBuffer::Draw(uint32 vertexOffset, uint32 vertexCount, uint32 instanceCount)

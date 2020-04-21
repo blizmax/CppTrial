@@ -122,6 +122,7 @@ enum class StencilOperation
 namespace RenderCore
 {
     constexpr int32 COLOR_ATTCHMENT_MAX_NUM = 4;
+    constexpr int32 VERTEX_INPUT_MAX_NUM = 16;
 
     uint32 GetVertexDataSize(VertexDataType dataType);
     uint32 GetVertexDataComponentCount(VertexDataType dataType);

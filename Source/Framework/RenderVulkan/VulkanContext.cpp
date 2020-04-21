@@ -48,6 +48,7 @@ void VulkanContext::Init()
     CreateInstance();
     CreateDebugger();
     CreateDevice();
+    CreateVmaAllocator();
     CreateFrameDatas();
     CreateCommandPools();
 }
@@ -55,6 +56,7 @@ void VulkanContext::Init()
 void VulkanContext::Destroy()
 {
     shaderRegistry.Cleanup();
+    vertexBufferRegistry.Cleanup();
 
     DestroyCommandPools();
     DestroyFrameDatas();
@@ -68,13 +70,14 @@ void VulkanContext::Destroy()
     if (surface != VK_NULL_HANDLE)
         vkDestroySurfaceKHR(instance, surface, gVulkanAlloc);
 
+    DestroyVmaAllocator();
     device->Destroy();
 
-    if (enableValidationLayers && debugMessenger != VK_NULL_HANDLE)
-        DestroyDebugUtilsMessengerEXT(instance, debugMessenger, gVulkanAlloc);
+    DestroyDebugger();
+
     vkDestroyInstance(instance, gVulkanAlloc);
 
-    VulkanShaderCompiler::Get().Destroy();
+    VulkanShaderCompiler::Get().Deinit();
 }
 
 void VulkanContext::RecreateSwapChain(const VulkanSwapChainCreateParams &params)
@@ -243,6 +246,15 @@ void VulkanContext::CreateDevice()
         CT_EXCEPTION(RenderCore, "Enumerate physical devices failed.");
 }
 
+void VulkanContext::CreateVmaAllocator()
+{
+    VmaAllocatorCreateInfo allocatorInfo = {};
+    allocatorInfo.physicalDevice = device->GetPhysicalDeviceHandle();
+    allocatorInfo.device = device->GetLogicalDeviceHandle();
+    allocatorInfo.pAllocationCallbacks = gVulkanAlloc;
+    vmaCreateAllocator(&allocatorInfo, &allocator);
+}
+
 void VulkanContext::CreateFrameDatas()
 {
     for (int32 i = 0; i < VULKAN_FRAME_NUM; ++i)
@@ -259,6 +271,21 @@ void VulkanContext::CreateCommandPools()
     params.familyIndex = device->GetGraphicsQueueFamilyIndex();
     params.queue = device->GetGraphicsQueue();
     renderCommandPool = VulkanCommandPool::Create(params);
+}
+
+void VulkanContext::DestroyDebugger()
+{
+    if (enableValidationLayers && debugMessenger != VK_NULL_HANDLE)
+        DestroyDebugUtilsMessengerEXT(instance, debugMessenger, gVulkanAlloc);
+}
+
+void VulkanContext::DestroyVmaAllocator()
+{
+    if(allocator != VK_NULL_HANDLE)
+    {
+        vmaDestroyAllocator(allocator);
+        allocator = VK_NULL_HANDLE;
+    }
 }
 
 void VulkanContext::DestroyFrameDatas()

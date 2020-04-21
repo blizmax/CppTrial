@@ -9,7 +9,7 @@ class VulkanShaderCompiler
 {
 public:
     void Init();
-    void Destroy();
+    void Deinit();
 
     Array<uchar8> Compile(ShaderType shaderType, const String &source);
 

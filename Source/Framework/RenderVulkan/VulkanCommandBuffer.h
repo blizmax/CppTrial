@@ -2,6 +2,8 @@
 
 #include "RenderVulkan/VulkanMemory.h"
 #include "RenderVulkan/VulkanQueue.h"
+#include "RenderVulkan/VulkanVertexLayout.h"
+#include "RenderVulkan/VulkanVertexBuffer.h"
 
 namespace RenderCore
 {
@@ -69,8 +71,13 @@ public:
     void EndRenderPass();
     void BindRenderPipeline();
     void Reset();
-    void SetViewport(float x, float y, float width, float height);
+
+    void SetViewport(int32 x, int32 y, uint32 width, uint32 height);
     void SetScissor(int32 x, int32 y, uint32 width, uint32 height);
+    void SetStencilRef(uint32 ref);
+
+    void SetVertexLayout(const SPtr<VertexLayout> &layout);
+    void SetVertexBuffers(uint32 startIndex, SPtr<VertexBuffer> *vertexBuffers, uint32 count);
     void Draw(uint32 vertexOffset, uint32 vertexCount, uint32 instanceCount);
 
     VkCommandBuffer GetHandle() const
