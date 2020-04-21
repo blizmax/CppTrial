@@ -3,6 +3,7 @@
 #include "RenderVulkan/VulkanShader.h"
 #include "RenderVulkan/VulkanFrameBuffer.h"
 #include "RenderVulkan/VulkanRenderPass.h"
+#include "RenderVulkan/VulkanVertexLayout.h"
 
 namespace RenderCore
 {
@@ -35,15 +36,6 @@ VulkanRenderPipelineState::VulkanRenderPipelineState(const RenderPipelineStateCr
     fragmentShaderStageInfo.module = shader->GetFragmentModuleHandle();
     fragmentShaderStageInfo.pName = "main";
     fragmentShaderStageInfo.pSpecializationInfo = nullptr;
-
-    vertexInputInfo = {};
-    vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.pNext = nullptr;
-    vertexInputInfo.flags = 0;
-    vertexInputInfo.vertexBindingDescriptionCount = 0;
-    vertexInputInfo.pVertexBindingDescriptions = nullptr;
-    vertexInputInfo.vertexAttributeDescriptionCount = 0;
-    vertexInputInfo.pVertexAttributeDescriptions = nullptr;
 
     inputAssemblyInfo = {};
     inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -163,11 +155,11 @@ SPtr<VulkanRenderPipeline> VulkanRenderPipeline::Create(const VulkanRenderPipeli
 }
 
 VulkanRenderPipeline::VulkanRenderPipeline(const VulkanRenderPipelineCreateParams &params)
-    :renderPass(params.renderPass)
 {
     auto &context = VulkanContext::Get();
     auto device = context.GetLogicalDeviceHandle();
     VulkanRenderPipelineState *state = params.state.get();
+    VulkanVertexLayout *vertexLayout = params.vertexLayout.get();
 
     //TEMP
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
@@ -188,7 +180,7 @@ VulkanRenderPipeline::VulkanRenderPipeline(const VulkanRenderPipelineCreateParam
     pipelineInfo.flags = 0;
     pipelineInfo.stageCount = shaderStageCount;
     pipelineInfo.pStages = shaderStages;
-    pipelineInfo.pVertexInputState = &state->vertexInputInfo;
+    pipelineInfo.pVertexInputState = &vertexLayout->createInfo;
     pipelineInfo.pInputAssemblyState = &state->inputAssemblyInfo;
     pipelineInfo.pViewportState = &state->viewportInfo;
     pipelineInfo.pRasterizationState = &state->rasterizationInfo;
@@ -197,7 +189,7 @@ VulkanRenderPipeline::VulkanRenderPipeline(const VulkanRenderPipelineCreateParam
     pipelineInfo.pDepthStencilState = &state->depthStencilInfo;
     pipelineInfo.pDynamicState = &state->dynamicInfo;
     pipelineInfo.layout = pipelineLayout;
-    pipelineInfo.renderPass = renderPass->GetHandle();
+    pipelineInfo.renderPass = params.renderPass->GetHandle();
     pipelineInfo.subpass = 0;                         //subpass index
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; //TODO
     pipelineInfo.basePipelineIndex = -1;              //TODO

@@ -23,6 +23,7 @@ namespace RenderCore
     class VulkanFence;
     class VulkanShader;
     class VulkanSwapChain;
+    class VulkanVertexLayout;
     class VulkanVertexBuffer;
     class VulkanIndexBuffer;
 

@@ -55,6 +55,8 @@ void VulkanContext::Init()
 
 void VulkanContext::Destroy()
 {
+    device->WaitIdle();
+
     shaderRegistry.Cleanup();
     vertexBufferRegistry.Cleanup();
 
@@ -62,7 +64,7 @@ void VulkanContext::Destroy()
     DestroyFrameDatas();
 
     for (auto &e : renderPipelines)
-        e->Destroy();
+        e.renderPipeline->Destroy();
     renderPipelines.Clear();
 
     if (swapChain)
@@ -135,29 +137,35 @@ void VulkanContext::Present()
 
 SPtr<VulkanRenderPipeline> VulkanContext::GetRenderPipeline()
 {
-    if (!frameBuffer)
+    if (!currentState.IsValid())
     {
-        CT_EXCEPTION(RenderCore, "Current frame buffer is null.");
-        return nullptr;
-    }
-    if (!renderPipelineState)
-    {
-        CT_EXCEPTION(RenderCore, "Current pipeline state is null.");
+        CT_EXCEPTION(RenderCore, "Current state is valid.");
         return nullptr;
     }
 
-    auto renderPass = frameBuffer->GetRenderPass();
+    // TODO Remove no longer used.
+    auto renderPass = currentState.frameBuffer->GetRenderPass();
     for (const auto &e : renderPipelines)
     {
-        if (e->IsMatch(renderPass))
-            return e;
+        if (e.renderPipelineState.lock() == currentState.renderPipelineState &&
+            e.vertexLayout.lock() == currentState.vertexLayout &&
+            e.renderPass.lock() == renderPass)
+        {
+            return e.renderPipeline;
+        }
     }
 
     VulkanRenderPipelineCreateParams params;
     params.renderPass = renderPass;
-    params.state = renderPipelineState;
+    params.state = currentState.renderPipelineState;
+    params.vertexLayout = currentState.vertexLayout;
     SPtr<VulkanRenderPipeline> result = VulkanRenderPipeline::Create(params);
-    renderPipelines.Add(result);
+    RenderPipelineStorage storage;
+    storage.renderPipeline = result;
+    storage.vertexLayout = params.vertexLayout;
+    storage.renderPipelineState = params.state;
+    storage.renderPass = params.renderPass;
+    renderPipelines.Add(storage);
     return result;
 }
 

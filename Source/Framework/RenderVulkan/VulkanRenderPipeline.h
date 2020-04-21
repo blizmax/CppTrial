@@ -20,7 +20,6 @@ private:
     VkPipelineShaderStageCreateInfo vertexShaderStageInfo;
     VkPipelineShaderStageCreateInfo fragmentShaderStageInfo;
 
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
     VkPipelineViewportStateCreateInfo viewportInfo;
     VkPipelineRasterizationStateCreateInfo rasterizationInfo;
@@ -34,6 +33,7 @@ struct VulkanRenderPipelineCreateParams
 {
     SPtr<VulkanRenderPipelineState> state;
     SPtr<VulkanRenderPass> renderPass;
+    SPtr<VulkanVertexLayout> vertexLayout;
 };
 
 class VulkanRenderPipeline : public IVulkanResource
@@ -48,16 +48,10 @@ public:
         return pipeline;
     }
 
-    bool IsMatch(const SPtr<VulkanRenderPass> &pass) const
-    {
-        return renderPass == pass;
-    }
-
     static SPtr<VulkanRenderPipeline> Create(const VulkanRenderPipelineCreateParams &params);
 
 private: 
     VkPipeline pipeline = VK_NULL_HANDLE;
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-    SPtr<VulkanRenderPass> renderPass;
 };
 }

@@ -21,9 +21,14 @@ public:
     }
 
 private:
-    VkPipelineVertexInputStateCreateInfo createInfo;
+    friend class VulkanRenderPipeline;
+
     Array<VertexAttribute> attributes;
     uint32 stride;
+
+    VkVertexInputBindingDescription bindingDesc;
+    Array<VkVertexInputAttributeDescription> attributeDescs;
+    VkPipelineVertexInputStateCreateInfo createInfo;
 };
 
 }

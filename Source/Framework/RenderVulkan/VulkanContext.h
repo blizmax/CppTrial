@@ -20,9 +20,25 @@ public:
 
     struct StateData
     {
-        SPtr<VulkanRenderPipelineState> pipelineState;
+        SPtr<VulkanRenderPipelineState> renderPipelineState;
         SPtr<VulkanVertexLayout> vertexLayout;
         SPtr<VulkanFrameBuffer> frameBuffer;
+
+        bool IsValid() const
+        {
+            return renderPipelineState != nullptr &&
+                vertexLayout != nullptr &&
+                frameBuffer != nullptr;
+        }
+    };
+
+    struct RenderPipelineStorage
+    {
+        SPtr<VulkanRenderPipeline> renderPipeline;
+
+        WPtr<VulkanRenderPipelineState> renderPipelineState;
+        WPtr<VulkanVertexLayout> vertexLayout;
+        WPtr<VulkanRenderPass> renderPass;
     };
 
     VkInstance GetInstanceHandle()
@@ -65,24 +81,39 @@ public:
         return swapChain;
     }
 
-    SPtr<VulkanFrameBuffer> GetFrameBuffer()
+    SPtr<VulkanFrameBuffer> GetCurrentFrameBuffer()
     {
-        return frameBuffer;
+        return currentState.frameBuffer;
     }
 
-    void SetFrameBuffer(const SPtr<VulkanFrameBuffer> &buffer)
+    void SetCurrentFrameBuffer(const SPtr<VulkanFrameBuffer> &buffer)
     {
-        frameBuffer = buffer;
+        currentState.frameBuffer = buffer;
     }
 
-    SPtr<VulkanRenderPipelineState> GetRenderPipelineState()
+    SPtr<VulkanRenderPipelineState> GetCurrentRenderPipelineState()
     {
-        return renderPipelineState;
+        return currentState.renderPipelineState;
     }
 
-    void SetRenderPipelineState(const SPtr<VulkanRenderPipelineState> &state)
+    void SetCurrentRenderPipelineState(const SPtr<VulkanRenderPipelineState> &state)
     {
-        renderPipelineState = state;
+        currentState.renderPipelineState = state;
+    }
+
+    SPtr<VulkanVertexLayout> GetCurrentVertexLayout()
+    {
+        return currentState.vertexLayout;
+    }
+
+    void SetCurrentVertexLayout(const SPtr<VulkanVertexLayout> &layout)
+    {
+        currentState.vertexLayout = layout;
+    }
+
+    StateData &GetCurrentStateData()
+    {
+        return currentState;
     }
 
     FrameData &GetCurrentFrameData()
@@ -143,13 +174,9 @@ private:
 
     SPtr<VulkanDevice> device;
     SPtr<VulkanSwapChain> swapChain;
-
-    SPtr<VulkanFrameBuffer> frameBuffer;
-    SPtr<VulkanRenderPipelineState> renderPipelineState;
-    Array<SPtr<VulkanRenderPipeline>> renderPipelines;
-
     SPtr<VulkanCommandPool> renderCommandPool;
 
+    Array<RenderPipelineStorage> renderPipelines;
     VulkanResourceRegistry<VulkanShader> shaderRegistry;
     VulkanResourceRegistry<VulkanVertexBuffer> vertexBufferRegistry;
 

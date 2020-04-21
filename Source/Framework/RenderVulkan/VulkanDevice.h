@@ -18,6 +18,8 @@ public:
 
     virtual void Destroy() override;
 
+    void WaitIdle();
+
     auto GetGraphicsQueueFamilyIndex() const
     {
         return graphicsQueueData.familyIndex;

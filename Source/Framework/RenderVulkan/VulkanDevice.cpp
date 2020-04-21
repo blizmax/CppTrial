@@ -108,4 +108,10 @@ void VulkanDevice::Destroy()
         logicalDevice = VK_NULL_HANDLE;
     }
 }
+
+void VulkanDevice::WaitIdle()
+{
+    vkDeviceWaitIdle(logicalDevice);
+}
+
 }

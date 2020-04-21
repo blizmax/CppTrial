@@ -18,16 +18,16 @@ const int32 WIDTH = 800;
 const int32 HEIGHT = 600;
 
 GLFWwindow *window;
-SPtr<VulkanVertexBuffer> vertexBuffer;
-SPtr<VulkanVertexLayout> vertexLayout;
+SPtr<VertexLayout> vertexLayout;
+SPtr<VertexBuffer> vertexBuffer;
 SPtr<VulkanRenderPipelineState> pipelineState;
 Array<SPtr<VulkanCommandBuffer>> commandBuffers;
 
 SPtr<Shader> CreateShader()
 {
     ShaderCreateParams params;
-    IO::FileHandle vertSrcFile(CT_TEXT("External/vulkan/shader.vert"));
-    IO::FileHandle fragSrcFile(CT_TEXT("External/vulkan/shader.frag"));
+    IO::FileHandle vertSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.vert"));
+    IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.frag"));
     params.vertexSource = vertSrcFile.ReadString();
     params.fragmentSource = fragSrcFile.ReadString();
     return Shader::Create(params);
@@ -77,7 +77,7 @@ void InitVulkan()
     VertexBufferCreateParams vbParams;
     vbParams.size = sizeof(vertices);
     vbParams.vertexCount = 3;
-    vertexBuffer = std::static_pointer_cast<VulkanVertexBuffer>(VertexBuffer::Create(vbParams));
+    vertexBuffer = VertexBuffer::Create(vbParams);
     void *mapped = vertexBuffer->Map();
     std::memcpy(mapped, vertices, vbParams.size);
     vertexBuffer->Unmap();
@@ -87,7 +87,8 @@ void InitVulkan()
         {CT_TEXT("VertexPosition"), VertexDataType::Float2},
         {CT_TEXT("VertexColor"), VertexDataType::Float3}
     };
-    VertexLayout::Create(vlParams);
+    vertexLayout = VertexLayout::Create(vlParams);
+
 }
 
 void CleanupVulkan()
@@ -117,14 +118,16 @@ int main(int argc, char **argv)
         context.GetSwapChain()->AcquireBackBuffer();
         frameData.fence->Reset();
 
-        context.SetFrameBuffer(context.GetSwapChain()->GetCurentBackBufferData().frameBuffer);
-        context.SetRenderPipelineState(pipelineState);
+        context.SetCurrentFrameBuffer(context.GetSwapChain()->GetCurentBackBufferData().frameBuffer);
+        context.SetCurrentRenderPipelineState(pipelineState);
 
         auto backBufferIndex = context.GetSwapChain()->GetCurrentBackBufferIndex();
         if (commandBuffers.Count() <= backBufferIndex)
         {
             auto commandBuffer = context.GetRenderCommandPool()->GetIdleBuffer();
             commandBuffer->Begin();
+            commandBuffer->SetVertexLayout(vertexLayout);
+            commandBuffer->SetVertexBuffers(0, &vertexBuffer, 1);
             commandBuffer->BeginRenderPass();
             commandBuffer->BindRenderPipeline();
             commandBuffer->SetViewport(0, 0, WIDTH, HEIGHT);

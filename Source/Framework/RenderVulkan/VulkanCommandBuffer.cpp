@@ -106,7 +106,7 @@ void VulkanCommandBuffer::BeginRenderPass()
 {
     CT_CHECK(state == State::Recording);
 
-    auto frameBuffer = VulkanContext::Get().GetFrameBuffer();
+    auto frameBuffer = VulkanContext::Get().GetCurrentFrameBuffer();
 
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -182,7 +182,7 @@ void VulkanCommandBuffer::SetStencilRef(uint32 ref)
 
 void VulkanCommandBuffer::SetVertexLayout(const SPtr<VertexLayout> &layout)
 {
-    //TODO
+    VulkanContext::Get().SetCurrentVertexLayout(std::static_pointer_cast<VulkanVertexLayout>(layout));
 }
 
 void VulkanCommandBuffer::SetVertexBuffers(uint32 startIndex, SPtr<VertexBuffer> *vertexBuffers, uint32 count)
