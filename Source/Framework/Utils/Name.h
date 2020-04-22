@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/String.h"
+#include "Utils/.Package.h"
 
 namespace NameInternal
 {

@@ -9,8 +9,12 @@
 
 #if defined(_WIN32)
 #define CT_PLATFORM_WIN32 1
+#elif defined(__APPLE__)
+#define CT_PLATFORM_OSX 1
+#elif defined(__linux__)
+#define CT_PLATFORM_LINUX 1
 #else
-#error "Unsupported platform"
+#error Unsupported platform
 #endif
 
 #ifdef _DEBUG
