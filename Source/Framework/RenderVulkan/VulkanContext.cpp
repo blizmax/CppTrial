@@ -1,3 +1,4 @@
+#include "Utils/DynamicLib.h"
 #include "RenderVulkan/VulkanContext.h"
 #include "RenderVulkan/VulkanQueue.h"
 #include "RenderVulkan/VulkanSync.h"
@@ -6,6 +7,7 @@
 #include "RenderVulkan/VulkanFrameBuffer.h"
 #include "RenderVulkan/VulkanCommandBuffer.h"
 #include "RenderVulkan/VulkanShader.h"
+#include "RenderVulkan/Private/VulkanShaderCompiler.h"
 
 namespace RenderCore
 {
@@ -43,8 +45,7 @@ void VulkanContext::Init()
     enableValidationLayers = true;
 #endif
 
-    VulkanShaderCompiler::Get().Init();
-
+    CreateShaderCompiler();
     CreateInstance();
     CreateDebugger();
     CreateDevice();
@@ -79,7 +80,7 @@ void VulkanContext::Destroy()
 
     vkDestroyInstance(instance, gVulkanAlloc);
 
-    VulkanShaderCompiler::Get().Deinit();
+    DestroyShaderCompiler();
 }
 
 void VulkanContext::RecreateSwapChain(const VulkanSwapChainCreateParams &params)
@@ -223,6 +224,12 @@ void VulkanContext::CreateDebugger()
         CT_EXCEPTION(RenderCore, "Create debugger failed.");
 }
 
+void VulkanContext::DestroyDebugger()
+{
+    if (enableValidationLayers && debugMessenger != VK_NULL_HANDLE)
+        DestroyDebugUtilsMessengerEXT(instance, debugMessenger, gVulkanAlloc);
+}
+
 void VulkanContext::CreateDevice()
 {
     Array<VkPhysicalDevice> devices;
@@ -263,6 +270,15 @@ void VulkanContext::CreateVmaAllocator()
     vmaCreateAllocator(&allocatorInfo, &allocator);
 }
 
+void VulkanContext::DestroyVmaAllocator()
+{
+    if (allocator != VK_NULL_HANDLE)
+    {
+        vmaDestroyAllocator(allocator);
+        allocator = VK_NULL_HANDLE;
+    }
+}
+
 void VulkanContext::CreateFrameDatas()
 {
     for (int32 i = 0; i < VULKAN_FRAME_NUM; ++i)
@@ -270,29 +286,6 @@ void VulkanContext::CreateFrameDatas()
         frames[i].renderFinishedSemaphore = VulkanSemaphore::Create();
         frames[i].swapChainImageSemaphore = VulkanSemaphore::Create();
         frames[i].fence = VulkanFence::Create();
-    }
-}
-
-void VulkanContext::CreateCommandPools()
-{
-    VulkanCommandPoolCreateParams params;
-    params.familyIndex = device->GetGraphicsQueueFamilyIndex();
-    params.queue = device->GetGraphicsQueue();
-    renderCommandPool = VulkanCommandPool::Create(params);
-}
-
-void VulkanContext::DestroyDebugger()
-{
-    if (enableValidationLayers && debugMessenger != VK_NULL_HANDLE)
-        DestroyDebugUtilsMessengerEXT(instance, debugMessenger, gVulkanAlloc);
-}
-
-void VulkanContext::DestroyVmaAllocator()
-{
-    if(allocator != VK_NULL_HANDLE)
-    {
-        vmaDestroyAllocator(allocator);
-        allocator = VK_NULL_HANDLE;
     }
 }
 
@@ -306,9 +299,35 @@ void VulkanContext::DestroyFrameDatas()
     }
 }
 
+void VulkanContext::CreateCommandPools()
+{
+    VulkanCommandPoolCreateParams params;
+    params.familyIndex = device->GetGraphicsQueueFamilyIndex();
+    params.queue = device->GetGraphicsQueue();
+    renderCommandPool = VulkanCommandPool::Create(params);
+}
+
 void VulkanContext::DestroyCommandPools()
 {
     renderCommandPool->Destroy();
+}
+
+void VulkanContext::CreateShaderCompiler()
+{
+    DynamicLib shaderCompilerLib(CT_TEXT("VulkanShaderCompiler"));
+    auto func = (GetVulkanShaderCompilerFunc)shaderCompilerLib.GetSymbol(CT_TEXT("GetVulkanShaderCompiler"));
+    shaderCompiler = func();
+    shaderCompiler->Init();
+}
+
+void VulkanContext::DestroyShaderCompiler()
+{
+    if(shaderCompiler)
+    {
+        shaderCompiler->Deinit();
+        Memory::Free(shaderCompiler);
+        shaderCompiler = nullptr;
+    }
 }
 
 }

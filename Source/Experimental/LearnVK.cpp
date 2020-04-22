@@ -12,6 +12,7 @@
 #include "RenderVulkan/VulkanCommandBuffer.h"
 #include "RenderVulkan/VulkanVertexBuffer.h"
 #include "RenderVulkan/VulkanVertexLayout.h"
+#include "RenderVulkan/VulkanIndexBuffer.h"
 using namespace RenderCore;
 
 const int32 WIDTH = 800;

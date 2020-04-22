@@ -17,6 +17,25 @@
 #error Unsupported platform
 #endif
 
+#if CT_PLATFORM_WIN32
+#if defined(_MSC_VER)
+#define CT_EXPORT __declspec(dllexport)
+#define CT_IMPORT __declspec(dllimport)
+#else
+#define CT_EXPORT __attribute__((dllexport))
+#define CT_IMPORT __attribute__((dllimport))
+#endif
+#else
+#define CT_EXPORT __attribute__((visibility("default")))
+#define CT_IMPORT __attribute__((visibility("default")))
+#endif
+
+#ifdef CT_PRIVATE_EXPORTS
+#define CT_PRIVATE_API CT_EXPORT
+#else
+#define CT_PRIVATE_API CT_IMPORT
+#endif
+
 #ifdef _DEBUG
 #define CT_DEBUG 1
 #endif

@@ -10,6 +10,8 @@ if(NOT VULKAN_FOUND)
     message(FATAL_ERROR "Could not find Vulkan library!")
 endif()
 
+add_subdirectory(Private)
+
 aux_source_directory(. DIR_RENDER_VULKAN)
 add_library(RenderVulkan
     ${DIR_RENDER_VULKAN}
@@ -18,6 +20,4 @@ add_library(RenderVulkan
 target_link_libraries(RenderVulkan
     ${VULKAN_LIBRARY}
     RenderCore
-    glslang
-    SPIRV
 )

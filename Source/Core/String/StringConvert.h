@@ -11,7 +11,7 @@ CT_INLINE String ToString(bool value)
     return value ? CT_TEXT("true") : CT_TEXT("false");
 }
 
-CT_INLINE String ToString(char value)
+CT_INLINE String ToString(char8 value)
 {
     return String((CharType)value);
 }
@@ -29,6 +29,16 @@ CT_INLINE String ToString(char32 value)
 CT_INLINE String ToString(wchar value)
 {
     return String((CharType)value);
+}
+
+CT_INLINE String ToString(const char8 *value)
+{
+    return String(value);
+}
+
+CT_INLINE String ToString(const wchar *value)
+{
+    return String(value);
 }
 
 CT_INLINE String ToString(int32 value)

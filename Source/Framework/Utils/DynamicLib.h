@@ -24,7 +24,11 @@ class DynamicLib
 public:
 #if CT_PLATFORM_WIN32
     static constexpr const char8 *EXTENSION = "dll";
+#ifdef __MINGW32__
+    static constexpr const char8 *PREFIX = "lib";
+#else
     static constexpr const char8 *PREFIX = nullptr;
+#endif
 #elif CT_PLATFORM_OSX
     static constexpr const char8 *EXTENSION = "dylib";
     static constexpr const char8 *PREFIX = "lib";
@@ -51,6 +55,6 @@ private:
     String GetError() const;
 
 private:
-    const String name;
+    String name;
     DYNLIB_HANDLE handle = nullptr;
 };

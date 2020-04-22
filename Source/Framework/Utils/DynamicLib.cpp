@@ -20,7 +20,11 @@ void DynamicLib::Load()
     if (handle)
         return;
 
-    handle = (DYNLIB_HANDLE)DYNLIB_LOAD(name.CStr());
+    if(name.IsEmpty())
+        return;
+    
+    String path = String::Format(CT_TEXT("{0}{1}.{2}"), PREFIX ? PREFIX : "", name, EXTENSION);
+    handle = (DYNLIB_HANDLE)DYNLIB_LOAD(path.CStr());
 
     if (!handle)
     {

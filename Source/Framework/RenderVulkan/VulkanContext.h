@@ -81,6 +81,11 @@ public:
         return swapChain;
     }
 
+    VulkanShaderCompiler *GetShaderCompiler()
+    {
+        return shaderCompiler;
+    }
+
     SPtr<VulkanFrameBuffer> GetCurrentFrameBuffer()
     {
         return currentState.frameBuffer;
@@ -154,15 +159,17 @@ private:
     VulkanContext() = default;
 
     void CreateInstance();
-    void CreateDebugger();
     void CreateDevice();
-    void CreateVmaAllocator();
-    void CreateFrameDatas();
-    void CreateCommandPools();
 
+    void CreateDebugger();
     void DestroyDebugger();
+    void CreateShaderCompiler();
+    void DestroyShaderCompiler();
+    void CreateVmaAllocator();
     void DestroyVmaAllocator();
+    void CreateFrameDatas();
     void DestroyFrameDatas();
+    void CreateCommandPools();
     void DestroyCommandPools();
 
 private:
@@ -171,6 +178,8 @@ private:
     VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
     VkSurfaceKHR surface = VK_NULL_HANDLE;
     VmaAllocator allocator = VK_NULL_HANDLE;
+
+    VulkanShaderCompiler *shaderCompiler = nullptr;
 
     SPtr<VulkanDevice> device;
     SPtr<VulkanSwapChain> swapChain;

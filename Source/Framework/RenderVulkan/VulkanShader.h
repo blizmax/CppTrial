@@ -5,21 +5,6 @@
 
 namespace RenderCore
 {
-class VulkanShaderCompiler
-{
-public:
-    void Init();
-    void Deinit();
-
-    Array<uchar8> Compile(ShaderType shaderType, const String &source);
-
-    static VulkanShaderCompiler &Get()
-    {
-        static VulkanShaderCompiler instance;
-        return instance;
-    }
-};
-
 class VulkanShader : public Shader, public IVulkanResource
 {
 public:
