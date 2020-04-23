@@ -60,6 +60,7 @@ void VulkanContext::Destroy()
 
     shaderRegistry.Cleanup();
     vertexBufferRegistry.Cleanup();
+    indexBufferRegistry.Cleanup();
 
     DestroyCommandPools();
     DestroyFrameDatas();

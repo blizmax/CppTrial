@@ -5,6 +5,7 @@
 #include "RenderVulkan/VulkanShader.h"
 #include "RenderVulkan/VulkanVertexBuffer.h"
 #include "RenderVulkan/VulkanVertexLayout.h"
+#include "RenderVulkan/VulkanIndexBuffer.h"
 
 namespace RenderCore
 {
@@ -141,6 +142,11 @@ public:
         return vertexBufferRegistry;
     }
 
+    VulkanResourceRegistry<VulkanIndexBuffer> &GetIndexBufferRegistry()
+    {
+        return indexBufferRegistry;
+    }
+
     void Init();
     void Destroy();
     void RecreateSwapChain(const VulkanSwapChainCreateParams &params);
@@ -188,6 +194,7 @@ private:
     Array<RenderPipelineStorage> renderPipelines;
     VulkanResourceRegistry<VulkanShader> shaderRegistry;
     VulkanResourceRegistry<VulkanVertexBuffer> vertexBufferRegistry;
+    VulkanResourceRegistry<VulkanIndexBuffer> indexBufferRegistry;
 
     FrameData frames[VULKAN_FRAME_NUM];
     uint32 currentFrameIndex = 0;

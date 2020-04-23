@@ -4,12 +4,33 @@
 
 namespace RenderCore
 {
+
+enum class VulkanBufferType
+{
+    Vertex,
+    Index,
+    Uniform,
+};
+
+struct VulkanBufferCreateParams
+{
+    uint32 size;
+    VulkanBufferType bufferType;
+    GpuBufferUsage usage;
+};
+
 class VulkanBuffer : public IVulkanResource
 {
 public:
+    struct BufferData
+    {
+        VkBuffer buffer = VK_NULL_HANDLE;
+        VmaAllocation allocation = VK_NULL_HANDLE;
+    };
+
     virtual void Destroy() override;
 
-    void Init(uint32 size, VkBufferUsageFlags usage);
+    void Init(const VulkanBufferCreateParams &params);
     void *Map();
     void Unmap();
 
@@ -18,15 +39,28 @@ public:
         return size;
     }
 
-    VkBuffer GetHandle() const
+    GpuBufferUsage GetUsage() const
     {
-        return buffer;
+        return usage;
     }
 
-protected:
-    VkBuffer buffer = VK_NULL_HANDLE;
-    VmaAllocation allocation = VK_NULL_HANDLE;
+    VkBuffer GetHandle() const
+    {
+        return bufferData.buffer;
+    }
+
+private:
+    BufferData CreateBuffer(bool staging);
+    void DestroyBuffer(BufferData &data);
+
+private:
+    BufferData bufferData{};
+    BufferData stagingBufferData{};
+    bool useStaging = false;
+
     uint32 size = 0;
+    VulkanBufferType bufferType;
+    GpuBufferUsage usage;
 };
 
 }

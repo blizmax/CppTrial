@@ -4,6 +4,7 @@
 #include "RenderVulkan/VulkanQueue.h"
 #include "RenderVulkan/VulkanVertexLayout.h"
 #include "RenderVulkan/VulkanVertexBuffer.h"
+#include "RenderVulkan/VulkanIndexBuffer.h"
 
 namespace RenderCore
 {
@@ -78,7 +79,9 @@ public:
 
     void SetVertexLayout(const SPtr<VertexLayout> &layout);
     void SetVertexBuffers(uint32 startIndex, SPtr<VertexBuffer> *vertexBuffers, uint32 count);
+    void SetIndexBuffer(const SPtr<IndexBuffer> &indexBuffer);
     void Draw(uint32 vertexOffset, uint32 vertexCount, uint32 instanceCount);
+    void DrawIndexed(uint32 startIndex, uint32 indexCount, uint32 vertexOffset, uint32 instanceCount);
 
     VkCommandBuffer GetHandle() const
     {

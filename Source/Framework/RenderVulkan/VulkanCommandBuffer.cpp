@@ -192,18 +192,27 @@ void VulkanCommandBuffer::SetVertexBuffers(uint32 startIndex, SPtr<VertexBuffer>
 
     CT_CHECK(count <= VERTEX_INPUT_MAX_NUM);
 
-    auto src = reinterpret_cast<SPtr<VulkanVertexBuffer> *>(vertexBuffers);
     for(int32 i = 0; i < count; ++i)
     {
-        tempBuffers[i] = src[i]->GetHandle();
+        tempBuffers[i] = std::static_pointer_cast<VulkanVertexBuffer>(vertexBuffers[i])->GetHandle();
     }
 
     vkCmdBindVertexBuffers(buffer, startIndex, count, tempBuffers, tempOffsets);
 }
 
+void VulkanCommandBuffer::SetIndexBuffer(const SPtr<IndexBuffer> &indexBuffer)
+{
+    vkCmdBindIndexBuffer(buffer, std::static_pointer_cast<VulkanIndexBuffer>(indexBuffer)->GetHandle(), 0, VK_INDEX_TYPE_UINT32);
+}
+
 void VulkanCommandBuffer::Draw(uint32 vertexOffset, uint32 vertexCount, uint32 instanceCount)
 {
     vkCmdDraw(buffer, vertexCount, instanceCount, vertexOffset, 0);
+}
+
+void VulkanCommandBuffer::DrawIndexed(uint32 startIndex, uint32 indexCount, uint32 vertexOffset, uint32 instanceCount)
+{
+    vkCmdDrawIndexed(buffer, indexCount, instanceCount, startIndex, vertexOffset, 0);
 }
 
 }

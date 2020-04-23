@@ -8,8 +8,8 @@ namespace RenderCore
 struct IndexBufferCreateParams
 {
     uint32 indexCount;
-    uint32 size;
     GpuBufferUsage usage = GpuBufferUsage::Static;
+    //Always use uint32 index data
 };
 
 class IndexBuffer
@@ -20,6 +20,7 @@ public:
     virtual void *Map() = 0;
     virtual void Unmap() = 0;
     virtual uint32 GetSize() const = 0;
+    virtual GpuBufferUsage GetUsage() const = 0;
 
     static SPtr<IndexBuffer> Create(const IndexBufferCreateParams &params);
 };

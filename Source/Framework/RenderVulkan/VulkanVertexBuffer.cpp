@@ -12,7 +12,11 @@ SPtr<VertexBuffer> VertexBuffer::Create(const VertexBufferCreateParams &params)
 
 VulkanVertexBuffer::VulkanVertexBuffer(const VertexBufferCreateParams &params)
 {
-    buffer.Init(params.size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+    VulkanBufferCreateParams bufferParams;
+    bufferParams.bufferType = VulkanBufferType::Vertex;
+    bufferParams.usage = params.usage;
+    bufferParams.size = params.size;
+    buffer.Init(bufferParams);
 }
 
 VulkanVertexBuffer::~VulkanVertexBuffer()

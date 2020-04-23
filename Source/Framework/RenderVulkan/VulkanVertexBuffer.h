@@ -21,6 +21,11 @@ public:
         return buffer.GetSize();
     }
 
+    virtual GpuBufferUsage GetUsage() const override
+    {
+        return buffer.GetUsage();
+    }
+
     VkBuffer GetHandle() const
     {
         return buffer.GetHandle();
