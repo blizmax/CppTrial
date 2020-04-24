@@ -27,6 +27,7 @@ namespace RenderCore
     class VulkanVertexLayout;
     class VulkanVertexBuffer;
     class VulkanIndexBuffer;
+    class VulkanUniformBuffer;
 
     VkFormat ToVkDataFormat(VertexDataType dataType);
     VkPolygonMode ToVkPolygonMode(PolygonMode mode);
