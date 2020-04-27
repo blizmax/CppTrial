@@ -14,7 +14,7 @@ DebugManager *gDebugManager = &debugManager;
 void DebugManager::Startup()
 {
 #if CT_PLATFORM_WIN32
-    auto &gLog = Logger::GetGlobalLogger();
+    auto &gLog = Logger::GetGlobal();
     gLog.printHandler.Clear();
     gLog.printHandler.On([](LogLevel l, const String &s) {
         HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);

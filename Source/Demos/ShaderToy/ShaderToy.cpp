@@ -162,7 +162,7 @@ public:
                 }
             });
 
-        gThreadManager->Execute(CT_TEXT("ShaderToy watcher"), [this]() 
+        gThreadManager->RunThread(CT_TEXT("ShaderToy watcher"), [this]() 
         {
             watcher->Start();
         });

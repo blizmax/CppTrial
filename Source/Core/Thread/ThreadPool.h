@@ -4,13 +4,13 @@
 #include "Core/String.h"
 #include "Core/Exception.h"
 
+using ThreadFunc = std::function<void()>;
+
 namespace ThreadPoolInternal
 {
 class ThreadProxy
 {
 public:
-    using WorkFunc = std::function<void()>;
-
     ThreadProxy()
     {
         thread = Memory::MakeUnique<std::thread>([this]() {
@@ -45,7 +45,7 @@ public:
         return workID;
     }
 
-    void Start(const String &newName, int32 id, WorkFunc func)
+    void Start(const String &newName, int32 id, const ThreadFunc &func)
     {
         {
             std::unique_lock<std::mutex> lock(mutex);
@@ -77,7 +77,7 @@ private:
     {
         while (true)
         {
-            WorkFunc func = nullptr;
+            ThreadFunc func = nullptr;
 
             {
                 std::unique_lock<std::mutex> lock(mutex);
@@ -103,7 +103,7 @@ private:
 private:
     String name;
     class ThreadPool *pool;
-    WorkFunc worker = nullptr;
+    ThreadFunc worker = nullptr;
     UPtr<std::thread> thread;
     mutable std::mutex mutex;
     std::condition_variable startedCond;
@@ -118,7 +118,6 @@ class ThreadPool
 public:
     static constexpr int32 MAX_CAPACITY = 16;
     using ThreadProxy = ThreadPoolInternal::ThreadProxy;
-    using WorkFunc = ThreadProxy::WorkFunc;
 
     class Handle
     {
@@ -172,6 +171,19 @@ public:
         return num;
     }
 
+    const int32 GetAvailableCount() const
+    {
+        int32 num = capacity;
+
+        std::unique_lock<std::mutex> lock(mutex);
+        for (auto &e : proxies)
+        {
+            if (e->IsRunning())
+                --num;
+        }
+        return num;
+    }
+
     const int32 GetIdleCount() const
     {
         int32 num = 0;
@@ -191,7 +203,7 @@ public:
         return proxies.Count();
     }
 
-    Handle Execute(const String &name, WorkFunc func)
+    Handle Run(const String &name, const ThreadFunc &func)
     {
         CT_CHECK(func != nullptr);
 
@@ -208,6 +220,11 @@ public:
     {
         std::unique_lock<std::mutex> lock(mutex);
         proxies.Clear();
+    }
+
+    static ThreadPool &GetGlobal()
+    {
+        return gPool;
     }
 
 private:
@@ -230,8 +247,12 @@ private:
     }
 
 private:
+    static ThreadPool gPool;
+
     int32 capacity;
     int32 nextWorkID = 0;
     Array<SPtr<ThreadProxy>> proxies;
     mutable std::mutex mutex;
 };
+
+inline ThreadPool ThreadPool::gPool;

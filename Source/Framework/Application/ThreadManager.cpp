@@ -9,14 +9,14 @@ void ThreadManager::Startup()
 
 void ThreadManager::Shutdown()
 {
-    pool.StopAll();
+    ThreadPool::GetGlobal().StopAll();
 }
 
 void ThreadManager::Tick()
 {
 }
 
-void ThreadManager::Execute(const String &name, ThreadPool::WorkFunc func)
+void ThreadManager::RunThread(const String &name, const ThreadFunc &func)
 {
-    pool.Execute(name, func);
+    ThreadPool::GetGlobal().Run(name, func);
 }

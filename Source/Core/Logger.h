@@ -79,7 +79,7 @@ public:
         }
     }
 
-    static Logger &GetGlobalLogger()
+    static Logger &GetGlobal()
     {
         return gLogger;
     }
@@ -132,4 +132,4 @@ private:
 
 inline Logger Logger::gLogger(CT_TEXT("Global"));
 
-#define CT_LOG(lv, ...) Logger::GetGlobalLogger().Log(LogLevel::lv, __VA_ARGS__)
+#define CT_LOG(lv, ...) Logger::GetGlobal().Log(LogLevel::lv, __VA_ARGS__)
