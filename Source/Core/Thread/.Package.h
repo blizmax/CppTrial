@@ -27,7 +27,7 @@ namespace Thread
         std::this_thread::sleep_for(Time::Milliseconds(ms));
     }
 
-    CT_INLINE void (Yield)()
+    CT_INLINE void YieldThis()
     {
         std::this_thread::yield();
     }

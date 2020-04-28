@@ -2,22 +2,23 @@
 
 #if CT_DEBUG
 
+#include "Application/Application.h"
+
 DebugManager debugManager;
 DebugManager *gDebugManager = &debugManager;
 
-#include "Application/Application.h"
-
 #if CT_PLATFORM_WIN32
 #include <windows.h>
+static HANDLE hStdOutput;
 #endif
 
 void DebugManager::Startup()
 {
 #if CT_PLATFORM_WIN32
     auto &gLog = Logger::GetGlobal();
+    hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
     gLog.printHandler.Clear();
     gLog.printHandler.On([](LogLevel l, const String &s) {
-        HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
         WORD color = 0;
         switch (l)
         {
@@ -37,7 +38,7 @@ void DebugManager::Startup()
             color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
             break;
         }
-        SetConsoleTextAttribute(h, FOREGROUND_INTENSITY | color);
+        SetConsoleTextAttribute(hStdOutput, FOREGROUND_INTENSITY | color);
         std::wcout << s.CStr() << std::endl;
     });
 #endif

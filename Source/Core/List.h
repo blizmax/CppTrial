@@ -570,7 +570,7 @@ public:
 private:
     void CheckRange(NodeType *node) const
     {
-        CT_Check(node != nullptr);
+        CT_CHECK(node != nullptr);
     }
 
     NodeType *CreateNode(const Element &value)

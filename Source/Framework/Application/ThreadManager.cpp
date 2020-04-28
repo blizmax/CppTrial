@@ -9,6 +9,8 @@ void ThreadManager::Startup()
 
 void ThreadManager::Shutdown()
 {
+    taskScheduler.StopAll();
+
     ThreadPool::GetGlobal().StopAll();
 }
 
@@ -16,7 +18,12 @@ void ThreadManager::Tick()
 {
 }
 
-void ThreadManager::RunThread(const String &name, const ThreadFunc &func)
+ThreadPool::Handle ThreadManager::RunThread(const String &name, const ThreadFunc &func)
 {
-    ThreadPool::GetGlobal().Run(name, func);
+    return ThreadPool::GetGlobal().Run(name, func);
+}
+
+void ThreadManager::RunAsync(const SPtr<AsyncTask> &task)
+{
+    taskScheduler.AddTask(task);
 }

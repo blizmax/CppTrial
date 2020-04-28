@@ -2,6 +2,7 @@
 
 #include "Core/.Package.h"
 #include "Core/Array.h"
+#include "Core/Thread/.Package.h"
 #include <functional>
 
 template <typename T>
@@ -102,16 +103,22 @@ public:
 
     bool IsEmpty() const
     {
+        std::unique_lock<std::recursive_mutex> lock(mutex);
+
         return chain.IsEmpty();
     }
 
     int32 Count() const
     {
+        std::unique_lock<std::recursive_mutex> lock(mutex);
+
         return chain.Count();
     }
 
     void Clear()
     {
+        std::unique_lock<std::recursive_mutex> lock(mutex);
+
         for (const auto &e : chain)
             e->alive = false;
 
@@ -121,6 +128,8 @@ public:
     Handle On(Callable func)
     {
         auto innerData = Memory::MakeShared<InnerData>(func);
+
+        std::unique_lock<std::recursive_mutex> lock(mutex);
         chain.Add(innerData);
         return Handle(innerData);
     }
@@ -129,6 +138,9 @@ public:
     Handle On(MemberFunc<ObjectType> func, ObjectType *obj)
     {
         auto innerData = Memory::MakeShared<InnerData>(func, obj);
+
+        std::unique_lock<std::recursive_mutex> lock(mutex);
+
         chain.Add(innerData);
         return Handle(innerData);
     }
@@ -142,6 +154,9 @@ public:
     void operator()(Args... args)
     {
         uint32 deadNum = 0;
+
+        std::unique_lock<std::recursive_mutex> lock(mutex);
+
         for (const auto &e : chain)
         {
             if (e->alive)
@@ -164,4 +179,5 @@ public:
 
 private:
     Array<SPtr<InnerData>> chain;
+    std::recursive_mutex mutex;
 };

@@ -166,6 +166,14 @@ public:
         {
             watcher->Start();
         });
+
+        for(int32 i = 0; i < 1000; ++i)
+        {
+            gThreadManager->RunAsync([i](){
+                //String str = String::Format(CT_TEXT("Thread id: {0}, i:{1}"), Thread::GetCurrentThreadID(), i);
+                CT_LOG(Debug, CT_TEXT("Thread id: {0}, i:{1}"), Thread::GetCurrentThreadID(), i);
+            });
+        }
     }
 
     virtual void Shutdown() override
