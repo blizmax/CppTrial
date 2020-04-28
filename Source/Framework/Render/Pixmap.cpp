@@ -54,9 +54,9 @@ void Pixmap::SetColor(int32 x, int32 y, const Color &color)
     Render::PackColor(color, format, ptr);
 }
 
-void Pixmap::SetColors(const Color *src, uint32 count)
+void Pixmap::SetColors(const Color *src, int32 count)
 {
-    const uint32 max = width * height;
+    const int32 max = width * height;
     count = count >= max ? max : count;
     auto ptr = static_cast<uint8 *>(data);
     auto bytesPerPixel = Render::GetPixelSize(format);

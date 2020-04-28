@@ -572,8 +572,8 @@ private:
             capacity = FixCapacity((oldCapacity * 2) >= count ? (oldCapacity * 2) : count);
             data = Alloc::Allocate(capacity);
             Memory::UninitializedMove(data, oldData, index);
-            Memory::UninitializedFill(data + index, count, value);
-            Memory::UninitializedMove(data + index + count, oldData + index, oldCount - index);
+            Memory::UninitializedFill(data + index, num, value);
+            Memory::UninitializedMove(data + index + num, oldData + index, oldCount - index);
             DestroyAndDeallocate(oldData, oldCount, oldCapacity);
         }
     }

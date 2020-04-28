@@ -58,7 +58,8 @@ CT_INLINE String ToString(const String &format, std::time_t value)
 
 CT_INLINE String ToString(const String &format)
 {
-    return ToString(format, Clock::to_time_t(Now()));
+    using SystemClock = std::chrono::system_clock;
+    return ToString(format, SystemClock::to_time_t(SystemClock::now()));
 }
 
 }

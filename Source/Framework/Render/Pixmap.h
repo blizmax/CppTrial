@@ -12,7 +12,7 @@ public:
 
     void Fill(const Color &color);
     void SetColor(int32 x, int32 y, const Color &color);
-    void SetColors(const Color *src, uint32 count);
+    void SetColors(const Color *src, int32 count);
     void SetColors(const Array<Color> &colors);
     Color GetColor(int32 x, int32 y);
     Array<Color> GetColors() const;

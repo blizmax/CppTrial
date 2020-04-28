@@ -23,118 +23,118 @@ private:
     }
 
 public:
-    static constexpr float Sin(float value)
+    static CT_INLINE float Sin(float value)
     {
         return std::sin(value);
     }
 
-    static constexpr float Cos(float value)
+    static CT_INLINE float Cos(float value)
     {
         return std::cos(value);
     }
 
-    static constexpr float Tan(float value)
+    static CT_INLINE float Tan(float value)
     {
         return std::tan(value);
     }
 
-    static constexpr float Asin(float value)
+    static CT_INLINE float Asin(float value)
     {
         return std::asin(value);
     }
 
-    static constexpr float Acos(float value)
+    static CT_INLINE float Acos(float value)
     {
         return std::acos(value);
     }
 
-    static constexpr float Atan(float value)
+    static CT_INLINE float Atan(float value)
     {
         return std::atan(value);
     }
 
-    static constexpr float Atan2(float y, float x)
+    static CT_INLINE float Atan2(float y, float x)
     {
         return std::atan2(y, x);
     }
 
-    static constexpr int32 TruncToInt(float value)
+    static CT_INLINE int32 TruncToInt(float value)
     {
         return (int32)value;
     }
 
-    static constexpr float Trunc(float value)
+    static CT_INLINE float Trunc(float value)
     {
         return (float)TruncToInt(value);
     }
 
-    static constexpr float Ceil(float value)
+    static CT_INLINE float Ceil(float value)
     {
         return std::ceil(value);
     }
 
-    static constexpr int32 CeilToInt(float value)
+    static CT_INLINE int32 CeilToInt(float value)
     {
         return TruncToInt(Ceil(value));
     }
 
-    static constexpr float Floor(float value)
+    static CT_INLINE float Floor(float value)
     {
         return std::floor(value);
     }
 
-    static constexpr int32 FloorToInt(float value)
+    static CT_INLINE int32 FloorToInt(float value)
     {
         return TruncToInt(Floor(value));
     }
 
-    static constexpr float Round(float value)
+    static CT_INLINE float Round(float value)
     {
         return std::round(value);
     }
 
-    static constexpr int32 RoundToInt(float value)
+    static CT_INLINE int32 RoundToInt(float value)
     {
         return FloorToInt(value + 0.5f);
     }
 
-    static constexpr float Sqrt(float value)
+    static CT_INLINE float Sqrt(float value)
     {
         return std::sqrt(value);
     }
 
-    static constexpr float Exp(float value)
+    static CT_INLINE float Exp(float value)
     {
         return std::exp(value);
     }
 
-    static constexpr float Exp2(float value)
+    static CT_INLINE float Exp2(float value)
     {
         return std::exp2(value);
     }
 
-    static constexpr float Pow(float a, float b)
+    static CT_INLINE float Pow(float a, float b)
     {
         return std::pow(a, b);
     }
 
-    static constexpr float Loge(float value)
+    static CT_INLINE float Loge(float value)
     {
         return std::log(value);
     }
 
-    static constexpr float Log2(float value)
+    static CT_INLINE float Log2(float value)
     {
         return std::log2(value);
     }
 
-    static constexpr float Log10(float value)
+    static CT_INLINE float Log10(float value)
     {
         return std::log10(value);
     }
 
     // Return the remainder of a/b
-    static constexpr float Fmod(float a, float b)
+    static CT_INLINE float Fmod(float a, float b)
     {
         return std::fmod(a, b);
     }
@@ -146,32 +146,32 @@ public:
     }
 
     template <typename T>
-    static constexpr T Abs(T value)
+    static CT_INLINE T Abs(T value)
     {
         return (value < 0) ? -value : value;
     }
 
     template <typename T>
-    static constexpr auto Max(T value)
+    static CT_INLINE auto Max(T value)
     {
         return value;
     }
 
     template <typename T1, typename... T2>
-    static constexpr auto Max(T1 a, T2... b)
+    static CT_INLINE auto Max(T1 a, T2... b)
     {
         auto max = Max(b...);
         return (max < a) ? a : max;
     }
 
     template <typename T>
-    static constexpr auto Min(T value)
+    static CT_INLINE auto Min(T value)
     {
         return value;
     }
 
     template <typename T1, typename... T2>
-    static constexpr auto Min(T1 a, T2... b)
+    static CT_INLINE auto Min(T1 a, T2... b)
     {
         auto min = Min(b...);
         return (a < min) ? a : min;
@@ -190,7 +190,7 @@ public:
     }
 
     template <typename T>
-    static constexpr bool IsPowerOfTwo(T value)
+    static CT_INLINE bool IsPowerOfTwo(T value)
     {
         return (value & (value - 1)) == (T)0;
     }
