@@ -9,7 +9,6 @@ SPtr<VertexLayout> VertexLayout::Create()
 
 VulkanVertexLayout::VulkanVertexLayout()
 {
-
     for(int32 i = 0; i < bufferLayouts.Count(); ++i)
     {
         VkVertexInputBindingDescription bindingDesc = {};
@@ -19,7 +18,7 @@ VulkanVertexLayout::VulkanVertexLayout()
         bindingDescs.Add(bindingDesc);
 
         int32 location = 0;
-        for(const auto &e : bufferLayouts[i]->GetAttributes())
+        for(const auto &e : bufferLayouts[i]->GetElements())
         {
             VkVertexInputAttributeDescription attrib = {};
             attrib.location = location++;

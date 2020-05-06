@@ -4,31 +4,31 @@
 
 namespace RenderCore
 {
-struct VertexAttribute
-{
-    String name;
-    VertexDataType dataType;
-    uint32 size;
-    uint32 offset;
-    bool normalized;
-
-    VertexAttribute(const String &name, VertexDataType dataType, bool normalized = false)
-        : name(name), dataType(dataType), normalized(normalized), offset(0)
-    {
-        size = GetVertexDataSize(dataType);
-    }
-};
-
 class VertexBufferLayout
 {
 public:
-    VertexBufferLayout(std::initializer_list<VertexAttribute> initList) : attributes(initList)
+    struct Element
+    {
+        String name;
+        VertexDataType dataType;
+        uint32 size;
+        uint32 offset;
+        bool normalized;
+
+        Element(const String &name, VertexDataType dataType, bool normalized = false)
+            : name(name), dataType(dataType), normalized(normalized), offset(0)
+        {
+            size = GetVertexDataSize(dataType);
+        }
+    };
+
+    VertexBufferLayout(std::initializer_list<Element> initList) : elements(initList)
     {
         uint32 offset = 0;
-        for (auto &attr : attributes)
+        for (auto &e : elements)
         {
-            attr.offset = offset;
-            offset += attr.size;
+            e.offset = offset;
+            offset += e.size;
         }
         stride = offset;
     }
@@ -38,18 +38,18 @@ public:
         return stride;
     }
 
-    const Array<VertexAttribute> &GetAttributes() const
+    const Array<Element> &GetElements() const
     {
-        return attributes;
+        return elements;
     }
 
-    static SPtr<VertexBufferLayout> Create(std::initializer_list<VertexAttribute> initList)
+    static SPtr<VertexBufferLayout> Create(std::initializer_list<Element> initList)
     {
         return Memory::MakeShared<VertexBufferLayout>(initList);
     }
 
 private:
-    Array<VertexAttribute> attributes;
+    Array<Element> elements;
     uint32 stride = 0;
 };
 

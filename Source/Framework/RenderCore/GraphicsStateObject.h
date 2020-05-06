@@ -7,30 +7,30 @@
 
 namespace RenderCore
 {
-struct StateObjectDesc
+struct GraphicsStateObjectDesc
 {
     SPtr<RasterizationState> rasterizationState;
     SPtr<DepthStencilState> depthStencilState;
     SPtr<BlendState> blendState;
 };
 
-class StateObject
+class GraphicsStateObject
 {
 public:
-    StateObject(const StateObjectDesc &desc) : desc(desc)
+    GraphicsStateObject(const GraphicsStateObjectDesc &desc) : desc(desc)
     {
     }
 
-    const StateObjectDesc &GetDesc() const
+    const GraphicsStateObjectDesc &GetDesc() const
     {
         return desc;
     }
 
-    SPtr<StateObject> Create(const StateObjectDesc &desc)
+    SPtr<GraphicsStateObject> Create(const GraphicsStateObjectDesc &desc)
     {
-        return Memory::MakeShared<StateObject>(desc);
+        return Memory::MakeShared<GraphicsStateObject>(desc);
     }
 private:
-    StateObjectDesc desc;
+    GraphicsStateObjectDesc desc;
 };
 }

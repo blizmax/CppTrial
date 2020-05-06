@@ -17,7 +17,7 @@ public:
 
     Array(std::initializer_list<Element> initList)
     {
-        int32 minCapacity = initList.size();
+        int32 minCapacity = (int32)initList.size();
         Reserve(minCapacity);
         for (const Element &value : initList)
         {

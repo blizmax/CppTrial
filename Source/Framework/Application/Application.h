@@ -30,7 +30,7 @@ public:
         return totalFrames;
     }
 
-    long GetStartTime() const
+    int64 GetStartTime() const
     {
         return startTime;
     }

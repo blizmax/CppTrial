@@ -8,10 +8,25 @@ enum class ShaderType
 {
     Vertex,
     Fragment,
-    Geometry,
     TessControl,
     TessEvaluation,
+    Geometry,
     Compute,
+
+    Count,
+};
+
+enum class ShaderVisibility
+{
+    None = 0,
+    Vertex = (1 << (int32)ShaderType::Vertex),
+    Fragment = (1 << (int32)ShaderType::Fragment),
+    TessControl = (1 << (int32)ShaderType::TessControl),
+    TessEvaluation = (1 << (int32)ShaderType::TessEvaluation),
+    Geometry = (1 << (int32)ShaderType::Geometry),
+    Compute = (1 << (int32)ShaderType::Compute),
+
+    All = (1 << (int32)ShaderType::Count) - 1,
 };
 
 enum class Topology
@@ -37,6 +52,11 @@ enum class VertexDataType
     UByte4,
 };
 
+enum class DescriptorType
+{
+    Sampler,
+};
+
 enum class PixelFormat
 {
     R8,
@@ -48,7 +68,6 @@ enum class TextureFilter
 {
     Nearest,
     Linear,
-    //Anisotropic,
 };
 
 enum class TextureWrap

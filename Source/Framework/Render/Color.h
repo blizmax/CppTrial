@@ -173,10 +173,10 @@ public:
 
     static Color FromRGBA(uint32 value)
     {
-        float r = value >> 24;
-        float g = (value & 0x00ff0000) >> 16;
-        float b = (value & 0x0000ff00) >> 8;
-        float a = (value & 0x000000ff);
+        uint32 r = value >> 24;
+        uint32 g = (value & 0x00ff0000) >> 16;
+        uint32 b = (value & 0x0000ff00) >> 8;
+        uint32 a = (value & 0x000000ff);
         return Color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
     }
 

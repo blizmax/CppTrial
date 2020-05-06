@@ -9,19 +9,19 @@ namespace CString
 {
 
 template <typename Char>
-CT_INLINE SizeType Length(const Char *str)
+CT_INLINE int32 Length(const Char *str)
 {
     if constexpr (TIsSame<Char, char8>::value)
     {
-        return std::strlen(str);
+        return (int32)std::strlen(str);
     }
     else if constexpr (TIsSame<Char, wchar>::value)
     {
-        return std::wcslen(str);
+        return (int32)std::wcslen(str);
     }
     else
     {
-        SizeType len = 0;
+        int32 len = 0;
         for (; *str != static_cast<Char>(0); ++str)
             ++len;
         return len;

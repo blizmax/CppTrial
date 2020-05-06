@@ -44,37 +44,37 @@ CT_INLINE String ToString(const wchar *value)
 CT_INLINE String ToString(int32 value)
 {
     std::wstring wstr = std::to_wstring(value);
-    return String(wstr.data(), wstr.size());
+    return String(wstr.data(), (int32)wstr.size());
 }
 
 CT_INLINE String ToString(int64 value)
 {
     std::wstring wstr = std::to_wstring(value);
-    return String(wstr.data(), wstr.size());
+    return String(wstr.data(), (int32)wstr.size());
 }
 
 CT_INLINE String ToString(uint32 value)
 {
     std::wstring wstr = std::to_wstring(value);
-    return String(wstr.data(), wstr.size());
+    return String(wstr.data(), (int32)wstr.size());
 }
 
 CT_INLINE String ToString(uint64 value)
 {
     std::wstring wstr = std::to_wstring(value);
-    return String(wstr.data(), wstr.size());
+    return String(wstr.data(), (int32)wstr.size());
 }
 
 CT_INLINE String ToString(float value)
 {
     std::wstring wstr = std::to_wstring(value);
-    return String(wstr.data(), wstr.size());
+    return String(wstr.data(), (int32)wstr.size());
 }
 
 CT_INLINE String ToString(double value)
 {
     std::wstring wstr = std::to_wstring(value);
-    return String(wstr.data(), wstr.size());
+    return String(wstr.data(), (int32)wstr.size());
 }
 
 CT_INLINE String ToString(const String &value)

@@ -104,10 +104,10 @@ void UnpackColor(Color *dst, PixelFormat format, const uint8 *src, uint32 count)
     case PixelFormat::RGB888:
     case PixelFormat::RGBA8888:
         uint32 value = *reinterpret_cast<const uint32 *>(src);
-        float a = value >> 24;
-        float b = (value & 0x00ff0000) >> 16;
-        float g = (value & 0x0000ff00) >> 8;
-        float r = (value & 0x000000ff);
+        uint32 a = value >> 24;
+        uint32 b = (value & 0x00ff0000) >> 16;
+        uint32 g = (value & 0x0000ff00) >> 8;
+        uint32 r = (value & 0x000000ff);
         color = Color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
         break;
     }

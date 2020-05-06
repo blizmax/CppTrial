@@ -52,7 +52,7 @@ CT_INLINE int64 MilliTime()
 CT_INLINE String ToString(const String &format, std::time_t value)
 {
     wchar str[100];
-    auto count = std::wcsftime(str, 100, format.CStr(), std::localtime(&value));
+    auto count = (int32)std::wcsftime(str, 100, format.CStr(), std::localtime(&value));
     return String(str, count);
 }
 

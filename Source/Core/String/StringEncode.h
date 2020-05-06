@@ -184,7 +184,7 @@ class UTF8
 public:
     static String FromChars(const char8 *value)
     {
-        int32 len = strlen(value);
+        auto len = strlen(value);
         int32 pos = 0;
         int32 count;
         char32 charUTF32;
