@@ -19,15 +19,10 @@ struct VertexAttribute
     }
 };
 
-struct VertexLayoutCreateParams
+class VertexBufferLayout
 {
-    Array<VertexAttribute> attributes;
-    uint32 stride = 0;
-
-    VertexLayoutCreateParams() = default;
-
-    VertexLayoutCreateParams(std::initializer_list<VertexAttribute> initList)
-        : attributes(initList)
+public:
+    VertexBufferLayout(std::initializer_list<VertexAttribute> initList) : attributes(initList)
     {
         uint32 offset = 0;
         for (auto &attr : attributes)
@@ -37,6 +32,25 @@ struct VertexLayoutCreateParams
         }
         stride = offset;
     }
+
+    uint32 GetStride() const
+    {
+        return stride;
+    }
+
+    const Array<VertexAttribute> &GetAttributes() const
+    {
+        return attributes;
+    }
+
+    static SPtr<VertexBufferLayout> Create(std::initializer_list<VertexAttribute> initList)
+    {
+        return Memory::MakeShared<VertexBufferLayout>(initList);
+    }
+
+private:
+    Array<VertexAttribute> attributes;
+    uint32 stride = 0;
 };
 
 class VertexLayout
@@ -44,10 +58,10 @@ class VertexLayout
 public:
     virtual ~VertexLayout() = default;
 
-    virtual uint32 GetStride() const = 0;
-    virtual const Array<VertexAttribute> &GetAttributes() const = 0;
+    virtual void AddBufferLayout(const SPtr<VertexBufferLayout> &layout) = 0;
+    virtual const Array<SPtr<VertexBufferLayout>> &GetBufferLayouts() const = 0;
 
-    static SPtr<VertexLayout> Create(const VertexLayoutCreateParams &params);
+    static SPtr<VertexLayout> Create();
 };
 
 }

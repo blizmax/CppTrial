@@ -2,37 +2,41 @@
 
 namespace RenderCore
 {
-SPtr<VertexLayout> VertexLayout::Create(const VertexLayoutCreateParams &params)
+SPtr<VertexLayout> VertexLayout::Create()
 {
-    return Memory::MakeShared<VulkanVertexLayout>(params);
+    return Memory::MakeShared<VulkanVertexLayout>();
 }
 
-VulkanVertexLayout::VulkanVertexLayout(const VertexLayoutCreateParams &params)
-    : stride(params.stride), attributes(params.attributes)
+VulkanVertexLayout::VulkanVertexLayout()
 {
-    bindingDesc = {};
-    bindingDesc.binding = 0;
-    bindingDesc.stride = stride;
-    bindingDesc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-    int32 location = 0;
-    for(auto &e : attributes)
+    for(int32 i = 0; i < bufferLayouts.Count(); ++i)
     {
-        VkVertexInputAttributeDescription attrib = {};
-        attrib.location = location++;
-        attrib.format = ToVkDataFormat(e.dataType);
-        attrib.offset = e.offset;
-        attrib.binding = 0;
+        VkVertexInputBindingDescription bindingDesc = {};
+        bindingDesc.binding = i;
+        bindingDesc.stride = bufferLayouts[i]->GetStride();
+        bindingDesc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+        bindingDescs.Add(bindingDesc);
 
-        attributeDescs.Add(attrib);
+        int32 location = 0;
+        for(const auto &e : bufferLayouts[i]->GetAttributes())
+        {
+            VkVertexInputAttributeDescription attrib = {};
+            attrib.location = location++;
+            attrib.format = ToVkDataFormat(e.dataType);
+            attrib.offset = e.offset;
+            attrib.binding = i;
+
+            attributeDescs.Add(attrib);
+        }
     }
 
     createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     createInfo.pNext = nullptr;
     createInfo.flags = 0;
-    createInfo.pVertexBindingDescriptions = &bindingDesc;
-    createInfo.vertexBindingDescriptionCount = 1;
+    createInfo.pVertexBindingDescriptions = bindingDescs.GetData();
+    createInfo.vertexBindingDescriptionCount = bindingDescs.Count();
     createInfo.pVertexAttributeDescriptions = attributeDescs.GetData();
     createInfo.vertexAttributeDescriptionCount = attributeDescs.Count();
 }

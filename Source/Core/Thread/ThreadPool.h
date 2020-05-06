@@ -102,7 +102,6 @@ private:
 
 private:
     String name;
-    class ThreadPool *pool;
     ThreadFunc worker = nullptr;
     UPtr<std::thread> thread;
     mutable std::mutex mutex;

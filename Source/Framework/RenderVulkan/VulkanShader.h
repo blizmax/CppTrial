@@ -8,7 +8,7 @@ namespace RenderCore
 class VulkanShader : public Shader, public IVulkanResource
 {
 public:
-    VulkanShader(const ShaderCreateParams &params);
+    VulkanShader(const ShaderDesc &desc);
     ~VulkanShader();
     virtual void Destroy() override;
 

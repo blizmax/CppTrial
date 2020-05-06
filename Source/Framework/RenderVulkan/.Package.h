@@ -37,4 +37,5 @@ namespace RenderCore
     VkStencilOp ToVkStencilOperation(StencilOperation operation);
     VkCompareOp ToVkCompareOperation(CompareOperation operation);
     VkSampleCountFlagBits ToVkSampleCount(int32 sample);
+    VkSamplerAddressMode ToVkAddressMode(TextureWrap wrap);
 }

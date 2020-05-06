@@ -185,4 +185,22 @@ VkSampleCountFlagBits ToVkSampleCount(int32 sample)
     return VK_SAMPLE_COUNT_1_BIT;
 }
 
+VkSamplerAddressMode ToVkAddressMode(TextureWrap wrap)
+{
+    switch (wrap)
+    {
+    case TextureWrap::Repeat:
+        return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    case TextureWrap::Mirror:
+        return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+    case TextureWrap::Clamp:
+        return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    case TextureWrap::Border:
+        return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    }
+
+    CT_EXCEPTION(RenderCore, "Unsupported texture wrap mode.");
+    return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+}
+
 }

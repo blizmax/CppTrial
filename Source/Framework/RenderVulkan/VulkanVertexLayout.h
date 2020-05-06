@@ -8,25 +8,24 @@ namespace RenderCore
 class VulkanVertexLayout : public VertexLayout
 {
 public:
-    VulkanVertexLayout(const VertexLayoutCreateParams &params);
+    VulkanVertexLayout();
 
-    virtual uint32 GetStride() const override
+    virtual void AddBufferLayout(const SPtr<VertexBufferLayout> &layout) override
     {
-        return stride;
+        bufferLayouts.Add(layout);
     }
 
-    virtual const Array<VertexAttribute> &GetAttributes() const override
+    virtual const Array<SPtr<VertexBufferLayout>> &GetBufferLayouts() const override
     {
-        return attributes;
+        return bufferLayouts;
     }
 
 private:
     friend class VulkanRenderPipeline;
 
-    Array<VertexAttribute> attributes;
-    uint32 stride;
+    Array<SPtr<VertexBufferLayout>> bufferLayouts;
 
-    VkVertexInputBindingDescription bindingDesc;
+    Array<VkVertexInputBindingDescription> bindingDescs;
     Array<VkVertexInputAttributeDescription> attributeDescs;
     VkPipelineVertexInputStateCreateInfo createInfo;
 };

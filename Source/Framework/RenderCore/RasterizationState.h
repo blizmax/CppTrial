@@ -4,7 +4,7 @@
 
 namespace RenderCore
 {
-struct RasterizationStateData
+struct RasterizationStateDesc
 {
     PolygonMode polygonMode = PolygonMode::Fill;
     CullMode cullMode = CullMode::Back;
@@ -16,26 +16,24 @@ struct RasterizationStateData
     float slopeScaledDepthBias = 0.0f;
 };
 
-using RasterizationStateCreateParams = RasterizationStateData;
-
 class RasterizationState
 {
 public:
-    RasterizationState(const RasterizationStateCreateParams &params) : data(params)
+    RasterizationState(const RasterizationStateDesc &desc) : desc(desc)
     {
     }
 
-    auto GetData() const
+    const RasterizationStateDesc &GetDesc() const
     {
-        return data;
+        return desc;
     }
 
-    static SPtr<RasterizationState> Create(const RasterizationStateCreateParams &params)
+    static SPtr<RasterizationState> Create(const RasterizationStateDesc &desc)
     {
-        return Memory::MakeShared<RasterizationState>(params);
+        return Memory::MakeShared<RasterizationState>(desc);
     }
 
 private:
-    RasterizationStateData data;
+    RasterizationStateDesc desc;
 };
 }

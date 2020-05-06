@@ -4,7 +4,7 @@
 
 namespace RenderCore
 {
-struct ShaderCreateParams
+struct ShaderDesc
 {
     String vertexSource;
     String fragmentSource;
@@ -13,6 +13,6 @@ struct ShaderCreateParams
 class Shader
 {
 public:
-    static SPtr<Shader> Create(const ShaderCreateParams &params);
+    static SPtr<Shader> Create(const ShaderDesc &desc);
 };
 }

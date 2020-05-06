@@ -26,12 +26,12 @@ Array<SPtr<VulkanCommandBuffer>> commandBuffers;
 
 SPtr<Shader> CreateShader()
 {
-    ShaderCreateParams params;
+    ShaderDesc desc;
     IO::FileHandle vertSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.vert"));
     IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.frag"));
-    params.vertexSource = vertSrcFile.ReadString();
-    params.fragmentSource = fragSrcFile.ReadString();
-    return Shader::Create(params);
+    desc.vertexSource = vertSrcFile.ReadString();
+    desc.fragmentSource = fragSrcFile.ReadString();
+    return Shader::Create(desc);
 }
 
 void InitVulkan()
@@ -60,12 +60,12 @@ void InitVulkan()
 
     //Pipeline
     RenderPipelineStateCreateParams pipelineStateParams;
-    BlendStateCreateParams blendParams;
-    pipelineStateParams.blendState = BlendState::Create(blendParams);
-    DepthStencilStateCreateParams depthStencilParams;
-    pipelineStateParams.depthStencilState = DepthStencilState::Create(depthStencilParams);
-    RasterizationStateCreateParams rasterizationParams;
-    pipelineStateParams.rasterizationState = RasterizationState::Create(rasterizationParams);
+    BlendStateDesc blendDesc;
+    pipelineStateParams.blendState = BlendState::Create(blendDesc);
+    DepthStencilStateDesc depthStencilDesc;
+    pipelineStateParams.depthStencilState = DepthStencilState::Create(depthStencilDesc);
+    RasterizationStateDesc rasterizationDesc;
+    pipelineStateParams.rasterizationState = RasterizationState::Create(rasterizationDesc);
     pipelineStateParams.shader = CreateShader();
     pipelineState = std::static_pointer_cast<VulkanRenderPipelineState>(RenderPipelineState::Create(pipelineStateParams));
 
@@ -84,11 +84,12 @@ void InitVulkan()
     vertexBuffer->Unmap();
 
     //VertexLayout
-    VertexLayoutCreateParams vlParams {
+    auto vertexBufferLayout = VertexBufferLayout::Create({
         {CT_TEXT("VertexPosition"), VertexDataType::Float2},
         {CT_TEXT("VertexColor"), VertexDataType::Float3}
-    };
-    vertexLayout = VertexLayout::Create(vlParams);
+    });
+    vertexLayout = VertexLayout::Create();
+    vertexLayout->AddBufferLayout(vertexBufferLayout);
 
 }
 

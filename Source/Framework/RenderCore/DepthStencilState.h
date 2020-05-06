@@ -4,7 +4,7 @@
 
 namespace RenderCore
 {
-struct DepthStencilStateData
+struct DepthStencilStateDesc
 {
     bool depthReadEnabled = true;
     bool depthWriteEnabled = true;
@@ -13,6 +13,7 @@ struct DepthStencilStateData
     bool stencilEnabled = false;
     uint8 stencilReadMask = 0xFF;
     uint8 stencilWriteMask = 0xFF;
+    //uint8 stencilRef = 0;
     CompareOperation frontStencilCompareOp = CompareOperation::AlwaysPass;
     StencilOperation frontStencilFailOp = StencilOperation::Keep;
     StencilOperation frontStencilZFailOp = StencilOperation::Keep;
@@ -23,26 +24,24 @@ struct DepthStencilStateData
     StencilOperation backStencilPassOp = StencilOperation::Keep;
 };
 
-using DepthStencilStateCreateParams = DepthStencilStateData;
-
 class DepthStencilState
 {
 public:
-    DepthStencilState(const DepthStencilStateCreateParams &params) : data(params)
+    DepthStencilState(const DepthStencilStateDesc &desc) : desc(desc)
     {
     }
 
-    auto GetData() const
+    const DepthStencilStateDesc &GetDesc() const
     {
-        return data;
+        return desc;
     }
 
-    static SPtr<DepthStencilState> Create(const DepthStencilStateCreateParams &params)
+    static SPtr<DepthStencilState> Create(const DepthStencilStateDesc &desc)
     {
-        return Memory::MakeShared<DepthStencilState>(params);
+        return Memory::MakeShared<DepthStencilState>(desc);
     }
 
 private:
-    DepthStencilStateData data;
+    DepthStencilStateDesc desc;
 };
 }

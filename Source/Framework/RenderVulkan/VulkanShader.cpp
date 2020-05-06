@@ -4,18 +4,18 @@
 
 namespace RenderCore
 {
-SPtr<Shader> Shader::Create(const ShaderCreateParams &params)
+SPtr<Shader> Shader::Create(const ShaderDesc &desc)
 {
-    auto result = Memory::MakeShared<VulkanShader>(params);
+    auto result = Memory::MakeShared<VulkanShader>(desc);
     VulkanContext::Get().GetShaderRegistry().Register(result.get());
     return result;
 }
 
-VulkanShader::VulkanShader(const ShaderCreateParams &params)
+VulkanShader::VulkanShader(const ShaderDesc &desc)
 {
     auto compiler = VulkanContext::Get().GetShaderCompiler();
-    vertexModule = CreateShaderModule(compiler->Compile(ShaderType::Vertex, params.vertexSource));
-    fragmentModule = CreateShaderModule(compiler->Compile(ShaderType::Fragment, params.fragmentSource));
+    vertexModule = CreateShaderModule(compiler->Compile(ShaderType::Vertex, desc.vertexSource));
+    fragmentModule = CreateShaderModule(compiler->Compile(ShaderType::Fragment, desc.fragmentSource));
 }
 
 VulkanShader::~VulkanShader()

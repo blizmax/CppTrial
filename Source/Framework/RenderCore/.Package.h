@@ -11,7 +11,16 @@ enum class ShaderType
     Geometry,
     TessControl,
     TessEvaluation,
-    Compute
+    Compute,
+};
+
+enum class Topology
+{
+    PointList,
+    LineList,
+    LineStrip,
+    TriangleList,
+    TriangleStrip,
 };
 
 enum class VertexDataType
