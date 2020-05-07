@@ -4,6 +4,23 @@ namespace RenderCore
 {
 VkAllocationCallbacks *gVulkanAlloc = nullptr;
 
+VkImageLayout ToVkImageLayout(ResourceState state)
+{
+    switch (state)
+    {
+    case ResourceState::Undefined:
+        return VK_IMAGE_LAYOUT_UNDEFINED;
+    case ResourceState::PreInitialized:
+        return VK_IMAGE_LAYOUT_PREINITIALIZED;
+
+    case ResourceState::Present:
+        return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    }
+
+    CT_EXCEPTION(RenderCore, "Unsupported resource state!");
+    return VK_IMAGE_LAYOUT_UNDEFINED;
+}
+
 VkFormat ToVkDataFormat(VertexDataType dataType)
 {
     switch (dataType)

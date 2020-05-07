@@ -1,11 +1,11 @@
 #pragma once
 
-#include "RenderCore/.Package.h"
+#include "RenderCore/Resource.h"
 
 namespace RenderCore
 {
 
-class Texture
+class Texture : public Resource
 {
 public:
     virtual ~Texture() = default;
@@ -51,7 +51,7 @@ public:
         return format;
     }
 
-    static SPtr<Texture> Create();
+    static SPtr<Texture> Create2D(uint32 width, uint32 height, PixelFormat format, uint32 arrayLayers = 1, uint32 mipLevels = UINT32_MAX, const void* data = nullptr);
 
 protected:
     uint32 width = 1;

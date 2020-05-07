@@ -5,42 +5,21 @@
 
 namespace RenderCore
 {
-SPtr<VulkanFrameBuffer> VulkanFrameBuffer::Create(const VulkanFrameBufferCreateParams &params)
+SPtr<FrameBuffer> FrameBuffer::Create(const Array<SPtr<Texture>> &colors, const SPtr<Texture> &depthStencil)
 {
-    return Memory::MakeShared<VulkanFrameBuffer>(params);
-}
+    auto ptr = Memory::MakeShared<VulkanFrameBuffer>();
 
-VulkanFrameBuffer::VulkanFrameBuffer(const VulkanFrameBufferCreateParams &params)
-{
-    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
-    VkImageView colorAttachs[COLOR_ATTCHMENT_MAX_NUM];
-    for(int32 i = 0; i < params.colorAttachmentCount; ++i)
-        colorAttachs[i] = params.colorAttachments[i]->GetViewHandle();
-
-    if(params.renderPass != nullptr)
+    for(const auto &e : colors)
     {
-        renderPass = params.renderPass;
+        ptr->AddColorAttachment(e);
     }
-    else
+    if(depthStencil)
     {
-        //TODO
-        //Create render pass
+        ptr->SetDepthStencilAttachment(depthStencil);
     }
+    ptr->Apply();
 
-    VkFramebufferCreateInfo framebufferInfo = {};
-    framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    framebufferInfo.renderPass = renderPass->GetHandle();
-    framebufferInfo.attachmentCount = params.colorAttachmentCount;
-    framebufferInfo.pAttachments = colorAttachs;
-    framebufferInfo.width = params.width;
-    framebufferInfo.height = params.height;
-    framebufferInfo.layers = params.layers;
-
-    if (vkCreateFramebuffer(device, &framebufferInfo, gVulkanAlloc, &frameBuffer) != VK_SUCCESS)
-        CT_EXCEPTION(RenderCore, "Create frame buffer failed.");
-
-    width = params.width;
-    height = params.height;
+    return ptr;
 }
 
 void VulkanFrameBuffer::Destroy()
@@ -51,6 +30,21 @@ void VulkanFrameBuffer::Destroy()
         vkDestroyFramebuffer(device, frameBuffer, gVulkanAlloc);
         frameBuffer = VK_NULL_HANDLE;
     }
+}
+
+void VulkanFrameBuffer::Apply()
+{
+    FrameBuffer::Apply();
+
+    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
+
+    VkImageView imageViews[COLOR_ATTCHMENT_MAX_NUM + 1];
+    for(auto &e : colorAttachments)
+    {
+
+    }
+
+    //TODO
 }
 
 }

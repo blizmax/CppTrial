@@ -4,6 +4,24 @@
 #include "Core/Logger.h"
 #include "Core/Exception.h"
 
+enum class ResourceType
+{
+    Buffer,
+    Texture1D,
+    Texture2D,
+    Texture3D,
+    TextureCube,
+};
+
+enum class ResourceState
+{
+    Undefined,
+    PreInitialized,
+
+    Present,
+};
+
+
 enum class ShaderType
 {
     Vertex,
@@ -59,6 +77,7 @@ enum class DescriptorType
 
 enum class PixelFormat
 {
+    Unknown,
     R8,
     RGB888,
     RGBA8888,

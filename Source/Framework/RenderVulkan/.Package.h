@@ -29,6 +29,8 @@ namespace RenderCore
     class VulkanIndexBuffer;
     class VulkanUniformBuffer;
 
+    VkImageLayout ToVkImageLayout(ResourceState state);
+
     VkFormat ToVkDataFormat(VertexDataType dataType);
     VkPolygonMode ToVkPolygonMode(PolygonMode mode);
     VkCullModeFlagBits ToVkCullMode(CullMode mode);

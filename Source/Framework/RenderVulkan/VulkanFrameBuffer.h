@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RenderCore/FrameBuffer.h"
 #include "RenderVulkan/VulkanMemory.h"
 
 namespace RenderCore
@@ -15,12 +16,11 @@ struct VulkanFrameBufferCreateParams
     SPtr<VulkanRenderPass> renderPass; //Shared render pass
 };
 
-class VulkanFrameBuffer : public IVulkanResource
+class VulkanFrameBuffer : public FrameBuffer, public IVulkanResource
 {
 public:
-    VulkanFrameBuffer(const VulkanFrameBufferCreateParams &params);
-
     virtual void Destroy() override;
+    virtual void Apply() override;
 
     SPtr<VulkanRenderPass> GetRenderPass() const
     {
@@ -32,22 +32,8 @@ public:
         return frameBuffer;
     }
 
-    uint32 GetWidth() const
-    {
-        return width;
-    }
-
-    uint32 GetHeight() const
-    {
-        return height;
-    }
-
-    static SPtr<VulkanFrameBuffer> Create(const VulkanFrameBufferCreateParams &params);
-
 private:
     VkFramebuffer frameBuffer = VK_NULL_HANDLE;
     SPtr<VulkanRenderPass> renderPass;
-    uint32 width;
-    uint32 height;
 };
 }
