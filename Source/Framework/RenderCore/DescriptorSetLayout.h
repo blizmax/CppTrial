@@ -18,7 +18,7 @@ public:
         }
     };
 
-    DescriptorSetLayout(std::initializer_list<Element> initList, ShaderVisibility visibility)
+    DescriptorSetLayout(std::initializer_list<Element> initList, ShaderVisibilityFlags visibility)
         : elements(initList), visibility(visibility)
     {
     }
@@ -28,19 +28,19 @@ public:
         return elements;
     }
 
-    ShaderVisibility GetVisibility() const
+    ShaderVisibilityFlags GetVisibility() const
     {
         return visibility;
     }
 
-    static SPtr<DescriptorSetLayout> Create(std::initializer_list<Element> initList, ShaderVisibility visibility = ShaderVisibility::All)
+    static SPtr<DescriptorSetLayout> Create(std::initializer_list<Element> initList, ShaderVisibilityFlags visibility = ShaderVisibility::All)
     {
         return Memory::MakeShared<DescriptorSetLayout>(initList, visibility);
     }
 
 private: 
     Array<Element> elements;
-    ShaderVisibility visibility = ShaderVisibility::All;
+    ShaderVisibilityFlags visibility = ShaderVisibility::All;
 };
 
 }

@@ -21,6 +21,25 @@ VkImageLayout ToVkImageLayout(ResourceState state)
     return VK_IMAGE_LAYOUT_UNDEFINED;
 }
 
+VkShaderStageFlags ToVkShaderVisibility(ShaderVisibilityFlags visibility)
+{
+    VkShaderStageFlags flags = 0;
+
+    if ((visibility & ShaderVisibility::Vertex) != ShaderVisibility::None)
+        flags |= VK_SHADER_STAGE_VERTEX_BIT;
+    if ((visibility & ShaderVisibility::Fragment) != ShaderVisibility::None)
+        flags |= VK_SHADER_STAGE_FRAGMENT_BIT;
+    if ((visibility & ShaderVisibility::TessControl) != ShaderVisibility::None)
+        flags |= VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;;
+    if ((visibility & ShaderVisibility::TessEvaluation) != ShaderVisibility::None)
+        flags |= VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+    if ((visibility & ShaderVisibility::Geometry) != ShaderVisibility::None)
+        flags |= VK_SHADER_STAGE_GEOMETRY_BIT;
+    if ((visibility & ShaderVisibility::Compute) != ShaderVisibility::None)
+        flags |= VK_SHADER_STAGE_COMPUTE_BIT;
+    return flags;
+}
+
 VkFormat ToVkDataFormat(VertexDataType dataType)
 {
     switch (dataType)

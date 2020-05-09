@@ -8,7 +8,10 @@ namespace RenderCore
 {
     constexpr int32 VULKAN_FRAME_NUM = 2;
 
+    class VulkanContext;
+
     extern VkAllocationCallbacks *gVulkanAlloc;
+    extern VulkanContext *gVulkanContext;
 
     class VulkanDevice;
     class VulkanQueue;
@@ -30,6 +33,8 @@ namespace RenderCore
     class VulkanUniformBuffer;
 
     VkImageLayout ToVkImageLayout(ResourceState state);
+    VkShaderStageFlags ToVkShaderVisibility(ShaderVisibilityFlags visibility);
+    VkDescriptorType ToVkDescriptorType(DescriptorType descType);
 
     VkFormat ToVkDataFormat(VertexDataType dataType);
     VkPolygonMode ToVkPolygonMode(PolygonMode mode);

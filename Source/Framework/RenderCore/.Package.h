@@ -3,6 +3,7 @@
 #include "Core/String.h"
 #include "Core/Logger.h"
 #include "Core/Exception.h"
+#include "Core/Flags.h"
 
 enum class ResourceType
 {
@@ -34,7 +35,7 @@ enum class ShaderType
     Count,
 };
 
-enum class ShaderVisibility
+CT_DECL_FLAGS(ShaderVisibility)
 {
     None = 0,
     Vertex = (1 << (int32)ShaderType::Vertex),
