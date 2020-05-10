@@ -133,7 +133,8 @@ void VulkanSwapChain::Recreate(const VulkanSwapChainCreateParams &params)
         frameBufferParams.colorAttachmentCount = 1;
         frameBufferParams.layers = 1;
         frameBufferParams.renderPass = renderPass;
-        backBuffers[i].frameBuffer = VulkanFrameBuffer::Create(frameBufferParams);
+        //TODO
+        //backBuffers[i].frameBuffer = VulkanFrameBuffer::Create(frameBufferParams);
     }
 }
 

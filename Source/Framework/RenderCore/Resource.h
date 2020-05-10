@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderCore/.Package.h"
+#include "RenderCore/ResourceView.h"
 
 namespace RenderCore
 {
@@ -8,7 +8,8 @@ namespace RenderCore
 class Resource
 {
 public:
-    Resource(ResourceType type, uint32 size) : resourceType(type), size(size)
+    Resource(ResourceType type, ResourceBindFlags bindFlags, uint32 size)
+        : resourceType(type), bindFlags(bindFlags), size(size)
     {
     }
 
@@ -24,9 +25,18 @@ public:
         return resourceType;
     }
 
+    ResourceBindFlags GetBindFlags() const
+    {
+        return bindFlags;
+    }
+
+    virtual SPtr<ResourceView> GetSrv() = 0;
+    virtual SPtr<ResourceView> GetUav() = 0;
+
 protected:
     ResourceType resourceType;
-    uint32 size;
+    ResourceBindFlags bindFlags = 0;
+    uint32 size = 0;
 
 };
 }

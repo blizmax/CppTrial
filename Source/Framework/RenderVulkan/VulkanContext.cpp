@@ -11,6 +11,10 @@
 
 namespace RenderCore
 {
+
+VulkanContext vulkanContext;
+VulkanContext *gVulkanContext = &vulkanContext;
+
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger)
 {
     auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
@@ -59,9 +63,6 @@ void VulkanContext::Destroy()
     device->WaitIdle();
 
     shaderRegistry.Cleanup();
-    vertexBufferRegistry.Cleanup();
-    indexBufferRegistry.Cleanup();
-    uniformBufferRegistry.Cleanup();
 
     DestroyCommandPools();
     DestroyFrameDatas();

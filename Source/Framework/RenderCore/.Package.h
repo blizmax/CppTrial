@@ -22,6 +22,41 @@ enum class ResourceState
     Present,
 };
 
+CT_DECL_FLAGS(ResourceBind)
+{
+    None = 0,
+    Vertex = 1 << 0,
+    Index = 1 << 1,
+    Constant = 1 << 2,
+    StreamOutput = 1 << 3,
+    ShaderResource = 1 << 4,
+    UnorderedAccess = 1 << 5,
+    RenderTarget = 1 << 6,
+    DepthStencil = 1 << 7,
+    IndirectArg = 1 << 8,
+    Shared = 1 << 9,
+};
+
+enum class CpuAccess
+{
+    None,
+    Write,
+    Read,
+};
+
+enum class BufferMapType
+{
+    Read,
+    Write,
+    WriteDiscard,
+};
+
+enum class MemoryUsage
+{
+    Default,
+    Upload,
+    Download,
+};
 
 enum class ShaderType
 {
@@ -74,6 +109,19 @@ enum class VertexDataType
 enum class DescriptorType
 {
     Sampler,
+    TextureSrv,
+    TextureUav,
+    RawBufferSrv,
+    RawBufferUav,
+    TypedBufferSrv,
+    TypedBufferUav,
+    StructuredBufferSrv,
+    StructuredBufferUav,
+    Cbv,
+    Dsv,
+    Rtv,
+
+    Count,
 };
 
 enum class PixelFormat

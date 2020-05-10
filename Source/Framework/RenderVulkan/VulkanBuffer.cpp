@@ -3,79 +3,47 @@
 
 namespace RenderCore
 {
-void VulkanBuffer::Init(const VulkanBufferCreateParams &params)
-{
-    size = params.size;
-    bufferType = params.bufferType;
-    usage = params.usage;
-    useStaging = (params.usage != GpuBufferUsage::Dynamic);
- 
-    if(useStaging)
-        CT_EXCEPTION(RenderCore, "Not implement.");
 
-    bufferData = CreateBuffer(false);
-}        
-
-void VulkanBuffer::Destroy()
+SPtr<Buffer> Buffer::Create(uint32 size, ResourceBindFlags bindFlags, CpuAccess access, const void *data)
 {
+    auto ptr = Memory::MakeShared<VulkanBuffer>(size, bindFlags, access);
+    if(data)
+        ptr->SetBlob(data, 0, size);
+    return ptr;
+}
+
+VulkanBuffer::VulkanBuffer(uint32 size, ResourceBindFlags bindFlags, CpuAccess access)
+    : Buffer(size, bindFlags, access)
+{
+    if(access == CpuAccess::Write)
+    {
+        bufferData = CreateBuffer(bindFlags, MemoryUsage::Upload);
+    }
+    else
+    {
+        if(access == CpuAccess::Read && bindFlags == ResourceBind::None)
+            bufferData = CreateBuffer(bindFlags, MemoryUsage::Download);
+        else
+            bufferData = CreateBuffer(bindFlags, MemoryUsage::Default);
+    }
+}
+
+VulkanBuffer::~VulkanBuffer()
+{
+    CT_CHECK(!stagingBuffer);
+
     DestroyBuffer(bufferData);
 }
 
-void *VulkanBuffer::Map()
+VulkanBuffer::BufferData VulkanBuffer::CreateBuffer(ResourceBindFlags bindFlags, MemoryUsage memoryUsage)
 {
-    auto allocator = VulkanContext::Get().GetVmaAllocator();
+    auto allocator = gVulkanContext->GetVmaAllocator();
 
-    void *data = nullptr;
-    vmaMapMemory(allocator, bufferData.allocation, &data);
-    return data;
-}
-
-void VulkanBuffer::Unmap()
-{
-    auto allocator = VulkanContext::Get().GetVmaAllocator();
-
-    vmaUnmapMemory(allocator, bufferData.allocation);
-}
-
-VulkanBuffer::BufferData VulkanBuffer::CreateBuffer(bool staging)
-{
-    auto allocator = VulkanContext::Get().GetVmaAllocator();
-
-    VkBufferUsageFlags usageFlags = 0;
-
-    if(staging)
-    {
-        usageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-    }
-    else
-    {
-        switch(bufferType)
-        {
-        case VulkanBufferType::Vertex:
-            usageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-            break;
-        case VulkanBufferType::Index:
-            usageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-            break;
-        case VulkanBufferType::Uniform:
-            usageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-            break;
-        }
-    }
-
-    VkMemoryPropertyFlags requiredFlags = 0;
-    if(useStaging && !staging)
-    {
-        requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    }
-    else
-    {
-        requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-    }
+    VkBufferUsageFlags usageFlags = ToVkBufferUsage(bindFlags);
+    usageFlags |= (VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
 
     VkBufferCreateInfo bufferInfo = {};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.pNext = nullptr;
     bufferInfo.flags = 0;
     bufferInfo.size = size;
     bufferInfo.usage = usageFlags;
@@ -83,10 +51,12 @@ VulkanBuffer::BufferData VulkanBuffer::CreateBuffer(bool staging)
     bufferInfo.queueFamilyIndexCount = 0;
 	bufferInfo.pQueueFamilyIndices = nullptr;
 
+    VkMemoryPropertyFlags requiredFlags = ToVkMemoryProperty(memoryUsage);
+
     VmaAllocationCreateInfo allocInfo = {};
     allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
     allocInfo.requiredFlags = requiredFlags;
-    
+
     BufferData result;
     vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &result.buffer, &result.allocation, nullptr);
     return result;
@@ -96,12 +66,59 @@ void VulkanBuffer::DestroyBuffer(BufferData &data)
 {
     if(data.allocation != VK_NULL_HANDLE)
     {
-        auto allocator = VulkanContext::Get().GetVmaAllocator();
+        auto allocator = gVulkanContext->GetVmaAllocator();
         vmaDestroyBuffer(allocator, data.buffer, data.allocation);
 
         data.allocation = VK_NULL_HANDLE;
         data.buffer = VK_NULL_HANDLE;
     }
+}
+
+void *VulkanBuffer::Map(BufferMapType mapType)
+{
+    if(mapType == BufferMapType::Write || mapType == BufferMapType::WriteDiscard)
+    {
+        CT_CHECK(cpuAccess == CpuAccess::Write);
+    }
+
+    if(mapType == BufferMapType::WriteDiscard)
+    {
+        //TODO Clean cache
+        DestroyBuffer(bufferData);
+        bufferData = CreateBuffer(bindFlags, MemoryUsage::Upload);
+    }
+
+    if(mapType == BufferMapType::Read && bindFlags != ResourceBind::None)
+    {
+        //TODO
+        // if(!stagingBuffer)
+        //     stagingBuffer = Buffer::Create(size, ResourceBind::None, CpuAccess::Read);
+        return nullptr;
+    }
+    else
+    {
+        void *data = nullptr;
+        vmaMapMemory(gVulkanContext->GetVmaAllocator(), bufferData.allocation, &data);
+        return data;
+    }
+}
+
+void VulkanBuffer::Unmap()
+{
+    if(stagingBuffer)
+    {
+        stagingBuffer->Unmap();
+        stagingBuffer = nullptr;
+    }
+    else
+    {
+        vmaUnmapMemory(gVulkanContext->GetVmaAllocator(), bufferData.allocation);
+    }
+}
+
+void VulkanBuffer::SetBlob(const void *data, uint32 offset, uint32 size)
+{
+    //TODO
 }
 
 }

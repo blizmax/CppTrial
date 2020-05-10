@@ -185,25 +185,25 @@ void VulkanCommandBuffer::SetVertexLayout(const SPtr<VertexLayout> &layout)
     VulkanContext::Get().SetCurrentVertexLayout(std::static_pointer_cast<VulkanVertexLayout>(layout));
 }
 
-void VulkanCommandBuffer::SetVertexBuffers(uint32 startIndex, SPtr<VertexBuffer> *vertexBuffers, uint32 count)
-{
-    static VkBuffer tempBuffers[VERTEX_INPUT_MAX_NUM] = {};
-    static VkDeviceSize tempOffsets[VERTEX_INPUT_MAX_NUM] = {};
+// void VulkanCommandBuffer::SetVertexBuffers(uint32 startIndex, SPtr<VertexBuffer> *vertexBuffers, uint32 count)
+// {
+//     static VkBuffer tempBuffers[VERTEX_INPUT_MAX_NUM] = {};
+//     static VkDeviceSize tempOffsets[VERTEX_INPUT_MAX_NUM] = {};
 
-    CT_CHECK(count <= VERTEX_INPUT_MAX_NUM);
+//     CT_CHECK(count <= VERTEX_INPUT_MAX_NUM);
 
-    for(int32 i = 0; i < count; ++i)
-    {
-        tempBuffers[i] = std::static_pointer_cast<VulkanVertexBuffer>(vertexBuffers[i])->GetHandle();
-    }
+//     for(int32 i = 0; i < count; ++i)
+//     {
+//         tempBuffers[i] = std::static_pointer_cast<VulkanVertexBuffer>(vertexBuffers[i])->GetHandle();
+//     }
 
-    vkCmdBindVertexBuffers(buffer, startIndex, count, tempBuffers, tempOffsets);
-}
+//     vkCmdBindVertexBuffers(buffer, startIndex, count, tempBuffers, tempOffsets);
+// }
 
-void VulkanCommandBuffer::SetIndexBuffer(const SPtr<IndexBuffer> &indexBuffer)
-{
-    vkCmdBindIndexBuffer(buffer, std::static_pointer_cast<VulkanIndexBuffer>(indexBuffer)->GetHandle(), 0, VK_INDEX_TYPE_UINT32);
-}
+// void VulkanCommandBuffer::SetIndexBuffer(const SPtr<IndexBuffer> &indexBuffer)
+// {
+//     vkCmdBindIndexBuffer(buffer, std::static_pointer_cast<VulkanIndexBuffer>(indexBuffer)->GetHandle(), 0, VK_INDEX_TYPE_UINT32);
+// }
 
 void VulkanCommandBuffer::Draw(uint32 vertexOffset, uint32 vertexCount, uint32 instanceCount)
 {

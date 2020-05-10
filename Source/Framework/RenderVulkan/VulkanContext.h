@@ -3,10 +3,7 @@
 #include "RenderVulkan/VulkanDevice.h"
 #include "RenderVulkan/VulkanSwapChain.h"
 #include "RenderVulkan/VulkanShader.h"
-#include "RenderVulkan/VulkanVertexBuffer.h"
 #include "RenderVulkan/VulkanVertexLayout.h"
-#include "RenderVulkan/VulkanIndexBuffer.h"
-#include "RenderVulkan/VulkanUniformBuffer.h"
 
 namespace RenderCore
 {
@@ -138,21 +135,6 @@ public:
         return shaderRegistry;
     }
 
-    VulkanResourceRegistry<VulkanVertexBuffer> &GetVertexBufferRegistry()
-    {
-        return vertexBufferRegistry;
-    }
-
-    VulkanResourceRegistry<VulkanIndexBuffer> &GetIndexBufferRegistry()
-    {
-        return indexBufferRegistry;
-    }
-
-    VulkanResourceRegistry<VulkanUniformBuffer> &GetUniformBufferRegistry()
-    {
-        return uniformBufferRegistry;
-    }
-
     void Init();
     void Destroy();
     void RecreateSwapChain(const VulkanSwapChainCreateParams &params);
@@ -168,8 +150,6 @@ public:
     }
 
 private:
-    VulkanContext() = default;
-
     void CreateInstance();
     void CreateDevice();
 
@@ -199,9 +179,6 @@ private:
 
     Array<RenderPipelineStorage> renderPipelines;
     VulkanResourceRegistry<VulkanShader> shaderRegistry;
-    VulkanResourceRegistry<VulkanVertexBuffer> vertexBufferRegistry;
-    VulkanResourceRegistry<VulkanIndexBuffer> indexBufferRegistry;
-    VulkanResourceRegistry<VulkanUniformBuffer> uniformBufferRegistry;
 
     FrameData frames[VULKAN_FRAME_NUM];
     uint32 currentFrameIndex = 0;

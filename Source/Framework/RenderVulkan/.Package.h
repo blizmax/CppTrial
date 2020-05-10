@@ -35,6 +35,8 @@ namespace RenderCore
     VkImageLayout ToVkImageLayout(ResourceState state);
     VkShaderStageFlags ToVkShaderVisibility(ShaderVisibilityFlags visibility);
     VkDescriptorType ToVkDescriptorType(DescriptorType descType);
+    VkBufferUsageFlags ToVkBufferUsage(ResourceBindFlags bind);
+    VkMemoryPropertyFlags ToVkMemoryProperty(MemoryUsage usage);
 
     VkFormat ToVkDataFormat(VertexDataType dataType);
     VkPolygonMode ToVkPolygonMode(PolygonMode mode);

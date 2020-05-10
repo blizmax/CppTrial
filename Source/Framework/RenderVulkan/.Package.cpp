@@ -25,19 +25,83 @@ VkShaderStageFlags ToVkShaderVisibility(ShaderVisibilityFlags visibility)
 {
     VkShaderStageFlags flags = 0;
 
-    if ((visibility & ShaderVisibility::Vertex) != ShaderVisibility::None)
+    if (visibility & ShaderVisibility::Vertex)
         flags |= VK_SHADER_STAGE_VERTEX_BIT;
-    if ((visibility & ShaderVisibility::Fragment) != ShaderVisibility::None)
+    if (visibility & ShaderVisibility::Fragment)
         flags |= VK_SHADER_STAGE_FRAGMENT_BIT;
-    if ((visibility & ShaderVisibility::TessControl) != ShaderVisibility::None)
+    if (visibility & ShaderVisibility::TessControl)
         flags |= VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;;
-    if ((visibility & ShaderVisibility::TessEvaluation) != ShaderVisibility::None)
+    if (visibility & ShaderVisibility::TessEvaluation)
         flags |= VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-    if ((visibility & ShaderVisibility::Geometry) != ShaderVisibility::None)
+    if (visibility & ShaderVisibility::Geometry)
         flags |= VK_SHADER_STAGE_GEOMETRY_BIT;
-    if ((visibility & ShaderVisibility::Compute) != ShaderVisibility::None)
+    if (visibility & ShaderVisibility::Compute)
         flags |= VK_SHADER_STAGE_COMPUTE_BIT;
+
     return flags;
+}
+
+VkDescriptorType ToVkDescriptorType(DescriptorType descType)
+{
+    switch (descType)
+    {
+    case DescriptorType::Sampler:
+        return VK_DESCRIPTOR_TYPE_SAMPLER;
+    case DescriptorType::TextureSrv:
+        return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    case DescriptorType::TextureUav:
+        return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+    case DescriptorType::RawBufferSrv:
+    case DescriptorType::TypedBufferSrv:
+        return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+    case DescriptorType::RawBufferUav:
+    case DescriptorType::TypedBufferUav:
+        return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+    case DescriptorType::Cbv:
+        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    case DescriptorType::StructuredBufferSrv:
+    case DescriptorType::StructuredBufferUav:
+        return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    case DescriptorType::Dsv:
+    case DescriptorType::Rtv:
+        return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    }
+
+    CT_EXCEPTION(RenderCore, "Unsupported desc type!");
+    return VK_DESCRIPTOR_TYPE_MAX_ENUM;
+}
+
+VkBufferUsageFlags ToVkBufferUsage(ResourceBindFlags bind)
+{
+    VkBufferUsageFlags flags = 0;
+    if (bind & ResourceBind::Vertex)
+        flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    if (bind & ResourceBind::Index)
+        flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+    if (bind & ResourceBind::UnorderedAccess)
+        flags |= (VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+    if (bind & ResourceBind::ShaderResource)
+        flags |= VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;
+    if (bind & ResourceBind::IndirectArg)
+        flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+    if (bind & ResourceBind::Constant)
+        flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+
+    return flags;
+}
+
+VkMemoryPropertyFlags ToVkMemoryProperty(MemoryUsage usage)
+{
+    switch (usage)
+    {
+    case MemoryUsage::Default:
+        return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    case MemoryUsage::Upload:
+        return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    case MemoryUsage::Download:
+        return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+    }
+    return 0;
 }
 
 VkFormat ToVkDataFormat(VertexDataType dataType)

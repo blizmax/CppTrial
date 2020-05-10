@@ -1,25 +1,11 @@
 #pragma once
 
 #include "RenderVulkan/VulkanMemory.h"
+#include "RenderCore/Buffer.h"
 
 namespace RenderCore
 {
-
-enum class VulkanBufferType
-{
-    Vertex,
-    Index,
-    Uniform,
-};
-
-struct VulkanBufferCreateParams
-{
-    uint32 size;
-    VulkanBufferType bufferType;
-    GpuBufferUsage usage;
-};
-
-class VulkanBuffer : public IVulkanResource
+class VulkanBuffer : public Buffer
 {
 public:
     struct BufferData
@@ -28,39 +14,20 @@ public:
         VmaAllocation allocation = VK_NULL_HANDLE;
     };
 
-    virtual void Destroy() override;
+    VulkanBuffer(uint32 size, ResourceBindFlags bindFlags, CpuAccess access);
+    virtual ~VulkanBuffer();
 
-    void Init(const VulkanBufferCreateParams &params);
-    void *Map();
-    void Unmap();
-
-    uint32 GetSize() const
-    {
-        return size;
-    }
-
-    GpuBufferUsage GetUsage() const
-    {
-        return usage;
-    }
-
-    VkBuffer GetHandle() const
-    {
-        return bufferData.buffer;
-    }
+    virtual void *Map(BufferMapType mapType) override;
+    virtual void Unmap() override;
+    virtual void SetBlob(const void *data, uint32 offset, uint32 size) override;
 
 private:
-    BufferData CreateBuffer(bool staging);
+    BufferData CreateBuffer(ResourceBindFlags bindFlags, MemoryUsage memoryUsage);
     void DestroyBuffer(BufferData &data);
 
 private:
     BufferData bufferData{};
-    BufferData stagingBufferData{};
-    bool useStaging = false;
-
-    uint32 size = 0;
-    VulkanBufferType bufferType;
-    GpuBufferUsage usage;
+    SPtr<Buffer> stagingBuffer;
 };
 
 }
