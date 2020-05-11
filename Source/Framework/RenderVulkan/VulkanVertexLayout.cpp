@@ -22,7 +22,7 @@ VulkanVertexLayout::VulkanVertexLayout()
         {
             VkVertexInputAttributeDescription attrib = {};
             attrib.location = location++;
-            attrib.format = ToVkDataFormat(e.dataType);
+            attrib.format = ToVkResourceFormat(e.format);
             attrib.offset = e.offset;
             attrib.binding = i;
 

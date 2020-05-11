@@ -38,7 +38,6 @@ namespace RenderCore
     VkBufferUsageFlags ToVkBufferUsage(ResourceBindFlags bind);
     VkMemoryPropertyFlags ToVkMemoryProperty(MemoryUsage usage);
 
-    VkFormat ToVkDataFormat(VertexDataType dataType);
     VkPolygonMode ToVkPolygonMode(PolygonMode mode);
     VkCullModeFlagBits ToVkCullMode(CullMode mode);
     VkBlendFactor ToVkBlendFactor(BlendFactor factor);
@@ -47,4 +46,6 @@ namespace RenderCore
     VkCompareOp ToVkCompareOperation(CompareOperation operation);
     VkSampleCountFlagBits ToVkSampleCount(int32 sample);
     VkSamplerAddressMode ToVkAddressMode(TextureWrap wrap);
+
+    VkFormat ToVkResourceFormat(ResourceFormat format);
 }

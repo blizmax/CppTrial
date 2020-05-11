@@ -7,8 +7,29 @@
 
 class Color;
 
+enum class VertexDataType
+{
+    Float1,
+    Float2,
+    Float3,
+    Float4,
+    Int1,
+    Int2,
+    Int3,
+    Int4,
+    UByte4,
+};
+
+enum class PixelFormat
+{
+    R8,
+    RGB888,
+    RGBA8888,
+};
+
 namespace Render
 {
+
 uint32 GetVertexDataSize(VertexDataType dataType);
 uint32 GetVertexDataComponentCount(VertexDataType dataType);
 

@@ -9,6 +9,7 @@ SPtr<Buffer> Buffer::Create(uint32 size, ResourceBindFlags bindFlags, CpuAccess 
     auto ptr = Memory::MakeShared<VulkanBuffer>(size, bindFlags, access);
     if(data)
         ptr->SetBlob(data, 0, size);
+    ptr->weakThis = ptr;
     return ptr;
 }
 
@@ -83,7 +84,7 @@ void *VulkanBuffer::Map(BufferMapType mapType)
 
     if(mapType == BufferMapType::WriteDiscard)
     {
-        //TODO Clean cache
+        ClearViews();
         DestroyBuffer(bufferData);
         bufferData = CreateBuffer(bindFlags, MemoryUsage::Upload);
     }

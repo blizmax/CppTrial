@@ -92,20 +92,6 @@ enum class Topology
     TriangleStrip,
 };
 
-enum class VertexDataType
-{
-    Unknown,
-    Float1,
-    Float2,
-    Float3,
-    Float4,
-    Int1,
-    Int2,
-    Int3,
-    Int4,
-    UByte4,
-};
-
 enum class DescriptorType
 {
     Sampler,
@@ -122,14 +108,6 @@ enum class DescriptorType
     Rtv,
 
     Count,
-};
-
-enum class PixelFormat
-{
-    Unknown,
-    R8,
-    RGB888,
-    RGBA8888,
 };
 
 enum class TextureFilter
@@ -215,11 +193,134 @@ enum class StencilOperation
     Invert,
 };
 
+enum class ResourceFormat
+{
+    Unknown,
+
+    R8Unorm,
+    R8Snorm,
+    R16Unorm,
+    R16Snorm,
+    RG8Unorm,
+    RG8Snorm,
+    RG16Unorm,
+    RG16Snorm,
+    RGB16Unorm,
+    RGB16Snorm,
+    R24UnormX8,
+    RGB5A1Unorm,
+    RGBA8Unorm,
+    RGBA8Snorm,
+    RGB10A2Unorm,
+    RGB10A2UInt,
+    RGBA16Unorm,
+    RGBA8UnormSrgb,
+    R16Float,
+    RG16Float,
+    RGB16Float,
+    RGBA16Float,
+    R32Float,
+    R32FloatX32,
+    RG32Float,
+    RGB32Float,
+    RGBA32Float,
+    R11G11B10Float,
+    RGB9E5Float,
+    R8Int,
+    R8UInt,
+    R16Int,
+    R16UInt,
+    R32Int,
+    R32UInt,
+    RG8Int,
+    RG8UInt,
+    RG16Int,
+    RG16UInt,
+    RG32Int,
+    RG32UInt,
+    RGB16Int,
+    RGB16UInt,
+    RGB32Int,
+    RGB32UInt,
+    RGBA8Int,
+    RGBA8UInt,
+    RGBA16Int,
+    RGBA16UInt,
+    RGBA32Int,
+    RGBA32UInt,
+
+    BGRA8Unorm,
+    BGRA8UnormSrgb,
+    
+    BGRX8Unorm,
+    BGRX8UnormSrgb,
+    Alpha8Unorm,
+    Alpha32Float,
+    R5G6B5Unorm,
+
+    // Depth-stencil
+    D32Float,
+    D16Unorm,
+    D32FloatS8X24,
+    D24UnormS8,
+
+    // Compressed
+    BC1Unorm,
+    BC1UnormSrgb, 
+    BC2Unorm,
+    BC2UnormSrgb,
+    BC3Unorm,
+    BC3UnormSrgb,
+    BC4Unorm,
+    BC4Snorm,
+    BC5Unorm,
+    BC5Snorm,
+    BC6HS16,
+    BC6HU16,
+    BC7Unorm,
+    BC7UnormSrgb,
+
+    Count,
+};
+
+enum class ResourceComponentType
+{
+    Unknown,
+
+    Float,
+    Unorm,
+    Snorm,
+    UnormSrgb,
+    UInt,
+    Int,
+};
+
+struct ResourceFormatDesc
+{
+    ResourceFormat format;
+    const char8 *name;
+    uint32 bytes;
+    uint32 componentCount;
+    ResourceComponentType componentType;
+    struct
+    {
+        bool isDepth;
+        bool isStencil;
+        bool isCompressed;
+    };
+    struct 
+    {
+        uint32 width;
+        uint32 height;
+    } compressionRatio;
+    uint32 componentBits[4];
+};
+
 namespace RenderCore
 {
-    constexpr int32 COLOR_ATTCHMENT_MAX_NUM = 4;
+    constexpr int32 COLOR_ATTCHMENT_MAX_NUM = 8;
     constexpr int32 VERTEX_INPUT_MAX_NUM = 16;
 
-    uint32 GetVertexDataSize(VertexDataType dataType);
-    uint32 GetVertexDataComponentCount(VertexDataType dataType);
+    const ResourceFormatDesc &GetResourceFormatDesc(ResourceFormat format);
+    uint32 GetResourceFormatBytes(ResourceFormat format);
 }

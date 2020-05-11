@@ -6,6 +6,8 @@ namespace RenderCore
 {
 
 class Resource;
+class Buffer;
+class Texture;
 
 struct ResourceViewInfo
 {
@@ -26,11 +28,27 @@ struct ResourceViewInfo
         : mostDetailedMip(mostDetailedMip), mipLevels(mipLevels), firstArraySlice(firstArraySlice), arrayLayers(arrayLayers)
     {
     }
+
+    bool operator==(const ResourceViewInfo &other) const
+    {
+        return firstElement == other.firstElement
+            && elementCount == other.elementCount
+            && mostDetailedMip == other.mostDetailedMip
+            && mipLevels == other.mipLevels
+            && firstArraySlice == other.firstArraySlice
+            && arrayLayers == other.arrayLayers;
+    }
+
 };
 
 class ResourceView
 {
 public:
+    ResourceView(const WPtr<Resource> &resource, uint32 firstElement, uint32 elementCount)
+        :resource(resource), viewInfo(firstElement, elementCount)
+    {
+    }
+
     virtual ~ResourceView() = default;
 
     const ResourceViewInfo &GetViewInfo() const
@@ -43,10 +61,13 @@ public:
         return resource.lock().get();
     }
 
-    //static SPtr<ResourceView> CreateSrv();
+    static SPtr<ResourceView> CreateSrv(const SPtr<Buffer> &buffer, uint32 first, uint32 count);
+    static SPtr<ResourceView> CreateUav(const SPtr<Buffer> &buffer, uint32 first, uint32 count);
+    static SPtr<ResourceView> CreateCbv(const SPtr<Buffer> &buffer);
 
 protected:
     ResourceViewInfo viewInfo;
     WPtr<Resource> resource;
 };
+
 }

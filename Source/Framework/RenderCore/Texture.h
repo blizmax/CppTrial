@@ -46,12 +46,12 @@ public:
         return sampleCount;
     }
 
-    PixelFormat GetFormat() const
+    ResourceFormat GetFormat() const
     {
         return format;
     }
 
-    static SPtr<Texture> Create2D(uint32 width, uint32 height, PixelFormat format, uint32 arrayLayers = 1, uint32 mipLevels = UINT32_MAX, const void* data = nullptr);
+    static SPtr<Texture> Create2D(uint32 width, uint32 height, ResourceFormat format, uint32 arrayLayers = 1, uint32 mipLevels = UINT32_MAX, const void* data = nullptr);
 
 protected:
     uint32 width = 1;
@@ -60,7 +60,7 @@ protected:
     uint32 mipLevels = 0;
     uint32 arrayLayers = 1;
     uint32 sampleCount = 1;
-    PixelFormat format = PixelFormat::RGBA8888;
+    ResourceFormat format = ResourceFormat::Unknown;
 };
 
 }

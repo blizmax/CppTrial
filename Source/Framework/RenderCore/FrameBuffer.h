@@ -8,7 +8,7 @@ struct FrameBufferDesc
 {
     struct AttachmentDesc
     {
-        PixelFormat format = PixelFormat::Unknown;
+        ResourceFormat format = ResourceFormat::Unknown;
     };
 
     Array<AttachmentDesc> colors;

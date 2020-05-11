@@ -10,15 +10,15 @@ public:
     struct Element
     {
         String name;
-        VertexDataType dataType;
+        ResourceFormat format;
         uint32 size;
         uint32 offset;
-        bool normalized;
+        uint32 arrayLayers;
 
-        Element(const String &name, VertexDataType dataType, bool normalized = false)
-            : name(name), dataType(dataType), normalized(normalized), offset(0)
+        Element(const String &name, ResourceFormat format, uint32 arrayLayers = 1)
+            : name(name), format(format), arrayLayers(arrayLayers), offset(0)
         {
-            size = GetVertexDataSize(dataType);
+            size = GetResourceFormatBytes(format) * arrayLayers;
         }
     };
 
