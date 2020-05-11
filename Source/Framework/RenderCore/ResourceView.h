@@ -15,7 +15,7 @@ struct ResourceViewInfo
     uint32 elementCount = UINT32_MAX;
 
     uint32 mostDetailedMip = 0;
-    uint32 mipLevels = UINT32_MAX;
+    uint32 mipLevels = 1;
     uint32 firstArraySlice = 0;
     uint32 arrayLayers = UINT32_MAX;
 

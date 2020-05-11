@@ -89,7 +89,13 @@ void *VulkanBuffer::Map(BufferMapType mapType)
         bufferData = CreateBuffer(bindFlags, MemoryUsage::Upload);
     }
 
-    if(mapType == BufferMapType::Read && bindFlags != ResourceBind::None)
+    bool useStaging = false;
+    if(mapType == BufferMapType::Read)
+    {
+        if ((cpuAccess == CpuAccess::Read && bindFlags != ResourceBind::None) || cpuAccess == CpuAccess::None)
+            useStaging = true;
+    }
+    if(useStaging)
     {
         //TODO
         // if(!stagingBuffer)

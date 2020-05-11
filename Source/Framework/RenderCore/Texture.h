@@ -51,13 +51,21 @@ public:
         return format;
     }
 
-    static SPtr<Texture> Create2D(uint32 width, uint32 height, ResourceFormat format, uint32 arrayLayers = 1, uint32 mipLevels = UINT32_MAX, const void* data = nullptr);
+    static SPtr<Texture> Create1D(uint32 width, ResourceFormat format, uint32 arrayLayers = 1, uint32 mipLevels = 1, const void* data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
+    static SPtr<Texture> Create2D(uint32 width, uint32 height, ResourceFormat format, uint32 arrayLayers = 1, uint32 mipLevels = 1, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
+    static SPtr<Texture> Create3D(uint32 width, uint32 height, uint32 depth, ResourceFormat format, uint32 arrayLayers = 1, uint32 mipLevels = 1, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
+    static SPtr<Texture> CreateCube(uint32 width, uint32 height, ResourceFormat format, uint32 arrayLayers = 1, uint32 mipLevels = 1, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
 
 protected:
+    Texture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, uint32 mipLevels, uint32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags, const void *data);
+
+    uint32 GetMaxMipLevel(uint32 width, uint32 height, uint32 depth) const;
+
+protected: 
     uint32 width = 1;
     uint32 height = 1;
     uint32 depth = 1;
-    uint32 mipLevels = 0;
+    uint32 mipLevels = 1;
     uint32 arrayLayers = 1;
     uint32 sampleCount = 1;
     ResourceFormat format = ResourceFormat::Unknown;

@@ -7,11 +7,6 @@ namespace RenderCore
 class Buffer : public Resource
 {
 public:
-    Buffer(uint32 size, ResourceBindFlags bindFlags, CpuAccess access)
-        : Resource(ResourceType::Buffer, bindFlags, size)
-    {
-    }
-
     virtual ~Buffer() = default;
 
     virtual void *Map(BufferMapType mapType) = 0;
@@ -28,45 +23,10 @@ public:
         return GetUav(0);
     }
 
-    void ClearViews()
-    {
-        srvs.Clear();
-        uavs.Clear();
-        cbv = nullptr;
-    }
-
-    SPtr<ResourceView> GetCbv()
-    {
-        if(!cbv)
-            cbv = ResourceView::CreateCbv(weakThis.lock());
-        return cbv;
-    }
-
-    SPtr<ResourceView> GetSrv(uint32 first, uint32 count = UINT32_MAX)
-    {
-        auto viewInfo = ResourceViewInfo(first, count);
-        for(const auto & e : srvs)
-        {
-            if(e->GetViewInfo() == viewInfo)
-                return e;
-        }
-        auto newView = ResourceView::CreateSrv(weakThis.lock(), first, count);
-        srvs.Add(newView);
-        return newView;
-    }
-
-    SPtr<ResourceView> GetUav(uint32 first, uint32 count = UINT32_MAX)
-    {
-        auto viewInfo = ResourceViewInfo(first, count);
-        for(const auto & e : uavs)
-        {
-            if(e->GetViewInfo() == viewInfo)
-                return e;
-        }
-        auto newView = ResourceView::CreateUav(weakThis.lock(), first, count);
-        uavs.Add(newView);
-        return newView;
-    }
+    void ClearViews();
+    SPtr<ResourceView> GetCbv();
+    SPtr<ResourceView> GetSrv(uint32 first, uint32 count = UINT32_MAX);
+    SPtr<ResourceView> GetUav(uint32 first, uint32 count = UINT32_MAX);
 
     CpuAccess GetCpuAccess() const
     {
@@ -99,24 +59,11 @@ public:
     }
 
     static SPtr<Buffer> Create(uint32 size, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr);
-    
-    static SPtr<Buffer> CreateTyped(ResourceFormat format, uint32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr)
-    {
-        uint32 size = count * GetResourceFormatBytes(format);
-        auto buffer = Create(size, bindFlags, access, data);
-        buffer->format = format;
-        buffer->elementCount = count;
-        return buffer;
-    }
+    static SPtr<Buffer> CreateTyped(ResourceFormat format, uint32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr);
+    static SPtr<Buffer> CreateStructured(uint32 structSize, uint32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr);
 
-    static SPtr<Buffer> CreateStructured(uint32 structSize, uint32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr)
-    {
-        uint32 size = structSize * count;
-        auto buffer = Create(size, bindFlags, access, data);
-        buffer->elementCount = count;
-        buffer->structSize = structSize;
-        return buffer;
-    }
+protected:
+    Buffer(uint32 size, ResourceBindFlags bindFlags, CpuAccess access);
 
 protected:
     CpuAccess cpuAccess;

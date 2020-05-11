@@ -71,6 +71,20 @@ VkDescriptorType ToVkDescriptorType(DescriptorType descType)
     return VK_DESCRIPTOR_TYPE_MAX_ENUM;
 }
 
+VkMemoryPropertyFlags ToVkMemoryProperty(MemoryUsage usage)
+{
+    switch (usage)
+    {
+    case MemoryUsage::Default:
+        return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    case MemoryUsage::Upload:
+        return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    case MemoryUsage::Download:
+        return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+    }
+    return 0;
+}
+
 VkBufferUsageFlags ToVkBufferUsage(ResourceBindFlags bind)
 {
     VkBufferUsageFlags flags = 0;
@@ -90,18 +104,36 @@ VkBufferUsageFlags ToVkBufferUsage(ResourceBindFlags bind)
     return flags;
 }
 
-VkMemoryPropertyFlags ToVkMemoryProperty(MemoryUsage usage)
+VkImageType ToVkImageType(ResourceType resourceType)
 {
-    switch (usage)
+    switch (resourceType)
     {
-    case MemoryUsage::Default:
-        return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    case MemoryUsage::Upload:
-        return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-    case MemoryUsage::Download:
-        return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+    case ResourceType::Texture1D:
+        return VK_IMAGE_TYPE_1D;
+    case ResourceType::Texture2D:
+    case ResourceType::TextureCube:
+        return VK_IMAGE_TYPE_2D;
+    case ResourceType::Texture3D:
+        return VK_IMAGE_TYPE_3D;
     }
-    return 0;
+
+    CT_EXCEPTION(RenderCore, "Unsupported image type.");
+    return VK_IMAGE_TYPE_2D;
+}
+
+VkImageUsageFlags ToVkImageUsage(ResourceBindFlags bind)
+{
+    VkImageUsageFlags flags = 0;
+    if (bind & ResourceBind::UnorderedAccess)
+        flags |= VK_IMAGE_USAGE_STORAGE_BIT; 
+    if (bind & ResourceBind::ShaderResource)
+        flags |= VK_IMAGE_USAGE_SAMPLED_BIT;
+    if (bind & ResourceBind::DepthStencil)
+        flags |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    if (bind & ResourceBind::RenderTarget)
+        flags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    
+    return flags;
 }
 
 VkPolygonMode ToVkPolygonMode(PolygonMode mode)
