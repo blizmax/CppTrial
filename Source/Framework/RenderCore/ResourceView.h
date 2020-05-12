@@ -48,6 +48,11 @@ public:
     {
     }
 
+    ResourceView(const WPtr<Resource> &resource, uint32 mostDetailedMip, uint32 mipLevels, uint32 firstArraySlice, uint32 arrayLayers)
+        : resource(resource), viewInfo(mostDetailedMip, mipLevels, firstArraySlice, arrayLayers)
+    {
+    }
+
     virtual ~ResourceView() = default;
 
     const ResourceViewInfo &GetViewInfo() const

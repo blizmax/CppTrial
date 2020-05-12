@@ -26,7 +26,7 @@ void VulkanSwapChain::Destroy()
 {
     for (auto &e : backBuffers)
     {
-        e.frameBuffer->Destroy();
+        //e.frameBuffer->Destroy();
         e.image->Destroy();
     }
     backBuffers.Clear();

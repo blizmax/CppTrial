@@ -21,7 +21,7 @@ void FrameBuffer::AddColorAttachment(const SPtr<Texture> &texture, uint32 mipLev
     colorAttachments.Add(attachment);
 
     FrameBufferDesc::AttachmentDesc attachmentDesc = {};
-    attachmentDesc.format = texture->GetFormat();
+    attachmentDesc.format = texture->GetResourceFormat();
     desc.colors.Add(attachmentDesc);
 }
 
@@ -36,7 +36,7 @@ void FrameBuffer::SetDepthStencilAttachment(const SPtr<Texture> &texture, uint32
     depthStencilAttachment = attachment;
 
     FrameBufferDesc::AttachmentDesc attachmentDesc = {};
-    attachmentDesc.format = texture->GetFormat();
+    attachmentDesc.format = texture->GetResourceFormat();
     desc.depthStencil = attachmentDesc;
 
     hasDepthStencil = true;

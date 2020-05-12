@@ -11,6 +11,7 @@ struct FrameBufferDesc
         ResourceFormat format = ResourceFormat::Unknown;
         bool allowUav = false;
 
+        AttachmentDesc() = default;
         AttachmentDesc(ResourceFormat format, bool allowUav = false) : format(format), allowUav(allowUav)
         {
         }
@@ -52,6 +53,16 @@ public:
     uint32 GetDepth() const
     {
         return depth;
+    }
+
+    uint32 GetSampleCount() const
+    {
+        return desc.sampleCount;
+    }
+
+    const FrameBufferDesc &GetDesc() const
+    {
+        return desc;
     }
 
     const SPtr<Texture> &GetColorTexture(uint32 index) const

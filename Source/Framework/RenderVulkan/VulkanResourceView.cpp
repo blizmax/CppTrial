@@ -1,23 +1,44 @@
 #include "RenderVulkan/VulkanResourceView.h"
 #include "RenderVulkan/VulkanContext.h"
 #include "RenderVulkan/VulkanBuffer.h"
+#include "RenderVulkan/VulkanTexture.h"
 
 namespace RenderCore
 {
 
-SPtr<ResourceView> CreateSrv(const SPtr<Buffer> &buffer, uint32 first, uint32 count)
+SPtr<ResourceView> ResourceView::CreateSrv(const SPtr<Buffer> &buffer, uint32 first, uint32 count)
 {
     return Memory::MakeShared<VulkanBufferView>(buffer, first, count);
 }
 
-SPtr<ResourceView> CreateUav(const SPtr<Buffer> &buffer, uint32 first, uint32 count)
+SPtr<ResourceView> ResourceView::CreateUav(const SPtr<Buffer> &buffer, uint32 first, uint32 count)
 {
     return Memory::MakeShared<VulkanBufferView>(buffer, first, count);
 }
 
-SPtr<ResourceView> CreateCbv(const SPtr<Buffer> &buffer)
+SPtr<ResourceView> ResourceView::CreateCbv(const SPtr<Buffer> &buffer)
 {
     return Memory::MakeShared<VulkanBufferView>(buffer, 0, 1);
+}
+
+SPtr<ResourceView> ResourceView::CreateSrv(const SPtr<Texture> &texture, uint32 mostDetailedMip, uint32 mipLevels, uint32 firstArraySlice, uint32 arrayLayers)
+{
+    return Memory::MakeShared<VulkanImageView>(texture, mostDetailedMip, mipLevels, firstArraySlice, arrayLayers);
+}
+
+SPtr<ResourceView> ResourceView::CreateUav(const SPtr<Texture> &texture, uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers)
+{
+    return Memory::MakeShared<VulkanImageView>(texture, mipLevel, 1, firstArraySlice, arrayLayers);
+}
+
+SPtr<ResourceView> ResourceView::CreateRtv(const SPtr<Texture> &texture, uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers)
+{
+    return Memory::MakeShared<VulkanImageView>(texture, mipLevel, 1, firstArraySlice, arrayLayers);
+}
+
+SPtr<ResourceView> ResourceView::CreateDsv(const SPtr<Texture> &texture, uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers)
+{
+    return Memory::MakeShared<VulkanImageView>(texture, mipLevel, 1, firstArraySlice, arrayLayers);
 }
 
 VulkanBufferView::VulkanBufferView(const WPtr<Resource> &resource, uint32 firstElement, uint32 elementCount)
@@ -44,6 +65,47 @@ VulkanBufferView::~VulkanBufferView()
     {
         vkDestroyBufferView(gVulkanContext->GetLogicalDeviceHandle(), bufferView, gVulkanAlloc);
         bufferView = VK_NULL_HANDLE;
+    }
+}
+
+VulkanImageView::VulkanImageView(const WPtr<Resource> &resource, uint32 mostDetailedMip, uint32 mipLevels, uint32 firstArraySlice, uint32 arrayLayers)
+    : ResourceView(resource, mostDetailedMip, mipLevels, firstArraySlice, arrayLayers)
+{
+    auto texture = dynamic_cast<VulkanTexture *>(GetResource());
+    if (texture)
+    {
+        if(texture->GetResourceType() == ResourceType::TextureCube)
+        {
+            firstArraySlice *= 6;
+            arrayLayers *= 6;
+        }
+
+        VkImageViewCreateInfo imageInfo = {};
+        imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        imageInfo.image = texture->GetHandle();
+        imageInfo.viewType = ToVkImageViewType(texture->GetResourceType(), texture->GetArrayLayers() > 1);
+        imageInfo.format = ToVkResourceFormat(texture->GetResourceFormat());
+        imageInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageInfo.subresourceRange.aspectMask = ToVkImageAspect(texture->GetResourceFormat(), true);
+        imageInfo.subresourceRange.baseMipLevel = mostDetailedMip;
+        imageInfo.subresourceRange.levelCount = mipLevels;
+        imageInfo.subresourceRange.baseArrayLayer = firstArraySlice;
+        imageInfo.subresourceRange.layerCount = arrayLayers;
+
+        if (vkCreateImageView(gVulkanContext->GetLogicalDeviceHandle(), &imageInfo, gVulkanAlloc, &imageView) != VK_SUCCESS)
+            CT_EXCEPTION(RenderCore, "Create image view failed.");
+    }
+}
+
+VulkanImageView::~VulkanImageView()
+{
+    if (imageView != VK_NULL_HANDLE)
+    {
+        vkDestroyImageView(gVulkanContext->GetLogicalDeviceHandle(), imageView, gVulkanAlloc);
+        imageView = VK_NULL_HANDLE;
     }
 }
 }

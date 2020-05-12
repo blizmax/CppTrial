@@ -136,6 +136,38 @@ VkImageUsageFlags ToVkImageUsage(ResourceBindFlags bind)
     return flags;
 }
 
+VkImageViewType ToVkImageViewType(ResourceType resourceType, bool array)
+{
+    switch (resourceType)
+    {
+    case ResourceType::Texture1D:
+        return array ? VK_IMAGE_VIEW_TYPE_1D_ARRAY : VK_IMAGE_VIEW_TYPE_1D;
+    case ResourceType::Texture2D:
+        return array ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D;
+    case ResourceType::TextureCube:
+        return array ? VK_IMAGE_VIEW_TYPE_CUBE_ARRAY : VK_IMAGE_VIEW_TYPE_CUBE;
+    case ResourceType::Texture3D:
+        CT_CHECK(!array);
+        return VK_IMAGE_VIEW_TYPE_3D;
+    }
+
+    CT_EXCEPTION(RenderCore, "Unsupported image type.");
+    return array ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D;
+}
+
+VkImageAspectFlags ToVkImageAspect(ResourceFormat format, bool ignoreStencil)
+{
+    VkImageAspectFlags flags = 0;
+    if (IsDepthFormat(format))
+        flags |= VK_IMAGE_ASPECT_DEPTH_BIT;
+    if (!ignoreStencil && IsStencilFormat(format))
+        flags |= VK_IMAGE_ASPECT_STENCIL_BIT;
+    if (!IsDepthStencilFormat(format))
+        flags |= VK_IMAGE_ASPECT_COLOR_BIT;
+
+    return flags;
+}
+
 VkPolygonMode ToVkPolygonMode(PolygonMode mode)
 {
     switch (mode)

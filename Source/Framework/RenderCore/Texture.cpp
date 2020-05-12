@@ -13,7 +13,7 @@ Texture::Texture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, 
     mipLevels = Math::Min(mipLevels, 1 + GetMaxMipLevel(width, height, depth));
 }
 
-void Buffer::ClearViews()
+void Texture::ClearViews()
 {
     srvs.Clear();
     uavs.Clear();

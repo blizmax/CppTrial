@@ -39,6 +39,8 @@ namespace RenderCore
     VkBufferUsageFlags ToVkBufferUsage(ResourceBindFlags bind);
     VkImageType ToVkImageType(ResourceType resourceType);
     VkImageUsageFlags ToVkImageUsage(ResourceBindFlags bind);
+    VkImageViewType ToVkImageViewType(ResourceType resourceType, bool array);
+    VkImageAspectFlags ToVkImageAspect(ResourceFormat format, bool ignoreStencil = false);
 
     VkPolygonMode ToVkPolygonMode(PolygonMode mode);
     VkCullModeFlagBits ToVkCullMode(CullMode mode);

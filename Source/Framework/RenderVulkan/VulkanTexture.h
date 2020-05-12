@@ -18,6 +18,11 @@ public:
 
     virtual ~VulkanTexture();
 
+    VkImage GetHandle() const
+    {
+        return textureData.image;
+    }
+
 private:
     TextureData textureData{};
 };

@@ -96,5 +96,20 @@ uint32 GetResourceFormatBytes(ResourceFormat format)
     return GetResourceFormatDesc(format).bytes;
 }
 
+bool IsDepthFormat(ResourceFormat format)
+{
+    return GetResourceFormatDesc(format).isDepth;
+}
+
+bool IsStencilFormat(ResourceFormat format)
+{
+    return GetResourceFormatDesc(format).isStencil;
+}
+
+bool IsDepthStencilFormat(ResourceFormat format)
+{
+    const auto &desc = GetResourceFormatDesc(format);
+    return desc.isDepth && desc.isStencil;
+}
 
 }

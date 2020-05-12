@@ -2,6 +2,7 @@
 #include "RenderVulkan/VulkanRenderPass.h"
 #include "RenderVulkan/VulkanContext.h"
 #include "RenderVulkan/VulkanImage.h"
+#include "RenderVulkan/VulkanResourceView.h"
 
 namespace RenderCore
 {
@@ -35,17 +36,39 @@ void VulkanFrameBuffer::Apply()
 {
     FrameBuffer::Apply();
 
-    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
-
-    VkImageView imageViews[COLOR_ATTCHMENT_MAX_NUM + 1];
+    Array<VkImageView> imageViews;
+    uint32 arrayLayers = UINT32_MAX;
     for(int32 i = 0; i < colorAttachments.Count(); ++i)
     {
         auto rtv = GetRtv(i);
         const auto &viewInfo = rtv->GetViewInfo();
-        //TODO
+        CT_CHECK(arrayLayers == UINT32_MAX || arrayLayers == viewInfo.arrayLayers);
+        arrayLayers = viewInfo.arrayLayers;
+        imageViews.Add(std::static_pointer_cast<VulkanImageView>(rtv)->GetHandle());
     }
 
-    //TODO
+    if(hasDepthStencil)
+    {
+        auto dsv = GetDsv();
+        const auto &viewInfo = dsv->GetViewInfo();
+        CT_CHECK(arrayLayers == UINT32_MAX || arrayLayers == viewInfo.arrayLayers);
+        arrayLayers = viewInfo.arrayLayers;
+        imageViews.Add(std::static_pointer_cast<VulkanImageView>(dsv)->GetHandle());
+    }
+
+    //TODO Create renderpass
+
+    VkFramebufferCreateInfo frameBufferInfo = {};
+    frameBufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    //frameBufferInfo.renderPass = pass;
+    frameBufferInfo.attachmentCount = imageViews.Count();
+    frameBufferInfo.pAttachments = imageViews.GetData();
+    frameBufferInfo.width = width;
+    frameBufferInfo.height = height;
+    frameBufferInfo.layers = arrayLayers;
+
+    if (vkCreateFramebuffer(gVulkanContext->GetLogicalDeviceHandle(), &frameBufferInfo, gVulkanAlloc, &frameBuffer) != VK_SUCCESS)
+        CT_EXCEPTION(RenderCore, "Create framebuffer failed.");
 }
 
 }

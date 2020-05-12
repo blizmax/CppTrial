@@ -62,7 +62,7 @@ public:
         return sampleCount;
     }
 
-    ResourceFormat GetFormat() const
+    ResourceFormat GetResourceFormat() const
     {
         return format;
     }

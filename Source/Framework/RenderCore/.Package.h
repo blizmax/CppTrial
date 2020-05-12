@@ -323,4 +323,7 @@ namespace RenderCore
 
     const ResourceFormatDesc &GetResourceFormatDesc(ResourceFormat format);
     uint32 GetResourceFormatBytes(ResourceFormat format);
+    bool IsDepthFormat(ResourceFormat format);
+    bool IsStencilFormat(ResourceFormat format);
+    bool IsDepthStencilFormat(ResourceFormat format);
 }
