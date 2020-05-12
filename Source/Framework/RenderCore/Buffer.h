@@ -70,6 +70,7 @@ protected:
     uint32 elementCount = 0;
     uint32 structSize = 0;
     ResourceFormat format = ResourceFormat::Unknown;
+
     Array<SPtr<ResourceView>> srvs;
     Array<SPtr<ResourceView>> uavs;
     SPtr<ResourceView> cbv;

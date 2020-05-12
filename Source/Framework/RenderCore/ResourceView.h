@@ -15,7 +15,7 @@ struct ResourceViewInfo
     uint32 elementCount = UINT32_MAX;
 
     uint32 mostDetailedMip = 0;
-    uint32 mipLevels = 1;
+    uint32 mipLevels = UINT32_MAX;
     uint32 firstArraySlice = 0;
     uint32 arrayLayers = UINT32_MAX;
 
@@ -38,7 +38,6 @@ struct ResourceViewInfo
             && firstArraySlice == other.firstArraySlice
             && arrayLayers == other.arrayLayers;
     }
-
 };
 
 class ResourceView
@@ -64,6 +63,11 @@ public:
     static SPtr<ResourceView> CreateSrv(const SPtr<Buffer> &buffer, uint32 first, uint32 count);
     static SPtr<ResourceView> CreateUav(const SPtr<Buffer> &buffer, uint32 first, uint32 count);
     static SPtr<ResourceView> CreateCbv(const SPtr<Buffer> &buffer);
+
+    static SPtr<ResourceView> CreateSrv(const SPtr<Texture> &texture, uint32 mostDetailedMip, uint32 mipLevels, uint32 firstArraySlice, uint32 arrayLayers);
+    static SPtr<ResourceView> CreateUav(const SPtr<Texture> &texture, uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers);
+    static SPtr<ResourceView> CreateRtv(const SPtr<Texture> &texture, uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers);
+    static SPtr<ResourceView> CreateDsv(const SPtr<Texture> &texture, uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers);
 
 protected:
     ResourceViewInfo viewInfo;

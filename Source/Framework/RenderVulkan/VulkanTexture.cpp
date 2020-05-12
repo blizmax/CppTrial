@@ -19,7 +19,7 @@ VulkanTexture::VulkanTexture(uint32 width, uint32 height, uint32 depth, uint32 a
     imageInfo.imageType = ToVkImageType(resourceType);
     imageInfo.initialLayout = data ? VK_IMAGE_LAYOUT_PREINITIALIZED : VK_IMAGE_LAYOUT_UNDEFINED;
     imageInfo.arrayLayers = arrayLayers;
-    imageInfo.mipLevels = Math::Min(mipLevels, GetMaxMipLevel(imageInfo.extent.width, imageInfo.extent.height, imageInfo.extent.depth));
+    imageInfo.mipLevels = mipLevels;
     imageInfo.pQueueFamilyIndices = nullptr;
     imageInfo.queueFamilyIndexCount = 0;
     imageInfo.samples = ToVkSampleCount(sampleCount);

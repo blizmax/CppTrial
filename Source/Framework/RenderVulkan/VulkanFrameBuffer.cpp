@@ -22,12 +22,11 @@ SPtr<FrameBuffer> FrameBuffer::Create(const Array<SPtr<Texture>> &colors, const 
     return ptr;
 }
 
-void VulkanFrameBuffer::Destroy()
+VulkanFrameBuffer::~VulkanFrameBuffer()
 {
     if (frameBuffer != VK_NULL_HANDLE)
     {
-        auto device = VulkanContext::Get().GetLogicalDeviceHandle();
-        vkDestroyFramebuffer(device, frameBuffer, gVulkanAlloc);
+        vkDestroyFramebuffer(gVulkanContext->GetLogicalDeviceHandle(), frameBuffer, gVulkanAlloc);
         frameBuffer = VK_NULL_HANDLE;
     }
 }
@@ -39,9 +38,11 @@ void VulkanFrameBuffer::Apply()
     auto device = VulkanContext::Get().GetLogicalDeviceHandle();
 
     VkImageView imageViews[COLOR_ATTCHMENT_MAX_NUM + 1];
-    for(auto &e : colorAttachments)
+    for(int32 i = 0; i < colorAttachments.Count(); ++i)
     {
-
+        auto rtv = GetRtv(i);
+        const auto &viewInfo = rtv->GetViewInfo();
+        //TODO
     }
 
     //TODO

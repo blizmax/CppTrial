@@ -16,10 +16,11 @@ struct VulkanFrameBufferCreateParams
     SPtr<VulkanRenderPass> renderPass; //Shared render pass
 };
 
-class VulkanFrameBuffer : public FrameBuffer, public IVulkanResource
+class VulkanFrameBuffer : public FrameBuffer
 {
 public:
-    virtual void Destroy() override;
+    virtual ~VulkanFrameBuffer();
+
     virtual void Apply() override;
 
     SPtr<VulkanRenderPass> GetRenderPass() const

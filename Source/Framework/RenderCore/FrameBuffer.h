@@ -9,11 +9,16 @@ struct FrameBufferDesc
     struct AttachmentDesc
     {
         ResourceFormat format = ResourceFormat::Unknown;
+        bool allowUav = false;
+
+        AttachmentDesc(ResourceFormat format, bool allowUav = false) : format(format), allowUav(allowUav)
+        {
+        }
     };
 
     Array<AttachmentDesc> colors;
     AttachmentDesc depthStencil;
-    uint32 sampleCount = 0;
+    uint32 sampleCount = 1;
 };
 
 class FrameBuffer
@@ -51,6 +56,7 @@ public:
 
     const SPtr<Texture> &GetColorTexture(uint32 index) const
     {
+        CT_CHECK(index < COLOR_ATTCHMENT_MAX_NUM);
         return colorAttachments[index].texture;
     }
 
@@ -59,8 +65,28 @@ public:
         return depthStencilAttachment.texture;
     }
 
-    static SPtr<FrameBuffer> Create(const Array<SPtr<Texture>> &colors, const SPtr<Texture> &depthStencil = nullptr);
+    SPtr<ResourceView> GetRtv(uint32 index) const
+    {
+        CT_CHECK(index < COLOR_ATTCHMENT_MAX_NUM);
+        const auto &a = colorAttachments[index];
+        if (a.texture)
+        {
+            return a.texture->GetSrv(a.mipLevel, a.firstArraySlice, a.arrayLayers);
+        }
+        return nullptr;
+    }
 
+    SPtr<ResourceView> GetDsv() const
+    {
+        const auto &a = depthStencilAttachment;
+        if (a.texture)
+        {
+            return a.texture->GetSrv(a.mipLevel, a.firstArraySlice, a.arrayLayers);
+        }
+        return nullptr;
+    }
+
+    static SPtr<FrameBuffer> Create(const Array<SPtr<Texture>> &colors, const SPtr<Texture> &depthStencil = nullptr);
 
 protected:
     uint32 width;
