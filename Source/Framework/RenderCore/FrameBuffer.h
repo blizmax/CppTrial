@@ -20,6 +20,7 @@ struct FrameBufferDesc
     Array<AttachmentDesc> colors;
     AttachmentDesc depthStencil;
     uint32 sampleCount = 1;
+    bool hasDepthStencil = false;
 };
 
 class FrameBuffer
@@ -107,6 +108,5 @@ protected:
     Attachment depthStencilAttachment;
     FrameBufferDesc desc;
     bool layered;
-    bool hasDepthStencil = false;
 };
 }

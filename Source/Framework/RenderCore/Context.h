@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderCore/.Package.h"
+#include "RenderCore/Resource.h"
 
 namespace RenderCore
 {
@@ -17,6 +17,10 @@ public:
     virtual void UpdateResource();
 
     virtual void Flush();
+
+protected:
+    bool BufferBarrier(const Buffer *buffer, ResourceState newState);
+    bool TextureBarrier(const Texture *texture, ResourceState newState);
 
 };
 }

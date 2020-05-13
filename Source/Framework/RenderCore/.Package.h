@@ -283,6 +283,25 @@ enum class ResourceFormat
     Count,
 };
 
+//Start from left top.
+struct Viewport
+{
+    float x = 0.0f;
+    float y = 0.0f;
+    float width = 1.0f;
+    float height = 1.0f;
+    float minDepth = 0.0f; //range: 0-1
+    float maxDepth = 1.0f; //range: 0-1
+};
+
+struct Scissor
+{
+    int32 x;
+    int32 y;
+    uint32 width;
+    uint32 height;
+};
+
 enum class ResourceComponentType
 {
     Unknown,

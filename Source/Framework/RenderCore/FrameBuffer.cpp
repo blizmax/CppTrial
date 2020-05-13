@@ -39,7 +39,7 @@ void FrameBuffer::SetDepthStencilAttachment(const SPtr<Texture> &texture, uint32
     attachmentDesc.format = texture->GetResourceFormat();
     desc.depthStencil = attachmentDesc;
 
-    hasDepthStencil = true;
+    desc.hasDepthStencil = true;
 }
 
 void FrameBuffer::Apply()
@@ -73,7 +73,7 @@ void FrameBuffer::Apply()
         }
     }
 
-    if(hasDepthStencil && !VerifyAttchment(depthStencilAttachment))
+    if(desc.hasDepthStencil && !VerifyAttchment(depthStencilAttachment))
     {
         CT_EXCEPTION(RenderCore, "Depthstencil attachment is valid.");
     }

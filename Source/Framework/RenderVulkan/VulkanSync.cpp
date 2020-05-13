@@ -10,14 +10,10 @@ SPtr<VulkanSemaphore> VulkanSemaphore::Create()
 
 VulkanSemaphore::VulkanSemaphore()
 {
-    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
-
     VkSemaphoreCreateInfo semaphoreInfo;
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    semaphoreInfo.pNext = nullptr;
-    semaphoreInfo.flags = 0;
 
-    if(vkCreateSemaphore(device, &semaphoreInfo, gVulkanAlloc, &semaphore))
+    if(vkCreateSemaphore(gVulkanContext->GetLogicalDeviceHandle(), &semaphoreInfo, gVulkanAlloc, &semaphore))
         CT_EXCEPTION(RenderCore, "Create semaphore failed.");
 }
 
@@ -25,8 +21,7 @@ void VulkanSemaphore::Destroy()
 {
     if(semaphore != VK_NULL_HANDLE)
     {
-        auto device = VulkanContext::Get().GetLogicalDeviceHandle();
-        vkDestroySemaphore(device, semaphore, gVulkanAlloc);
+        vkDestroySemaphore(gVulkanContext->GetLogicalDeviceHandle(), semaphore, gVulkanAlloc);
         semaphore = VK_NULL_HANDLE;
     }
 }
@@ -38,14 +33,11 @@ SPtr<VulkanFence> VulkanFence::Create()
 
 VulkanFence::VulkanFence()
 {
-    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
-
     VkFenceCreateInfo fenceInfo = {};
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceInfo.pNext = nullptr;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    if(vkCreateFence(device, &fenceInfo, gVulkanAlloc, &fence))
+    if(vkCreateFence(gVulkanContext->GetLogicalDeviceHandle(), &fenceInfo, gVulkanAlloc, &fence))
         CT_EXCEPTION(RenderCore, "Create fence failed.");
 }
 
@@ -53,22 +45,19 @@ void VulkanFence::Destroy()
 {
     if(fence != VK_NULL_HANDLE)
     {
-        auto device = VulkanContext::Get().GetLogicalDeviceHandle();
-        vkDestroyFence(device, fence, gVulkanAlloc);
+        vkDestroyFence(gVulkanContext->GetLogicalDeviceHandle(), fence, gVulkanAlloc);
         fence = VK_NULL_HANDLE;
     }
 }
 
 void VulkanFence::Wait()
 {
-    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
-    vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX);
+    vkWaitForFences(gVulkanContext->GetLogicalDeviceHandle(), 1, &fence, VK_TRUE, UINT64_MAX);
 }
 
 void VulkanFence::Reset()
 {
-    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
-    vkResetFences(device, 1, &fence);
+    vkResetFences(gVulkanContext->GetLogicalDeviceHandle(), 1, &fence);
 }
 
 }

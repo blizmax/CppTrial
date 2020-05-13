@@ -23,7 +23,7 @@ public:
 
     virtual void Apply() override;
 
-    SPtr<VulkanRenderPass> GetRenderPass() const
+    VkRenderPass GetRenderPassHandle() const
     {
         return renderPass;
     }
@@ -34,7 +34,10 @@ public:
     }
 
 private:
+    void CreateRenderPass();
+
+private:
     VkFramebuffer frameBuffer = VK_NULL_HANDLE;
-    SPtr<VulkanRenderPass> renderPass;
+    VkRenderPass renderPass = VK_NULL_HANDLE;
 };
 }
