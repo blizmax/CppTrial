@@ -42,6 +42,7 @@ namespace RenderCore
     VkImageViewType ToVkImageViewType(ResourceType resourceType, bool array);
     VkImageAspectFlags ToVkImageAspect(ResourceFormat format, bool ignoreStencil = false);
 
+    VkPrimitiveTopology ToVkTopology(Topology topology);
     VkPolygonMode ToVkPolygonMode(PolygonMode mode);
     VkCullModeFlagBits ToVkCullMode(CullMode mode);
     VkBlendFactor ToVkBlendFactor(BlendFactor factor);

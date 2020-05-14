@@ -21,6 +21,7 @@ struct FrameBufferDesc
     AttachmentDesc depthStencil;
     uint32 sampleCount = 1;
     bool hasDepthStencil = false;
+    void *renderPass = nullptr;
 };
 
 class FrameBuffer

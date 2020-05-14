@@ -42,6 +42,7 @@ void VulkanFrameBuffer::Apply()
     FrameBuffer::Apply();
 
     CreateRenderPass();
+    desc.renderPass = (void*)renderPass;
 
     Array<VkImageView> imageViews;
     uint32 arrayLayers = UINT32_MAX;

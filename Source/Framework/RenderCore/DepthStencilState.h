@@ -13,7 +13,7 @@ struct DepthStencilStateDesc
     bool stencilEnabled = false;
     uint8 stencilReadMask = 0xFF;
     uint8 stencilWriteMask = 0xFF;
-    //uint8 stencilRef = 0;
+    uint8 stencilRef = 0;
     CompareOperation frontStencilCompareOp = CompareOperation::AlwaysPass;
     StencilOperation frontStencilFailOp = StencilOperation::Keep;
     StencilOperation frontStencilZFailOp = StencilOperation::Keep;

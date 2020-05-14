@@ -20,6 +20,8 @@ struct BlendStateDesc
     };
 
     AttachmentDesc attachments[COLOR_ATTCHMENT_MAX_NUM];
+    bool alphaToCoverageEnabled = false;
+    float blendFactor[4] = {0.0f};
 };
 
 class BlendState

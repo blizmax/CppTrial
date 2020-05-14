@@ -1,9 +1,8 @@
 #pragma once
 
-#include "RenderCore/Texture.h"
-#include "RenderCore/VertexArray.h"
+#include "RenderCore/GraphicsStateObject.h"
 #include "RenderCore/FrameBuffer.h"
-#include "RenderCore/RootSignature.h"
+#include "RenderCore/StateGraph.h"
 
 namespace RenderCore
 {
@@ -26,4 +25,5 @@ protected:
     Array<Viewport> viewports;
     Array<Scissor> scissors;
 };
+
 }

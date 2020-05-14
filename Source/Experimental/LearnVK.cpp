@@ -10,7 +10,8 @@
 #include "RenderVulkan/VulkanRenderPipeline.h"
 #include "RenderVulkan/VulkanSync.h"
 #include "RenderVulkan/VulkanCommandBuffer.h"
-#include "RenderVulkan/VulkanVertexLayout.h"
+//#include "RenderVulkan/VulkanVertexLayout.h"
+#include "RenderCore/VertexLayout.h"
 
 using namespace RenderCore;
 

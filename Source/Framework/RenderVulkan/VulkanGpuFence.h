@@ -9,7 +9,7 @@ namespace RenderCore
 class VulkanGpuFence : public GpuFence
 {
 public:
-    virtual VulkanGpuFence();
+    virtual ~VulkanGpuFence();
 
 };
 

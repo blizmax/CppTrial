@@ -8,7 +8,7 @@ namespace RenderCore
 class GpuFence
 {
 public:
-    virtual ~GpuFenc() = default;
+    virtual ~GpuFence() = default;
 
 
     static SPtr<GpuFence> Create();

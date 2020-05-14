@@ -3,7 +3,6 @@
 #include "RenderVulkan/VulkanShader.h"
 #include "RenderVulkan/VulkanFrameBuffer.h"
 #include "RenderVulkan/VulkanRenderPass.h"
-#include "RenderVulkan/VulkanVertexLayout.h"
 
 namespace RenderCore
 {
@@ -180,7 +179,7 @@ VulkanRenderPipeline::VulkanRenderPipeline(const VulkanRenderPipelineCreateParam
     pipelineInfo.flags = 0;
     pipelineInfo.stageCount = shaderStageCount;
     pipelineInfo.pStages = shaderStages;
-    pipelineInfo.pVertexInputState = &vertexLayout->createInfo;
+    //pipelineInfo.pVertexInputState = &vertexLayout->createInfo;
     pipelineInfo.pInputAssemblyState = &state->inputAssemblyInfo;
     pipelineInfo.pViewportState = &state->viewportInfo;
     pipelineInfo.pRasterizationState = &state->rasterizationInfo;

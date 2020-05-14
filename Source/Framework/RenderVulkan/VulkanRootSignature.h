@@ -10,6 +10,11 @@ class VulkanRootSignature : public RootSignature
 public:
     ~VulkanRootSignature();
 
+    VkPipelineLayout GetHandle() const
+    {
+        return pipelineLayout;
+    }
+
 protected:
     VulkanRootSignature(const RootSignatureDesc &desc);
 

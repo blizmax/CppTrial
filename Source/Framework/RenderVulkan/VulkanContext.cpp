@@ -141,36 +141,38 @@ void VulkanContext::Present()
 
 SPtr<VulkanRenderPipeline> VulkanContext::GetRenderPipeline()
 {
-    if (!currentState.IsValid())
-    {
-        CT_EXCEPTION(RenderCore, "Current state is valid.");
-        return nullptr;
-    }
+    // if (!currentState.IsValid())
+    // {
+    //     CT_EXCEPTION(RenderCore, "Current state is valid.");
+    //     return nullptr;
+    // }
 
-    // TODO Remove no longer used.
-    auto renderPass = currentState.frameBuffer->GetRenderPass();
-    for (const auto &e : renderPipelines)
-    {
-        if (e.renderPipelineState.lock() == currentState.renderPipelineState &&
-            e.vertexLayout.lock() == currentState.vertexLayout &&
-            e.renderPass.lock() == renderPass)
-        {
-            return e.renderPipeline;
-        }
-    }
+    // // TODO Remove no longer used.
+    // auto renderPass = currentState.frameBuffer->GetRenderPass();
+    // for (const auto &e : renderPipelines)
+    // {
+    //     if (e.renderPipelineState.lock() == currentState.renderPipelineState &&
+    //         e.vertexLayout.lock() == currentState.vertexLayout &&
+    //         e.renderPass.lock() == renderPass)
+    //     {
+    //         return e.renderPipeline;
+    //     }
+    // }
 
-    VulkanRenderPipelineCreateParams params;
-    params.renderPass = renderPass;
-    params.state = currentState.renderPipelineState;
-    params.vertexLayout = currentState.vertexLayout;
-    SPtr<VulkanRenderPipeline> result = VulkanRenderPipeline::Create(params);
-    RenderPipelineStorage storage;
-    storage.renderPipeline = result;
-    storage.vertexLayout = params.vertexLayout;
-    storage.renderPipelineState = params.state;
-    storage.renderPass = params.renderPass;
-    renderPipelines.Add(storage);
-    return result;
+    // VulkanRenderPipelineCreateParams params;
+    // params.renderPass = renderPass;
+    // params.state = currentState.renderPipelineState;
+    // params.vertexLayout = currentState.vertexLayout;
+    // SPtr<VulkanRenderPipeline> result = VulkanRenderPipeline::Create(params);
+    // RenderPipelineStorage storage;
+    // storage.renderPipeline = result;
+    // storage.vertexLayout = params.vertexLayout;
+    // storage.renderPipelineState = params.state;
+    // storage.renderPass = params.renderPass;
+    // renderPipelines.Add(storage);
+    // return result;
+
+    return nullptr;
 }
 
 void VulkanContext::CreateInstance()

@@ -168,6 +168,26 @@ VkImageAspectFlags ToVkImageAspect(ResourceFormat format, bool ignoreStencil)
     return flags;
 }
 
+VkPrimitiveTopology ToVkTopology(Topology topology)
+{
+    switch (topology)
+    {
+    case Topology::PointList:
+        return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+    case Topology::LineList:
+        return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+    case Topology::LineStrip:
+        return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+    case Topology::TriangleList:
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    case Topology::TriangleStrip:
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+    }
+
+    CT_EXCEPTION(RenderCore, "Unsupported topology.");
+    return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+}
+
 VkPolygonMode ToVkPolygonMode(PolygonMode mode)
 {
     switch (mode)

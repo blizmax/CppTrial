@@ -3,7 +3,6 @@
 #include "RenderVulkan/VulkanDevice.h"
 #include "RenderVulkan/VulkanSwapChain.h"
 #include "RenderVulkan/VulkanShader.h"
-#include "RenderVulkan/VulkanVertexLayout.h"
 
 namespace RenderCore
 {

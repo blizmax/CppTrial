@@ -58,10 +58,24 @@ class VertexLayout
 public:
     virtual ~VertexLayout() = default;
 
-    virtual void AddBufferLayout(const SPtr<VertexBufferLayout> &layout) = 0;
-    virtual const Array<SPtr<VertexBufferLayout>> &GetBufferLayouts() const = 0;
+    void AddBufferLayout(const SPtr<VertexBufferLayout> &layout)
+    {
+        bufferLayouts.Add(layout);
+    }
 
-    static SPtr<VertexLayout> Create();
+    const Array<SPtr<VertexBufferLayout>> &GetBufferLayouts() const
+    {
+        return bufferLayouts;
+    }
+
+    static SPtr<VertexLayout> Create()
+    {
+        return Memory::MakeShared<VertexLayout>();
+    }
+
+private:
+    Array<SPtr<VertexBufferLayout>> bufferLayouts;
+
 };
 
 }
