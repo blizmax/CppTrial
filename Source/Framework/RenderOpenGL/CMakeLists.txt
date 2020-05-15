@@ -1,10 +1,13 @@
 find_package(OpenGL REQUIRED)
 
-if(WIN32)
-    set(DIR_RENDER_OPENGL_PLATFORM 
-       Windows/GLWindowsWindow.cpp
-    )
-endif()
+# if(WIN32)
+#     set(DIR_RENDER_OPENGL_PLATFORM 
+#        Windows/GLWindowsWindow.cpp
+#     )
+# endif()
+set(DIR_RENDER_OPENGL_PLATFORM 
+    Desktop/GLDesktopWindow.cpp
+)
 
 aux_source_directory(. DIR_RENDER_OPENGL)
 add_library(RenderOpenGL

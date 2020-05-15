@@ -1,6 +1,7 @@
-if(WIN32)
-    add_subdirectory(Windows)
-endif(WIN32)
+# if(WIN32)
+#     add_subdirectory(Windows)
+# endif(WIN32)
+add_subdirectory(Desktop)
 
 aux_source_directory(. DIR_APPLICATION)
 
@@ -26,6 +27,7 @@ target_link_libraries(Application Assets)
 
 target_link_libraries(Application freetype)
 
-if(WIN32)
-    target_link_libraries(Application ApplicationWindows)
-endif(WIN32)
+# if(WIN32)
+#     target_link_libraries(Application ApplicationWindows)
+# endif(WIN32)
+target_link_libraries(Application ApplicationDesktop)

@@ -3,16 +3,18 @@
 #include "Application/.Package.h"
 #include "Application/Input.h"
 #include "Application/WindowEvent.h"
+#include "RenderCore/RenderWindow.h"
 #include "Utils/Module.h"
 
-struct WindowConfig
+struct WindowDesc
 {
     String title;
-    uint32 width;
-    uint32 height;
+    int32 width = 1920;
+    int32 height = 1080;
+    bool fullScreen = false;
 };
 
-class Window : public Module
+class Window : public RenderCore::RenderWindow, public Module
 {
 public:
     Window() = default;
@@ -51,14 +53,18 @@ public:
     virtual bool Visible() const = 0;
     virtual bool Focused() const = 0;
 
-    virtual void CreateNativeWindow(const WindowConfig &config) = 0;
+    virtual bool ShouldClose() const = 0;
+
     virtual void *GetNativeHandle() const = 0;
+    virtual void CreateNativeWindow(const WindowDesc &desc) = 0;
 
     virtual String GetName() const override
     {
         return CT_TEXT("Window");
     }
 
+    static void Init();
+
 public:
-    static Window *Create(const WindowConfig &config);
+    static Window *Create(const WindowDesc &desc);
 };

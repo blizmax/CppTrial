@@ -8,7 +8,6 @@ Clipboard *gClipboard = &clipboard;
 
 void Clipboard::Init()
 {
-
 }
 
 void WindowsClipboard::SetString(const String &value)

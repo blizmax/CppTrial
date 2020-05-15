@@ -9,8 +9,13 @@ class VulkanDevice : public IVulkanResource
 public:
     struct QueueData
     {
-        uint32 familyIndex;
+        uint32 familyIndex = UINT32_MAX;
         Array<SPtr<VulkanQueue>> queues;
+
+        QueueData() = default;
+        QueueData(uint32 index) : familyIndex(index)
+        {
+        }
     };
 
     VulkanDevice(VkPhysicalDevice device);
@@ -22,12 +27,12 @@ public:
 
     auto GetGraphicsQueueFamilyIndex() const
     {
-        return graphicsQueueData.familyIndex;
+        return queueDatas[(int32)GpuQueueType::Graphics].familyIndex;
     }
 
     SPtr<VulkanQueue> GetGraphicsQueue() const
     {
-        return graphicsQueueData.queues[0];
+        return queueDatas[(int32)GpuQueueType::Graphics].queues[0];
     }
 
     VkPhysicalDevice GetPhysicalDeviceHandle() const
@@ -50,6 +55,6 @@ private:
     VkPhysicalDeviceFeatures features;
     VkPhysicalDeviceMemoryProperties memoryProperties;
 
-    QueueData graphicsQueueData;
+    QueueData queueDatas[(int32)GpuQueueType::Count];
 };
 }

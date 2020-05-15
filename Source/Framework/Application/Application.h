@@ -12,7 +12,7 @@ public:
     Application() = default;
     virtual ~Application() = default;
 
-    virtual void PreInit(const WindowConfig &config);
+    virtual void PreInit(const WindowDesc &desc);
     virtual void Init();
     virtual void Run();
     virtual void Exit();

@@ -1,12 +1,13 @@
 #pragma once
 
+#include "RenderCore/Context.h"
 #include "RenderVulkan/VulkanDevice.h"
 #include "RenderVulkan/VulkanSwapChain.h"
 #include "RenderVulkan/VulkanShader.h"
 
 namespace RenderCore
 {
-class VulkanContext
+class VulkanContext : public Context
 {
 public:
     struct FrameData

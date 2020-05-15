@@ -10,7 +10,7 @@
 #include "Application/DebugManager.h"
 #endif
 
-void Application::PreInit(const WindowConfig &config)
+void Application::PreInit(const WindowDesc &desc)
 {
     auto time = Time::NanoTime();
     startTime = time;
@@ -24,7 +24,9 @@ void Application::PreInit(const WindowConfig &config)
     gThreadManager->Startup();
     CT_LOG(Info, CT_TEXT("ThreadManager startup."));
 
-    window = Window::Create(config);
+    Window::Init();
+    window = Window::Create(desc);
+    window->Startup();
     CT_LOG(Info, CT_TEXT("Primary window created."));
     
     Input::Init();
@@ -79,6 +81,9 @@ void Application::Run()
 #endif
 
         window->Tick();
+
+        if(window->ShouldClose())
+            RequestQuit();
     }
 }
 
@@ -92,6 +97,9 @@ void Application::Exit()
 
     gRenderManager->Shutdown();
     CT_LOG(Info, CT_TEXT("RenderManager shutdown."));
+
+    window->Shutdown();
+    CT_LOG(Info, CT_TEXT("Primary window shutdown."));
 
     gThreadManager->Shutdown();
     CT_LOG(Info, CT_TEXT("ThreadManager shutdown."));

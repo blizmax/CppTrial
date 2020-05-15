@@ -1,8 +1,12 @@
 #include "Application/Windows/WindowsWindow.h"
-#include "Application/Application.h"
 #include <tchar.h>
 
-void WindowsWindow::CreateNativeWindow(const WindowConfig &config)
+void Window::Init()
+{
+
+}
+
+void WindowsWindow::CreateNativeWindow(const WindowDesc &desc)
 {
     HINSTANCE hInstance = GetModuleHandle(NULL);
 
@@ -25,12 +29,12 @@ void WindowsWindow::CreateNativeWindow(const WindowConfig &config)
     hwnd = CreateWindowEx(
         0,
         wc.lpszClassName,              // name of the window class
-        config.title.CStr(),           // title of the window
+        desc.title.CStr(),           // title of the window
         WS_OVERLAPPEDWINDOW,           // window style
         CW_USEDEFAULT,                 // x-position of the window
         CW_USEDEFAULT,                 // y-position of the window
-        config.width + width_adjust,   // width of the window
-        config.height + height_adjust, // height of the window
+        desc.width + width_adjust,   // width of the window
+        desc.height + height_adjust, // height of the window
         NULL,                          // we have no parent window, NULL
         NULL,                          // we aren't using menus, NULL
         hInstance,                     // application handle
@@ -223,7 +227,7 @@ LRESULT CALLBACK WindowsWindow::WindowProc(HWND hWnd, UINT message, WPARAM wPara
     case WM_DESTROY:
     {
         PostQuitMessage(0);
-        gApp->RequestQuit();
+        thisWindow->shouldClose = true;
         break;
     }
     default:

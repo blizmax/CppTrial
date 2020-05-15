@@ -2,10 +2,10 @@
 #include <glad/glad_wgl.h>
 #include <tchar.h>
 
-Window *Window::Create(const WindowConfig &config)
+Window *Window::Create(const WindowDesc &desc)
 {
-    Window *window = new GLWindowsWindow();
-    window->CreateNativeWindow(config);
+    Window *window = Memory::New<GLWindowsWindow>();
+    window->CreateNativeWindow(desc);
     return window;
 }
 
@@ -24,7 +24,7 @@ static LRESULT CALLBACK TempWindowProc(HWND hWnd, UINT uiMsg, WPARAM wParam, LPA
     return 0;
 }
 
-void GLWindowsWindow::CreateNativeWindow(const WindowConfig &config)
+void GLWindowsWindow::CreateNativeWindow(const WindowDesc &desc)
 {
     HINSTANCE hInstance = GetModuleHandle(NULL);
     WNDCLASSEX wc;
@@ -106,7 +106,7 @@ void GLWindowsWindow::CreateNativeWindow(const WindowConfig &config)
     ReleaseDC(TemphWnd, TemphDC);
     DestroyWindow(TemphWnd);
 
-    WindowsWindow::CreateNativeWindow(config);
+    WindowsWindow::CreateNativeWindow(desc);
 
     hdc = GetDC(hwnd);
 
@@ -198,7 +198,7 @@ void GLWindowsWindow::Shutdown()
         renderContext = 0;
     }
 
-    WindowsWindow::Startup();
+    WindowsWindow::Shutdown();
 }
 
 void GLWindowsWindow::Tick()

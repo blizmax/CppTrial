@@ -20,32 +20,33 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice device) : physicalDevice(device)
     queueFamilies.AppendUninitialized(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.GetData());
 
-    float priority = 1.0f;
     Array<VkDeviceQueueCreateInfo> queueCreateInfos;
+    auto DetermineQueue = [this](Array<VkDeviceQueueCreateInfo> &arr, GpuQueueType q, uint32 i) {
+        if(queueDatas[(int32)q].familyIndex != UINT32_MAX)
+            return false;
 
-    auto AppendQueueCreateInfo = [](Array<VkDeviceQueueCreateInfo> &arr, uint32 i, float p) {
-        VkDeviceQueueCreateInfo info;
+        queueDatas[(int32)q].familyIndex = i;
+        queueDatas[(int32)q].queues.Add(nullptr);
+        const float priority = 1.0f;
+        VkDeviceQueueCreateInfo info = {};
         info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        info.pNext = nullptr;
-        info.flags = 0;
         info.queueFamilyIndex = i;
         info.queueCount = 1;
-        info.pQueuePriorities = &p;
+        info.pQueuePriorities = &priority;
         arr.Add(info);
+        return true;
     };
-
     for (int32 i = 0; i < queueFamilies.Count(); ++i)
-    {
-        if (queueFamilies[i].queueCount > 0 && queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
-        {
-            //create one queue now
-            float priority = 1.0f;
-            graphicsQueueData.familyIndex = i;
-            graphicsQueueData.queues.Add(nullptr);
-
-            AppendQueueCreateInfo(queueCreateInfos, i, priority);
-            break;
-        }
+    {      
+        if(queueFamilies[i].queueCount == 0)
+            continue;
+        auto flags = queueFamilies[i].queueFlags;
+        if((flags & VK_QUEUE_GRAPHICS_BIT) != 0 && DetermineQueue(queueCreateInfos, GpuQueueType::Graphics, i))
+            continue;
+        if((flags & VK_QUEUE_COMPUTE_BIT) != 0 && DetermineQueue(queueCreateInfos, GpuQueueType::Compute, i))
+            continue;
+        if((flags & VK_QUEUE_TRANSFER_BIT) != 0 && DetermineQueue(queueCreateInfos, GpuQueueType::Transfer, i))
+            continue;
     }
 
     Array<const char8 *> extensions;
@@ -72,10 +73,8 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice device) : physicalDevice(device)
     }
 
     // Create logic device
-    VkDeviceCreateInfo deviceInfo;
+    VkDeviceCreateInfo deviceInfo = {};
     deviceInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    deviceInfo.pNext = nullptr;
-    deviceInfo.flags = 0;
     deviceInfo.queueCreateInfoCount = queueCreateInfos.Count();
     deviceInfo.pQueueCreateInfos = queueCreateInfos.GetData();
     deviceInfo.pEnabledFeatures = &features;
@@ -87,12 +86,16 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice device) : physicalDevice(device)
     if (vkCreateDevice(device, &deviceInfo, gVulkanAlloc, &logicalDevice) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create logic device failed.");
 
-    for (int32 i = 0; i < graphicsQueueData.queues.Count(); ++i)
+    for (int32 i = 0; i < (int32)GpuQueueType::Count; ++i)
     {
-        VkQueue queue;
-        vkGetDeviceQueue(logicalDevice, graphicsQueueData.familyIndex, i, &queue);
-        VulkanQueueCreateParams params = {GpuQueueType::Graphics, queue};
-        graphicsQueueData.queues[i] = VulkanQueue::Create(params);
+        auto &queueData = queueDatas[i];
+        for(int32 i = 0; i < queueData.queues.Count(); ++i)
+        {
+            VkQueue queue;
+            vkGetDeviceQueue(logicalDevice, queueData.familyIndex, i, &queue);
+            VulkanQueueCreateParams params = {GpuQueueType::Graphics, queue};
+            queueData.queues[i] = VulkanQueue::Create(params);
+        }
     }
 }
 

@@ -1,9 +1,11 @@
 #pragma once
 
 #include "RenderCore/Resource.h"
+#include "RenderCore/RenderWindow.h"
 
 namespace RenderCore
 {
+
 class Context
 {
 public:
@@ -13,10 +15,10 @@ public:
     virtual void Destroy() = 0;
 
 
-    virtual bool ResourceBarrier(const Resource *resource);
-    virtual void UpdateResource();
+    // virtual bool ResourceBarrier(const Resource *resource);
+    // virtual void UpdateResource();
 
-    virtual void Flush();
+    // virtual void Flush();
 
 protected:
     bool BufferBarrier(const Buffer *buffer, ResourceState newState);

@@ -7,7 +7,7 @@ class GLWindowsWindow : public WindowsWindow
 public:
     virtual void Shutdown() override;
     virtual void Tick() override;
-    virtual void CreateNativeWindow(const WindowConfig &config) override;
+    virtual void CreateNativeWindow(const WindowDesc &desc) override;
 
 private:
     HDC hdc;

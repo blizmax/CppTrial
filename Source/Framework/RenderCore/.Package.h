@@ -145,7 +145,11 @@ enum class GpuBufferUsage
 
 enum class GpuQueueType
 {
+    Transfer,
+    Compute,
     Graphics,
+
+    Count,
 };
 
 enum class BlendFactor

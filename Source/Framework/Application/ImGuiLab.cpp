@@ -71,9 +71,9 @@ void ImGuiLab::BindPlatform()
     io.KeyMap[ImGuiKey_Y] = CT_KEY_Y;
     io.KeyMap[ImGuiKey_Z] = CT_KEY_Z;
 
-#if defined(_WIN32)
-    io.ImeWindowHandle = gApp->GetWindow().GetNativeHandle();
-#endif
+// #if defined(_WIN32)
+//     io.ImeWindowHandle = gApp->GetWindow().GetNativeHandle();
+// #endif
 
     // TODO: Clipboard
 

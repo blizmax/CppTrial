@@ -190,6 +190,8 @@ void VulkanContext::CreateInstance()
     extensions.Add(VK_KHR_SURFACE_EXTENSION_NAME);
 #if CT_PLATFORM_WIN32
     extensions.Add("VK_KHR_win32_surface");
+#else
+    extensions.Add("VK_KHR_xlib_surface"); //TODO
 #endif
     if (enableValidationLayers)
         extensions.Add(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);

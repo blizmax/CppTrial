@@ -1,11 +1,10 @@
 #pragma once
 
 #include "Application/Window.h"
-#include "Application/Windows/WindowsInput.h"
-#include <windows.h>
-#include <windowsx.h>
+#include "Application/Desktop/DesktopInput.h"
+#include <GLFW/glfw3.h>
 
-class WindowsWindow : public Window
+class DesktopWindow : public Window
 {
 public:
     virtual void Startup() override;
@@ -44,21 +43,13 @@ public:
 
     virtual void *GetNativeHandle() const override
     {
-        return hwnd;
+        return window;
     }
 
     virtual void CreateNativeWindow(const WindowDesc &desc) override;
 
-private:
-    void ProcessWindowResize(int32 width, int32 height);
-    void ProcessWindowFocus(bool focused);
-    void ProcessFilesDropped(Array<String> &&paths);
-
-    static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
 protected:
-    HWND hwnd;
-    HDC hdc;
-    WindowsInput input;
+    GLFWwindow *window;
+    DesktopInput input;
     bool shouldClose = false;
 };
