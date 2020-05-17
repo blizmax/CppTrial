@@ -14,7 +14,7 @@ public:
         VmaAllocation allocation = VK_NULL_HANDLE;
     };
 
-    VulkanTexture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, uint32 mipLevels, uint32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags, const void *data);
+    VulkanTexture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, uint32 mipLevels, uint32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags);
 
     virtual ~VulkanTexture();
 
@@ -23,7 +23,12 @@ public:
         return textureData.image;
     }
 
+protected:
+    friend class Texture;
+    virtual void InitData(const void *data, bool genMips) override;
+
 private:
     TextureData textureData{};
+    bool ownsImage = true;
 };
 }

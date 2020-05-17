@@ -1,10 +1,11 @@
 #pragma once
 
 #include "RenderVulkan/VulkanMemory.h"
+#include "RenderCore/Device.h"
 
 namespace RenderCore
 {
-class VulkanDevice : public IVulkanResource
+class VulkanDevice : public Device
 {
 public:
     struct QueueData
@@ -18,12 +19,13 @@ public:
         }
     };
 
-    VulkanDevice(VkPhysicalDevice device);
-    ~VulkanDevice();
+    VulkanDevice(RenderWindow *window, const DeviceDesc &desc);
+    virtual ~VulkanDevice();
 
-    virtual void Destroy() override;
-
-    void WaitIdle();
+    // void WaitIdle()
+    // {
+    //     vkDeviceWaitIdle(logicalDevice);
+    // }
 
     auto GetGraphicsQueueFamilyIndex() const
     {
@@ -45,11 +47,63 @@ public:
         return logicalDevice;
     }
 
-    static SPtr<VulkanDevice> Create(VkPhysicalDevice device);
+    VkSurfaceKHR GetSurfaceHandle()
+    {
+        return surface;
+    }
+
+    VkSwapchainKHR GetSwapChainHandle()
+    {
+        return swapChain;
+    }
+
+    VmaAllocator GetVmaAllocator()
+    {
+        return allocator;
+    }
+
+    const VkPhysicalDeviceProperties &GetDeviceProperties() const
+    {
+        return properties;
+    }
+
+    const VkPhysicalDeviceFeatures &GetDeviceFeatures() const
+    {
+        return features;
+    }
+
+    const VkPhysicalDeviceMemoryProperties &GetDeviceMemoryProperties() const
+    {
+        return memoryProperties;
+    }
+
+    const VkPhysicalDeviceLimits &GetDeviceLimits() const
+    {
+        return properties.limits;
+    }
+
+private:
+    void InitPhysicalDevice();
+    void CreateLogicalDevice();
+    void CreateSurface();
+    void CreateSwapChain();
+    void CreateVmaAllocator();
+
+    void UpdateBackBuffers(uint32 width, uint32 height, ResourceFormat colorFormat, ResourceFormat depthFormat);
+    uint32 GetCurrentBackBufferIndex();
 
 private:
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkDevice logicalDevice = VK_NULL_HANDLE;
+    VmaAllocator allocator = VK_NULL_HANDLE;
+    VkSurfaceKHR surface = VK_NULL_HANDLE;
+    VkSwapchainKHR swapChain = VK_NULL_HANDLE;
+
+    uint32 backBufferCount;
+    Array<SPtr<FrameBuffer>> swapChainFrameBuffers;
+    Array<SPtr<VulkanFence>> presentFences;
+    uint32 curPresentFenceIndex = 0;
+    uint32 curBackBufferIndex = 0;
 
     VkPhysicalDeviceProperties properties;
     VkPhysicalDeviceFeatures features;

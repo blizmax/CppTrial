@@ -4,7 +4,40 @@
 namespace RenderCore
 {
 
-Texture::Texture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, uint32 mipLevels, uint32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags, const void *data)
+ResourceBindFlags UpdateBindFlags(ResourceBindFlags flags, bool hasInitData, uint32 mipLevels, ResourceFormat format)
+{
+    if(hasInitData && mipLevels == UINT32_MAX)
+    {
+        flags |= ResourceBind::RenderTarget;
+    }
+    return flags;
+}
+
+SPtr<Texture> Texture::Create1D(uint32 width, ResourceFormat format, uint32 arrayLayers, uint32 mipLevels, const void *data, ResourceBindFlags flags)
+{
+    flags = UpdateBindFlags(flags, data != nullptr, mipLevels, format);
+    return Create(width, 1, 1, format, ResourceType::Texture1D, arrayLayers, mipLevels, 1, data, flags);
+}
+
+SPtr<Texture> Texture::Create2D(uint32 width, uint32 height, ResourceFormat format, uint32 arrayLayers, uint32 mipLevels, const void *data, ResourceBindFlags flags)
+{
+    flags = UpdateBindFlags(flags, data != nullptr, mipLevels, format);
+    return Create(width, height, 1, format, ResourceType::Texture2D, arrayLayers, mipLevels, 1, data, flags);
+}
+
+SPtr<Texture> Texture::Create3D(uint32 width, uint32 height, uint32 depth, ResourceFormat format, uint32 arrayLayers, uint32 mipLevels, const void *data, ResourceBindFlags flags)
+{
+    flags = UpdateBindFlags(flags, data != nullptr, mipLevels, format);
+    return Create(width, height, depth, format, ResourceType::Texture3D, arrayLayers, mipLevels, 1, data, flags);
+}
+
+SPtr<Texture> Texture::CreateCube(uint32 width, uint32 height, ResourceFormat format, uint32 arrayLayers, uint32 mipLevels, const void *data, ResourceBindFlags flags)
+{
+    flags = UpdateBindFlags(flags, data != nullptr, mipLevels, format);
+    return Create(width, height, 1, format, ResourceType::TextureCube, arrayLayers, mipLevels, 1, data, flags);
+}
+
+Texture::Texture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, uint32 mipLevels, uint32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags)
     : Resource(resourceType, flags, 0), width(width), height(height), depth(depth), arrayLayers(arrayLayers), mipLevels(mipLevels), sampleCount(sampleCount), format(format)
 {
     CT_CHECK(width > 0 && height > 0 && depth > 0);

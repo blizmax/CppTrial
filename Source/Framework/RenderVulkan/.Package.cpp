@@ -2,8 +2,6 @@
 
 namespace RenderCore
 {
-VkAllocationCallbacks *gVulkanAlloc = nullptr;
-
 VkImageLayout ToVkImageLayout(ResourceState state)
 {
     switch (state)

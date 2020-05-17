@@ -1,26 +1,16 @@
 #pragma once
 
-#include "RenderCore/RenderPipelineState.h"
-#include "RenderCore/VertexBuffer.h"
-#include "RenderCore/IndexBuffer.h"
+#include "RenderCore/.Package.h"
+#include "RenderCore/Device.h"
 
 namespace RenderCore
 {
 class RenderAPI
 {
 public:
-    virtual ~RenderAPI() = default;
+    static void Init();
+    static void Destroy();
 
-    virtual void Init() = 0;
-    virtual void Destroy() = 0;
-
-    virtual void SetViewport(int32 x, int32 y, uint32 width, uint32 height) = 0;
-    virtual void SetScissor(int32 x, int32 y, uint32 width, uint32 height) = 0;
-    virtual void SetStencilRef(uint32 ref) = 0;
-    virtual void SetRenderPipeline(const SPtr<RenderPipelineState> &pipeline) = 0;
-    virtual void SetVertexBuffers(uint32 startIndex, SPtr<VertexBuffer> *buffers, uint32 count) = 0;
-    virtual void SetIndexBuffer(const SPtr<IndexBuffer> &buffer) = 0;
-
-    static RenderAPI &Get();
+    static SPtr<Device> CreateDevice(RenderWindow *window, const DeviceDesc &desc);
 };
 }

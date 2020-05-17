@@ -15,7 +15,7 @@ void DesktopWindow::CreateNativeWindow(const WindowDesc &desc)
         height = mode->height;
     }
 
-    window = glfwCreateWindow(desc.width, desc.height, title.GetData(), nullptr, nullptr);
+    window = glfwCreateWindow(width, height, title.GetData(), nullptr, nullptr);
 
     glfwSetWindowUserPointer(window, this);
 
@@ -112,7 +112,7 @@ void DesktopWindow::CreateNativeWindow(const WindowDesc &desc)
     glfwSetScrollCallback(window, [](GLFWwindow* window, double x, double y)
     {
         auto thisWindow = reinterpret_cast<DesktopWindow*>(glfwGetWindowUserPointer(window));
-        thisWindow->input.ProcessMouseScrolled((int32)x);
+        thisWindow->input.ProcessMouseScrolled((int32)y);
     });
 
     glfwSetCursorPosCallback(window, [](GLFWwindow* window, double x, double y)

@@ -5,12 +5,6 @@
 namespace RenderCore
 {
 
-struct VulkanSwapChainCreateParams
-{
-    uint32 width;
-    uint32 height;
-};
-
 class VulkanSwapChain : public IVulkanResource
 {
 public:
@@ -25,7 +19,7 @@ public:
     ~VulkanSwapChain();
 
     virtual void Destroy() override;
-    void Recreate(const VulkanSwapChainCreateParams &params);
+    void Recreate(uint32 width, uint32 height);
     void AcquireBackBuffer();
 
     VkSwapchainKHR GetHandle() const
@@ -58,7 +52,7 @@ public:
         return backBuffers[currentBackBufferIndex];
     }
 
-    static SPtr<VulkanSwapChain> Create();
+    static SPtr<VulkanSwapChain> Create(uint32 width, uint32 height);
 
 private:
     VkSurfaceFormatKHR ChooseSurfaceFormat(const Array<VkSurfaceFormatKHR> &formats, bool gamma = false);

@@ -12,7 +12,8 @@ public:
     virtual bool ResourceBarrier(const Resource *resource);
     virtual void UpdateResource();
 
-    virtual void Flush();
+    virtual void Flush(bool wait = false);
 
+    static SPtr<RenderContext> Create();
 };
 }

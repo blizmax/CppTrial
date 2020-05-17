@@ -9,9 +9,11 @@
 
 namespace RenderCore
 {
-SPtr<VulkanSwapChain> VulkanSwapChain::Create()
+SPtr<VulkanSwapChain> VulkanSwapChain::Create(uint32 width, uint32 height)
 {
-    return Memory::MakeShared<VulkanSwapChain>();
+    auto ptr = Memory::MakeShared<VulkanSwapChain>();
+    ptr->Recreate(width, height);
+    return ptr;
 }
 
 VulkanSwapChain::VulkanSwapChain()
@@ -140,8 +142,8 @@ void VulkanSwapChain::Recreate(const VulkanSwapChainCreateParams &params)
 
 void VulkanSwapChain::AcquireBackBuffer()
 {
-    auto device = VulkanContext::Get().GetLogicalDeviceHandle();
-    auto &frameData = VulkanContext::Get().GetCurrentFrameData();
+    auto device = gVulkanContext.GetLogicalDeviceHandle();
+    auto &frameData = gVulkanContext.GetCurrentFrameData();
     auto semaphore = frameData.swapChainImageSemaphore;
 
     uint32 imageIndex;

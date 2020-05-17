@@ -8,11 +8,6 @@ namespace RenderCore
 {
     constexpr int32 VULKAN_FRAME_NUM = 2;
 
-    class VulkanContext;
-
-    extern VkAllocationCallbacks *gVulkanAlloc;
-    extern VulkanContext *gVulkanContext;
-
     class VulkanDevice;
     class VulkanQueue;
     class VulkanImage;
@@ -26,11 +21,11 @@ namespace RenderCore
     class VulkanFence;
     class VulkanShader;
     class VulkanShaderCompiler;
-    class VulkanSwapChain;
     class VulkanVertexLayout;
-    class VulkanVertexBuffer;
-    class VulkanIndexBuffer;
-    class VulkanUniformBuffer;
+
+    extern VkAllocationCallbacks *gVulkanAlloc;
+    extern VkInstance gVulkanInstance;
+    extern VulkanDevice *gVulkanDevice;
 
     VkImageLayout ToVkImageLayout(ResourceState state);
     VkShaderStageFlags ToVkShaderVisibility(ShaderVisibilityFlags visibility);

@@ -8,6 +8,9 @@ SPtr<GpuFence> GpuFence::Create()
     return Memory::MakeShared<VulkanGpuFence>();
 }
 
+VulkanGpuFence::~VulkanGpuFence()
+{
 
+}
 
 }

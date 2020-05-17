@@ -67,16 +67,20 @@ public:
         return format;
     }
 
-    static SPtr<Texture> Create1D(uint32 width, ResourceFormat format, uint32 arrayLayers = 1, uint32 mipLevels = UINT32_MAX, const void* data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
+    static SPtr<Texture> Create(uint32 width, uint32 height, uint32 depth, ResourceFormat format, ResourceType resourceType, uint32 arrayLayers = 1, uint32 mipLevels = UINT32_MAX, uint32 sampleCount = 1, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
+    static SPtr<Texture> Create1D(uint32 width, ResourceFormat format, uint32 arrayLayers = 1, uint32 mipLevels = UINT32_MAX, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
     static SPtr<Texture> Create2D(uint32 width, uint32 height, ResourceFormat format, uint32 arrayLayers = 1, uint32 mipLevels = UINT32_MAX, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
     static SPtr<Texture> Create3D(uint32 width, uint32 height, uint32 depth, ResourceFormat format, uint32 arrayLayers = 1, uint32 mipLevels = UINT32_MAX, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
     static SPtr<Texture> CreateCube(uint32 width, uint32 height, ResourceFormat format, uint32 arrayLayers = 1, uint32 mipLevels = UINT32_MAX, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
+    
+    static SPtr<Texture> Create2D(uint32 width, uint32 height, ResourceFormat format, void *handle, ResourceBindFlags flags = ResourceBind::ShaderResource);
 
 protected:
-    Texture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, uint32 mipLevels, uint32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags, const void *data);
+    Texture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, uint32 mipLevels, uint32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags);
+
+    virtual void InitData(const void *data, bool genMips) = 0;
 
     uint32 GetMaxMipLevel(uint32 width, uint32 height, uint32 depth) const;
-
     void CheckViewParams(uint32 &mostDetailedMip, uint32 &mipLevels, uint32 &firstArraySlice, uint32 &arrayLayers) const;
 
 protected: 

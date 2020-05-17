@@ -33,13 +33,7 @@ public:
 
     virtual Input &GetInput() = 0;
 
-    virtual uint32 GetPositionX() const = 0;
-    virtual uint32 GetPositionY() const = 0;
-    virtual uint32 GetWidth() const = 0;
-    virtual uint32 GetHeight() const = 0;
-
     virtual void SetTitle(const String &title) = 0;
-
     virtual void Minimize() = 0;
     virtual void Maximize() = 0;
     virtual void Restore() = 0;

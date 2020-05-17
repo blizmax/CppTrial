@@ -1,5 +1,5 @@
 #include "RenderVulkan/VulkanBuffer.h"
-#include "RenderVulkan/VulkanContext.h"
+#include "RenderVulkan/VulkanDevice.h"
 
 namespace RenderCore
 {
@@ -7,9 +7,9 @@ namespace RenderCore
 SPtr<Buffer> Buffer::Create(uint32 size, ResourceBindFlags bindFlags, CpuAccess access, const void *data)
 {
     auto ptr = Memory::MakeShared<VulkanBuffer>(size, bindFlags, access);
+    ptr->weakThis = ptr;
     if(data)
         ptr->SetBlob(data, 0, size);
-    ptr->weakThis = ptr;
     return ptr;
 }
 
@@ -38,7 +38,7 @@ VulkanBuffer::~VulkanBuffer()
 
 VulkanBuffer::BufferData VulkanBuffer::CreateBuffer(ResourceBindFlags bindFlags, MemoryUsage memoryUsage)
 {
-    auto allocator = gVulkanContext->GetVmaAllocator();
+    auto allocator = gVulkanDevice->GetVmaAllocator();
 
     VkBufferUsageFlags usageFlags = ToVkBufferUsage(bindFlags);
     usageFlags |= (VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
@@ -67,7 +67,7 @@ void VulkanBuffer::DestroyBuffer(BufferData &data)
 {
     if(data.allocation != VK_NULL_HANDLE)
     {
-        auto allocator = gVulkanContext->GetVmaAllocator();
+        auto allocator = gVulkanDevice->GetVmaAllocator();
         vmaDestroyBuffer(allocator, data.buffer, data.allocation);
 
         data.allocation = VK_NULL_HANDLE;
@@ -105,7 +105,7 @@ void *VulkanBuffer::Map(BufferMapType mapType)
     else
     {
         void *data = nullptr;
-        vmaMapMemory(gVulkanContext->GetVmaAllocator(), bufferData.allocation, &data);
+        vmaMapMemory(gVulkanDevice->GetVmaAllocator(), bufferData.allocation, &data);
         return data;
     }
 }
@@ -119,7 +119,7 @@ void VulkanBuffer::Unmap()
     }
     else
     {
-        vmaUnmapMemory(gVulkanContext->GetVmaAllocator(), bufferData.allocation);
+        vmaUnmapMemory(gVulkanDevice->GetVmaAllocator(), bufferData.allocation);
     }
 }
 
