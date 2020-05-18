@@ -36,7 +36,7 @@ VulkanDevice::~VulkanDevice()
 {
     renderContext->Flush(true);
 
-    //TODO release resource
+    //TODO release vulkan resources
 
     swapChainFrameBuffers.Clear();
     presentFences.Clear();
@@ -45,6 +45,26 @@ VulkanDevice::~VulkanDevice()
     vkDestroySwapchainKHR(logicalDevice, swapChain, gVulkanAlloc);
     vkDestroySurfaceKHR(gVulkanInstance, surface, gVulkanAlloc);
     vkDestroyDevice(logicalDevice, gVulkanAlloc);
+}
+
+void VulkanDevice::ResizeSwapChain(uint32 width, uint32 height)
+{
+    renderContext->Flush(true);
+
+    swapChainFrameBuffers.Clear();
+    vkDestroySwapchainKHR(logicalDevice, swapChain, gVulkanAlloc);
+    CreateSwapChain();
+    UpdateBackBuffers(width, height, desc.colorFormat, desc.depthFormat);
+}
+
+void VulkanDevice::Present()
+{
+    //TODO
+}
+
+void VulkanDevice::FlushAndSync()
+{
+    //TODO
 }
 
 void VulkanDevice::InitPhysicalDevice()

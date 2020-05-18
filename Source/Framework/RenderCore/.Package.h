@@ -18,8 +18,25 @@ enum class ResourceState
 {
     Undefined,
     PreInitialized,
-
+    Common,
+    VertexBuffer,
+    ConstantBuffer,
+    IndexBuffer,
+    RenderTarget,
+    UnorderedAccess,
+    DepthStencil,
+    ShaderResource,
+    StreamOut,
+    IndirectArg,
+    CopyDest,
+    CopySource,
+    ResolveDest,
+    ResolveSource,
     Present,
+    GenericRead,
+    Predication,
+    PixelShader,
+    NonPixelShader,
 };
 
 CT_DECL_FLAGS(ResourceBind)
@@ -61,9 +78,9 @@ enum class MemoryUsage
 enum class ShaderType
 {
     Vertex,
-    Fragment,
-    TessControl,
-    TessEvaluation,
+    Pixel,
+    Hull,
+    Domain,
     Geometry,
     Compute,
 
@@ -74,9 +91,9 @@ CT_DECL_FLAGS(ShaderVisibility)
 {
     None = 0,
     Vertex = (1 << (int32)ShaderType::Vertex),
-    Fragment = (1 << (int32)ShaderType::Fragment),
-    TessControl = (1 << (int32)ShaderType::TessControl),
-    TessEvaluation = (1 << (int32)ShaderType::TessEvaluation),
+    Pixel = (1 << (int32)ShaderType::Pixel),
+    Hull = (1 << (int32)ShaderType::Hull),
+    Domain = (1 << (int32)ShaderType::Domain),
     Geometry = (1 << (int32)ShaderType::Geometry),
     Compute = (1 << (int32)ShaderType::Compute),
 

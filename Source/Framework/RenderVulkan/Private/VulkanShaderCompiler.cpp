@@ -127,13 +127,13 @@ static EShLanguage ToEShLanguage(ShaderType shaderType)
     {
     case ShaderType::Vertex:
         return EShLangVertex;
-    case ShaderType::Fragment:
+    case ShaderType::Pixel:
         return EShLangFragment;
     case ShaderType::Geometry:
         return EShLangGeometry;
-    case ShaderType::TessControl:
+    case ShaderType::Hull:
         return EShLangTessControl;
-    case ShaderType::TessEvaluation:
+    case ShaderType::Domain:
         return EShLangTessEvaluation;
     case ShaderType::Compute:
         return EShLangCompute;

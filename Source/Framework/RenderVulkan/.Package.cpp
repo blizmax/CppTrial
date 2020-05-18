@@ -25,11 +25,11 @@ VkShaderStageFlags ToVkShaderVisibility(ShaderVisibilityFlags visibility)
 
     if (visibility & ShaderVisibility::Vertex)
         flags |= VK_SHADER_STAGE_VERTEX_BIT;
-    if (visibility & ShaderVisibility::Fragment)
+    if (visibility & ShaderVisibility::Pixel)
         flags |= VK_SHADER_STAGE_FRAGMENT_BIT;
-    if (visibility & ShaderVisibility::TessControl)
+    if (visibility & ShaderVisibility::Hull)
         flags |= VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;;
-    if (visibility & ShaderVisibility::TessEvaluation)
+    if (visibility & ShaderVisibility::Domain)
         flags |= VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
     if (visibility & ShaderVisibility::Geometry)
         flags |= VK_SHADER_STAGE_GEOMETRY_BIT;

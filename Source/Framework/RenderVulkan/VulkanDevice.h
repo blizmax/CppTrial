@@ -82,6 +82,10 @@ public:
         return properties.limits;
     }
 
+    virtual void ResizeSwapChain(uint32 width, uint32 height) override;
+    virtual void Present() override;
+    virtual void FlushAndSync() override;
+
 private:
     void InitPhysicalDevice();
     void CreateLogicalDevice();
@@ -99,11 +103,8 @@ private:
     VkSurfaceKHR surface = VK_NULL_HANDLE;
     VkSwapchainKHR swapChain = VK_NULL_HANDLE;
 
-    uint32 backBufferCount;
-    Array<SPtr<FrameBuffer>> swapChainFrameBuffers;
     Array<SPtr<VulkanFence>> presentFences;
     uint32 curPresentFenceIndex = 0;
-    uint32 curBackBufferIndex = 0;
 
     VkPhysicalDeviceProperties properties;
     VkPhysicalDeviceFeatures features;
