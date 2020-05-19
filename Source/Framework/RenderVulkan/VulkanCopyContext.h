@@ -2,33 +2,27 @@
 
 #include "RenderVulkan/.Package.h"
 #include "RenderCore/CopyContext.h"
+#include "RenderVulkan/VulkanContextData.h"
 
 namespace RenderCore
 {
-
-class VulkanContextData
-{
-
-private:
-    VkQueue queue;  
-    VkCommandPool pool;
-    VkCommandBuffer buffer;
-};
-
 class VulkanCopyContext : public CopyContext
 {
 public:
-    VulkanCopyContext(void *handle);
+    VulkanCopyContext(const SPtr<GpuQueue> &queue);
     virtual ~VulkanCopyContext();
 
-    virtual bool ResourceBarrier(const Resource *resource, ResourceState newState, const ResourceViewInfo *viewInfo = nullptr);
-    virtual void UavBarrier(const Resource *resource);
+    virtual bool ResourceBarrier(const Resource *resource, ResourceState newState, const ResourceViewInfo *viewInfo) override;
+    virtual void UavBarrier(const Resource *resource) override;
+    virtual void CopyResource(const Resource *dst, const Resource *src) override;
 
-    virtual void Flush(bool wait);
+    virtual void Flush(bool wait) override;
 
-    static SPtr<RenderContext> Create();
+private:
+    bool bufferBarrier(const Buffer *pBuffer, ResourceState newState);
+    bool textureBarrier(const Texture *pTexture, ResourceState newState);
 
-protected:
-
+private:
+    SPtr<VulkanContextData> contextData;
 };
 }

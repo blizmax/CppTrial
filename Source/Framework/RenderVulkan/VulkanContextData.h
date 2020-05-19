@@ -3,6 +3,7 @@
 #include "RenderVulkan/VulkanMemory.h"
 #include "RenderVulkan/VulkanGpuQueue.h"
 #include "RenderCore/GpuFence.h"
+#include "RenderCore/FencedPool.h"
 
 namespace RenderCore
 {
@@ -17,10 +18,14 @@ public:
     static SPtr<VulkanContextData> Create(const SPtr<GpuQueue> &gpuQueue);
 
 private:
+    void InitCommandBuffer();
+
+private:
     VulkanGpuQueue *queue;
     SPtr<GpuFence> fence;
     VkCommandPool pool = VK_NULL_HANDLE;
-    VkCommandBuffer buffer;
+    VkCommandBuffer buffer = VK_NULL_HANDLE;
+    SPtr<FencedPool<VkCommandBuffer>> commandPool;
     bool recording = false;
 };
 }

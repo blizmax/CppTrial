@@ -13,7 +13,7 @@ VulkanSemaphore::VulkanSemaphore()
     VkSemaphoreCreateInfo semaphoreInfo;
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    if(vkCreateSemaphore(gVulkanDevice->GetLogicalDeviceHandle(), &semaphoreInfo, gVulkanAlloc, &semaphore))
+    if (vkCreateSemaphore(gVulkanDevice->GetLogicalDeviceHandle(), &semaphoreInfo, gVulkanAlloc, &semaphore) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create semaphore failed.");
 }
 
@@ -38,7 +38,7 @@ VulkanFence::VulkanFence(bool signaled)
     if (signaled)
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    if(vkCreateFence(gVulkanDevice->GetLogicalDeviceHandle(), &fenceInfo, gVulkanAlloc, &fence))
+    if(vkCreateFence(gVulkanDevice->GetLogicalDeviceHandle(), &fenceInfo, gVulkanAlloc, &fence) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create fence failed.");
 }
 

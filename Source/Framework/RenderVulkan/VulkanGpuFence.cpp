@@ -13,7 +13,6 @@ SPtr<GpuFence> GpuFence::Create()
 
 VulkanGpuFence::~VulkanGpuFence()
 {
-
 }
 
 uint64 VulkanGpuFence::GpuSignal(GpuQueue *queue)
@@ -30,8 +29,7 @@ uint64 VulkanGpuFence::GpuSignal(GpuQueue *queue)
         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
-    };
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
     cpuValue++;
     auto &fence = GetVulkanFence();
@@ -51,7 +49,8 @@ uint64 VulkanGpuFence::GpuSignal(GpuQueue *queue)
         submit.pWaitSemaphores = waitSemaphores.GetData();
     }
 
-    vkQueueSubmit(static_cast<VulkanGpuQueue *>(queue)->GetHandle(), 1, &submit, fence->GetHandle());
+    if (vkQueueSubmit(static_cast<VulkanGpuQueue *>(queue)->GetHandle(), 1, &submit, fence->GetHandle()) != VK_SUCCESS)
+        CT_EXCEPTION(RenderCore, "Submit failed.");
 
     if (waitSemaphores.Count() > waitThreshold)
     {
@@ -71,40 +70,42 @@ void VulkanGpuFence::SyncGpu(GpuQueue *queue)
     submit.waitSemaphoreCount = waitSemaphores.Count();
     submit.pWaitSemaphores = waitSemaphores.GetData();
     submit.pWaitDstStageMask = waitStages.GetData();
-    vkQueueSubmit(static_cast<VulkanGpuQueue *>(queue)->GetHandle(), 1, &submit, nullptr);
+    if (vkQueueSubmit(static_cast<VulkanGpuQueue *>(queue)->GetHandle(), 1, &submit, nullptr) != VK_SUCCESS)
+        CT_EXCEPTION(RenderCore, "Submit failed.");
 
     waitSemaphores.Clear();
 }
 
 void VulkanGpuFence::SyncCpu()
 {
-    if(activeFences.IsEmpty())
+    if (activeFences.IsEmpty())
         return;
 
     Array<VkFence> fences;
-    for(auto &f : activeFences)
+    for (auto &f : activeFences)
     {
         fences.Add(f->GetHandle());
     }
 
     vkWaitForFences(gVulkanDevice->GetLogicalDeviceHandle(), fences.Count(), fences.GetData(), true, UINT64_MAX);
+
     gpuValue += fences.Count();
 
-    for(auto &f : activeFences)
+    for (auto &f : activeFences)
     {
         freeFences.Add(f);
     }
     activeFences.Clear();
-   
+
     ReleaseSemaphores();
 }
 
 uint64 VulkanGpuFence::GetGpuValue()
 {
-    while(!activeFences.IsEmpty())
+    while (!activeFences.IsEmpty())
     {
         auto &fence = activeFences.First();
-        if(fence->IsSignaled())
+        if (fence->IsSignaled())
         {
             freeFences.Add(fence);
             activeFences.RemoveFirst();
@@ -129,7 +130,7 @@ void VulkanGpuFence::ReleaseSemaphores()
     CT_CHECK(waitCount <= semCount);
 
     int32 count = Math::Min(semCount - fenceCount, semCount - waitCount);
-    while(count > 0)
+    while (count > 0)
     {
         auto &sem = activeSemaphores.First();
         freeSemaphores.Add(sem);
@@ -140,7 +141,7 @@ void VulkanGpuFence::ReleaseSemaphores()
 
 const SPtr<VulkanFence> &VulkanGpuFence::GetVulkanFence()
 {
-    if(!freeFences.IsEmpty())
+    if (!freeFences.IsEmpty())
     {
         auto &fence = freeFences.Last();
         fence->Reset();
@@ -156,7 +157,7 @@ const SPtr<VulkanFence> &VulkanGpuFence::GetVulkanFence()
 
 const SPtr<VulkanSemaphore> &VulkanGpuFence::GetVulkanSemaphore()
 {
-    if(!freeSemaphores.IsEmpty())
+    if (!freeSemaphores.IsEmpty())
     {
         auto &sem = freeSemaphores.Last();
         activeSemaphores.Add(sem);

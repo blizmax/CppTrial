@@ -23,8 +23,20 @@ VulkanContextData::VulkanContextData(const SPtr<GpuQueue> &gpuQueue)
     if(vkCreateCommandPool(gVulkanDevice->GetLogicalDeviceHandle(), &poolInfo, gVulkanAlloc, &pool) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create command pool failed.");
 
-    //TODO
-    //Init buffer
+    commandPool = FencedPool<VkCommandBuffer>::Create(fence, [this]() {
+        VkCommandBufferAllocateInfo info = {};
+        info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        info.commandPool = this->pool;
+        info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        info.commandBufferCount = 1;
+        VkCommandBuffer buf;
+        if(vkAllocateCommandBuffers(gVulkanDevice->GetLogicalDeviceHandle(), &info, &buf) != VK_SUCCESS)
+            CT_EXCEPTION(RenderCore, "Create command buffer failed.");
+        return buf;
+    });
+
+    buffer = commandPool->NewObject();
+    InitCommandBuffer();
 }
 
 VulkanContextData::~VulkanContextData()
@@ -39,7 +51,8 @@ VulkanContextData::~VulkanContextData()
 void VulkanContextData::Flush()
 {
     recording = false;
-    vkEndCommandBuffer(buffer);
+    if (vkEndCommandBuffer(buffer) != VK_SUCCESS)
+        CT_EXCEPTION(RenderCore, "End command buffer failed.");
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -47,14 +60,25 @@ void VulkanContextData::Flush()
     submitInfo.pCommandBuffers = &buffer;
     submitInfo.signalSemaphoreCount = 0;
     submitInfo.pSignalSemaphores = nullptr;
-    vkQueueSubmit(queue->GetHandle(), 1, &submitInfo, nullptr);
+    if (vkQueueSubmit(queue->GetHandle(), 1, &submitInfo, nullptr) != VK_SUCCESS)
+        CT_EXCEPTION(RenderCore, "Submit failed.");
 
     fence->GpuSignal(queue);
 
-    // TODO
-    // mpList = mpApiData->pCmdBufferAllocator->newObject();
-    // initCommandList(mpApiData, mpList);
+    buffer = commandPool->NewObject();
+    InitCommandBuffer();
+}
 
+void VulkanContextData::InitCommandBuffer()
+{
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+    beginInfo.pInheritanceInfo = nullptr;
+    if (vkBeginCommandBuffer(buffer, &beginInfo) != VK_SUCCESS)
+        CT_EXCEPTION(RenderCore, "Begin command buffer failed.");
+
+    recording = true;
 }
 
 }
