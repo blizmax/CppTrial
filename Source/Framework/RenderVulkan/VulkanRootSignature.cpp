@@ -1,5 +1,5 @@
 #include "RenderVulkan/VulkanRootSignature.h"
-#include "RenderVulkan/VulkanContext.h"
+#include "RenderVulkan/VulkanDevice.h"
 
 namespace RenderCore
 {
@@ -27,7 +27,7 @@ VulkanRootSignature::VulkanRootSignature(const RootSignatureDesc &desc) : RootSi
         layoutInfo.pBindings = bindings.GetData();
 
         VkDescriptorSetLayout vkHandle;
-        if (vkCreateDescriptorSetLayout(gVulkanContext->GetLogicalDeviceHandle(), &layoutInfo, gVulkanAlloc, &vkHandle) != VK_SUCCESS)
+        if (vkCreateDescriptorSetLayout(gVulkanDevice->GetLogicalDeviceHandle(), &layoutInfo, gVulkanAlloc, &vkHandle) != VK_SUCCESS)
             CT_EXCEPTION(RenderCore, "Create descriptor set layout failed.");
         
         return vkHandle;
@@ -42,7 +42,7 @@ VulkanRootSignature::VulkanRootSignature(const RootSignatureDesc &desc) : RootSi
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = setLayouts.Count();
     pipelineLayoutInfo.pSetLayouts = setLayouts.GetData();
-    if(vkCreatePipelineLayout(gVulkanContext->GetLogicalDeviceHandle(), &pipelineLayoutInfo, gVulkanAlloc, &pipelineLayout) != VK_SUCCESS)
+    if(vkCreatePipelineLayout(gVulkanDevice->GetLogicalDeviceHandle(), &pipelineLayoutInfo, gVulkanAlloc, &pipelineLayout) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create pipeline layout failed.");
 }
 
@@ -50,13 +50,13 @@ VulkanRootSignature::~VulkanRootSignature()
 {
     for (auto& e : setLayouts)
     {
-        vkDestroyDescriptorSetLayout(gVulkanContext->GetLogicalDeviceHandle(), e, gVulkanAlloc);
+        vkDestroyDescriptorSetLayout(gVulkanDevice->GetLogicalDeviceHandle(), e, gVulkanAlloc);
     }
     setLayouts.Clear();
 
     if(pipelineLayout != VK_NULL_HANDLE)
     {
-        vkDestroyPipelineLayout(gVulkanContext->GetLogicalDeviceHandle(), pipelineLayout, gVulkanAlloc);
+        vkDestroyPipelineLayout(gVulkanDevice->GetLogicalDeviceHandle(), pipelineLayout, gVulkanAlloc);
         pipelineLayout = VK_NULL_HANDLE;
     }
 }

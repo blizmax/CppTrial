@@ -2,6 +2,7 @@
 
 #include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/Device.h"
+#include "RenderCore/GpuQueue.h"
 
 namespace RenderCore
 {
@@ -11,7 +12,7 @@ public:
     struct QueueData
     {
         uint32 familyIndex = UINT32_MAX;
-        Array<SPtr<VulkanQueue>> queues;
+        Array<SPtr<GpuQueue>> queues;
 
         QueueData() = default;
         QueueData(uint32 index) : familyIndex(index)
@@ -27,14 +28,15 @@ public:
     //     vkDeviceWaitIdle(logicalDevice);
     // }
 
-    auto GetGraphicsQueueFamilyIndex() const
+    uint32 GetQueueFamilyIndex(GpuQueueType queueType) const
     {
-        return queueDatas[(int32)GpuQueueType::Graphics].familyIndex;
+        return queueDatas[(int32)queueType].familyIndex;
     }
 
-    SPtr<VulkanQueue> GetGraphicsQueue() const
+    SPtr<GpuQueue> GetQueue(GpuQueueType queueType, int32 index = 0) const
     {
-        return queueDatas[(int32)GpuQueueType::Graphics].queues[0];
+        auto &queues = queueDatas[(int32)queueType].queues;
+        return queues[index];
     }
 
     VkPhysicalDevice GetPhysicalDeviceHandle() const

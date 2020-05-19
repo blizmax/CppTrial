@@ -25,19 +25,20 @@ private:
 class VulkanFence : public IVulkanResource
 {
 public:
-    VulkanFence();
+    VulkanFence(bool signaled);
 
     virtual void Destroy() override;
 
     void Wait();
     void Reset();
+    bool IsSignaled() const;
 
     VkFence GetHandle() const
     {
         return fence;
     }
 
-    static SPtr<VulkanFence> Create();
+    static SPtr<VulkanFence> Create(bool signaled = false);
 
 private:
     VkFence fence = VK_NULL_HANDLE;

@@ -1,7 +1,6 @@
 #include "RenderVulkan/VulkanDevice.h"
 #include "RenderVulkan/VulkanRenderWindow.h"
 #include "RenderVulkan/VulkanSync.h"
-#include "RenderVulkan/VulkanQueue.h"
 
 namespace RenderCore
 {
@@ -21,7 +20,7 @@ VulkanDevice::VulkanDevice(RenderWindow *window, const DeviceDesc &desc)
 
     for (int32 i = 0; i < backBufferCount; ++i)
     {
-        presentFences.Add(VulkanFence::Create());
+        presentFences.Add(VulkanFence::Create(true));
     }
 
     frameFence = GpuFence::Create();
@@ -182,8 +181,7 @@ void VulkanDevice::CreateLogicalDevice()
         {
             VkQueue queue;
             vkGetDeviceQueue(logicalDevice, queueData.familyIndex, i, &queue);
-            VulkanQueueCreateParams params = {GpuQueueType::Graphics, queue};
-            queueData.queues[i] = VulkanQueue::Create(params);
+            queueData.queues[i] = GpuQueue::Create((GpuQueueType)i, queue);
         }
     }
 }

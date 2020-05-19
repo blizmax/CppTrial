@@ -9,7 +9,6 @@ namespace RenderCore
     constexpr int32 VULKAN_FRAME_NUM = 2;
 
     class VulkanDevice;
-    class VulkanQueue;
     class VulkanImage;
     class VulkanRenderPass;
     class VulkanFrameBuffer;

@@ -374,7 +374,7 @@ public:
     void RemoveAt(int32 index, int32 num)
     {
         CheckRange(index);
-        CT_CHECK(num >= 0 && num <= count);
+        CT_CHECK(num >= 0 && index + num <= count);
 
         RemovePrivate(index, num);
     }
