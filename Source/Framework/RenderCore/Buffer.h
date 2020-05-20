@@ -13,6 +13,17 @@ public:
     virtual void Unmap() = 0;
     virtual void SetBlob(const void *data, uint32 offset, uint32 size) = 0;
 
+    virtual ResourceState GetSubresourceState(uint32 arraySlice, uint32 mipLevel) const override
+    {
+        CT_LOG(Warning, CT_TEXT("Get subresouce state from buffer is invalid, return global state instead."));
+        return stateData.state;
+    }
+
+    virtual void SetSubresourceState(uint32 arraySlice, uint32 mipLevel, ResourceState newState) const override
+    {
+        CT_LOG(Warning, CT_TEXT("Set subresouce state to buffer is invalid, do nothing."));
+    }
+
     virtual SPtr<ResourceView> GetSrv() override
     {
         return GetSrv(0);
@@ -27,6 +38,11 @@ public:
     SPtr<ResourceView> GetCbv();
     SPtr<ResourceView> GetSrv(uint32 first, uint32 count = UINT32_MAX);
     SPtr<ResourceView> GetUav(uint32 first, uint32 count = UINT32_MAX);
+
+    uint32 GetOffset() const
+    {
+        return offset;
+    }
 
     CpuAccess GetCpuAccess() const
     {
@@ -66,6 +82,7 @@ protected:
     Buffer(uint32 size, ResourceBindFlags bindFlags, CpuAccess access);
 
 protected:
+    uint32 offset = 0;
     CpuAccess cpuAccess;
     uint32 elementCount = 0;
     uint32 structSize = 0;

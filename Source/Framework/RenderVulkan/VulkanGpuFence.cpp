@@ -15,7 +15,7 @@ VulkanGpuFence::~VulkanGpuFence()
 {
 }
 
-uint64 VulkanGpuFence::GpuSignal(GpuQueue *queue)
+uint64 VulkanGpuFence::GpuSignal(const GpuQueue *queue)
 {
     static const int32 waitThreshold = 20;
     static const int32 waitCount = 10;
@@ -49,7 +49,7 @@ uint64 VulkanGpuFence::GpuSignal(GpuQueue *queue)
         submit.pWaitSemaphores = waitSemaphores.GetData();
     }
 
-    if (vkQueueSubmit(static_cast<VulkanGpuQueue *>(queue)->GetHandle(), 1, &submit, fence->GetHandle()) != VK_SUCCESS)
+    if (vkQueueSubmit(static_cast<const VulkanGpuQueue *>(queue)->GetHandle(), 1, &submit, fence->GetHandle()) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Submit failed.");
 
     if (waitSemaphores.Count() > waitThreshold)
@@ -60,7 +60,7 @@ uint64 VulkanGpuFence::GpuSignal(GpuQueue *queue)
     return cpuValue - 1;
 }
 
-void VulkanGpuFence::SyncGpu(GpuQueue *queue)
+void VulkanGpuFence::SyncGpu(const GpuQueue *queue)
 {
     Array<VkPipelineStageFlags> waitStages;
     waitStages.Add(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, waitSemaphores.Count());
@@ -70,7 +70,7 @@ void VulkanGpuFence::SyncGpu(GpuQueue *queue)
     submit.waitSemaphoreCount = waitSemaphores.Count();
     submit.pWaitSemaphores = waitSemaphores.GetData();
     submit.pWaitDstStageMask = waitStages.GetData();
-    if (vkQueueSubmit(static_cast<VulkanGpuQueue *>(queue)->GetHandle(), 1, &submit, nullptr) != VK_SUCCESS)
+    if (vkQueueSubmit(static_cast<const VulkanGpuQueue *>(queue)->GetHandle(), 1, &submit, nullptr) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Submit failed.");
 
     waitSemaphores.Clear();

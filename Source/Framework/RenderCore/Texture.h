@@ -10,6 +10,26 @@ class Texture : public Resource
 public:
     virtual ~Texture() = default;
 
+    virtual ResourceState GetSubresourceState(uint32 arraySlice, uint32 mipLevel) const override
+    {
+        uint32 subresouce = GetSubresourceIndex(arraySlice, mipLevel);
+        return stateData.global ? stateData.state : stateData.subStates[subresouce];
+    }
+
+    virtual void SetSubresourceState(uint32 arraySlice, uint32 mipLevel, ResourceState newState) const override
+    {
+        if(IsStateGlobal())
+        {
+            for(auto &e : stateData.subStates)
+            {
+                e = stateData.state;
+            }
+        }
+        stateData.global = false;
+        uint32 subresouce = GetSubresourceIndex(arraySlice, mipLevel);
+        stateData.subStates[subresouce] = newState;
+    }
+
     virtual SPtr<ResourceView> GetSrv() override
     {
         return GetSrv(0);
@@ -65,6 +85,21 @@ public:
     ResourceFormat GetResourceFormat() const
     {
         return format;
+    }
+
+    uint32 GetSubresourceArraySlice(uint32 subresource) const
+    {
+        return subresource / mipLevels;
+    }
+
+    uint32 GetSubresourceMipLevel(uint32 subresource) const
+    {
+        return subresource % mipLevels;
+    }
+
+    uint32 GetSubresourceIndex(uint32 arraySlice, uint32 mipLevel) const
+    {
+        return mipLevel + arraySlice * mipLevels;
     }
 
     static SPtr<Texture> Create(uint32 width, uint32 height, uint32 depth, ResourceFormat format, ResourceType resourceType, uint32 arrayLayers = 1, uint32 mipLevels = UINT32_MAX, uint32 sampleCount = 1, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);

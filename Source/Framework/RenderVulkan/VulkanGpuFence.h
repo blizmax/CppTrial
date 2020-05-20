@@ -12,8 +12,8 @@ class VulkanGpuFence : public GpuFence
 public:
     virtual ~VulkanGpuFence();
 
-    virtual uint64 GpuSignal(GpuQueue *queue) override;
-    virtual void SyncGpu(GpuQueue *queue) override;
+    virtual uint64 GpuSignal(const GpuQueue *queue) override;
+    virtual void SyncGpu(const GpuQueue *queue) override;
     virtual void SyncCpu() override;
 
     virtual uint64 GetGpuValue() override;

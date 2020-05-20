@@ -44,6 +44,9 @@ Texture::Texture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, 
     CT_CHECK(arrayLayers > 0 && mipLevels > 0 && sampleCount > 0);
 
     mipLevels = Math::Min(mipLevels, 1 + GetMaxMipLevel(width, height, depth));
+    this->mipLevels = mipLevels;
+
+    stateData.subStates.Add(stateData.state, arrayLayers * mipLevels); //resize and fill
 }
 
 void Texture::ClearViews()

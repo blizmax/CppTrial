@@ -30,12 +30,40 @@ public:
         return bindFlags;
     }
 
+    bool IsStateGlobal() const
+    {
+        return stateData.global;
+    }
+
+    ResourceState GetGlobalState() const
+    {
+        CT_CHECK(stateData.global);
+        return stateData.state;
+    }
+
+    void SetGlobalState(ResourceState newState) const
+    {
+        stateData.global = true;
+        stateData.state = newState;
+    }
+
+    virtual ResourceState GetSubresourceState(uint32 arraySlice, uint32 mipLevel) const = 0;
+    virtual void SetSubresourceState(uint32 arraySlice, uint32 mipLevel, ResourceState newState) const = 0;
+
     virtual SPtr<ResourceView> GetSrv() = 0;
     virtual SPtr<ResourceView> GetUav() = 0;
 
 protected:
+    struct StateData
+    {
+        ResourceState state = ResourceState::Undefined;
+        Array<ResourceState> subStates;
+        bool global = true;
+    };
+
     ResourceType resourceType;
     ResourceBindFlags bindFlags = 0;
+    mutable StateData stateData;
     uint32 size = 0;
 
 };

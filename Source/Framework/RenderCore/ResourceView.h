@@ -19,6 +19,8 @@ struct ResourceViewInfo
     uint32 firstArraySlice = 0;
     uint32 arrayLayers = UINT32_MAX;
 
+    ResourceViewInfo() = default;
+
     ResourceViewInfo(uint32 firstElement, uint32 elementCount)
         : firstElement(firstElement), elementCount(elementCount)
     {

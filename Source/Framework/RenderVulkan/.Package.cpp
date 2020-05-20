@@ -10,13 +10,99 @@ VkImageLayout ToVkImageLayout(ResourceState state)
         return VK_IMAGE_LAYOUT_UNDEFINED;
     case ResourceState::PreInitialized:
         return VK_IMAGE_LAYOUT_PREINITIALIZED;
-
+    case ResourceState::Common:
+    case ResourceState::UnorderedAccess:
+        return VK_IMAGE_LAYOUT_GENERAL;
+    case ResourceState::RenderTarget:
+        return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    case ResourceState::DepthStencil:
+        return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    case ResourceState::ShaderResource:
+        return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    case ResourceState::ResolveDest:
+    case ResourceState::CopyDest:
+        return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    case ResourceState::ResolveSource:
+    case ResourceState::CopySource:
+        return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     case ResourceState::Present:
         return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
     }
 
     CT_EXCEPTION(RenderCore, "Unsupported resource state!");
     return VK_IMAGE_LAYOUT_UNDEFINED;
+}
+
+VkAccessFlags ToVkAccess(ResourceState state)
+{
+    switch (state)
+    {
+    case ResourceState::Undefined:
+    case ResourceState::Present:
+    case ResourceState::Common:
+    case ResourceState::PreInitialized:
+        return 0;
+    case ResourceState::VertexBuffer:
+        return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+    case ResourceState::ConstantBuffer:
+        return VK_ACCESS_UNIFORM_READ_BIT;
+    case ResourceState::IndexBuffer:
+        return VK_ACCESS_INDEX_READ_BIT;
+    case ResourceState::RenderTarget:
+        return VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+    case ResourceState::UnorderedAccess:
+        return VK_ACCESS_SHADER_WRITE_BIT;
+    case ResourceState::DepthStencil:
+        return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    case ResourceState::ShaderResource:
+        return VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+    case ResourceState::IndirectArg:
+        return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
+    case ResourceState::ResolveDest:
+    case ResourceState::CopyDest:
+        return VK_ACCESS_TRANSFER_WRITE_BIT;
+    case ResourceState::ResolveSource:
+    case ResourceState::CopySource:
+        return VK_ACCESS_TRANSFER_READ_BIT;
+    }
+
+    CT_EXCEPTION(RenderCore, "Unsupported resource state!");
+    return 0;
+}
+
+VkPipelineStageFlags ToVkPipelineStage(ResourceState state, bool src)
+{
+    switch (state)
+    {
+    case ResourceState::Undefined:
+    case ResourceState::PreInitialized:
+    case ResourceState::Common:
+        CT_CHECK(src);
+        return src ? VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT : (VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT | VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+    case ResourceState::VertexBuffer:
+    case ResourceState::IndexBuffer:
+        return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+    case ResourceState::UnorderedAccess:
+    case ResourceState::ConstantBuffer:
+    case ResourceState::ShaderResource:
+        return VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+    case ResourceState::RenderTarget:
+        return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    case ResourceState::DepthStencil:
+        return src ? VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT : VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    case ResourceState::IndirectArg:
+        return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
+    case ResourceState::CopyDest:
+    case ResourceState::CopySource:
+    case ResourceState::ResolveDest:
+    case ResourceState::ResolveSource:
+        return VK_PIPELINE_STAGE_TRANSFER_BIT;
+    case ResourceState::Present:
+        return src ? (VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT | VK_PIPELINE_STAGE_ALL_COMMANDS_BIT) : VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    }
+
+    CT_EXCEPTION(RenderCore, "Unsupported resource state!");
+    return 0;
 }
 
 VkShaderStageFlags ToVkShaderVisibility(ShaderVisibilityFlags visibility)

@@ -15,6 +15,11 @@ public:
 
     void Flush();
 
+    VkCommandBuffer GetCommandBufferHandle() const
+    {
+        return buffer;
+    }
+
     static SPtr<VulkanContextData> Create(const SPtr<GpuQueue> &gpuQueue);
 
 private:

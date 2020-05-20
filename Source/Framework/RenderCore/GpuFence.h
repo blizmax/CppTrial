@@ -10,8 +10,8 @@ class GpuFence
 public:
     virtual ~GpuFence() = default;
 
-    virtual uint64 GpuSignal(GpuQueue *queue) = 0;
-    virtual void SyncGpu(GpuQueue *queue) = 0;
+    virtual uint64 GpuSignal(const GpuQueue *queue) = 0;
+    virtual void SyncGpu(const GpuQueue *queue) = 0;
     virtual void SyncCpu() = 0;
 
     virtual uint64 GetGpuValue() = 0;
