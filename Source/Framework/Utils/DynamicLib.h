@@ -39,7 +39,7 @@ public:
 #error Unhandled platform
 #endif
 
-    DynamicLib(const String &name);
+    explicit DynamicLib(const String &name);
     ~DynamicLib() = default;
 
     void Load();

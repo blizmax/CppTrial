@@ -9,22 +9,13 @@ namespace RenderCore
     constexpr int32 VULKAN_FRAME_NUM = 2;
 
     class VulkanDevice;
-    class VulkanImage;
-    class VulkanRenderPass;
-    class VulkanFrameBuffer;
-    class VulkanCommandBuffer;
-    class VulkanCommandPool;
-    class VulkanRenderPipeline;
-    class VulkanRenderPipelineState;
-    class VulkanSemaphore;
-    class VulkanFence;
-    class VulkanShader;
     class VulkanShaderCompiler;
     class VulkanVertexLayout;
 
     extern VkAllocationCallbacks *gVulkanAlloc;
     extern VkInstance gVulkanInstance;
     extern VulkanDevice *gVulkanDevice;
+    extern VulkanShaderCompiler *gVulkanShaderCompiler;
 
     VkImageLayout ToVkImageLayout(ResourceState state);
     VkAccessFlags ToVkAccess(ResourceState state);

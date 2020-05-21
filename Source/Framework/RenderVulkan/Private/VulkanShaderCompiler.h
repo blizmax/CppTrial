@@ -24,8 +24,10 @@ public:
 
 extern "C"
 {
-    CT_PRIVATE_API VulkanShaderCompiler *GetVulkanShaderCompiler(void);
-    typedef VulkanShaderCompiler *(*GetVulkanShaderCompilerFunc)(void);
+    CT_PRIVATE_API VulkanShaderCompiler *CreateVulkanShaderCompiler(void);
+    CT_PRIVATE_API void DestroyVulkanShaderCompiler(VulkanShaderCompiler *);
+    typedef VulkanShaderCompiler *(*CreateVulkanShaderCompilerFunc)(void);
+    typedef void (*DestroyVulkanShaderCompilerFunc)(VulkanShaderCompiler *);
 }
 
 }

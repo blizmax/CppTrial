@@ -24,7 +24,7 @@ public:
         return result;
     }
 
-    static SPtr<ReadTextureTask> Create(CopyContext *ctx, const Texture *texture, uint32 subresource);
+    static SPtr<ReadTextureTask> Create(class CopyContext *ctx, const Texture *texture, uint32 subresource);
 
 private:
     SPtr<GpuFence> fence;

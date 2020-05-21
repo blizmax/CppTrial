@@ -1,6 +1,7 @@
-#include "RenderVulkan/.Package.h"
 #include "RenderCore/RenderAPI.h"
 #include "RenderVulkan/VulkanDevice.h"
+#include "RenderVulkan/Private/VulkanShaderCompiler.h"
+#include "Utils/DynamicLib.h"
 
 namespace RenderCore
 {
@@ -8,12 +9,16 @@ namespace RenderCore
 VkAllocationCallbacks *gVulkanAlloc = nullptr;
 VulkanDevice *gVulkanDevice = nullptr;
 VkInstance gVulkanInstance = VK_NULL_HANDLE;
+
 VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
 #if CT_DEBUG
 bool debugLayerEnabled = true;
 #else
 bool debugLayerEnabled = false;
 #endif
+
+DynamicLib shaderCompilerLib(CT_TEXT("VulkanShaderCompiler"));
+VulkanShaderCompiler *gVulkanShaderCompiler = nullptr;
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger)
 {
@@ -82,10 +87,20 @@ void RenderAPI::Init()
 
     if (CreateDebugUtilsMessengerEXT(gVulkanInstance, &messengerInfo, gVulkanAlloc, &debugMessenger) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create debugger failed.");
+
+    shaderCompilerLib.Load();
+    auto CreateShaderCompiler = (CreateVulkanShaderCompilerFunc)shaderCompilerLib.GetSymbol(CT_TEXT("CreateVulkanShaderCompiler"));
+    gVulkanShaderCompiler = CreateShaderCompiler();
+    gVulkanShaderCompiler->Init();
 }
 
 void RenderAPI::Destroy()
 {
+    gVulkanShaderCompiler->Deinit();
+    auto DestroyShaderCompiler = (DestroyVulkanShaderCompilerFunc)shaderCompilerLib.GetSymbol(CT_TEXT("DestroyVulkanShaderCompiler"));
+    DestroyShaderCompiler(gVulkanShaderCompiler);
+    gVulkanShaderCompiler = nullptr;
+
     if (debugMessenger != VK_NULL_HANDLE)
         DestroyDebugUtilsMessengerEXT(gVulkanInstance, debugMessenger, gVulkanAlloc);
 

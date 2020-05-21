@@ -142,6 +142,17 @@ static EShLanguage ToEShLanguage(ShaderType shaderType)
     return EShLangCount;
 }
 
+static void ParseUniforms(const glslang::TProgram &program)
+{
+    for (int32 i = 0; i < program.getNumLiveUniformVariables(); ++i)
+    {
+        const char8 *name = program.getUniformName(i);
+        const auto unifromType = program.getUniformTType(i);
+        const auto &qualifier = unifromType->getQualifier();
+        //auto basicType = unifromType->getBasicType();
+    }
+}
+
 Array<uchar8> VulkanShaderCompilerImpl::Compile(ShaderType shaderType, const String &source)
 {
     auto u8Str = StringEncode::UTF8::ToChars(source);
@@ -150,11 +161,12 @@ Array<uchar8> VulkanShaderCompilerImpl::Compile(ShaderType shaderType, const Str
     auto stage = ToEShLanguage(shaderType);
     glslang::TShader shader(stage);
     shader.setStrings(&cstr, 1);
-    shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, 100);
-    shader.setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_0);
-    shader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
+    shader.setEntryPoint("main");
+    //shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, 100);
+    //shader.setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_0);
+    //shader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
 
-    if (!shader.parse(&DefaultTBuiltInResource, 100, true, EShMsgDefault))
+    if (!shader.parse(&DefaultTBuiltInResource, 450, true, EShMsgDefault))
     {
         CT_LOG(Error, CT_TEXT("Parse error: {0}"), String(shader.getInfoLog()));
         CT_EXCEPTION(RenderCore, "Parse failed.");
@@ -174,8 +186,14 @@ Array<uchar8> VulkanShaderCompilerImpl::Compile(ShaderType shaderType, const Str
     spvOptions.disassemble = false;
     spvOptions.validate = false;
 
+    program.mapIO();
+    program.buildReflection();
+
     std::vector<uint32> spv;
     glslang::GlslangToSpv(*program.getIntermediate(stage), spv, nullptr, &spvOptions);
+
+    //TODO
+    ParseUniforms(program);
 
     auto size = 4 * spv.size();
     Array<uchar8> result;
@@ -184,8 +202,14 @@ Array<uchar8> VulkanShaderCompilerImpl::Compile(ShaderType shaderType, const Str
     return result;
 }
 
-VulkanShaderCompiler *GetVulkanShaderCompiler(void)
+VulkanShaderCompiler *CreateVulkanShaderCompiler(void)
 {
     return Memory::New<VulkanShaderCompilerImpl>();
 }
+
+void DestroyVulkanShaderCompiler(VulkanShaderCompiler *compiler)
+{
+    Memory::Delete(compiler);
+}
+
 }
