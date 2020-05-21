@@ -113,7 +113,7 @@ public:
 protected:
     Texture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, uint32 mipLevels, uint32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags);
 
-    virtual void InitData(const void *data, bool genMips) = 0;
+    virtual void InitData(const void *data, bool autoGenMips) = 0;
 
     uint32 GetMaxMipLevel(uint32 width, uint32 height, uint32 depth) const;
     void CheckViewParams(uint32 &mostDetailedMip, uint32 &mipLevels, uint32 &firstArraySlice, uint32 &arrayLayers) const;

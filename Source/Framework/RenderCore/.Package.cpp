@@ -96,6 +96,21 @@ uint32 GetResourceFormatBytes(ResourceFormat format)
     return GetResourceFormatDesc(format).bytes;
 }
 
+uint32 GetResourceFormatWidthCompressionRatio(ResourceFormat format)
+{
+    return GetResourceFormatDesc(format).compressionRatio.width;
+}
+
+uint32 GetResourceFormatHeightCompressionRatio(ResourceFormat format)
+{
+    return GetResourceFormatDesc(format).compressionRatio.height;
+}
+
+bool IsCompressedFormat(ResourceFormat format)
+{
+    return GetResourceFormatDesc(format).isCompressed;
+}
+
 bool IsDepthFormat(ResourceFormat format)
 {
     return GetResourceFormatDesc(format).isDepth;

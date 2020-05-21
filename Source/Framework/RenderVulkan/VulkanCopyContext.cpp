@@ -5,6 +5,59 @@
 namespace RenderCore
 {
 
+static uint32 GetMipLevelPackedDataSize(const Texture *texture, uint32 w, uint32 h, uint32 d, ResourceFormat format)
+{
+    uint32 perW = GetResourceFormatWidthCompressionRatio(format);
+    uint32 bw = CT_ALIGN(w, perW) / perW;
+
+    uint32 perH = GetResourceFormatHeightCompressionRatio(format);
+    uint32 bh = CT_ALIGN(h, perH) / perH;
+
+    uint32 size = bh * bw * d * GetResourceFormatBytes(format);
+    return size;
+}
+
+SPtr<ReadTextureTask> ReadTextureTask::Create(CopyContext *ctx, const Texture *texture, uint32 subresource)
+{
+    VkBufferImageCopy vkCopy;
+    uint32 mipLevel = texture->GetSubresourceMipLevel(subresource);
+    uint32 w = texture->GetWidth(mipLevel);
+    uint32 h = texture->GetHeight(mipLevel);
+    uint32 d = texture->GetDepth(mipLevel);
+    uint32 dataSize = GetMipLevelPackedDataSize(texture, w, h, d, texture->GetResourceFormat());
+
+    VkBufferImageCopy copy = {};
+    copy.bufferRowLength = 0;
+    copy.bufferImageHeight = 0;
+    copy.imageSubresource.aspectMask = ToVkImageAspect(texture->GetResourceFormat());
+    copy.imageSubresource.baseArrayLayer = texture->GetSubresourceArraySlice(subresource);
+    copy.imageSubresource.layerCount = 1;
+    copy.imageSubresource.mipLevel = mipLevel;
+    copy.imageOffset = {0, 0, 0};
+    copy.imageExtent.width = w;
+    copy.imageExtent.height = h;
+    copy.imageExtent.depth = d;
+    auto downloadBuffer = Buffer::Create(dataSize, ResourceBind::None, CpuAccess::Read, nullptr);
+    copy.bufferOffset = downloadBuffer->GetOffset();
+
+    auto vkCtx = static_cast<VulkanCopyContext *>(ctx);
+    ctx->ResourceBarrier(texture, ResourceState::CopySource);
+    ctx->ResourceBarrier(downloadBuffer.get(), ResourceState::CopyDest);
+
+    auto srcHandle = static_cast<const VulkanTexture *>(texture)->GetHandle();
+    auto dstHandle = static_cast<VulkanBuffer *>(downloadBuffer.get())->GetHandle(); 
+    vkCmdCopyImageToBuffer(vkCtx->GetContextData()->GetCommandBufferHandle(), srcHandle, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstHandle, 1, &copy);
+
+    auto task = Memory::MakeShared<ReadTextureTask>();
+    task->buffer = downloadBuffer;
+    task->size = dataSize;
+    task->fence = GpuFence::Create();
+    ctx->Flush(false);
+    task->fence->GpuSignal(vkCtx->GetContextData()->GetQueue());
+
+    return task;
+}
+
 SPtr<CopyContext> CopyContext::Create(const SPtr<GpuQueue> &queue)
 {
     return Memory::MakeShared<VulkanCopyContext>(queue);
@@ -17,6 +70,24 @@ VulkanCopyContext::VulkanCopyContext(const SPtr<GpuQueue> &queue)
 
 VulkanCopyContext::~VulkanCopyContext()
 {
+}
+
+void VulkanCopyContext::Flush(bool wait)
+{
+    if(commandsPending)
+    {
+        contextData->Flush();
+        commandsPending = false;
+    }
+    else
+    {
+        contextData->GetFence()->GpuSignal(contextData->GetQueue());
+    }
+
+    if(wait)
+    {
+        contextData->GetFence()->SyncCpu();
+    }
 }
 
 bool VulkanCopyContext::ResourceBarrier(const Resource *resource, ResourceState newState, const ResourceViewInfo *viewInfo)
@@ -196,9 +267,14 @@ void VulkanCopyContext::UpdateBuffer(const Buffer *buffer, const void *data, uin
     CopyBufferRegion(buffer, offset, uploadBuffer.get(), 0, size);
 }
 
-void VulkanCopyContext::UpdateTexture(const Texture *buffer, const void *data)
+void VulkanCopyContext::UpdateTexture(const Texture *texture, const void *data)
 {
-    //TODO
+    uint32 subCount = texture->GetArrayLayers() * texture->GetMipLevels();
+    if(texture->GetResourceType() == ResourceType::TextureCube)
+    {
+        subCount *= 6;
+    }
+    UpdateSubresources(texture, 0, subCount, data);
 }
 
 void VulkanCopyContext::UpdateSubresource(const Texture *texture, uint32 subresource, const void* data, const Vector3 &offset, const Vector3 &size)
@@ -206,6 +282,11 @@ void VulkanCopyContext::UpdateSubresource(const Texture *texture, uint32 subreso
     CT_CHECK(!IsDepthStencilFormat(texture->GetResourceFormat()));
 
     uint32 mipLevel = texture->GetSubresourceMipLevel(subresource);
+    uint32 w = (uint32)size.x;
+    uint32 h = (uint32)size.y;
+    uint32 d = (uint32)size.z;
+    uint32 dataSize = GetMipLevelPackedDataSize(texture, w, h, d, texture->GetResourceFormat());
+
     VkBufferImageCopy copy = {};
     copy.bufferRowLength = 0;
     copy.bufferImageHeight = 0;
@@ -214,29 +295,70 @@ void VulkanCopyContext::UpdateSubresource(const Texture *texture, uint32 subreso
     copy.imageSubresource.layerCount = 1;
     copy.imageSubresource.mipLevel = mipLevel;
     copy.imageOffset = {(int32)offset.x, (int32)offset.y, (int32)offset.z};
-    copy.imageExtent.width = (uint32)size.x;
-    copy.imageExtent.height = (uint32)size.y;
-    copy.imageExtent.depth = (uint32)size.z;
-    
-    //TODO Calc data size
+    copy.imageExtent.width = w;
+    copy.imageExtent.height = h;
+    copy.imageExtent.depth = d;
+    auto uploadBuffer = Buffer::Create(dataSize, ResourceBind::None, CpuAccess::Write, data);
+    copy.bufferOffset = uploadBuffer->GetOffset();
 
+    ResourceBarrier(texture, ResourceState::CopyDest, nullptr);
+    ResourceBarrier(uploadBuffer.get(), ResourceState::CopySource, nullptr);
+
+    auto srcHandle = static_cast<VulkanBuffer *>(uploadBuffer.get())->GetHandle();
+    auto dstHandle = static_cast<const VulkanTexture *>(texture)->GetHandle();
+    vkCmdCopyBufferToImage(contextData->GetCommandBufferHandle(), srcHandle, dstHandle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
 }
 
 void VulkanCopyContext::UpdateSubresources(const Texture *texture, uint32 firstSub, uint32 subCount, const void* data)
 {
-    const uint8* srcData = static_cast<const uint8*>(data);
+    CT_CHECK(!IsDepthStencilFormat(texture->GetResourceFormat()));
+
+    const uint8* dataSrc = static_cast<const uint8*>(data);
     for (uint32 i = 0; i < subCount; ++i)
     {
         uint32 subresource = i + firstSub;
         uint32 mipLevel = texture->GetSubresourceMipLevel(subresource);
+        uint32 w = texture->GetWidth(mipLevel);
+        uint32 h = texture->GetHeight(mipLevel);
+        uint32 d = texture->GetDepth(mipLevel);
+        uint32 dataSize = GetMipLevelPackedDataSize(texture, w, h, d, texture->GetResourceFormat());
 
-        //UpdateSubresource(texture, subresource, srcData, Vector3::ZERO, -Vector3::ONE);
+        VkBufferImageCopy copy = {};
+        copy.bufferRowLength = 0;
+        copy.bufferImageHeight = 0;
+        copy.imageSubresource.aspectMask = ToVkImageAspect(texture->GetResourceFormat());
+        copy.imageSubresource.baseArrayLayer = texture->GetSubresourceArraySlice(subresource);
+        copy.imageSubresource.layerCount = 1;
+        copy.imageSubresource.mipLevel = mipLevel;
+        copy.imageOffset = {0, 0, 0};
+        copy.imageExtent.width = w;
+        copy.imageExtent.height = h;
+        copy.imageExtent.depth = d;
+        auto uploadBuffer = Buffer::Create(dataSize, ResourceBind::None, CpuAccess::Write, dataSrc);
+        copy.bufferOffset = uploadBuffer->GetOffset();
+
+        ResourceBarrier(texture, ResourceState::CopyDest, nullptr);
+        ResourceBarrier(uploadBuffer.get(), ResourceState::CopySource, nullptr);
+
+        auto srcHandle = static_cast<VulkanBuffer *>(uploadBuffer.get())->GetHandle();
+        auto dstHandle = static_cast<const VulkanTexture *>(texture)->GetHandle();
+        vkCmdCopyBufferToImage(contextData->GetCommandBufferHandle(), srcHandle, dstHandle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
       
-        //TODO
-        //srcData += dataSize;
+        dataSrc += dataSize;
     }
 
     commandsPending = true;
+}
+
+Array<uint8> VulkanCopyContext::ReadSubresource(const Texture *texture, uint32 subresource)
+{
+    auto task = ReadSubresourceAsync(texture, subresource);
+    return task->GetData();
+}
+
+SPtr<ReadTextureTask> VulkanCopyContext::ReadSubresourceAsync(const Texture *texture, uint32 subresource)
+{
+    return ReadTextureTask::Create(this, texture, subresource);
 }
 
 bool VulkanCopyContext::BufferBarrier(const Buffer *buffer, ResourceState newState)

@@ -19,7 +19,7 @@ public:
 
     virtual void *Map(BufferMapType mapType) override;
     virtual void Unmap() override;
-    virtual void SetBlob(const void *data, uint32 offset, uint32 size) override;
+    virtual void SetBlob(const void *data, uint32 offset, uint32 dataSize) override;
 
     VkBuffer GetHandle() const
     {

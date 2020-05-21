@@ -25,7 +25,7 @@ public:
 
 protected:
     friend class Texture;
-    virtual void InitData(const void *data, bool genMips) override;
+    virtual void InitData(const void *data, bool autoGenMips) override;
 
 private:
     TextureData textureData{};

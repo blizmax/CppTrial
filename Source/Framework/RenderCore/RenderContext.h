@@ -1,18 +1,13 @@
 #pragma once
 
-#include "RenderCore/.Package.h"
+#include "RenderCore/ComputeContext.h"
 
 namespace RenderCore
 {
-class RenderContext
+class RenderContext : public ComputeContext
 {
 public:
     virtual ~RenderContext() = default;
-
-    virtual bool ResourceBarrier(const Resource *resource);
-    virtual void UpdateResource();
-
-    virtual void Flush(bool wait = false);
 
     static SPtr<RenderContext> Create();
 };

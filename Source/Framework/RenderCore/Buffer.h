@@ -11,7 +11,7 @@ public:
 
     virtual void *Map(BufferMapType mapType) = 0;
     virtual void Unmap() = 0;
-    virtual void SetBlob(const void *data, uint32 offset, uint32 size) = 0;
+    virtual void SetBlob(const void *data, uint32 offset, uint32 dataSize) = 0;
 
     virtual ResourceState GetSubresourceState(uint32 arraySlice, uint32 mipLevel) const override
     {

@@ -55,7 +55,8 @@
 #define CT_CHECK(cond)
 #endif
 
-#define CT_ALIGN(x, a) (((x) + ((a)-1)) & ~((a)-1))
+//#define CT_ALIGN(x, a) (((x) + ((a)-1)) & ~((a)-1))
+#define CT_ALIGN(x, a) ((((x) + (a) - 1) / (a)) * (a))
 
 #define CT_INLINE inline
 #define CT_TEXT(text) L##text

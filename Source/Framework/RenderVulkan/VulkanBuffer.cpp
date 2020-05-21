@@ -59,7 +59,8 @@ VulkanBuffer::BufferData VulkanBuffer::CreateBuffer(ResourceBindFlags bindFlags,
     allocInfo.requiredFlags = requiredFlags;
 
     BufferData result;
-    vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &result.buffer, &result.allocation, nullptr);
+    if(vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &result.buffer, &result.allocation, nullptr) != VK_SUCCESS)
+        CT_EXCEPTION(RenderCore, "Create buffer failed.");
     return result;
 }
 
@@ -97,10 +98,15 @@ void *VulkanBuffer::Map(BufferMapType mapType)
     }
     if(useStaging)
     {
-        //TODO
-        // if(!stagingBuffer)
-        //     stagingBuffer = Buffer::Create(size, ResourceBind::None, CpuAccess::Read);
-        return nullptr;
+        if(!stagingBuffer)
+        {
+            stagingBuffer = Buffer::Create(size, ResourceBind::None, CpuAccess::Read, nullptr);
+        }
+
+        auto context = gVulkanDevice->GetRenderContext();
+        context->CopyResource(stagingBuffer.get(), this);
+        context->Flush(true);
+        return stagingBuffer->Map(BufferMapType::Read);
     }
     else
     {
@@ -123,9 +129,21 @@ void VulkanBuffer::Unmap()
     }
 }
 
-void VulkanBuffer::SetBlob(const void *data, uint32 offset, uint32 size)
+void VulkanBuffer::SetBlob(const void *data, uint32 offset, uint32 dataSize)
 {
-    //TODO
+    CT_CHECK(offset + dataSize >= size);
+
+    if(cpuAccess == CpuAccess::Write)
+    {
+        uint8 *dst = reinterpret_cast<uint8 *>(Map(BufferMapType::WriteDiscard)) + offset;
+        std::memcpy(dst, data, dataSize);
+        Unmap();
+    }
+    else
+    {
+        auto context = gVulkanDevice->GetRenderContext();
+        context->UpdateBuffer(this, data, offset, dataSize);
+    }
 }
 
 }

@@ -20,6 +20,16 @@ public:
         return buffer;
     }
 
+    VulkanGpuQueue* GetQueue() const
+    {
+        return queue;
+    }
+
+    const SPtr<GpuFence> &GetFence() const
+    {
+        return fence;
+    }
+
     static SPtr<VulkanContextData> Create(const SPtr<GpuQueue> &gpuQueue);
 
 private:
