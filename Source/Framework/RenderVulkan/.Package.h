@@ -38,6 +38,9 @@ namespace RenderCore
     VkCompareOp ToVkCompareOperation(CompareOperation operation);
     VkSampleCountFlagBits ToVkSampleCount(int32 sample);
     VkSamplerAddressMode ToVkAddressMode(TextureWrap wrap);
+    VkFilter ToVkFilter(TextureFilter filter);
+    VkSamplerMipmapMode ToVkMipFilter(TextureFilter filter);
+    VkBorderColor ToVkBorderColor(const Color &color);
 
     VkFormat ToVkResourceFormat(ResourceFormat format);
 }

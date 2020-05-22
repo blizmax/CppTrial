@@ -1,41 +1,17 @@
 #include "RenderVulkan/VulkanRootSignature.h"
 #include "RenderVulkan/VulkanDevice.h"
+#include "RenderVulkan/VulkanDescriptorSetLayout.h"
 
 namespace RenderCore
 {
 
 VulkanRootSignature::VulkanRootSignature(const RootSignatureDesc &desc) : RootSignature(desc)
 {
-    auto CreateDescriptorSetLayout = [](const SPtr<DescriptorSetLayout> &layout)
-    {
-        Array<VkDescriptorSetLayoutBinding> bindings;
-        const auto &elements = layout->GetElements();
-        for (int32 i = 0; i < elements.Count(); ++i)
-        {
-            VkDescriptorSetLayoutBinding b = {};
-            b.binding = i;
-            b.descriptorCount = 1;
-            b.descriptorType = ToVkDescriptorType(elements[i].descriptorType);
-            b.pImmutableSamplers = nullptr;
-            b.stageFlags = ToVkShaderVisibility(layout->GetVisibility());
-            bindings.Add(b);
-        }
-
-        VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = bindings.Count();
-        layoutInfo.pBindings = bindings.GetData();
-
-        VkDescriptorSetLayout vkHandle;
-        if (vkCreateDescriptorSetLayout(gVulkanDevice->GetLogicalDeviceHandle(), &layoutInfo, gVulkanAlloc, &vkHandle) != VK_SUCCESS)
-            CT_EXCEPTION(RenderCore, "Create descriptor set layout failed.");
-        
-        return vkHandle;
-    };
-
+    Array<VkDescriptorSetLayout> setLayouts;
     for(auto &e : desc.layouts)
     {
-        setLayouts.Add(CreateDescriptorSetLayout(e));
+        auto vkLayout = static_cast<VulkanDescriptorSetLayout *>(e.get());
+        setLayouts.Add(vkLayout->GetHandle());
     }
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
@@ -48,12 +24,6 @@ VulkanRootSignature::VulkanRootSignature(const RootSignatureDesc &desc) : RootSi
 
 VulkanRootSignature::~VulkanRootSignature()
 {
-    for (auto& e : setLayouts)
-    {
-        vkDestroyDescriptorSetLayout(gVulkanDevice->GetLogicalDeviceHandle(), e, gVulkanAlloc);
-    }
-    setLayouts.Clear();
-
     if(pipelineLayout != VK_NULL_HANDLE)
     {
         vkDestroyPipelineLayout(gVulkanDevice->GetLogicalDeviceHandle(), pipelineLayout, gVulkanAlloc);

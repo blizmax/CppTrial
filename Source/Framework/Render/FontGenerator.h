@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Render/.Package.h"
-#include "Render/Color.h"
+#include "Math/Color.h"
 #include "IO/FileHandle.h"
 
 class FontGenerator

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Render/.Package.h"
 #include "Core/Math.h"
 #include "Math/Vector3.h"
 

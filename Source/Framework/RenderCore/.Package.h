@@ -4,6 +4,7 @@
 #include "Core/Logger.h"
 #include "Core/Exception.h"
 #include "Core/Flags.h"
+#include "Math/Color.h"
 
 enum class ResourceType
 {

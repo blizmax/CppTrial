@@ -18,15 +18,28 @@ struct SamplerDesc
     TextureWrap uWrap = TextureWrap::Repeat;
     TextureWrap vWrap = TextureWrap::Repeat;
     TextureWrap wWrap = TextureWrap::Repeat;
-    //Color borderColor;
+    Color borderColor = Color::BLACK;
 };
 
 class Sampler
 {
 public:
+    Sampler(const SamplerDesc &desc) : desc(desc)
+    {
+
+    }
+
     virtual ~Sampler() = default;
 
+    const SamplerDesc &GetDesc() const
+    {
+        return desc;
+    }
+
     static SPtr<Sampler> Create(const SamplerDesc &desc);
+
+protected:
+    SamplerDesc desc;    
 };
 
 }

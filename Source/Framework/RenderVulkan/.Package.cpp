@@ -443,6 +443,43 @@ VkSamplerAddressMode ToVkAddressMode(TextureWrap wrap)
     return VK_SAMPLER_ADDRESS_MODE_REPEAT;
 }
 
+VkFilter ToVkFilter(TextureFilter filter)
+{
+    switch (filter)
+    {
+    case TextureFilter::Nearest:
+        return VK_FILTER_NEAREST;
+    case TextureFilter::Linear:
+        return VK_FILTER_LINEAR;
+    }
+
+    CT_EXCEPTION(RenderCore, "Unsupported texture filter.");
+    return VK_FILTER_NEAREST;
+}
+
+VkSamplerMipmapMode ToVkMipFilter(TextureFilter filter)
+{
+    switch (filter)
+    {
+    case TextureFilter::Nearest:
+        return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    case TextureFilter::Linear:
+        return VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    }
+
+    CT_EXCEPTION(RenderCore, "Unsupported texture filter.");
+    return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+}
+
+VkBorderColor ToVkBorderColor(const Color &color)
+{
+    if(color.r > 0.0f || color.g > 0.0f || color.b > 0.0f)
+        return VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+    if(color.a > 0.0f)
+        return VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+    return VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
+}
+
 struct VulkanResourceFormatDesc
 {
     ResourceFormat format;

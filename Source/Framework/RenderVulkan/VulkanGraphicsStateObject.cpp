@@ -1,5 +1,5 @@
 #include "RenderVulkan/VulkanGraphicsStateObject.h"
-#include "RenderVulkan/VulkanContext.h"
+#include "RenderVulkan/VulkanDevice.h"
 #include "RenderVulkan/VulkanRootSignature.h"
 
 namespace RenderCore
@@ -179,7 +179,7 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;
 
-    if (vkCreateGraphicsPipelines(gVulkanContext->GetLogicalDeviceHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, gVulkanAlloc, &pipeline) != VK_SUCCESS)
+    if (vkCreateGraphicsPipelines(gVulkanDevice->GetLogicalDeviceHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, gVulkanAlloc, &pipeline) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create render pipeline failed.");
 }
 
@@ -187,7 +187,7 @@ VulkanGraphicsStateObject::~VulkanGraphicsStateObject()
 {
     if (pipeline != VK_NULL_HANDLE)
     {
-        vkDestroyPipeline(gVulkanContext->GetLogicalDeviceHandle(), pipeline, gVulkanAlloc);
+        vkDestroyPipeline(gVulkanDevice->GetLogicalDeviceHandle(), pipeline, gVulkanAlloc);
         pipeline = VK_NULL_HANDLE;
     }
 }

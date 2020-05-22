@@ -4,7 +4,6 @@
 #include "RenderCore/Texture.h"
 #include "RenderCore/GpuFence.h"
 #include "RenderCore/GpuQueue.h"
-#include "Math/Vector3.h"
 
 namespace RenderCore
 {

@@ -23,11 +23,6 @@ public:
     VulkanDevice(RenderWindow *window, const DeviceDesc &desc);
     virtual ~VulkanDevice();
 
-    // void WaitIdle()
-    // {
-    //     vkDeviceWaitIdle(logicalDevice);
-    // }
-
     uint32 GetQueueFamilyIndex(GpuQueueType queueType) const
     {
         return queueDatas[(int32)queueType].familyIndex;

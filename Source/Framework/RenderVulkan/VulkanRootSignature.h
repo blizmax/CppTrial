@@ -8,6 +8,7 @@ namespace RenderCore
 class VulkanRootSignature : public RootSignature
 {
 public:
+    VulkanRootSignature(const RootSignatureDesc &desc);
     ~VulkanRootSignature();
 
     VkPipelineLayout GetHandle() const
@@ -15,11 +16,7 @@ public:
         return pipelineLayout;
     }
 
-protected:
-    VulkanRootSignature(const RootSignatureDesc &desc);
-
 private:
-    Array<VkDescriptorSetLayout> setLayouts;
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 };
 
