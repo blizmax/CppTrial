@@ -361,6 +361,7 @@ namespace RenderCore
 {
     constexpr int32 COLOR_ATTCHMENT_MAX_NUM = 8;
     constexpr int32 VERTEX_INPUT_MAX_NUM = 16;
+    constexpr int32 VIEWPORT_MAX_NUM = 16;
 
     const ResourceFormatDesc &GetResourceFormatDesc(ResourceFormat format);
     uint32 GetResourceFormatBytes(ResourceFormat format);

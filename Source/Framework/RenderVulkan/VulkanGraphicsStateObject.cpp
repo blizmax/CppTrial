@@ -57,9 +57,9 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
     VkPipelineViewportStateCreateInfo viewportInfo = {};
     {
         viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        viewportInfo.viewportCount = 1;    //TODO
+        viewportInfo.viewportCount = VIEWPORT_MAX_NUM;
         viewportInfo.pViewports = nullptr; //Dynamic
-        viewportInfo.scissorCount = 1;     //TODO
+        viewportInfo.scissorCount = VIEWPORT_MAX_NUM;
         viewportInfo.pScissors = nullptr;  //Dynamic
     }
 

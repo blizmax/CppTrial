@@ -14,7 +14,7 @@ VulkanProgram::~VulkanProgram()
 
 }
 
-ShaderData VulkanProgram::CompileShader(const ShaderDesc &desc)
+VulkanProgram::ShaderData VulkanProgram::CompileShader(const ShaderDesc &desc)
 {
     // VkShaderModuleCreateInfo createInfo = {};
     // createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

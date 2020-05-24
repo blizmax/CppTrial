@@ -36,7 +36,7 @@ protected:
     {
     }
 
-private:
+protected:
     ProgramDesc desc;
 
 };

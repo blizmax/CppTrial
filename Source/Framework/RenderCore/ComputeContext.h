@@ -10,7 +10,11 @@ class ComputeContext : public CopyContext
 public:
     virtual ~ComputeContext() = default;
 
-    static SPtr<ComputeContext> Create();
+    virtual void Flush(bool wait = false) = 0;
+
+    //virtual void Dispatch();
+
+    static SPtr<ComputeContext> Create(const SPtr<GpuQueue> &queue);
 };
 
 }

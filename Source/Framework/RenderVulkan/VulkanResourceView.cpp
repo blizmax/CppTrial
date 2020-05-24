@@ -1,5 +1,5 @@
 #include "RenderVulkan/VulkanResourceView.h"
-#include "RenderVulkan/VulkanContext.h"
+#include "RenderVulkan/VulkanDevice.h"
 #include "RenderVulkan/VulkanBuffer.h"
 #include "RenderVulkan/VulkanTexture.h"
 
@@ -54,7 +54,7 @@ VulkanBufferView::VulkanBufferView(const WPtr<Resource> &resource, uint32 firstE
         bufferInfo.range = VK_WHOLE_SIZE;
         bufferInfo.format =  ToVkResourceFormat(buffer->GetResourceFormat());
 
-        if(vkCreateBufferView(gVulkanContext->GetLogicalDeviceHandle(), &bufferInfo, gVulkanAlloc, &bufferView) != VK_SUCCESS)
+        if(vkCreateBufferView(gVulkanDevice->GetLogicalDeviceHandle(), &bufferInfo, gVulkanAlloc, &bufferView) != VK_SUCCESS)
             CT_EXCEPTION(RenderCore, "Create buffer view failed.");
     }
 }
@@ -63,7 +63,7 @@ VulkanBufferView::~VulkanBufferView()
 {
     if(bufferView != VK_NULL_HANDLE)
     {
-        vkDestroyBufferView(gVulkanContext->GetLogicalDeviceHandle(), bufferView, gVulkanAlloc);
+        vkDestroyBufferView(gVulkanDevice->GetLogicalDeviceHandle(), bufferView, gVulkanAlloc);
         bufferView = VK_NULL_HANDLE;
     }
 }
@@ -95,7 +95,7 @@ VulkanImageView::VulkanImageView(const WPtr<Resource> &resource, uint32 mostDeta
         imageInfo.subresourceRange.baseArrayLayer = firstArraySlice;
         imageInfo.subresourceRange.layerCount = arrayLayers;
 
-        if (vkCreateImageView(gVulkanContext->GetLogicalDeviceHandle(), &imageInfo, gVulkanAlloc, &imageView) != VK_SUCCESS)
+        if (vkCreateImageView(gVulkanDevice->GetLogicalDeviceHandle(), &imageInfo, gVulkanAlloc, &imageView) != VK_SUCCESS)
             CT_EXCEPTION(RenderCore, "Create image view failed.");
     }
 }
@@ -104,7 +104,7 @@ VulkanImageView::~VulkanImageView()
 {
     if (imageView != VK_NULL_HANDLE)
     {
-        vkDestroyImageView(gVulkanContext->GetLogicalDeviceHandle(), imageView, gVulkanAlloc);
+        vkDestroyImageView(gVulkanDevice->GetLogicalDeviceHandle(), imageView, gVulkanAlloc);
         imageView = VK_NULL_HANDLE;
     }
 }
