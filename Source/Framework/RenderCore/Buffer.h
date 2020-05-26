@@ -74,9 +74,14 @@ public:
         return structSize != 0;
     }
 
+    const SPtr<Buffer> &GetUavCounter() const
+    {
+        return uavCounter;
+    }
+
     static SPtr<Buffer> Create(uint32 size, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr);
     static SPtr<Buffer> CreateTyped(ResourceFormat format, uint32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr);
-    static SPtr<Buffer> CreateStructured(uint32 structSize, uint32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr);
+    static SPtr<Buffer> CreateStructured(uint32 structSize, uint32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr, bool createCounter = true);
 
 protected:
     Buffer(uint32 size, ResourceBindFlags bindFlags, CpuAccess access);
@@ -91,6 +96,7 @@ protected:
     Array<SPtr<ResourceView>> srvs;
     Array<SPtr<ResourceView>> uavs;
     SPtr<ResourceView> cbv;
+    SPtr<Buffer> uavCounter;
     WPtr<Buffer> weakThis;
 };
 }

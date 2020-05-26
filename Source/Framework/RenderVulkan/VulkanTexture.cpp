@@ -91,7 +91,7 @@ void VulkanTexture::InitData(const void *data, bool autoGenMips)
             uint32 w = GetWidth(mipLevel);
             uint32 h = GetHeight(mipLevel);
             uint32 d = GetDepth(mipLevel);
-            context->UpdateSubresource(this, subresource, src, Vector3::ZERO, Vector3(w, h, d));
+            context->UpdateSubresource(this, subresource, src, {0, 0, 0}, {w, h, d});
             src += sliceSize;
         }
     }

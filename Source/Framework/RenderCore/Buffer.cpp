@@ -12,12 +12,18 @@ SPtr<Buffer> Buffer::CreateTyped(ResourceFormat format, uint32 count, ResourceBi
     return buffer;
 }
 
-SPtr<Buffer> Buffer::CreateStructured(uint32 structSize, uint32 count, ResourceBindFlags bindFlags, CpuAccess access, const void *data)
+SPtr<Buffer> Buffer::CreateStructured(uint32 structSize, uint32 count, ResourceBindFlags bindFlags, CpuAccess access, const void *data, bool createCounter)
 {
     uint32 size = structSize * count;
     auto buffer = Create(size, bindFlags, access, data);
     buffer->elementCount = count;
     buffer->structSize = structSize;
+
+    const uint32 zeroVal = 0;
+    if(createCounter)
+    {
+        buffer->uavCounter = Create(sizeof(uint32), ResourceBind::UnorderedAccess, CpuAccess::None, &zeroVal);
+    }
     return buffer;
 }
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Render/VertexArray.h"
-#include "Render/Color.h"
 
 class RenderAPI
 {

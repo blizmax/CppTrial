@@ -1,5 +1,4 @@
 #include "Render/.Package.h"
-#include "Render/Color.h"
 
 namespace Render
 {
