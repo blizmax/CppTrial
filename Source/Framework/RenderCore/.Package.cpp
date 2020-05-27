@@ -91,6 +91,11 @@ const ResourceFormatDesc &GetResourceFormatDesc(ResourceFormat format)
     return formatDescs[static_cast<int32>(format)];
 }
 
+ResourceComponentType GetResourceComponentType(ResourceFormat format)
+{
+    return GetResourceFormatDesc(format).componentType;
+}
+
 uint32 GetResourceFormatBytes(ResourceFormat format)
 {
     return GetResourceFormatDesc(format).bytes;

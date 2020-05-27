@@ -365,6 +365,7 @@ namespace RenderCore
     constexpr int32 VIEWPORT_MAX_NUM = 16;
 
     const ResourceFormatDesc &GetResourceFormatDesc(ResourceFormat format);
+    ResourceComponentType GetResourceComponentType(ResourceFormat format);
     uint32 GetResourceFormatBytes(ResourceFormat format);
     uint32 GetResourceFormatWidthCompressionRatio(ResourceFormat format);
     uint32 GetResourceFormatHeightCompressionRatio(ResourceFormat format);

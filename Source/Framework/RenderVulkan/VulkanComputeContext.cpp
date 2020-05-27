@@ -40,26 +40,7 @@ void VulkanComputeContext::DispatchIndirect(ComputeState *state, ComputeVars *va
 
 void VulkanComputeContext::ClearUav(const ResourceView *uav, const Vector4 &value)
 {
-    auto vkTexture = dynamic_cast<const VulkanTexture *>(uav->GetResource());
-    CT_CHECK(vkTexture != nullptr);
-
-    VulkanCopyContext::ResourceBarrier(vkTexture, ResourceState::CopyDest, nullptr);
-    VkClearColorValue colVal = {};
-    colVal.float32[0] = value.x;
-    colVal.float32[1] = value.y;
-    colVal.float32[2] = value.z;
-    colVal.float32[3] = value.w;
-
-    VkImageSubresourceRange range = {};
-    const auto& viewInfo = uav->GetViewInfo();
-    range.baseArrayLayer = viewInfo.firstArraySlice;
-    range.baseMipLevel = viewInfo.mostDetailedMip;
-    range.layerCount = viewInfo.arrayLayers;
-    range.levelCount = viewInfo.mipLevels;
-    range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-
-    vkCmdClearColorImage(contextData->GetCommandBufferHandle(), vkTexture->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &colVal, 1, &range);
-
+    ClearColorImage(uav, value.x, value.y, value.z, value.w);
     commandsPending = true;
 }
 
@@ -72,25 +53,7 @@ void VulkanComputeContext::ClearUav(const ResourceView *uav, const UVector4 &val
     }
     else
     {
-        auto vkTexture = dynamic_cast<const VulkanTexture *>(uav->GetResource());
-        CT_CHECK(vkTexture != nullptr);
-
-        VulkanCopyContext::ResourceBarrier(vkTexture, ResourceState::CopyDest, nullptr);
-        VkClearColorValue colVal = {};
-        colVal.uint32[0] = value.x;
-        colVal.uint32[1] = value.y;
-        colVal.uint32[2] = value.z;
-        colVal.uint32[3] = value.w;
-
-        VkImageSubresourceRange range = {};
-        const auto& viewInfo = uav->GetViewInfo();
-        range.baseArrayLayer = viewInfo.firstArraySlice;
-        range.baseMipLevel = viewInfo.mostDetailedMip;
-        range.layerCount = viewInfo.arrayLayers;
-        range.levelCount = viewInfo.mipLevels;
-        range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-
-        vkCmdClearColorImage(contextData->GetCommandBufferHandle(), vkTexture->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &colVal, 1, &range);
+        ClearColorImage(uav, value.x, value.y, value.z, value.w);
     }
 
     commandsPending = true;
@@ -104,6 +67,52 @@ void VulkanComputeContext::ClearUavCounter(const Buffer *buffer, uint32 value)
         UVector4 uvec{value, 0, 0, 0};
         ClearUav(uavCounter->GetUav().get(), uvec);
     }
+}
+
+void VulkanComputeContext::ClearColorImage(const ResourceView *view, float v0, float v1, float v2, float v3)
+{
+    auto vkTexture = dynamic_cast<const VulkanTexture *>(view->GetResource());
+    CT_CHECK(vkTexture != nullptr);
+
+    VulkanCopyContext::ResourceBarrier(vkTexture, ResourceState::CopyDest, nullptr);
+    VkClearColorValue colVal = {};
+    colVal.float32[0] = v0;
+    colVal.float32[1] = v1;
+    colVal.float32[2] = v2;
+    colVal.float32[3] = v3;
+
+    VkImageSubresourceRange range = {};
+    const auto& viewInfo = view->GetViewInfo();
+    range.baseArrayLayer = viewInfo.firstArraySlice;
+    range.baseMipLevel = viewInfo.mostDetailedMip;
+    range.layerCount = viewInfo.arrayLayers;
+    range.levelCount = viewInfo.mipLevels;
+    range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
+    vkCmdClearColorImage(contextData->GetCommandBufferHandle(), vkTexture->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &colVal, 1, &range);
+}
+
+void VulkanComputeContext::ClearColorImage(const ResourceView *view, uint32 v0, uint32 v1, uint32 v2, uint32 v3)
+{
+    auto vkTexture = dynamic_cast<const VulkanTexture *>(view->GetResource());
+    CT_CHECK(vkTexture != nullptr);
+
+    VulkanCopyContext::ResourceBarrier(vkTexture, ResourceState::CopyDest, nullptr);
+    VkClearColorValue colVal = {};
+    colVal.uint32[0] = v0;
+    colVal.uint32[1] = v1;
+    colVal.uint32[2] = v2;
+    colVal.uint32[3] = v3;
+
+    VkImageSubresourceRange range = {};
+    const auto& viewInfo = view->GetViewInfo();
+    range.baseArrayLayer = viewInfo.firstArraySlice;
+    range.baseMipLevel = viewInfo.mostDetailedMip;
+    range.layerCount = viewInfo.arrayLayers;
+    range.levelCount = viewInfo.mipLevels;
+    range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
+    vkCmdClearColorImage(contextData->GetCommandBufferHandle(), vkTexture->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &colVal, 1, &range);
 }
 
 bool VulkanComputeContext::PrepareForDispatch(ComputeState *state, ComputeVars *vars)

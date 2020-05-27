@@ -10,9 +10,9 @@ class RenderContext : public ComputeContext
 public:
     virtual ~RenderContext() = default;
 
-    virtual void ClearFrameBuffer(const FrameBuffer *fbo, const Color &color, float depth, uint8 stencil) = 0;
+    virtual void ClearFrameBuffer(const FrameBuffer *fbo, const Color &color, float depth, uint8 stencil, bool clearColor = true, bool clearDepthStencil = true) = 0;
     virtual void ClearRtv(const ResourceView *rtv, const Color &color) = 0;
-    virtual void ClearDsv(const ResourceView *dsv, float depth, uint8 stencil) = 0;
+    virtual void ClearDsv(const ResourceView *dsv, float depth, uint8 stencil, bool clearDepth = true, bool clearStencil = true) = 0;
     virtual void ClearTexture(Texture *texture, const Color &color) = 0;
     virtual void Draw(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 vertexOffset) = 0;
     virtual void DrawInstanced(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 instanceCount, uint32 vertexOffset, uint32 instanceOffset) = 0;
