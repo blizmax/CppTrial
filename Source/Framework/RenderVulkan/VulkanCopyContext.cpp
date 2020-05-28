@@ -303,6 +303,8 @@ void VulkanCopyContext::UpdateSubresource(const Texture *texture, uint32 subreso
     auto srcHandle = static_cast<VulkanBuffer *>(uploadBuffer.get())->GetHandle();
     auto dstHandle = static_cast<const VulkanTexture *>(texture)->GetHandle();
     vkCmdCopyBufferToImage(contextData->GetCommandBufferHandle(), srcHandle, dstHandle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+
+    commandsPending = true;
 }
 
 void VulkanCopyContext::UpdateSubresources(const Texture *texture, uint32 firstSub, uint32 subCount, const void* data)

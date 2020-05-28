@@ -3,6 +3,7 @@
 #include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/Device.h"
 #include "RenderCore/GpuQueue.h"
+#include "RenderVulkan/VulkanSync.h"
 
 namespace RenderCore
 {

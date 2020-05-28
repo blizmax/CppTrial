@@ -14,7 +14,7 @@ public:
 
     virtual uint64 GpuSignal(const GpuQueue *queue) override;
     virtual void SyncGpu(const GpuQueue *queue) override;
-    virtual void SyncCpu() override;
+    virtual void SyncCpu(uint64 val) override;
 
     virtual uint64 GetGpuValue() override;
 

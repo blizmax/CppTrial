@@ -53,9 +53,9 @@ void VulkanRenderContext::ClearDsv(const ResourceView *dsv, float depth, uint8 s
     CT_CHECK(vkTexture != nullptr);
 
     VulkanCopyContext::ResourceBarrier(vkTexture, ResourceState::CopyDest, nullptr);
-    VkClearDepthStencilValue val = {};
-    val.depth = depth;
-    val.stencil = stencil;
+    VkClearDepthStencilValue dsVal = {};
+    dsVal.depth = depth;
+    dsVal.stencil = stencil;
 
     VkImageSubresourceRange range = {};
     const auto& viewInfo = dsv->GetViewInfo();
@@ -66,7 +66,7 @@ void VulkanRenderContext::ClearDsv(const ResourceView *dsv, float depth, uint8 s
     range.aspectMask = clearDepth ? VK_IMAGE_ASPECT_DEPTH_BIT : 0;
     range.aspectMask |= clearStencil ? VK_IMAGE_ASPECT_STENCIL_BIT : 0;
 
-    vkCmdClearDepthStencilImage(contextData->GetCommandBufferHandle(), vkTexture->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &val, 1, &range);
+    vkCmdClearDepthStencilImage(contextData->GetCommandBufferHandle(), vkTexture->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &dsVal, 1, &range);
     
     commandsPending = true;
 }
@@ -86,20 +86,54 @@ void VulkanRenderContext::ClearTexture(Texture *texture, const Color &color)
     auto bindFlags = texture->GetBindFlags();
     if(bindFlags & ResourceBind::RenderTarget != 0)
     {
-        ClearRtv(texture->GetRtv(0).get(), color);
+        ClearRtv(texture->GetRtv().get(), color);
     }
     else if(bindFlags & ResourceBind::DepthStencil != 0)
     {
-        ClearDsv(texture->GetDsv(0).get(), color.r, 0, true, true);
+        ClearDsv(texture->GetDsv().get(), color.r, 0, true, true);
     }
     else if(bindFlags & ResourceBind::UnorderedAccess != 0)
     {
-        ClearColorImage(texture->GetUav(0).get(), color.r, color.g, color.b, color.a);
+        ClearColorImage(texture->GetUav().get(), color.r, color.g, color.b, color.a);
     }
     else
     {
         CT_LOG(Warning, CT_TEXT("Unsupported bind flags."));
     }
+}
+
+void VulkanRenderContext::Draw(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 firstVertex)
+{
+    DrawInstanced(state, vars, vertexCount, 1, firstVertex, 0);
+}
+
+void VulkanRenderContext::DrawInstanced(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 instanceCount, uint32 firstVertex, uint32 firstInstance)
+{
+    if(PrepareForDraw(state, vars) == false)
+        return;
+    
+    vkCmdDraw(contextData->GetCommandBufferHandle(), vertexCount, instanceCount, firstVertex, firstInstance);
+    vkCmdEndRenderPass(contextData->GetCommandBufferHandle());
+}
+
+void VulkanRenderContext::DrawIndexed(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 firstIndex, int32 vertexOffset)
+{
+    DrawIndexedInstanced(state, vars, indexCount, 1, firstIndex, vertexOffset, 0);
+}
+
+void VulkanRenderContext::DrawIndexedInstanced(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 instanceCount, uint32 firstIndex, int32 vertexOffset, uint32 firstInstance)
+{
+    if(PrepareForDraw(state, vars) == false)
+        return;
+    
+    vkCmdDrawIndexed(contextData->GetCommandBufferHandle(), indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+    vkCmdEndRenderPass(contextData->GetCommandBufferHandle());
+}
+
+bool VulkanRenderContext::PrepareForDraw(GraphicsState *state, GraphicsVars *vars)
+{
+    //TODO
+    return true;
 }
 
 }

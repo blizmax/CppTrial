@@ -1,6 +1,7 @@
 #include "RenderVulkan/VulkanDevice.h"
 #include "RenderVulkan/VulkanRenderWindow.h"
 #include "RenderVulkan/VulkanSync.h"
+#include "RenderVulkan/VulkanRenderContext.h"
 
 namespace RenderCore
 {
@@ -24,7 +25,7 @@ VulkanDevice::VulkanDevice(RenderWindow *window, const DeviceDesc &desc)
     }
 
     frameFence = GpuFence::Create();
-    renderContext = RenderContext::Create();
+    renderContext = RenderContext::Create(GetQueue(GpuQueueType::Graphics));
     renderContext->Flush();
 
     UpdateBackBuffers(window->GetWidth(), window->GetHeight(), desc.colorFormat, desc.depthFormat);
@@ -58,12 +59,33 @@ void VulkanDevice::ResizeSwapChain(uint32 width, uint32 height)
 
 void VulkanDevice::Present()
 {
-    //TODO
+    renderContext->ResourceBarrier(swapChainFrameBuffers[curBackBufferIndex]->GetColorTexture(0).get(), ResourceState::Present, nullptr);
+    renderContext->Flush();
+
+    VkPresentInfoKHR info = {};
+    info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    info.swapchainCount = 1;
+    info.pSwapchains = &swapChain;
+    info.pImageIndices = &curBackBufferIndex;
+    auto &contextData = static_cast<VulkanRenderContext *>(renderContext.get())->GetContextData();
+    auto queueHandle = contextData->GetQueue()->GetHandle();
+    vkQueuePresentKHR(queueHandle, &info);
+    curBackBufferIndex = GetCurrentBackBufferIndex();
+
+    frameFence->GpuSignal(contextData->GetQueue());
+    if(frameFence->GetCpuValue() >= backBufferCount)
+        frameFence->SyncCpu(frameFence->GetCpuValue() - backBufferCount);
+
+    ExecuteDeferredRelease();
 }
 
 void VulkanDevice::FlushAndSync()
 {
-    //TODO
+    renderContext->Flush(true);
+    auto &contextData = static_cast<VulkanRenderContext *>(renderContext.get())->GetContextData();
+    frameFence->GpuSignal(contextData->GetQueue());
+
+    ExecuteDeferredRelease();
 }
 
 void VulkanDevice::InitPhysicalDevice()

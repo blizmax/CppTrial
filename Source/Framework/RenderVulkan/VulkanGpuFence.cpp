@@ -76,8 +76,12 @@ void VulkanGpuFence::SyncGpu(const GpuQueue *queue)
     waitSemaphores.Clear();
 }
 
-void VulkanGpuFence::SyncCpu()
+void VulkanGpuFence::SyncCpu(uint64 val)
 {
+    val = val > cpuValue - 1 ? cpuValue - 1 : val;
+    if(GetGpuValue() >= val)
+        return;
+
     if (activeFences.IsEmpty())
         return;
 
@@ -86,7 +90,6 @@ void VulkanGpuFence::SyncCpu()
     {
         fences.Add(f->GetHandle());
     }
-
     vkWaitForFences(gVulkanDevice->GetLogicalDeviceHandle(), fences.Count(), fences.GetData(), true, UINT64_MAX);
 
     gpuValue += fences.Count();

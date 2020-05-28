@@ -14,10 +14,11 @@ public:
     virtual void ClearRtv(const ResourceView *rtv, const Color &color) = 0;
     virtual void ClearDsv(const ResourceView *dsv, float depth, uint8 stencil, bool clearDepth = true, bool clearStencil = true) = 0;
     virtual void ClearTexture(Texture *texture, const Color &color) = 0;
-    virtual void Draw(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 vertexOffset) = 0;
-    virtual void DrawInstanced(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 instanceCount, uint32 vertexOffset, uint32 instanceOffset) = 0;
-    virtual void DrawIndexed(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 indexOffset, uint32 vertexOffset) = 0;
-    virtual void DrawIndexInstanced(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 instanceCount, uint32 indexOffset, uint32 vertexOffset, uint32 instanceOffset) = 0;
+    virtual void Draw(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 firstVertex) = 0;
+    virtual void DrawInstanced(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 instanceCount, uint32 firstVertex, uint32 firstInstance) = 0;
+    virtual void DrawIndexed(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 firstIndex, int32 vertexOffset) = 0;
+    virtual void DrawIndexedInstanced(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 instanceCount, uint32 firstIndex, int32 vertexOffset, uint32 firstInstance) = 0;
+    //TODO DrawIndirect
 
     virtual void Blit(ResourceView *src, ResourceView *dst) = 0;
     virtual void ResolveResource(Texture *src, Texture *dst) = 0;
