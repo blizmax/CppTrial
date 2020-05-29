@@ -13,16 +13,17 @@ public:
         ResourceFormat format;
         uint32 size;
         uint32 offset;
-        uint32 arrayLayers;
+        uint32 arrayLength;
 
-        Element(const String &name, ResourceFormat format, uint32 arrayLayers = 1)
-            : name(name), format(format), arrayLayers(arrayLayers), offset(0)
+        Element(const String &name, ResourceFormat format, uint32 arrayLength = 1)
+            : name(name), format(format), arrayLength(arrayLength), offset(0)
         {
-            size = GetResourceFormatBytes(format) * arrayLayers;
+            size = GetResourceFormatBytes(format) * arrayLength;
         }
     };
 
-    VertexBufferLayout(std::initializer_list<Element> initList) : elements(initList)
+    VertexBufferLayout(std::initializer_list<Element> initList, bool perInstanceData)
+        : elements(initList), perInstanceData(perInstanceData)
     {
         uint32 offset = 0;
         for (auto &e : elements)
@@ -38,19 +39,25 @@ public:
         return stride;
     }
 
+    bool IsPerInstanceData() const
+    {
+        return perInstanceData;
+    }
+
     const Array<Element> &GetElements() const
     {
         return elements;
     }
 
-    static SPtr<VertexBufferLayout> Create(std::initializer_list<Element> initList)
+    static SPtr<VertexBufferLayout> Create(std::initializer_list<Element> initList, bool perInstanceData = false)
     {
-        return Memory::MakeShared<VertexBufferLayout>(initList);
+        return Memory::MakeShared<VertexBufferLayout>(initList, perInstanceData);
     }
 
 private:
     Array<Element> elements;
     uint32 stride = 0;
+    bool perInstanceData = false;
 };
 
 class VertexLayout

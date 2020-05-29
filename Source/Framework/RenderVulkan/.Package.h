@@ -42,5 +42,6 @@ namespace RenderCore
     VkSamplerMipmapMode ToVkMipFilter(TextureFilter filter);
     VkBorderColor ToVkBorderColor(const Color &color);
 
+    VkIndexType ToVkIndexType(ResourceFormat format);
     VkFormat ToVkResourceFormat(ResourceFormat format);
 }

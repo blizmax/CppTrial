@@ -24,6 +24,9 @@ public:
     virtual void ResolveResource(Texture *src, Texture *dst) = 0;
     virtual void ResolveSubresource(Texture *src, uint32 srcSub, Texture *dst, uint32 dstSub) = 0;
 
+    virtual void SetBindFlags(GraphicsStateBindFlags flags) = 0;
+    virtual GraphicsStateBindFlags GetBindFlags() const = 0;
+
     static SPtr<RenderContext> Create(const SPtr<GpuQueue> &queue);
 };
 }

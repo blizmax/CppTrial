@@ -480,6 +480,20 @@ VkBorderColor ToVkBorderColor(const Color &color)
     return VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
 }
 
+VkIndexType ToVkIndexType(ResourceFormat format)
+{
+    switch (format)
+    {
+    case ResourceFormat::R16UInt:
+        return VK_INDEX_TYPE_UINT16;
+    case ResourceFormat::R32UInt:
+        return VK_INDEX_TYPE_UINT32;
+    }
+
+    CT_EXCEPTION(RenderCore, "Unsupported index buffer format.");
+    return VK_INDEX_TYPE_UINT32;
+}
+
 struct VulkanResourceFormatDesc
 {
     ResourceFormat format;

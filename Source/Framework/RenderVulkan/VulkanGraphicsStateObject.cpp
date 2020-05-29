@@ -24,7 +24,7 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
             VkVertexInputBindingDescription bindingDesc = {};
             bindingDesc.binding = i;
             bindingDesc.stride = bufferLayouts[i]->GetStride();
-            bindingDesc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX; //TODO
+            bindingDesc.inputRate = bufferLayouts[i]->IsPerInstanceData() ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
             vertexInputBindingDescs.Add(bindingDesc);
 
             int32 location = 0;
@@ -37,6 +37,11 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
                 attrib.binding = i;
 
                 vertexInputAttributeDescs.Add(attrib);
+                // TODO
+                // for(int32 i = 0; i < e.arrayLength; ++i)
+                // {
+
+                // }
             }
         }
 
@@ -51,7 +56,7 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
     {
         inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         inputAssemblyInfo.topology = ToVkTopology(desc.topology);
-        inputAssemblyInfo.primitiveRestartEnable = VK_FALSE; //TODO
+        inputAssemblyInfo.primitiveRestartEnable = (desc.topology == Topology::TriangleStrip);
     }
 
     VkPipelineViewportStateCreateInfo viewportInfo = {};

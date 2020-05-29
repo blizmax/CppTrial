@@ -1,15 +1,13 @@
 #pragma once
 
 #include "RenderCore/VertexLayout.h"
-#include "RenderCore/VertexBuffer.h"
-#include "RenderCore/IndexBuffer.h"
+#include "RenderCore/Buffer.h"
 
 namespace RenderCore
 {
 class VertexArray
 {
 public:
-    VertexArray();
     virtual ~VertexArray() = default;
 
     void SetVertexLayout(const SPtr<VertexLayout> &layout)
@@ -17,12 +15,12 @@ public:
         vertexLayout = layout;
     }
 
-    void AddVertexBuffer(const SPtr<VertexBuffer> &buffer)
+    void AddVertexBuffer(const SPtr<Buffer> &buffer)
     {
         vertexBuffers.Add(buffer);
     }
 
-    void SetIndexBuffer(const SPtr<IndexBuffer> &buffer)
+    void SetIndexBuffer(const SPtr<Buffer> &buffer)
     {
         indexBuffer = buffer;
     }
@@ -37,12 +35,12 @@ public:
         return vertexLayout;
     }
 
-    const Array<SPtr<VertexBuffer>> &GetVertexBuffers() const
+    const Array<SPtr<Buffer>> &GetVertexBuffers() const
     {
         return vertexBuffers;
     }
 
-    const SPtr<IndexBuffer> &GetIndexBuffer() const
+    const SPtr<Buffer> &GetIndexBuffer() const
     {
         return indexBuffer;
     }
@@ -52,12 +50,15 @@ public:
         return topology;
     }
 
-    static SPtr<VertexArray> Create();
+    static SPtr<VertexArray> Create()
+    {
+        return Memory::MakeShared<VertexArray>();
+    }
 
 private:
     SPtr<VertexLayout> vertexLayout;
-    Array<SPtr<VertexBuffer>> vertexBuffers;
-    SPtr<IndexBuffer> indexBuffer;
+    Array<SPtr<Buffer>> vertexBuffers;
+    SPtr<Buffer> indexBuffer;
     Topology topology = Topology::TriangleList;
 };
 }

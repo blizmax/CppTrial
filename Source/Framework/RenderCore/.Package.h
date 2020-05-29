@@ -325,6 +325,21 @@ struct Scissor
     uint32 height;
 };
 
+CT_DECL_FLAGS(GraphicsStateBind)
+{
+    None = 0,
+    Vars = 1 << 0,
+    Topology = 1 << 1,
+    Vao = 1 << 2,
+    Fbo = 1 << 3,
+    Viewports = 1 << 4,
+    Scissors = 1 << 5,
+    PipelineState = 1 << 6,
+    SamplePositions = 1 << 7,
+
+    All = (uint32)-1,
+};
+
 enum class ResourceComponentType
 {
     Unknown,

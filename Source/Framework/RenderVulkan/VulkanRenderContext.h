@@ -25,8 +25,27 @@ public:
     virtual void ResolveResource(Texture *src, Texture *dst) override;
     virtual void ResolveSubresource(Texture *src, uint32 srcSub, Texture *dst, uint32 dstSub) override;
 
+    virtual void SetBindFlags(GraphicsStateBindFlags flags) override
+    {
+        bindFlags = flags;
+    }
+
+    virtual GraphicsStateBindFlags GetBindFlags() const override
+    {
+        return bindFlags;
+    }
+
 private:
+    bool ApplyGraphicsVars(GraphicsVars *vars, RootSignature *rootSignature);
+    void SetPipelineState(GraphicsStateObject *gso);
+    void SetVao(const VertexArray *vao);
+    void SetFbo(const FrameBuffer *fbo);
+    void SetViewports(const Array<Viewport> &viewports);
+    void SetScissors(const Array<Scissor> &scissors);
     bool PrepareForDraw(GraphicsState *state, GraphicsVars *vars);
+
+private:
+    GraphicsStateBindFlags bindFlags = GraphicsStateBind::All;
 
 };
 
