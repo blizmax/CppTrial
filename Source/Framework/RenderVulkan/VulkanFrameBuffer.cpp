@@ -1,8 +1,6 @@
 #include "RenderVulkan/VulkanFrameBuffer.h"
-#include "RenderVulkan/VulkanRenderPass.h"
-#include "RenderVulkan/VulkanContext.h"
-#include "RenderVulkan/VulkanImage.h"
 #include "RenderVulkan/VulkanResourceView.h"
+#include "RenderVulkan/VulkanDevice.h"
 
 namespace RenderCore
 {
@@ -27,12 +25,12 @@ VulkanFrameBuffer::~VulkanFrameBuffer()
 {
     if(renderPass != VK_NULL_HANDLE)
     {
-        vkDestroyRenderPass(gVulkanContext->GetLogicalDeviceHandle(), renderPass, gVulkanAlloc);
+        vkDestroyRenderPass(gVulkanDevice->GetLogicalDeviceHandle(), renderPass, gVulkanAlloc);
         renderPass = VK_NULL_HANDLE;
     }
     if (frameBuffer != VK_NULL_HANDLE)
     {
-        vkDestroyFramebuffer(gVulkanContext->GetLogicalDeviceHandle(), frameBuffer, gVulkanAlloc);
+        vkDestroyFramebuffer(gVulkanDevice->GetLogicalDeviceHandle(), frameBuffer, gVulkanAlloc);
         frameBuffer = VK_NULL_HANDLE;
     }
 }
@@ -73,7 +71,7 @@ void VulkanFrameBuffer::Apply()
     frameBufferInfo.height = height;
     frameBufferInfo.layers = arrayLayers;
 
-    if (vkCreateFramebuffer(gVulkanContext->GetLogicalDeviceHandle(), &frameBufferInfo, gVulkanAlloc, &frameBuffer) != VK_SUCCESS)
+    if (vkCreateFramebuffer(gVulkanDevice->GetLogicalDeviceHandle(), &frameBufferInfo, gVulkanAlloc, &frameBuffer) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create framebuffer failed.");
 }
 
@@ -152,7 +150,7 @@ void VulkanFrameBuffer::CreateRenderPass()
     renderPassInfo.dependencyCount = subpassDeps.Count();
     renderPassInfo.pDependencies = subpassDeps.GetData();
 
-    if (vkCreateRenderPass(gVulkanContext->GetLogicalDeviceHandle(), &renderPassInfo, gVulkanAlloc, &renderPass) != VK_SUCCESS)
+    if (vkCreateRenderPass(gVulkanDevice->GetLogicalDeviceHandle(), &renderPassInfo, gVulkanAlloc, &renderPass) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create render pass failed.");
 }
 

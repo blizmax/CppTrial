@@ -22,6 +22,8 @@ VulkanProgram::ShaderData VulkanProgram::CompileShader(const ShaderDesc &desc)
     // createInfo.flags = 0;
     // createInfo.codeSize = code.Count();
     // createInfo.pCode = reinterpret_cast<const uint32 *>(code.GetData());
+
+    return {};
 }
 
 }

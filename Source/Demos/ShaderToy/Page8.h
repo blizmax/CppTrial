@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Demos/ShaderToy/Page.h"
-#include "Render/Color.h"
+#include "Math/Color.h"
 
 class Page8 : public TPage<Page8>
 {

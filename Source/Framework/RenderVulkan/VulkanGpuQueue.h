@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderCore/GpuQueue.h"
+#include "RenderVulkan/.Package.h"
 
 namespace RenderCore
 {

@@ -1,6 +1,8 @@
 #include "RenderVulkan/VulkanRenderContext.h"
 #include "RenderVulkan/VulkanBuffer.h"
 #include "RenderVulkan/VulkanTexture.h"
+#include "RenderVulkan/VulkanGraphicsStateObject.h"
+#include "RenderVulkan/VulkanFrameBuffer.h"
 
 namespace RenderCore
 {
@@ -10,17 +12,17 @@ SPtr<RenderContext> RenderContext::Create(const SPtr<GpuQueue> &queue)
     return Memory::MakeShared<VulkanRenderContext>(queue);
 }
 
-VulkanRenderContext::VulkanRenderContext(const SPtr<GpuQueue> &queue)
-    : VulkanComputeContext(queue)
+VulkanRenderContextImpl::VulkanRenderContextImpl(const SPtr<GpuQueue> &queue)
+    : VulkanComputeContextImpl(queue)
 {
 
 }
 
-VulkanRenderContext::~VulkanRenderContext()
+VulkanRenderContextImpl::~VulkanRenderContextImpl()
 {
 }
 
-void VulkanRenderContext::ClearFrameBuffer(const FrameBuffer *fbo, const Color &color, float depth, uint8 stencil, bool clearColor, bool clearDepthStencil)
+void VulkanRenderContextImpl::ClearFrameBuffer(const FrameBuffer *fbo, const Color &color, float depth, uint8 stencil, bool clearColor, bool clearDepthStencil)
 {
     bool hasDepthStencilTexture = fbo->GetDepthStencilTexture() != nullptr;
     auto depthStencilFormat = hasDepthStencilTexture ? fbo->GetDepthStencilTexture()->GetResourceFormat() : ResourceFormat::Unknown;
@@ -42,18 +44,18 @@ void VulkanRenderContext::ClearFrameBuffer(const FrameBuffer *fbo, const Color &
     }
 }
 
-void VulkanRenderContext::ClearRtv(const ResourceView *rtv, const Color &color)
+void VulkanRenderContextImpl::ClearRtv(const ResourceView *rtv, const Color &color)
 {
     ClearColorImage(rtv, color.r, color.g, color.b, color.a);
     commandsPending = true;
 }
 
-void VulkanRenderContext::ClearDsv(const ResourceView *dsv, float depth, uint8 stencil, bool clearDepth, bool clearStencil)
+void VulkanRenderContextImpl::ClearDsv(const ResourceView *dsv, float depth, uint8 stencil, bool clearDepth, bool clearStencil)
 {
     auto vkTexture = dynamic_cast<const VulkanTexture *>(dsv->GetResource());
     CT_CHECK(vkTexture != nullptr);
 
-    VulkanCopyContext::ResourceBarrier(vkTexture, ResourceState::CopyDest, nullptr);
+    ResourceBarrier(vkTexture, ResourceState::CopyDest, nullptr);
     VkClearDepthStencilValue dsVal = {};
     dsVal.depth = depth;
     dsVal.stencil = stencil;
@@ -72,7 +74,7 @@ void VulkanRenderContext::ClearDsv(const ResourceView *dsv, float depth, uint8 s
     commandsPending = true;
 }
 
-void VulkanRenderContext::ClearTexture(Texture *texture, const Color &color)
+void VulkanRenderContextImpl::ClearTexture(Texture *texture, const Color &color)
 {
     CT_CHECK(texture != nullptr);
 
@@ -85,15 +87,15 @@ void VulkanRenderContext::ClearTexture(Texture *texture, const Color &color)
     }
 
     auto bindFlags = texture->GetBindFlags();
-    if(bindFlags & ResourceBind::RenderTarget != 0)
+    if(bindFlags & ResourceBind::RenderTarget)
     {
         ClearRtv(texture->GetRtv().get(), color);
     }
-    else if(bindFlags & ResourceBind::DepthStencil != 0)
+    else if(bindFlags & ResourceBind::DepthStencil)
     {
         ClearDsv(texture->GetDsv().get(), color.r, 0, true, true);
     }
-    else if(bindFlags & ResourceBind::UnorderedAccess != 0)
+    else if(bindFlags & ResourceBind::UnorderedAccess)
     {
         ClearColorImage(texture->GetUav().get(), color.r, color.g, color.b, color.a);
     }
@@ -103,12 +105,12 @@ void VulkanRenderContext::ClearTexture(Texture *texture, const Color &color)
     }
 }
 
-void VulkanRenderContext::Draw(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 firstVertex)
+void VulkanRenderContextImpl::Draw(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 firstVertex)
 {
     DrawInstanced(state, vars, vertexCount, 1, firstVertex, 0);
 }
 
-void VulkanRenderContext::DrawInstanced(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 instanceCount, uint32 firstVertex, uint32 firstInstance)
+void VulkanRenderContextImpl::DrawInstanced(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 instanceCount, uint32 firstVertex, uint32 firstInstance)
 {
     if(PrepareForDraw(state, vars) == false)
         return;
@@ -117,12 +119,12 @@ void VulkanRenderContext::DrawInstanced(GraphicsState *state, GraphicsVars *vars
     vkCmdEndRenderPass(contextData->GetCommandBufferHandle());
 }
 
-void VulkanRenderContext::DrawIndexed(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 firstIndex, int32 vertexOffset)
+void VulkanRenderContextImpl::DrawIndexed(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 firstIndex, int32 vertexOffset)
 {
     DrawIndexedInstanced(state, vars, indexCount, 1, firstIndex, vertexOffset, 0);
 }
 
-void VulkanRenderContext::DrawIndexedInstanced(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 instanceCount, uint32 firstIndex, int32 vertexOffset, uint32 firstInstance)
+void VulkanRenderContextImpl::DrawIndexedInstanced(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 instanceCount, uint32 firstIndex, int32 vertexOffset, uint32 firstInstance)
 {
     if(PrepareForDraw(state, vars) == false)
         return;
@@ -131,13 +133,96 @@ void VulkanRenderContext::DrawIndexedInstanced(GraphicsState *state, GraphicsVar
     vkCmdEndRenderPass(contextData->GetCommandBufferHandle());
 }
 
-bool VulkanRenderContext::ApplyGraphicsVars(GraphicsVars *vars, RootSignature *rootSignature)
+template <uint32 offsetCount, typename ViewType>
+void InitBlitData(const ViewType *view, const UVector4 &rect, VkImageSubresourceLayers &layer, VkOffset3D offset[offsetCount])
+{
+    const Texture *texture = dynamic_cast<const Texture *>(view->GetResource());
+
+    layer.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    const auto &viewInfo = view->GetViewInfo();
+    layer.baseArrayLayer = viewInfo.firstArraySlice;
+    layer.layerCount = viewInfo.arrayLayers;
+    layer.mipLevel = viewInfo.mostDetailedMip;
+    CT_CHECK(texture->GetDepth(viewInfo.mostDetailedMip) == 1);
+
+    offset[0].x = (rect.x == UINT32_MAX) ? 0 : rect.x;
+    offset[0].y = (rect.y == UINT32_MAX) ? 0 : rect.y;
+    offset[0].z = 0;
+
+    if (offsetCount > 1)
+    {
+        offset[1].x = (rect.z == UINT32_MAX) ? texture->GetWidth(viewInfo.mostDetailedMip) : rect.z;
+        offset[1].y = (rect.w == UINT32_MAX) ? texture->GetHeight(viewInfo.mostDetailedMip) : rect.w;
+        offset[1].z = 1;
+    }
+}
+
+void VulkanRenderContextImpl::Blit(ResourceView *src, ResourceView *dst, const UVector4 &srcRect, const UVector4 &dstRect, TextureFilter filter)
+{
+    ResourceBarrier(src->GetResource(), ResourceState::CopySource, &src->GetViewInfo());
+    ResourceBarrier(dst->GetResource(), ResourceState::CopyDest, &dst->GetViewInfo());
+
+    auto srcTex = dynamic_cast<VulkanTexture *>(src->GetResource());
+    if (srcTex && srcTex->GetSampleCount() > 1)
+    {
+        VkImageResolve resolve;
+        InitBlitData<1>(src, srcRect, resolve.srcSubresource, &resolve.srcOffset);
+        InitBlitData<1>(dst, dstRect, resolve.dstSubresource, &resolve.dstOffset);
+        const auto &viewInfo = src->GetViewInfo();
+        resolve.extent.width = srcTex->GetWidth(viewInfo.mostDetailedMip);
+        resolve.extent.height = srcTex->GetHeight(viewInfo.mostDetailedMip);
+        resolve.extent.depth = 1;
+
+        auto dstTex = dynamic_cast<VulkanTexture *>(dst->GetResource());
+        vkCmdResolveImage(contextData->GetCommandBufferHandle(), srcTex->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstTex->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &resolve);
+    }
+    else
+    {
+        VkImageBlit blit;
+        InitBlitData<2>(src, srcRect, blit.srcSubresource, blit.srcOffsets);
+        InitBlitData<2>(dst, dstRect, blit.dstSubresource, blit.dstOffsets);
+
+        // Vulkan spec requires VK_FILTER_NEAREST if blit source is a depth and/or stencil format
+        auto dstTex = dynamic_cast<VulkanTexture *>(dst->GetResource());
+        VkFilter vkFilter = IsDepthStencilFormat(srcTex->GetResourceFormat()) ? VK_FILTER_NEAREST : ToVkFilter(filter);
+        vkCmdBlitImage(contextData->GetCommandBufferHandle(), srcTex->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstTex->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, vkFilter);
+    }
+
+    commandsPending = true;
+}
+
+void VulkanRenderContextImpl::ResolveResource(Texture *src, Texture *dst)
+{
+    Blit(src->GetSrv().get(), dst->GetRtv().get());
+}
+
+void VulkanRenderContextImpl::ResolveSubresource(Texture *src, uint32 srcSub, Texture *dst, uint32 dstSub)
+{
+    uint32 srcArray = src->GetSubresourceArraySlice(srcSub);
+    uint32 srcMip = src->GetSubresourceMipLevel(srcSub);
+    auto srcSrv = src->GetSrv(srcMip, 1, srcArray, 1);
+
+    uint32 dstArray = dst->GetSubresourceArraySlice(dstSub);
+    uint32 dstMip = dst->GetSubresourceMipLevel(dstSub);
+    auto dstRtv = dst->GetRtv(dstMip, dstArray, 1);
+
+    Blit(srcSrv.get(), dstRtv.get());
+}
+
+bool VulkanRenderContextImpl::ApplyGraphicsVars(GraphicsVars *vars, RootSignature *rootSignature)
 {
     //TODO
     return true;
 }
 
-void VulkanRenderContext::SetVao(const VertexArray *vao)
+void VulkanRenderContextImpl::SetPipelineState(GraphicsStateObject *gso)
+{
+    auto commandBuffer = contextData->GetCommandBufferHandle();
+    auto handle = static_cast<VulkanGraphicsStateObject *>(gso)->GetHandle();
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, handle);
+}
+
+void VulkanRenderContextImpl::SetVao(const VertexArray *vao)
 {
     auto commandBuffer = contextData->GetCommandBufferHandle();
     const auto &buffers = vao->GetVertexBuffers();
@@ -147,7 +232,7 @@ void VulkanRenderContext::SetVao(const VertexArray *vao)
         VkDeviceSize offset = vkBuffer->GetOffset();
         VkBuffer handle = vkBuffer->GetHandle();
         vkCmdBindVertexBuffers(commandBuffer, i, 1, &handle, &offset);
-        VulkanCopyContext::ResourceBarrier(vkBuffer, ResourceState::VertexBuffer, nullptr);
+        ResourceBarrier(vkBuffer, ResourceState::VertexBuffer, nullptr);
     }
     if(vao->GetIndexBuffer())
     {
@@ -155,59 +240,61 @@ void VulkanRenderContext::SetVao(const VertexArray *vao)
         VkDeviceSize offset = vkBuffer->GetOffset();
         VkBuffer handle = vkBuffer->GetHandle();
         vkCmdBindIndexBuffer(commandBuffer, handle, offset, ToVkIndexType(vkBuffer->GetResourceFormat()));
-        VulkanCopyContext::ResourceBarrier(vkBuffer, ResourceState::IndexBuffer, nullptr);
+        ResourceBarrier(vkBuffer, ResourceState::IndexBuffer, nullptr);
     }
 }
 
-void VulkanRenderContext::SetVao(const VertexArray *vao)
-{
-    auto commandBuffer = contextData->GetCommandBufferHandle();
-    const auto &buffers = vao->GetVertexBuffers();
-    for(int32 i = 0; i < buffers.Count(); ++i)
-    {
-        auto vkBuffer = static_cast<VulkanBuffer *>(buffers[i].get());
-        VkDeviceSize offset = vkBuffer->GetOffset();
-        VkBuffer handle = vkBuffer->GetHandle();
-        vkCmdBindVertexBuffers(commandBuffer, i, 1, &handle, &offset);
-        VulkanCopyContext::ResourceBarrier(vkBuffer, ResourceState::VertexBuffer, nullptr);
-    }
-    if(vao->GetIndexBuffer())
-    {
-        auto vkBuffer = static_cast<VulkanBuffer *>(vao->GetIndexBuffer().get());
-        VkDeviceSize offset = vkBuffer->GetOffset();
-        VkBuffer handle = vkBuffer->GetHandle();
-        vkCmdBindIndexBuffer(commandBuffer, handle, offset, ToVkIndexType(vkBuffer->GetResourceFormat()));
-        VulkanCopyContext::ResourceBarrier(vkBuffer, ResourceState::IndexBuffer, nullptr);
-    }
-}
-
-void VulkanRenderContext::SetFbo(const FrameBuffer *fbo)
+void VulkanRenderContextImpl::SetFbo(const FrameBuffer *fbo)
 {
     for(int i = 0; i < COLOR_ATTCHMENT_MAX_NUM; ++i)
     {
         const auto &texture = fbo->GetColorTexture(i);
         if(texture)
         {
-            VulkanCopyContext::ResourceBarrier(texture.get(), ResourceState::RenderTarget, nullptr);
+            ResourceBarrier(texture.get(), ResourceState::RenderTarget, nullptr);
         }
     }
     if(fbo->GetDepthStencilTexture())
     {
-        VulkanCopyContext::ResourceBarrier(fbo->GetDepthStencilTexture().get(), ResourceState::DepthStencil, nullptr);
+        ResourceBarrier(fbo->GetDepthStencilTexture().get(), ResourceState::DepthStencil, nullptr);
     }
 }
 
-void VulkanRenderContext::SetViewports(const Array<Viewport> &viewports)
+void VulkanRenderContextImpl::SetViewports(const Array<Viewport> &viewports)
 {
+    auto commandBuffer = contextData->GetCommandBufferHandle();
 
+    VkViewport vkViewports[VIEWPORT_MAX_NUM];
+    const uint32 count = viewports.Count();
+    for(uint32 i = 0; i < count; ++i)
+    {
+        vkViewports[i].x = viewports[i].x;
+        vkViewports[i].y = viewports[i].y;
+        vkViewports[i].width = viewports[i].width;
+        vkViewports[i].height = viewports[i].height;
+        vkViewports[i].minDepth = viewports[i].minDepth;
+        vkViewports[i].maxDepth = viewports[i].maxDepth;
+    }
+    vkCmdSetViewport(commandBuffer, 0, count, vkViewports);
 }
 
-void VulkanRenderContext::SetScissors(const Array<Scissor> &scissors)
+void VulkanRenderContextImpl::SetScissors(const Array<Scissor> &scissors)
 {
+    auto commandBuffer = contextData->GetCommandBufferHandle();
 
+    VkRect2D vkScissors[VIEWPORT_MAX_NUM];
+    const uint32 count = scissors.Count();
+    for (uint32 i = 0; i < count; ++i)
+    {
+        vkScissors[i].offset.x = scissors[i].x;
+        vkScissors[i].offset.y = scissors[i].y;
+        vkScissors[i].extent.width = scissors[i].width;
+        vkScissors[i].extent.height = scissors[i].height;
+    }
+    vkCmdSetScissor(commandBuffer, 0, count, vkScissors);
 }
 
-bool VulkanRenderContext::PrepareForDraw(GraphicsState *state, GraphicsVars *vars)
+bool VulkanRenderContextImpl::PrepareForDraw(GraphicsState *state, GraphicsVars *vars)
 {
     auto gso = state->GetGso(vars);
 
@@ -221,7 +308,7 @@ bool VulkanRenderContext::PrepareForDraw(GraphicsState *state, GraphicsVars *var
     }
 
     if(bindFlags & GraphicsStateBind::PipelineState)
-        
+        SetPipelineState(gso.get());
     if(bindFlags & GraphicsStateBind::Vao)
         SetVao(state->GetVertexArray().get());
     if(bindFlags & GraphicsStateBind::Fbo)
@@ -231,7 +318,19 @@ bool VulkanRenderContext::PrepareForDraw(GraphicsState *state, GraphicsVars *var
     if(bindFlags & GraphicsStateBind::Scissors)
         SetScissors(state->GetScissors());
 
-    //TODO
+    auto vkFbo = static_cast<VulkanFrameBuffer *>(state->GetFrameBuffer().get());
+    VkRenderPassBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    beginInfo.renderPass = vkFbo->GetRenderPassHandle();
+    beginInfo.framebuffer = vkFbo->GetHandle();
+    beginInfo.renderArea.offset = {0, 0};
+    beginInfo.renderArea.extent = {vkFbo->GetWidth(), vkFbo->GetHeight()};
+    // Only needed if attachments use VK_ATTACHMENT_LOAD_OP_CLEAR
+    beginInfo.clearValueCount = 0;
+    beginInfo.pClearValues = nullptr;
+
+    vkCmdBeginRenderPass(contextData->GetCommandBufferHandle(), &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
     return true;
 }
 

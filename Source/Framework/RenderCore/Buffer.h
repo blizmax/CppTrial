@@ -7,6 +7,11 @@ namespace RenderCore
 class Buffer : public Resource
 {
 public:
+    Buffer(uint32 size, ResourceBindFlags bindFlags, CpuAccess access)
+        : Resource(ResourceType::Buffer, bindFlags, size)
+    {
+    }
+
     virtual ~Buffer() = default;
 
     virtual void *Map(BufferMapType mapType) = 0;
@@ -82,9 +87,6 @@ public:
     static SPtr<Buffer> Create(uint32 size, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr);
     static SPtr<Buffer> CreateTyped(ResourceFormat format, uint32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr);
     static SPtr<Buffer> CreateStructured(uint32 structSize, uint32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr, bool createCounter = true);
-
-protected:
-    Buffer(uint32 size, ResourceBindFlags bindFlags, CpuAccess access);
 
 protected:
     uint32 offset = 0;

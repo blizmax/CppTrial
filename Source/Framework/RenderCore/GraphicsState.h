@@ -12,6 +12,7 @@ namespace RenderCore
 class GraphicsState
 {
 public:
+    GraphicsState();
     ~GraphicsState() = default;
 
     void SetViewport(uint32 index, const Viewport &viewport, bool setScissor = true);
@@ -108,8 +109,6 @@ public:
     static SPtr<GraphicsState> Create();
 
 private:
-    GraphicsState();
-
     SPtr<VertexArray> vertexArray;
     SPtr<FrameBuffer> frameBuffer;
     SPtr<RootSignature> rootSignature;

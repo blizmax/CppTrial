@@ -22,6 +22,10 @@ struct ProgramDesc
 class Program
 {
 public:
+    Program(const ProgramDesc &desc) : desc(desc)
+    {
+    }
+
     virtual ~Program() = default;
 
     static SPtr<Program> Create(const ProgramDesc &desc);
@@ -29,11 +33,6 @@ public:
     const ProgramDesc &GetDesc() const
     {
         return desc;
-    }
-
-protected:
-    Program(const ProgramDesc &desc) : desc(desc)
-    {
     }
 
 protected:

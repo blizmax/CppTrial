@@ -5,31 +5,27 @@
 
 namespace RenderCore
 {
-class VulkanCopyContext : public CopyContext
+class VulkanCopyContextImpl
 {
 public:
-    VulkanCopyContext(const SPtr<GpuQueue> &queue);
-    virtual ~VulkanCopyContext();
+    VulkanCopyContextImpl(const SPtr<GpuQueue> &queue);
+    ~VulkanCopyContextImpl();
 
-    virtual void Flush(bool wait) override;
+    virtual void Flush(bool wait);
 
-    virtual bool ResourceBarrier(const Resource *resource, ResourceState newState, const ResourceViewInfo *viewInfo) override;
-    virtual void UavBarrier(const Resource *resource) override;
-    virtual void CopyResource(const Resource *dst, const Resource *src) override;
-    virtual void CopyBufferRegion(const Buffer *dst, uint32 dstOffset, const Buffer *src, uint32 srcOffset, uint32 size) override;
-    virtual void CopySubresource(const Texture *dst, uint32 dstSub, const Texture *src, uint32 srcSub) override;
-    virtual void CopySubresourceRegion(const Texture *dst, uint32 dstSub, const Texture *src, uint32 srcSub, const IVector3 &dstOffset, const IVector3 &srcOffset, const UVector3 &size) override;
-    virtual void UpdateBuffer(const Buffer *buffer, const void *data, uint32 offset, uint32 size) override;
-    virtual void UpdateTexture(const Texture *texture, const void *data) override;
-    virtual void UpdateSubresource(const Texture *texture, uint32 subresource, const void* data, const IVector3 &offset, const UVector3 &size) override;
-    virtual void UpdateSubresources(const Texture *texture, uint32 firstSub, uint32 subCount, const void* data) override;
-    virtual Array<uint8> ReadSubresource(const Texture *texture, uint32 subresource) override;
-    virtual SPtr<ReadTextureTask> ReadSubresourceAsync(const Texture *texture, uint32 subresource) override;
-
-    const SPtr<VulkanContextData> &GetContextData()
-    {
-        return contextData;
-    }
+    bool ResourceBarrier(const Resource *resource, ResourceState newState, const ResourceViewInfo *viewInfo);
+    void UavBarrier(const Resource *resource);
+    void CopyResource(const Resource *dst, const Resource *src);
+    void CopyBufferRegion(const Buffer *dst, uint32 dstOffset, const Buffer *src, uint32 srcOffset, uint32 size);
+    void CopySubresource(const Texture *dst, uint32 dstSub, const Texture *src, uint32 srcSub);
+    void CopySubresourceRegion(const Texture *dst, uint32 dstSub, const Texture *src, uint32 srcSub, const IVector3 &dstOffset, const IVector3 &srcOffset, const UVector3 &size);
+    void UpdateBuffer(const Buffer *buffer, const void *data, uint32 offset, uint32 size);
+    void UpdateTexture(const Texture *texture, const void *data);
+    void UpdateSubresource(const Texture *texture, uint32 subresource, const void* data, const IVector3 &offset, const UVector3 &size);
+    void UpdateSubresources(const Texture *texture, uint32 firstSub, uint32 subCount, const void* data);
+    Array<uint8> ReadSubresource(CopyContext *ctx, const Texture *texture, uint32 subresource);
+    SPtr<ReadTextureTask> ReadSubresourceAsync(CopyContext *ctx, const Texture *texture, uint32 subresource);
+    const SPtr<VulkanContextData> &GetContextData() {return contextData;}
 
 protected:
     bool BufferBarrier(const Buffer *buffer, ResourceState newState);
@@ -39,5 +35,86 @@ protected:
 protected:
     SPtr<VulkanContextData> contextData;
     bool commandsPending = false;
+};
+
+class VulkanCopyContext : public CopyContext
+{
+public:
+    VulkanCopyContext(const SPtr<GpuQueue> &queue) : impl(queue)
+    {
+    }
+
+    virtual void Flush(bool wait) override
+    {
+        impl.Flush(wait);
+    }
+
+    virtual bool ResourceBarrier(const Resource *resource, ResourceState newState, const ResourceViewInfo *viewInfo) override
+    {
+        return impl.ResourceBarrier(resource, newState, viewInfo);
+    }
+
+    virtual void UavBarrier(const Resource *resource) override
+    {
+        impl.UavBarrier(resource);
+    }
+
+    virtual void CopyResource(const Resource *dst, const Resource *src) override
+    {
+        impl.CopyResource(dst, src);
+    }
+
+    virtual void CopyBufferRegion(const Buffer *dst, uint32 dstOffset, const Buffer *src, uint32 srcOffset, uint32 size) override
+    {
+        impl.CopyBufferRegion(dst, dstOffset, src, srcOffset, size);
+    }
+
+    virtual void CopySubresource(const Texture *dst, uint32 dstSub, const Texture *src, uint32 srcSub) override
+    {
+        impl.CopySubresource(dst, dstSub, src, srcSub);
+    }
+
+    virtual void CopySubresourceRegion(const Texture *dst, uint32 dstSub, const Texture *src, uint32 srcSub, const IVector3 &dstOffset, const IVector3 &srcOffset, const UVector3 &size) override
+    {
+        impl.CopySubresourceRegion(dst, dstSub, src, srcSub, dstOffset, srcOffset, size);
+    }
+
+    virtual void UpdateBuffer(const Buffer *buffer, const void *data, uint32 offset, uint32 size) override
+    {
+        impl.UpdateBuffer(buffer, data, offset, size);
+    }
+
+    virtual void UpdateTexture(const Texture *texture, const void *data) override
+    {
+        impl.UpdateTexture(texture, data);
+    }
+
+    virtual void UpdateSubresource(const Texture *texture, uint32 subresource, const void *data, const IVector3 &offset, const UVector3 &size) override
+    {
+        impl.UpdateSubresource(texture, subresource, data, offset, size);
+    }
+
+    virtual void UpdateSubresources(const Texture *texture, uint32 firstSub, uint32 subCount, const void *data) override
+    {
+        impl.UpdateSubresources(texture, firstSub, subCount, data);
+    }
+
+    virtual Array<uint8> ReadSubresource(const Texture *texture, uint32 subresource) override
+    {
+        return impl.ReadSubresource(this, texture, subresource);
+    }
+
+    virtual SPtr<ReadTextureTask> ReadSubresourceAsync(const Texture *texture, uint32 subresource) override
+    {
+        return impl.ReadSubresourceAsync(this, texture, subresource);
+    }
+
+    const SPtr<VulkanContextData> &GetContextData()
+    {
+        return impl.GetContextData();
+    }
+
+private:
+    VulkanCopyContextImpl impl;
 };
 }

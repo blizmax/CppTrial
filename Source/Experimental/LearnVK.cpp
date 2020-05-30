@@ -2,43 +2,38 @@
 #include "Core/Exception.h"
 #include "IO/FileHandle.h"
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+// #define GLFW_INCLUDE_VULKAN
+// #include <GLFW/glfw3.h>
 
-#include "RenderVulkan/VulkanContext.h"
-#include "RenderVulkan/VulkanSwapChain.h"
-#include "RenderVulkan/VulkanRenderPipeline.h"
-#include "RenderVulkan/VulkanSync.h"
-#include "RenderVulkan/VulkanCommandBuffer.h"
-//#include "RenderVulkan/VulkanVertexLayout.h"
-#include "RenderCore/VertexLayout.h"
+// #include "RenderVulkan/VulkanSync.h"
+// #include "RenderCore/VertexLayout.h"
 
-using namespace RenderCore;
+//using namespace RenderCore;
 
-const int32 WIDTH = 800;
-const int32 HEIGHT = 600;
+// const int32 WIDTH = 800;
+// const int32 HEIGHT = 600;
 
-GLFWwindow *window;
-SPtr<VertexLayout> vertexLayout;
-SPtr<VulkanRenderPipelineState> pipelineState;
-Array<SPtr<VulkanCommandBuffer>> commandBuffers;
+// GLFWwindow *window;
+// SPtr<VertexLayout> vertexLayout;
+// SPtr<VulkanRenderPipelineState> pipelineState;
+// Array<SPtr<VulkanCommandBuffer>> commandBuffers;
 
-SPtr<Shader> CreateShader()
-{
-    ShaderDesc desc;
-    IO::FileHandle vertSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.vert"));
-    IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.frag"));
-    desc.vertexSource = vertSrcFile.ReadString();
-    desc.fragmentSource = fragSrcFile.ReadString();
-    return Shader::Create(desc);
-}
+// SPtr<Shader> CreateShader()
+// {
+//     ShaderDesc desc;
+//     IO::FileHandle vertSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.vert"));
+//     IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.frag"));
+//     desc.vertexSource = vertSrcFile.ReadString();
+//     desc.fragmentSource = fragSrcFile.ReadString();
+//     return Shader::Create(desc);
+// }
 
-void InitVulkan()
-{
-    auto &context = VulkanContext::Get();
-    context.Init();
+// void InitVulkan()
+// {
+//     auto &context = VulkanContext::Get();
+//     context.Init();
 
-    // VkSurfaceKHR surface;
+//     // VkSurfaceKHR surface;
     // if (glfwCreateWindowSurface(context.GetInstanceHandle(), window, gVulkanAlloc, &surface) != VK_SUCCESS)
     //     CT_EXCEPTION(LearnVK, "Create surface failed.");
  
@@ -90,65 +85,16 @@ void InitVulkan()
     // vertexLayout = VertexLayout::Create();
     // vertexLayout->AddBufferLayout(vertexBufferLayout);
 
-}
+//}
 
-void CleanupVulkan()
-{
-    auto &context = VulkanContext::Get();
-    context.Destroy();
-}
+// void CleanupVulkan()
+// {
+//     auto &context = VulkanContext::Get();
+//     context.Destroy();
+// }
 
 int main(int argc, char **argv)
 {
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-    window = glfwCreateWindow(WIDTH, HEIGHT, "LearnVK", nullptr, nullptr);
-
-    InitVulkan();
-
-    auto &context = VulkanContext::Get();
-    while (!glfwWindowShouldClose(window))
-    {
-        glfwPollEvents();
-
-        // auto &frameData = context.GetCurrentFrameData();
-
-        // frameData.fence->Wait();
-        // context.GetSwapChain()->AcquireBackBuffer();
-        // frameData.fence->Reset();
-
-        // context.SetCurrentFrameBuffer(context.GetSwapChain()->GetCurentBackBufferData().frameBuffer);
-        // context.SetCurrentRenderPipelineState(pipelineState);
-
-        // auto backBufferIndex = context.GetSwapChain()->GetCurrentBackBufferIndex();
-        // if (commandBuffers.Count() <= backBufferIndex)
-        // {
-        //     auto commandBuffer = context.GetRenderCommandPool()->GetIdleBuffer();
-        //     commandBuffer->Begin();
-        //     commandBuffer->SetVertexLayout(vertexLayout);
-        //     commandBuffer->SetVertexBuffers(0, &vertexBuffer, 1);
-        //     commandBuffer->BeginRenderPass();
-        //     commandBuffer->BindRenderPipeline();
-        //     commandBuffer->SetViewport(0, 0, WIDTH, HEIGHT);
-        //     commandBuffer->SetScissor(0, 0, WIDTH, HEIGHT);
-        //     commandBuffer->Draw(0, 3, 1);
-        //     commandBuffer->EndRenderPass();
-        //     commandBuffer->End();
-
-        //     commandBuffers.Add(commandBuffer);
-        // }
-
-        // const auto &commandBuffer = commandBuffers[backBufferIndex];
-        // context.Submit(commandBuffer);
-        // context.Present();
-    }
-
-    CleanupVulkan();
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
 
     return 0;
 }

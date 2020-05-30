@@ -10,41 +10,41 @@ SPtr<ComputeContext> ComputeContext::Create(const SPtr<GpuQueue> &queue)
     return Memory::MakeShared<VulkanComputeContext>(queue);
 }
 
-VulkanComputeContext::VulkanComputeContext(const SPtr<GpuQueue> &queue)
-    : VulkanCopyContext(queue)
+VulkanComputeContextImpl::VulkanComputeContextImpl(const SPtr<GpuQueue> &queue)
+    : VulkanCopyContextImpl(queue)
 {
 
 }
 
-VulkanComputeContext::~VulkanComputeContext()
+VulkanComputeContextImpl::~VulkanComputeContextImpl()
 {
 }
 
-void VulkanComputeContext::Dispatch(ComputeState *state, ComputeVars *vars, uint32 sizeX, uint32 sizeY, uint32 sizeZ)
+void VulkanComputeContextImpl::Dispatch(ComputeState *state, ComputeVars *vars, const UVector3 &size)
 {
     if(PrepareForDispatch(state, vars) == false)
         return;
     
-    vkCmdDispatch(contextData->GetCommandBufferHandle(), sizeX, sizeY, sizeZ);
+    vkCmdDispatch(contextData->GetCommandBufferHandle(), size.x, size.y, size.z);
 }
 
-void VulkanComputeContext::DispatchIndirect(ComputeState *state, ComputeVars *vars, const Buffer *argBuffer, uint32 argBufferOffset)
+void VulkanComputeContextImpl::DispatchIndirect(ComputeState *state, ComputeVars *vars, const Buffer *argBuffer, uint32 argBufferOffset)
 {
     if(PrepareForDispatch(state, vars) == false)
         return;
 
-    VulkanCopyContext::ResourceBarrier(argBuffer, ResourceState::IndirectArg, nullptr);
+    ResourceBarrier(argBuffer, ResourceState::IndirectArg, nullptr);
     auto vkBuffer = static_cast<const VulkanBuffer *>(argBuffer);
     vkCmdDispatchIndirect(contextData->GetCommandBufferHandle(), vkBuffer->GetHandle(), argBuffer->GetOffset() + argBufferOffset);
 }
 
-void VulkanComputeContext::ClearUav(const ResourceView *uav, const Vector4 &value)
+void VulkanComputeContextImpl::ClearUav(const ResourceView *uav, const Vector4 &value)
 {
     ClearColorImage(uav, value.x, value.y, value.z, value.w);
     commandsPending = true;
 }
 
-void VulkanComputeContext::ClearUav(const ResourceView *uav, const UVector4 &value)
+void VulkanComputeContextImpl::ClearUav(const ResourceView *uav, const UVector4 &value)
 {
     auto vkBuffer = dynamic_cast<const VulkanBuffer *>(uav->GetResource());
     if(vkBuffer)
@@ -59,7 +59,7 @@ void VulkanComputeContext::ClearUav(const ResourceView *uav, const UVector4 &val
     commandsPending = true;
 }
 
-void VulkanComputeContext::ClearUavCounter(const Buffer *buffer, uint32 value)
+void VulkanComputeContextImpl::ClearUavCounter(const Buffer *buffer, uint32 value)
 {
     auto uavCounter = buffer->GetUavCounter();
     if(uavCounter)
@@ -69,12 +69,12 @@ void VulkanComputeContext::ClearUavCounter(const Buffer *buffer, uint32 value)
     }
 }
 
-void VulkanComputeContext::ClearColorImage(const ResourceView *view, float v0, float v1, float v2, float v3)
+void VulkanComputeContextImpl::ClearColorImage(const ResourceView *view, float v0, float v1, float v2, float v3)
 {
     auto vkTexture = dynamic_cast<const VulkanTexture *>(view->GetResource());
     CT_CHECK(vkTexture != nullptr);
 
-    VulkanCopyContext::ResourceBarrier(vkTexture, ResourceState::CopyDest, nullptr);
+    ResourceBarrier(vkTexture, ResourceState::CopyDest, nullptr);
     VkClearColorValue colVal = {};
     colVal.float32[0] = v0;
     colVal.float32[1] = v1;
@@ -92,12 +92,12 @@ void VulkanComputeContext::ClearColorImage(const ResourceView *view, float v0, f
     vkCmdClearColorImage(contextData->GetCommandBufferHandle(), vkTexture->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &colVal, 1, &range);
 }
 
-void VulkanComputeContext::ClearColorImage(const ResourceView *view, uint32 v0, uint32 v1, uint32 v2, uint32 v3)
+void VulkanComputeContextImpl::ClearColorImage(const ResourceView *view, uint32 v0, uint32 v1, uint32 v2, uint32 v3)
 {
     auto vkTexture = dynamic_cast<const VulkanTexture *>(view->GetResource());
     CT_CHECK(vkTexture != nullptr);
 
-    VulkanCopyContext::ResourceBarrier(vkTexture, ResourceState::CopyDest, nullptr);
+    ResourceBarrier(vkTexture, ResourceState::CopyDest, nullptr);
     VkClearColorValue colVal = {};
     colVal.uint32[0] = v0;
     colVal.uint32[1] = v1;
@@ -115,7 +115,7 @@ void VulkanComputeContext::ClearColorImage(const ResourceView *view, uint32 v0, 
     vkCmdClearColorImage(contextData->GetCommandBufferHandle(), vkTexture->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &colVal, 1, &range);
 }
 
-bool VulkanComputeContext::PrepareForDispatch(ComputeState *state, ComputeVars *vars)
+bool VulkanComputeContextImpl::PrepareForDispatch(ComputeState *state, ComputeVars *vars)
 {
     //TODO
     return true;

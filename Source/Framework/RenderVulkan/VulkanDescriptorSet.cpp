@@ -2,6 +2,7 @@
 #include "RenderVulkan/VulkanDevice.h"
 #include "RenderVulkan/VulkanBuffer.h"
 #include "RenderVulkan/VulkanSampler.h"
+#include "RenderVulkan/VulkanResourceView.h"
 #include "RenderVulkan/VulkanCopyContext.h"
 #include "RenderVulkan/VulkanRootSignature.h"
 
@@ -124,7 +125,7 @@ void VulkanDescriptorSet::SetBufferView(uint32 binding, uint32 index, const Vulk
     
     if(buffer->IsTyped())
     {
-        auto uav = static_cast<VulkanBufferView *>(buffer->GetUav().get())->GetHandle();
+        auto uav = static_cast<VulkanBufferView *>(view->GetResource()->GetUav().get())->GetHandle();
         write.pTexelBufferView = &uav;
     }
     else

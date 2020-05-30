@@ -1,6 +1,5 @@
 #pragma once
 
-#include "RenderCore/Shader.h"
 #include "RenderCore/RasterizationState.h"
 #include "RenderCore/DepthStencilState.h"
 #include "RenderCore/BlendState.h"

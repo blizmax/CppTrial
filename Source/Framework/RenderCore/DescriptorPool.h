@@ -13,6 +13,11 @@ struct DescriptorPoolDesc
 class DescriptorPool
 {
 public:
+    DescriptorPool(const DescriptorPoolDesc &desc, const SPtr<GpuFence> &fence)
+        : desc(desc), fence(fence)
+    {
+    }
+
     virtual ~DescriptorPool() = default;
 
     const DescriptorPoolDesc &GetDesc() const
@@ -21,12 +26,6 @@ public:
     }
 
     static SPtr<DescriptorPool> Create(const DescriptorPoolDesc &desc, const SPtr<GpuFence> &fence);
-
-protected:
-    DescriptorPool(const DescriptorPoolDesc &desc, const SPtr<GpuFence> &fence)
-        : desc(desc), fence(fence)
-    {
-    }
 
 protected:
     DescriptorPoolDesc desc;

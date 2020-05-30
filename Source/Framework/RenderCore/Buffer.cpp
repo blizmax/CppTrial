@@ -27,11 +27,6 @@ SPtr<Buffer> Buffer::CreateStructured(uint32 structSize, uint32 count, ResourceB
     return buffer;
 }
 
-Buffer::Buffer(uint32 size, ResourceBindFlags bindFlags, CpuAccess access)
-    : Resource(ResourceType::Buffer, bindFlags, size)
-{
-}
-
 void Buffer::ClearViews()
 {
     srvs.Clear();

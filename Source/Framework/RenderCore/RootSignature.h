@@ -13,6 +13,10 @@ struct RootSignatureDesc
 class RootSignature
 {
 public:
+    RootSignature(const RootSignatureDesc &desc) : desc(desc)
+    {
+    }
+
     virtual ~RootSignature() = default;
 
     const RootSignatureDesc &GetDesc() const
@@ -23,10 +27,6 @@ public:
     SPtr<RootSignature> Create(const RootSignatureDesc &desc);
 
 protected:
-    RootSignature(const RootSignatureDesc &desc) : desc(desc)
-    {
-    }
-
     RootSignatureDesc desc;
 };
 }

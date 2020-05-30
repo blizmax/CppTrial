@@ -16,6 +16,10 @@ public:
     TIVector2(T x, T y) : x(x), y(y)
     {
     }
+
+    TIVector2(T v) : x(v), y(v)
+    {
+    }
 };
 
 template <typename T>
@@ -31,6 +35,10 @@ public:
     TIVector3 &operator=(const TIVector3 &) = default;
 
     TIVector3(T x, T y, T z) : x(x), y(y), z(z)
+    {
+    }
+
+    TIVector3(T v) : x(v), y(v), z(v)
     {
     }
 };
@@ -49,6 +57,10 @@ public:
     TIVector4 &operator=(const TIVector4 &) = default;
 
     TIVector4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w)
+    {
+    }
+
+    TIVector4(T v) : x(v), y(v), z(v), w(v)
     {
     }
 };

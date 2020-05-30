@@ -8,12 +8,12 @@
 namespace RenderCore
 {
 
-class ComputeContext : public CopyContext
+class ComputeContext : virtual public CopyContext
 {
 public:
     virtual ~ComputeContext() = default;
 
-    virtual void Dispatch(ComputeState *state, ComputeVars *vars, uint32 sizeX, uint32 sizeY, uint32 sizeZ) = 0;
+    virtual void Dispatch(ComputeState *state, ComputeVars *vars, const UVector3 &size) = 0;
     virtual void DispatchIndirect(ComputeState *state, ComputeVars *vars, const Buffer *argBuffer, uint32 argBufferOffset) = 0;
     virtual void ClearUav(const ResourceView *uav, const Vector4 &value) = 0;
     virtual void ClearUav(const ResourceView *uav, const UVector4 &value) = 0;

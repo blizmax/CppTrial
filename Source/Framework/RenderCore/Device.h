@@ -49,6 +49,11 @@ struct DeviceDesc
 class Device
 {
 public:
+    Device(RenderWindow *window, const DeviceDesc &desc)
+        : window(window), desc(desc)
+    {
+    }
+
     virtual ~Device() = default;
 
     virtual void ResizeSwapChain(uint32 width, uint32 height) = 0;
@@ -78,11 +83,6 @@ public:
     static SPtr<Device> Create(RenderWindow *window, const DeviceDesc &desc);
 
 protected:
-    Device(RenderWindow *window, const DeviceDesc &desc)
-        : window(window), desc(desc)
-    {
-    }
-
     void ExecuteDeferredRelease()
     {
         deferredReleaser.Release(frameFence->GetGpuValue());

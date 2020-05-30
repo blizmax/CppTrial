@@ -3,13 +3,13 @@
 #include "RenderCore/DescriptorSetLayout.h"
 #include "RenderCore/DescriptorPool.h"
 
+namespace RenderCore
+{
+
 class ResourceView;
 class Sampler;
 class CopyContext;
 class RootSignature;
-
-namespace RenderCore
-{
 
 class DescriptorSet
 {

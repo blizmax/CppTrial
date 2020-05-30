@@ -39,7 +39,7 @@ void GraphicsState::SetScissor(uint32 index, const Scissor &scissor)
     scissors[index] = scissor;
 }
 
-void GraphicsState::PushViewport(uint32 index, const Viewport &viewport, bool setScissor = true)
+void GraphicsState::PushViewport(uint32 index, const Viewport &viewport, bool setScissor)
 {
     viewportStacks[index].Add(viewports[index]);
     SetViewport(index, viewport, setScissor);
@@ -88,13 +88,13 @@ void GraphicsState::SetFrameBuffer(const SPtr<FrameBuffer> &fbo, bool setVp0Sc0)
     }
 }
 
-void GraphicsState::SetFrameBuffer(const SPtr<FrameBuffer> &fbo, bool setVp0Sc0 = true)
+void GraphicsState::PushFrameBuffer(const SPtr<FrameBuffer> &fbo, bool setVp0Sc0)
 {
     frameBufferStack.Add(frameBuffer);
     SetFrameBuffer(fbo, setVp0Sc0);
 }
 
-void GraphicsState::PushFrameBuffer(const SPtr<FrameBuffer> &fbo, bool setVp0Sc0 = true)
+void GraphicsState::PopFrameBuffer(bool setVp0Sc0)
 {
     if(frameBufferStack.IsEmpty())
     {

@@ -8,6 +8,7 @@ namespace RenderCore
 class Texture : public Resource
 {
 public:
+    Texture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, uint32 mipLevels, uint32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags);
     virtual ~Texture() = default;
 
     virtual ResourceState GetSubresourceState(uint32 arraySlice, uint32 mipLevel) const override
@@ -111,8 +112,6 @@ public:
     static SPtr<Texture> Create2D(uint32 width, uint32 height, ResourceFormat format, void *handle, ResourceBindFlags flags = ResourceBind::ShaderResource);
 
 protected:
-    Texture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, uint32 mipLevels, uint32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags);
-
     virtual void InitData(const void *data, bool autoGenMips) = 0;
 
     uint32 GetMaxMipLevel(uint32 width, uint32 height, uint32 depth) const;
