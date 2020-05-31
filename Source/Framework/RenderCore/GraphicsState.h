@@ -109,9 +109,15 @@ public:
     static SPtr<GraphicsState> Create();
 
 private:
+    struct CachedData
+    {
+        ProgramKernel *programKernel = nullptr;
+        RootSignature *rootSignature = nullptr;
+        FrameBuffer *frameBuffer = nullptr;
+    };
+
     SPtr<VertexArray> vertexArray;
     SPtr<FrameBuffer> frameBuffer;
-    SPtr<RootSignature> rootSignature;
     SPtr<Program> program;
     Array<SPtr<FrameBuffer>> frameBufferStack;
 
@@ -122,6 +128,7 @@ private:
     Array<Array<Viewport>> viewportStacks;
     Array<Array<Scissor>> scissorStacks;
 
+    CachedData cachedData;
     StateGraph<SPtr<GraphicsStateObject>> stateGraph;
 };
 

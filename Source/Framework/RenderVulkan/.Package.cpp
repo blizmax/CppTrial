@@ -105,6 +105,28 @@ VkPipelineStageFlags ToVkPipelineStage(ResourceState state, bool src)
     return 0;
 }
 
+VkShaderStageFlagBits ToVkShaderStage(ShaderType shaderType)
+{
+    switch (shaderType)
+    {
+    case ShaderType::Vertex:
+        return VK_SHADER_STAGE_VERTEX_BIT;
+    case ShaderType::Pixel:
+        return VK_SHADER_STAGE_FRAGMENT_BIT;
+    case ShaderType::Geometry:
+        return VK_SHADER_STAGE_GEOMETRY_BIT;
+    case ShaderType::Hull:
+        return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+    case ShaderType::Domain:
+        return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+    case ShaderType::Compute:
+        return VK_SHADER_STAGE_COMPUTE_BIT;
+    }
+
+    CT_EXCEPTION(RenderCore, "Unsupported shader type!");
+    return VK_SHADER_STAGE_VERTEX_BIT;
+}
+
 VkShaderStageFlags ToVkShaderVisibility(ShaderVisibilityFlags visibility)
 {
     VkShaderStageFlags flags = 0;

@@ -15,6 +15,16 @@ struct FrameBufferDesc
         AttachmentDesc(ResourceFormat format, bool allowUav = false) : format(format), allowUav(allowUav)
         {
         }
+
+        bool operator==(const AttachmentDesc &other) const
+        {
+            return format == other.format && allowUav == other.allowUav;
+        }
+
+        bool operator!=(const AttachmentDesc &other) const
+        {
+            return format != other.format || allowUav != other.allowUav;
+        }
     };
 
     Array<AttachmentDesc> colors;
@@ -22,6 +32,26 @@ struct FrameBufferDesc
     uint32 sampleCount = 1;
     bool hasDepthStencil = false;
     void *renderPass = nullptr;
+
+    bool operator==(const FrameBufferDesc &other) const
+    {
+        if(sampleCount != other.sampleCount)
+            return false;
+        if(renderPass != other.renderPass)
+            return false;
+        if(hasDepthStencil != other.hasDepthStencil)
+            return false;
+        if(hasDepthStencil && (depthStencil != other.depthStencil))
+            return false;
+        if(colors != other.colors)
+            return false;
+        return true;
+    }
+
+    bool operator!=(const FrameBufferDesc &other) const
+    {
+        return !(*this == other); 
+    }
 };
 
 class FrameBuffer

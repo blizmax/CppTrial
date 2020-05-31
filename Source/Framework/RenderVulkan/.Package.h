@@ -20,6 +20,7 @@ namespace RenderCore
     VkImageLayout ToVkImageLayout(ResourceState state);
     VkAccessFlags ToVkAccess(ResourceState state);
     VkPipelineStageFlags ToVkPipelineStage(ResourceState state, bool src);
+    VkShaderStageFlagBits ToVkShaderStage(ShaderType shaderType);
     VkShaderStageFlags ToVkShaderVisibility(ShaderVisibilityFlags visibility);
     VkDescriptorType ToVkDescriptorType(DescriptorType descType);
     VkMemoryPropertyFlags ToVkMemoryProperty(MemoryUsage usage);

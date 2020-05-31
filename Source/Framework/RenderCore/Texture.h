@@ -5,6 +5,8 @@
 namespace RenderCore
 {
 
+class RenderContext;
+
 class Texture : public Resource
 {
 public:
@@ -42,6 +44,8 @@ public:
     }
 
     void ClearViews();
+    void GenerateMips(RenderContext *ctx);
+
     SPtr<ResourceView> GetSrv(uint32 mostDetailedMip, uint32 mipLevels = UINT32_MAX, uint32 firstArraySlice = 0, uint32 arrayLayers = UINT32_MAX);
     SPtr<ResourceView> GetUav(uint32 mipLevel, uint32 firstArraySlice = 0, uint32 arrayLayers = UINT32_MAX);
     SPtr<ResourceView> GetRtv(uint32 mipLevel = 0, uint32 firstArraySlice = 0, uint32 arrayLayers = UINT32_MAX);

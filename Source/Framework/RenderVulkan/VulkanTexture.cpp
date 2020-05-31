@@ -39,6 +39,42 @@ VulkanTexture::~VulkanTexture()
     }
 }
 
+static VkFormatFeatureFlags GetFormatFeatureBitsFromUsage(VkImageUsageFlags usage)
+{
+    CT_CHECK((usage & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT) == 0);
+    CT_CHECK((usage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) == 0);
+
+    VkFormatFeatureFlags bits = 0;
+    if (usage & VK_IMAGE_USAGE_TRANSFER_SRC_BIT)
+        bits |= VK_FORMAT_FEATURE_TRANSFER_SRC_BIT;
+    if (usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT)
+        bits |= VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
+    if (usage & VK_IMAGE_USAGE_SAMPLED_BIT)
+        bits |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT;
+    if (usage & VK_IMAGE_USAGE_STORAGE_BIT)
+        bits |= VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT;
+    if (usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
+        bits |= VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
+    if (usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
+        bits |= VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+
+    return bits;
+}
+
+static VkImageTiling GetFormatImageTiling(VkFormat format, VkImageUsageFlags usage)
+{
+    VkFormatProperties p;
+    vkGetPhysicalDeviceFormatProperties(gVulkanDevice->GetPhysicalDeviceHandle(), format, &p);
+    auto featureBits = GetFormatFeatureBitsFromUsage(usage);
+    if ((p.optimalTilingFeatures & featureBits) == featureBits)
+        return VK_IMAGE_TILING_OPTIMAL;
+    if ((p.linearTilingFeatures & featureBits) == featureBits)
+        return VK_IMAGE_TILING_LINEAR;
+    
+    CT_EXCEPTION(RenderCore, "Get imagee tiling failed");
+    return VK_IMAGE_TILING_OPTIMAL;
+}
+
 void VulkanTexture::InitData(const void *data, bool autoGenMips)
 {
     VkImageUsageFlags usageFlags = ToVkImageUsage(bindFlags);
@@ -59,54 +95,52 @@ void VulkanTexture::InitData(const void *data, bool autoGenMips)
     imageInfo.samples = ToVkSampleCount(sampleCount);
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     imageInfo.usage = usageFlags;
-    imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL; //TODO Get image tiling by format and usage
+    imageInfo.tiling = GetFormatImageTiling(imageInfo.format, imageInfo.usage);
 
     if (resourceType == ResourceType::TextureCube)
     {
         imageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
         imageInfo.arrayLayers *= 6;
     }
+    stateData.state = data ? ResourceState::PreInitialized : ResourceState::Undefined;
 
     VmaAllocationCreateInfo allocInfo = {};
     allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
     if(vmaCreateImage(gVulkanDevice->GetVmaAllocator(), &imageInfo, &allocInfo, &textureData.image, &textureData.allocation, nullptr) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create image failed.");
 
-    if(!data)
-        return;
-    
-    auto context = gVulkanDevice->GetRenderContext();
-    if(autoGenMips)
+    if(data)
     {
-        uint32 sliceSize = width * height * GetResourceFormatBytes(format);
-        const uint8 *src = reinterpret_cast<const uint8 *>(data);
-        uint32 count = arrayLayers;
-        if(resourceType == ResourceType::TextureCube)
-            count *= 6;
-        
-        for (uint32 i = 0; i < count; i++)
+        auto context = gVulkanDevice->GetRenderContext();
+        if(autoGenMips)
         {
-            uint32 subresource = GetSubresourceIndex(i, 0);
-            uint32 mipLevel = 0; //GetSubresourceMipLevel(subresource);
-            uint32 w = GetWidth(mipLevel);
-            uint32 h = GetHeight(mipLevel);
-            uint32 d = GetDepth(mipLevel);
-            context->UpdateSubresource(this, subresource, src, {0, 0, 0}, {w, h, d});
-            src += sliceSize;
+            uint32 sliceSize = width * height * GetResourceFormatBytes(format);
+            const uint8 *src = reinterpret_cast<const uint8 *>(data);
+            uint32 count = arrayLayers;
+            if(resourceType == ResourceType::TextureCube)
+                count *= 6;
+            
+            for (uint32 i = 0; i < count; i++)
+            {
+                uint32 subresource = GetSubresourceIndex(i, 0);
+                uint32 mipLevel = 0; //GetSubresourceMipLevel(subresource);
+                uint32 w = GetWidth(mipLevel);
+                uint32 h = GetHeight(mipLevel);
+                uint32 d = GetDepth(mipLevel);
+                context->UpdateSubresource(this, subresource, src, {0, 0, 0}, {w, h, d});
+                src += sliceSize;
+            }
         }
-    }
-    else
-    {
-        context->UpdateTexture(this, data);
-    }
+        else
+        {
+            context->UpdateTexture(this, data);
+        }
 
-    if(autoGenMips)
-    {
-        //TODO blit
-        // for(uint32 m = 0; m < mipLevels - 1; ++m)
-        // {
-
-        // }
+        if(autoGenMips)
+        {
+            GenerateMips(context);
+            ClearViews();
+        }
     }
 }
 

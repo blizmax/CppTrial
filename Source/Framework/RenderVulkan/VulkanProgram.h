@@ -5,7 +5,7 @@
 
 namespace RenderCore
 {
-class VulkanProgram : public Program
+class VulkanProgramKernel : public ProgramKernel
 {
 public:
     struct ShaderData
@@ -14,8 +14,18 @@ public:
         VkShaderModule module = VK_NULL_HANDLE;
     };
 
-    VulkanProgram(const ProgramDesc &desc);
-    virtual ~VulkanProgram();
+    VulkanProgramKernel(const ProgramDesc &desc);
+    virtual ~VulkanProgramKernel();
+
+    VkShaderModule GetShaderModuleHandle(ShaderType shaderType) const
+    {
+        for(const auto &e : shaderDatas)
+        {
+            if(e.shaderType == shaderType)
+                return e.module;
+        }
+        return VK_NULL_HANDLE;
+    }
 
 private:
     ShaderData CompileShader(const ShaderDesc &desc);

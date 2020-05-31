@@ -57,7 +57,7 @@ void RenderAPI::Init()
 #if CT_PLATFORM_WIN32
     extensions.Add("VK_KHR_win32_surface");
 #else
-    extensions.Add("VK_KHR_xlib_surface"); //TODO
+    extensions.Add("VK_KHR_xlib_surface");
 #endif
     if (debugLayerEnabled)
         extensions.Add(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);

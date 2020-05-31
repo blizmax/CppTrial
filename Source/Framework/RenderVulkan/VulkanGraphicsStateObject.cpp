@@ -1,6 +1,7 @@
 #include "RenderVulkan/VulkanGraphicsStateObject.h"
 #include "RenderVulkan/VulkanDevice.h"
 #include "RenderVulkan/VulkanRootSignature.h"
+#include "RenderVulkan/VulkanProgram.h"
 
 namespace RenderCore
 {
@@ -13,7 +14,24 @@ SPtr<GraphicsStateObject> GraphicsStateObject::Create(const GraphicsStateObjectD
 VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDesc &desc)
     : GraphicsStateObject(desc)
 {
-    //TODO Shader
+    auto vkProgramKernel = static_cast<VulkanProgramKernel *>(desc.programKernel.get());
+    Array<VkPipelineShaderStageCreateInfo> shaderInfos;
+    for(int32 i = 0; i < (int32)ShaderType::Count; ++i)
+    {
+        ShaderType shaderType = (ShaderType)i;
+        auto handle = vkProgramKernel->GetShaderModuleHandle(shaderType);
+        if(handle)
+        {
+            VkPipelineShaderStageCreateInfo stageInfo = {};
+            stageInfo.stage = ToVkShaderStage(shaderType);
+            stageInfo.module = handle;
+            stageInfo.pName = "main";
+            stageInfo.pSpecializationInfo = nullptr;
+
+            shaderInfos.Add(stageInfo);
+        }
+    }
+  
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     Array<VkVertexInputBindingDescription> vertexInputBindingDescs;
     Array<VkVertexInputAttributeDescription> vertexInputAttributeDescs;
@@ -35,13 +53,11 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
                 attrib.format = ToVkResourceFormat(e.format);
                 attrib.offset = e.offset;
                 attrib.binding = i;
-
-                vertexInputAttributeDescs.Add(attrib);
-                // TODO
-                // for(int32 i = 0; i < e.arrayLength; ++i)
-                // {
-
-                // }
+                for(uint32 i = 0; i < e.arrayLength; ++i)
+                {
+                    vertexInputAttributeDescs.Add(attrib);
+                    attrib.offset += GetResourceFormatBytes(e.format);
+                }
             }
         }
 
@@ -168,8 +184,8 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
 
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    // pipelineInfo.stageCount = shaderStageCount; //TODO
-    // pipelineInfo.pStages = shaderStages;
+    pipelineInfo.stageCount = shaderInfos.Count();
+    pipelineInfo.pStages = shaderInfos.GetData();
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssemblyInfo;
     pipelineInfo.pViewportState = &viewportInfo;

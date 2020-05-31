@@ -52,7 +52,7 @@ VulkanBufferView::VulkanBufferView(const WPtr<Resource> &resource, uint32 firstE
         bufferInfo.buffer = buffer->GetHandle();
         bufferInfo.offset = 0;
         bufferInfo.range = VK_WHOLE_SIZE;
-        bufferInfo.format =  ToVkResourceFormat(buffer->GetResourceFormat());
+        bufferInfo.format = ToVkResourceFormat(buffer->GetResourceFormat());
 
         if(vkCreateBufferView(gVulkanDevice->GetLogicalDeviceHandle(), &bufferInfo, gVulkanAlloc, &bufferView) != VK_SUCCESS)
             CT_EXCEPTION(RenderCore, "Create buffer view failed.");

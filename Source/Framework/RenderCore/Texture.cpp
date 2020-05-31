@@ -1,4 +1,5 @@
 #include "RenderCore/Texture.h"
+#include "RenderCore/RenderContext.h"
 #include "Core/Math.h"
 
 namespace RenderCore
@@ -168,6 +169,21 @@ void Texture::CheckViewParams(uint32 &mostDetailedMip, uint32 &mipLevels, uint32
         CT_LOG(Warning, CT_TEXT("Param arrayLayers is valid, texture arrayLayers is {0}."), texArrayLayers);
         arrayLayers = texArrayLayers - firstArraySlice;
     }
+}
+
+void Texture::GenerateMips(RenderContext *ctx)
+{
+    for (uint32 m = 0; m < mipLevels - 1; ++m)
+    {
+        for (uint32 a = 0; a < arrayLayers; ++a)
+        {
+            auto srv = GetSrv(m, 1, a, 1);
+            auto rtv = GetRtv(m + 1, a, 1);
+            ctx->Blit(srv.get(), rtv.get());
+        }
+    }
+
+    //TODO Release views ?
 }
 
 }

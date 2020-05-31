@@ -24,7 +24,7 @@ public:
         return desc;
     }
 
-    SPtr<RootSignature> Create(const RootSignatureDesc &desc);
+    static SPtr<RootSignature> Create(const RootSignatureDesc &desc);
 
 protected:
     RootSignatureDesc desc;

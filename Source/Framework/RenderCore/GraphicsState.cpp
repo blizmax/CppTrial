@@ -29,7 +29,7 @@ void GraphicsState::SetViewport(uint32 index, const Viewport &viewport, bool set
 
     if(setScissor)
     {
-        Scissor scissor = {(int32)viewport.x, (int32)viewport.y, (int32)viewport.width, (int32)viewport.height};
+        Scissor scissor = {(int32)viewport.x, (int32)viewport.y, (uint32)viewport.width, (uint32)viewport.height};
         SetScissor(index, scissor);
     }
 }
@@ -147,14 +147,62 @@ void GraphicsState::SetSampleMask(uint32 sampleMask)
     if(desc.sampleMask != sampleMask)
     {
         desc.sampleMask = sampleMask;
-        stateGraph.Walk((void*)(uint64)sampleMask);
+        stateGraph.Walk((void *)(uint64)sampleMask);
     }
 }
 
 SPtr<GraphicsStateObject> GraphicsState::GetGso(const GraphicsVars *vars)
 {
-    //TODO
-    return nullptr;
+    CT_CHECK(program != nullptr);
+    CT_CHECK(frameBuffer != nullptr);
+    CT_CHECK(vertexArray != nullptr);
+
+    auto programKernel = program->GetKernel();
+    if (programKernel.get() != cachedData.programKernel)
+    {
+        cachedData.programKernel = programKernel.get();
+        stateGraph.Walk((void *)cachedData.programKernel);
+    }
+
+    auto rootSignature = programKernel->GetRootSignature();
+    if (rootSignature.get() != cachedData.rootSignature)
+    {
+        cachedData.rootSignature = rootSignature.get();
+        stateGraph.Walk((void *)cachedData.rootSignature);
+    }
+
+    auto fbo = frameBuffer.get();
+    if (fbo != cachedData.frameBuffer)
+    {
+        cachedData.frameBuffer = fbo;
+        stateGraph.Walk((void *)fbo);
+    }
+
+    auto gso = stateGraph.GetCurrentNodeData();
+    if (gso == nullptr)
+    {
+        desc.programKernel = program->GetKernel();
+        desc.frameBufferDesc = frameBuffer->GetDesc();
+        desc.vertexLayout = vertexArray->GetVertexLayout();
+        desc.topology = vertexArray->GetTopology();
+        desc.rootSignature = rootSignature;
+
+        auto cmpFunc = [this](const SPtr<GraphicsStateObject> &g)
+        {
+            return g && (g->GetDesc() == desc);
+        };
+        if (stateGraph.ScanForMatching(cmpFunc))
+        {
+            gso = stateGraph.GetCurrentNodeData();
+        }
+        else
+        {
+            gso = GraphicsStateObject::Create(desc);
+            stateGraph.SetCurrentNodeData(gso);
+        }
+    }
+
+    return gso;
 }
 
 }
