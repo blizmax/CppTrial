@@ -68,9 +68,13 @@ void VulkanBuffer::DestroyBuffer(BufferData &data)
 {
     if(data.allocation != VK_NULL_HANDLE)
     {
-        auto allocator = gVulkanDevice->GetVmaAllocator();
-        vmaDestroyBuffer(allocator, data.buffer, data.allocation);
-
+        if(gVulkanDevice)
+        {
+            gVulkanDevice->Release([buffer = data.buffer, allocation = data.allocation]() {
+                auto allocator = gVulkanDevice->GetVmaAllocator();
+                vmaDestroyBuffer(allocator, buffer, allocation);
+            });
+        }
         data.allocation = VK_NULL_HANDLE;
         data.buffer = VK_NULL_HANDLE;
     }

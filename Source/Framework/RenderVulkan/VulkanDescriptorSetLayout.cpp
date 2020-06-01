@@ -37,7 +37,12 @@ VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout()
 {
     if(layout != VK_NULL_HANDLE)
     {
-        vkDestroyDescriptorSetLayout(gVulkanDevice->GetLogicalDeviceHandle(), layout, gVulkanAlloc);
+        if(gVulkanDevice)
+        {
+            gVulkanDevice->Release([layout = layout]() {
+                vkDestroyDescriptorSetLayout(gVulkanDevice->GetLogicalDeviceHandle(), layout, gVulkanAlloc);
+            });
+        }
         layout = VK_NULL_HANDLE;
     }
 }

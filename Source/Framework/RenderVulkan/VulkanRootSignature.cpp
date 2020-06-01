@@ -5,6 +5,11 @@
 namespace RenderCore
 {
 
+SPtr<RootSignature> RootSignature::Create(const RootSignatureDesc &desc)
+{
+    return Memory::MakeShared<VulkanRootSignature>(desc);
+}
+
 VulkanRootSignature::VulkanRootSignature(const RootSignatureDesc &desc) : RootSignature(desc)
 {
     Array<VkDescriptorSetLayout> setLayouts;
@@ -26,7 +31,12 @@ VulkanRootSignature::~VulkanRootSignature()
 {
     if(pipelineLayout != VK_NULL_HANDLE)
     {
-        vkDestroyPipelineLayout(gVulkanDevice->GetLogicalDeviceHandle(), pipelineLayout, gVulkanAlloc);
+        if(gVulkanDevice)
+        {
+            gVulkanDevice->Release([pipelineLayout = pipelineLayout]() {
+                vkDestroyPipelineLayout(gVulkanDevice->GetLogicalDeviceHandle(), pipelineLayout, gVulkanAlloc);
+            });
+        }
         pipelineLayout = VK_NULL_HANDLE;
     }
 }

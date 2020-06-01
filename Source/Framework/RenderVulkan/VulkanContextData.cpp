@@ -43,7 +43,12 @@ VulkanContextData::~VulkanContextData()
 {
     if(pool != VK_NULL_HANDLE)
     {
-        vkDestroyCommandPool(gVulkanDevice->GetLogicalDeviceHandle(), pool, gVulkanAlloc);
+        if(gVulkanDevice)
+        {
+            gVulkanDevice->Release([pool = pool]() {
+                vkDestroyCommandPool(gVulkanDevice->GetLogicalDeviceHandle(), pool, gVulkanAlloc);
+            });
+        }
         pool = VK_NULL_HANDLE;
     }
 }

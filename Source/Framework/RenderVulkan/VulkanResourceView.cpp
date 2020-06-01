@@ -63,7 +63,12 @@ VulkanBufferView::~VulkanBufferView()
 {
     if(bufferView != VK_NULL_HANDLE)
     {
-        vkDestroyBufferView(gVulkanDevice->GetLogicalDeviceHandle(), bufferView, gVulkanAlloc);
+        if (gVulkanDevice)
+        {
+            gVulkanDevice->Release([bufferView = bufferView]() {
+                vkDestroyBufferView(gVulkanDevice->GetLogicalDeviceHandle(), bufferView, gVulkanAlloc);
+            });
+        }
         bufferView = VK_NULL_HANDLE;
     }
 }
@@ -104,7 +109,12 @@ VulkanImageView::~VulkanImageView()
 {
     if (imageView != VK_NULL_HANDLE)
     {
-        vkDestroyImageView(gVulkanDevice->GetLogicalDeviceHandle(), imageView, gVulkanAlloc);
+        if (gVulkanDevice)
+        {
+            gVulkanDevice->Release([imageView = imageView]() {
+                vkDestroyImageView(gVulkanDevice->GetLogicalDeviceHandle(), imageView, gVulkanAlloc);
+            });
+        }
         imageView = VK_NULL_HANDLE;
     }
 }

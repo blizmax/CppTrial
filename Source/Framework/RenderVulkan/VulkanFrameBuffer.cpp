@@ -13,12 +13,22 @@ VulkanFrameBuffer::~VulkanFrameBuffer()
 {
     if(renderPass != VK_NULL_HANDLE)
     {
-        vkDestroyRenderPass(gVulkanDevice->GetLogicalDeviceHandle(), renderPass, gVulkanAlloc);
+        if (gVulkanDevice)
+        {
+            gVulkanDevice->Release([renderPass = renderPass]() {
+                vkDestroyRenderPass(gVulkanDevice->GetLogicalDeviceHandle(), renderPass, gVulkanAlloc);
+            });
+        }
         renderPass = VK_NULL_HANDLE;
     }
     if (frameBuffer != VK_NULL_HANDLE)
     {
-        vkDestroyFramebuffer(gVulkanDevice->GetLogicalDeviceHandle(), frameBuffer, gVulkanAlloc);
+        if (gVulkanDevice)
+        {
+            gVulkanDevice->Release([frameBuffer = frameBuffer]() {
+                vkDestroyFramebuffer(gVulkanDevice->GetLogicalDeviceHandle(), frameBuffer, gVulkanAlloc);
+            });
+        }
         frameBuffer = VK_NULL_HANDLE;
     }
 }

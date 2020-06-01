@@ -23,9 +23,14 @@ VulkanProgramKernel::VulkanProgramKernel(const ProgramDesc &desc) : ProgramKerne
 
 VulkanProgramKernel::~VulkanProgramKernel()
 {
-    for(const auto &d : shaderDatas)
+    for (const auto &d : shaderDatas)
     {
-        vkDestroyShaderModule(gVulkanDevice->GetLogicalDeviceHandle(), d.module, gVulkanAlloc);
+        if(gVulkanDevice)
+        {
+            gVulkanDevice->Release([module = d.module]() {
+                vkDestroyShaderModule(gVulkanDevice->GetLogicalDeviceHandle(), module, gVulkanAlloc);
+            });
+        }
     }
     shaderDatas.Clear();
 }

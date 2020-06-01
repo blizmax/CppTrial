@@ -32,8 +32,13 @@ VulkanTexture::~VulkanTexture()
 {
     if (textureData.allocation != VK_NULL_HANDLE)
     {
-        auto allocator = gVulkanDevice->GetVmaAllocator();
-        vmaDestroyImage(allocator, textureData.image, textureData.allocation);
+        if (gVulkanDevice)
+        {
+            gVulkanDevice->Release([image = textureData.image, allocation = textureData.allocation]() {
+                auto allocator = gVulkanDevice->GetVmaAllocator();
+                vmaDestroyImage(allocator, image, allocation);
+            });
+        }
         textureData.allocation = VK_NULL_HANDLE;
         textureData.image = VK_NULL_HANDLE;
     }

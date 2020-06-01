@@ -37,7 +37,12 @@ VulkanDescriptorPool::~VulkanDescriptorPool()
 {
     if(pool != VK_NULL_HANDLE)
     {
-        vkDestroyDescriptorPool(gVulkanDevice->GetLogicalDeviceHandle(), pool, gVulkanAlloc);
+        if(gVulkanDevice)
+        {
+            gVulkanDevice->Release([pool = pool]() {
+                vkDestroyDescriptorPool(gVulkanDevice->GetLogicalDeviceHandle(), pool, gVulkanAlloc);
+            });
+        }
         pool = VK_NULL_HANDLE;
     }
 }

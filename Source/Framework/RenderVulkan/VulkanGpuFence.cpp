@@ -54,7 +54,7 @@ uint64 VulkanGpuFence::GpuSignal(const GpuQueue *queue)
 
     if (waitSemaphores.Count() > waitThreshold)
     {
-        waitSemaphores.RemoveAt(waitSemaphores.Count() - waitCount, waitCount);
+        waitSemaphores.RemoveAt(0, waitCount);
     }
 
     return cpuValue - 1;

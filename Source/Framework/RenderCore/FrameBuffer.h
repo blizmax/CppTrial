@@ -97,9 +97,13 @@ public:
         return desc;
     }
 
+    uint32 GetColorTextureCount() const
+    {
+        return colorAttachments.Count();
+    }
+
     const SPtr<Texture> &GetColorTexture(uint32 index) const
     {
-        CT_CHECK(index < COLOR_ATTCHMENT_MAX_NUM);
         return colorAttachments[index].texture;
     }
 

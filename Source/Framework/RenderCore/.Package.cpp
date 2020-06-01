@@ -129,7 +129,7 @@ bool IsStencilFormat(ResourceFormat format)
 bool IsDepthStencilFormat(ResourceFormat format)
 {
     const auto &desc = GetResourceFormatDesc(format);
-    return desc.isDepth && desc.isStencil;
+    return desc.isDepth || desc.isStencil;
 }
 
 }

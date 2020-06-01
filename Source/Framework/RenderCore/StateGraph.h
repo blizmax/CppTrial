@@ -17,6 +17,11 @@ public:
         EdgeMap edges;
     };
 
+    StateGraph()
+    {
+        nodes.SetCount(1);
+    }
+
     const NodeType &GetCurrentNodeData() const
     {
         return nodes[currentIndex].data;

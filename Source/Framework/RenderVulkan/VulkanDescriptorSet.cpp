@@ -28,7 +28,12 @@ VulkanDescriptorSet::~VulkanDescriptorSet()
 {
     if(descriptorSet != VK_NULL_HANDLE)
     {
-        vkFreeDescriptorSets(gVulkanDevice->GetLogicalDeviceHandle(), pool->GetHandle(), 1, &descriptorSet);
+        if(gVulkanDevice)
+        {
+            gVulkanDevice->Release([pool = pool, descriptorSet = descriptorSet]() {
+                vkFreeDescriptorSets(gVulkanDevice->GetLogicalDeviceHandle(), pool->GetHandle(), 1, &descriptorSet);
+            });
+        }
         descriptorSet = VK_NULL_HANDLE;
     }
 }

@@ -37,7 +37,12 @@ VulkanSampler::~VulkanSampler()
 {
     if(sampler != VK_NULL_HANDLE)
     {
-        vkDestroySampler(gVulkanDevice->GetLogicalDeviceHandle(), sampler, gVulkanAlloc);
+        if(gVulkanDevice)
+        {
+            gVulkanDevice->Release([sampler = sampler]() {
+                vkDestroySampler(gVulkanDevice->GetLogicalDeviceHandle(), sampler, gVulkanAlloc);
+            });
+        }
         sampler = VK_NULL_HANDLE;
     }
 }

@@ -198,14 +198,14 @@ void VulkanDevice::CreateLogicalDevice()
     if (vkCreateDevice(physicalDevice, &deviceInfo, gVulkanAlloc, &logicalDevice) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create logic device failed.");
 
-    for (int32 i = 0; i < (int32)GpuQueueType::Count; ++i)
+    for (int32 q = 0; q < (int32)GpuQueueType::Count; ++q)
     {
-        auto &queueData = queueDatas[i];
+        auto &queueData = queueDatas[q];
         for (int32 i = 0; i < queueData.queues.Count(); ++i)
         {
             VkQueue queue;
             vkGetDeviceQueue(logicalDevice, queueData.familyIndex, i, &queue);
-            queueData.queues[i] = GpuQueue::Create((GpuQueueType)i, queue);
+            queueData.queues[i] = GpuQueue::Create((GpuQueueType)q, queue);
         }
     }
 }
@@ -214,6 +214,10 @@ void VulkanDevice::CreateSurface()
 {
     auto vkWindow = static_cast<VulkanRenderWindow *>(window);
     surface = vkWindow->CreateSurface();
+
+    VkBool32 supported = VK_FALSE;
+    vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, GetQueueFamilyIndex(GpuQueueType::Graphics), surface, &supported);
+    CT_CHECK(supported);
 }
 
 void VulkanDevice::CreateSwapChain()

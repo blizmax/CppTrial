@@ -8,7 +8,7 @@ class Buffer : public Resource
 {
 public:
     Buffer(uint32 size, ResourceBindFlags bindFlags, CpuAccess access)
-        : Resource(ResourceType::Buffer, bindFlags, size)
+        : Resource(ResourceType::Buffer, bindFlags, size), cpuAccess(access)
     {
     }
 

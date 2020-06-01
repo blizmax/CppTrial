@@ -13,6 +13,15 @@ using namespace RenderCore;
 const int32 WIDTH = 800;
 const int32 HEIGHT = 600;
 
+class VkWindow;
+class Renderer;
+
+SPtr<VkWindow> window;
+SPtr<Device> device;
+SPtr<Renderer> renderer;
+SPtr<FrameBuffer> targetFbo;
+SPtr<Program> program;
+
 class VkWindow : public VulkanRenderWindow
 {
 public:
@@ -81,26 +90,73 @@ public:
 class Renderer
 {
 public:
+    SPtr<GraphicsState> state;
+    SPtr<VertexArray> vao;
+    SPtr<RasterizationState> rasterizationState;
+    SPtr<DepthStencilState> depthStencilState;
+    SPtr<BlendState> blendState;
+
+    Renderer()
+    {
+        state = GraphicsState::Create();
+
+        auto vertexBufferLayout = VertexBufferLayout::Create({
+            {CT_TEXT("VertexPosition"), ResourceFormat::RG32Float},
+            {CT_TEXT("VertexColor"), ResourceFormat::RGB32Float}
+        });
+        auto vertexLayout = VertexLayout::Create();
+        vertexLayout->AddBufferLayout(vertexBufferLayout);
+
+        float vertices[] = {
+            0.0f, -0.5f, 1.0f, 0.0f, 0.0f,
+            0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f
+        };
+        auto vbo = Buffer::Create(sizeof(vertices), ResourceBind::Vertex, CpuAccess::None, vertices);
+
+        vao = VertexArray::Create();
+        vao->SetVertexLayout(vertexLayout);
+        vao->AddVertexBuffer(vbo);
+
+        {
+            RasterizationStateDesc desc;
+            rasterizationState = RasterizationState::Create(desc);
+        }
+        {
+            DepthStencilStateDesc desc;
+            depthStencilState = DepthStencilState::Create(desc);
+        }
+        {
+            BlendStateDesc desc;
+            desc.attachments.SetCount(1);
+            blendState = BlendState::Create(desc);
+        }
+
+        state->SetVertexArray(vao);
+        state->SetRasterizationState(rasterizationState);
+        state->SetDepthStencilState(depthStencilState);
+        state->SetBlendState(blendState);
+    }
+
     void Render(RenderContext *ctx, const SPtr<FrameBuffer> &fbo)
     {
+        state->SetFrameBuffer(fbo);
+        state->SetProgram(program);
 
+        ctx->ClearFrameBuffer(fbo.get(), Color::BLACK, 1.0f, 0);
+        ctx->Draw(state.get(), nullptr, 3, 0);
     }
 };
 
-SPtr<VkWindow> window;
-SPtr<Device> device;
-SPtr<Renderer> renderer;
-SPtr<FrameBuffer> targetFbo;
-
-// SPtr<Shader> CreateShader()
-// {
-//     ShaderDesc desc;
-//     IO::FileHandle vertSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.vert"));
-//     IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.frag"));
-//     desc.vertexSource = vertSrcFile.ReadString();
-//     desc.fragmentSource = fragSrcFile.ReadString();
-//     return Shader::Create(desc);
-// }
+SPtr<Program> CreateProgram()
+{
+    ProgramDesc desc;
+    IO::FileHandle vertSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.vert"));
+    IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.frag"));
+    desc.shaderDescs.Add({ShaderType::Vertex, vertSrcFile.ReadString()});
+    desc.shaderDescs.Add({ShaderType::Pixel, fragSrcFile.ReadString()});
+    return Program::Create(desc);
+}
 
 SPtr<VkWindow> CreateWindow()
 {
@@ -112,65 +168,6 @@ SPtr<Renderer> CreateRenderer()
     return Memory::MakeShared<Renderer>();
 }
 
-// void InitVulkan()
-// {
-//     auto &context = VulkanContext::Get();
-//     context.Init();
-
-//     // VkSurfaceKHR surface;
-    // if (glfwCreateWindowSurface(context.GetInstanceHandle(), window, gVulkanAlloc, &surface) != VK_SUCCESS)
-    //     CT_EXCEPTION(LearnVK, "Create surface failed.");
- 
-    // VkBool32 supportsPresent;
-    // auto physicalDevice = context.GetDevice()->GetPhysicalDeviceHandle();
-    // auto familyIndex = context.GetDevice()->GetGraphicsQueueFamilyIndex();
-    // vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, familyIndex, surface, &supportsPresent);
-    // if (!supportsPresent)
-    //     CT_EXCEPTION(LearnVK, "Graphics queue cannot support presentation.");
-
-    // context.SetSurfaceKHR(surface);
-
-    // //Swap chain
-    // VulkanSwapChainCreateParams swapChainParams;
-    // swapChainParams.width = WIDTH;
-    // swapChainParams.height = HEIGHT;
-    // context.RecreateSwapChain(swapChainParams);
-
-    // //Pipeline
-    // RenderPipelineStateCreateParams pipelineStateParams;
-    // BlendStateDesc blendDesc;
-    // pipelineStateParams.blendState = BlendState::Create(blendDesc);
-    // DepthStencilStateDesc depthStencilDesc;
-    // pipelineStateParams.depthStencilState = DepthStencilState::Create(depthStencilDesc);
-    // RasterizationStateDesc rasterizationDesc;
-    // pipelineStateParams.rasterizationState = RasterizationState::Create(rasterizationDesc);
-    // pipelineStateParams.shader = CreateShader();
-    // pipelineState = std::static_pointer_cast<VulkanRenderPipelineState>(RenderPipelineState::Create(pipelineStateParams));
-
-    // //VertexBuffer
-    // float vertices[] = {
-    //     0.0f, -0.5f, 1.0f, 0.0f, 0.0f,
-    //     0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
-    //     -0.5f, 0.5f, 0.0f, 0.0f, 1.0f
-    // };
-    // VertexBufferCreateParams vbParams;
-    // vbParams.size = sizeof(vertices);
-    // vbParams.vertexCount = 3;
-    // vertexBuffer = VertexBuffer::Create(vbParams);
-    // void *mapped = vertexBuffer->Map();
-    // std::memcpy(mapped, vertices, vbParams.size);
-    // vertexBuffer->Unmap();
-
-    // //VertexLayout
-    // auto vertexBufferLayout = VertexBufferLayout::Create({
-    //     {CT_TEXT("VertexPosition"), VertexDataType::Float2},
-    //     {CT_TEXT("VertexColor"), VertexDataType::Float3}
-    // });
-    // vertexLayout = VertexLayout::Create();
-    // vertexLayout->AddBufferLayout(vertexBufferLayout);
-
-//}
-
 int main(int argc, char **argv)
 {
     window = CreateWindow();
@@ -180,6 +177,8 @@ int main(int argc, char **argv)
     
     auto backBufferFbo = device->GetSwapChainFrameBuffer();
     targetFbo = FrameBuffer::Create2D(backBufferFbo->GetWidth(), backBufferFbo->GetHeight(), backBufferFbo->GetDesc());
+
+    program = CreateProgram();
 
     renderer = CreateRenderer();
 

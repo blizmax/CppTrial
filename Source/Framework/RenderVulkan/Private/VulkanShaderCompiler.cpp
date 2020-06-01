@@ -161,12 +161,11 @@ Array<uchar8> VulkanShaderCompilerImpl::Compile(ShaderType shaderType, const Str
     auto stage = ToEShLanguage(shaderType);
     glslang::TShader shader(stage);
     shader.setStrings(&cstr, 1);
-    shader.setEntryPoint("main");
-    //shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, 100);
-    //shader.setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_0);
-    //shader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
+    shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, 100);
+    shader.setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_0);
+    shader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
 
-    if (!shader.parse(&DefaultTBuiltInResource, 450, true, EShMsgDefault))
+    if (!shader.parse(&DefaultTBuiltInResource, 100, true, EShMsgDefault))
     {
         CT_LOG(Error, CT_TEXT("Parse error: {0}"), String(shader.getInfoLog()));
         CT_EXCEPTION(RenderCore, "Parse failed.");

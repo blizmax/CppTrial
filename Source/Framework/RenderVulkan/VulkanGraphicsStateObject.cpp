@@ -23,6 +23,7 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
         if(handle)
         {
             VkPipelineShaderStageCreateInfo stageInfo = {};
+            stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
             stageInfo.stage = ToVkShaderStage(shaderType);
             stageInfo.module = handle;
             stageInfo.pName = "main";
@@ -144,13 +145,14 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
     }
 
     VkPipelineColorBlendStateCreateInfo blendInfo = {};
-    VkPipelineColorBlendAttachmentState colorBlendAttachments[COLOR_ATTCHMENT_MAX_NUM];
+    Array<VkPipelineColorBlendAttachmentState> colorBlendAttachments;
     {
         const auto &blendDesc = desc.blendState->GetDesc();
-        for (int32 i = 0; i < COLOR_ATTCHMENT_MAX_NUM; ++i)
+        for (int32 i = 0; i < blendDesc.attachments.Count(); ++i)
         {
             auto &attach = blendDesc.attachments[i];
-            auto &blendAttachment = colorBlendAttachments[i];
+
+            VkPipelineColorBlendAttachmentState blendAttachment = {};
             blendAttachment.colorWriteMask = attach.writeMask & (VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT);
             blendAttachment.blendEnable = attach.enabled;
             blendAttachment.srcColorBlendFactor = ToVkBlendFactor(attach.srcFactor);
@@ -159,12 +161,14 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
             blendAttachment.srcAlphaBlendFactor = ToVkBlendFactor(attach.srcAlphaFactor);
             blendAttachment.dstAlphaBlendFactor = ToVkBlendFactor(attach.dstAlphaFactor);
             blendAttachment.alphaBlendOp = ToVkBlendOperation(attach.alphaBlendOp);
+
+            colorBlendAttachments.Add(blendAttachment);
         }
         blendInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
         blendInfo.logicOpEnable = VK_FALSE;
         blendInfo.logicOp = VK_LOGIC_OP_NO_OP;
-        blendInfo.attachmentCount = COLOR_ATTCHMENT_MAX_NUM;
-        blendInfo.pAttachments = colorBlendAttachments;
+        blendInfo.attachmentCount = colorBlendAttachments.Count();
+        blendInfo.pAttachments = colorBlendAttachments.GetData();
         blendInfo.blendConstants[0] = blendDesc.blendFactor[0];
         blendInfo.blendConstants[1] = blendDesc.blendFactor[1];
         blendInfo.blendConstants[2] = blendDesc.blendFactor[2];
@@ -208,7 +212,12 @@ VulkanGraphicsStateObject::~VulkanGraphicsStateObject()
 {
     if (pipeline != VK_NULL_HANDLE)
     {
-        vkDestroyPipeline(gVulkanDevice->GetLogicalDeviceHandle(), pipeline, gVulkanAlloc);
+        if(gVulkanDevice)
+        {
+            gVulkanDevice->Release([pipeline = pipeline]() {
+                vkDestroyPipeline(gVulkanDevice->GetLogicalDeviceHandle(), pipeline, gVulkanAlloc);
+            });
+        }
         pipeline = VK_NULL_HANDLE;
     }
 }

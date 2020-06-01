@@ -19,7 +19,7 @@ struct BlendStateDesc
         BlendOperation alphaBlendOp = BlendOperation::Add;
     };
 
-    AttachmentDesc attachments[COLOR_ATTCHMENT_MAX_NUM];
+    Array<AttachmentDesc> attachments;
     bool alphaToCoverageEnabled = false;
     float blendFactor[4] = {0.0f};
 };

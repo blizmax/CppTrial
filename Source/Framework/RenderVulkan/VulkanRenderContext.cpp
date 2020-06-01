@@ -29,12 +29,9 @@ void VulkanRenderContextImpl::ClearFrameBuffer(const FrameBuffer *fbo, const Col
 
     if (clearColor)
     {
-        for (int32 i = 0; i < COLOR_ATTCHMENT_MAX_NUM; ++i)
+        for (int32 i = 0; i < fbo->GetColorTextureCount(); ++i)
         {
-            if (fbo->GetColorTexture(i))
-            {
-                ClearRtv(fbo->GetRtv(i).get(), color);
-            }
+            ClearRtv(fbo->GetRtv(i).get(), color);
         }
     }
 
@@ -246,13 +243,10 @@ void VulkanRenderContextImpl::SetVao(const VertexArray *vao)
 
 void VulkanRenderContextImpl::SetFbo(const FrameBuffer *fbo)
 {
-    for(int i = 0; i < COLOR_ATTCHMENT_MAX_NUM; ++i)
+    for(int i = 0; i < fbo->GetColorTextureCount(); ++i)
     {
         const auto &texture = fbo->GetColorTexture(i);
-        if(texture)
-        {
-            ResourceBarrier(texture.get(), ResourceState::RenderTarget, nullptr);
-        }
+        ResourceBarrier(texture.get(), ResourceState::RenderTarget, nullptr);
     }
     if(fbo->GetDepthStencilTexture())
     {
