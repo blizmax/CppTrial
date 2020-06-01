@@ -38,6 +38,12 @@ SPtr<Texture> Texture::CreateCube(uint32 width, uint32 height, ResourceFormat fo
     return Create(width, height, 1, format, ResourceType::TextureCube, arrayLayers, mipLevels, 1, data, flags);
 }
 
+SPtr<Texture> Texture::Create2DMS(uint32 width, uint32 height, ResourceFormat format, uint32 sampleCount, uint32 arrayLayers, ResourceBindFlags flags)
+{
+    flags = UpdateBindFlags(flags, false, 1, format);
+    return Create(width, height, 1, format, ResourceType::Texture2DMultisample, arrayLayers, 1, sampleCount, nullptr, flags);
+}
+
 Texture::Texture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, uint32 mipLevels, uint32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags)
     : Resource(resourceType, flags, 0), width(width), height(height), depth(depth), arrayLayers(arrayLayers), mipLevels(mipLevels), sampleCount(sampleCount), format(format)
 {
@@ -127,7 +133,7 @@ SPtr<ResourceView> Texture::GetDsv(uint32 mipLevel, uint32 firstArraySlice, uint
     return newView;
 }
 
-uint32 GetMaxMipLevel(uint32 width, uint32 height, uint32 depth)
+uint32 Texture::GetMaxMipLevel(uint32 width, uint32 height, uint32 depth) const
 {
     auto dim = Math::Max(width, height, depth);
     return (uint32)Math::Log2((float)dim);

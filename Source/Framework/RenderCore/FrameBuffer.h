@@ -114,7 +114,7 @@ public:
         const auto &a = colorAttachments[index];
         if (a.texture)
         {
-            return a.texture->GetSrv(a.mipLevel, a.firstArraySlice, a.arrayLayers);
+            return a.texture->GetRtv(a.mipLevel, a.firstArraySlice, a.arrayLayers);
         }
         return nullptr;
     }
@@ -124,12 +124,15 @@ public:
         const auto &a = depthStencilAttachment;
         if (a.texture)
         {
-            return a.texture->GetSrv(a.mipLevel, a.firstArraySlice, a.arrayLayers);
+            return a.texture->GetDsv(a.mipLevel, a.firstArraySlice, a.arrayLayers);
         }
         return nullptr;
     }
 
+    static SPtr<FrameBuffer> Create();
     static SPtr<FrameBuffer> Create(const Array<SPtr<Texture>> &colors, const SPtr<Texture> &depthStencil = nullptr);
+    static SPtr<FrameBuffer> Create2D(uint32 width, uint32 height, const FrameBufferDesc &desc, uint32 arrayLayers = 1, uint32 mipLevels = 1);
+    static SPtr<FrameBuffer> CreateCubemap(uint32 width, uint32 height, const FrameBufferDesc& desc, uint32 arrayLayers = 1, uint32 mipLevels = 1);
 
 protected:
     uint32 width;

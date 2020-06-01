@@ -217,6 +217,7 @@ VkImageType ToVkImageType(ResourceType resourceType)
     case ResourceType::Texture1D:
         return VK_IMAGE_TYPE_1D;
     case ResourceType::Texture2D:
+    case ResourceType::Texture2DMultisample:
     case ResourceType::TextureCube:
         return VK_IMAGE_TYPE_2D;
     case ResourceType::Texture3D:
@@ -249,6 +250,7 @@ VkImageViewType ToVkImageViewType(ResourceType resourceType, bool array)
     case ResourceType::Texture1D:
         return array ? VK_IMAGE_VIEW_TYPE_1D_ARRAY : VK_IMAGE_VIEW_TYPE_1D;
     case ResourceType::Texture2D:
+    case ResourceType::Texture2DMultisample:
         return array ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D;
     case ResourceType::TextureCube:
         return array ? VK_IMAGE_VIEW_TYPE_CUBE_ARRAY : VK_IMAGE_VIEW_TYPE_CUBE;

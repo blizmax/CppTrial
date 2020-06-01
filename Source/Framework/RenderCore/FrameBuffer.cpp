@@ -4,6 +4,103 @@
 namespace RenderCore
 {
 
+static ResourceBindFlags GetBindFlags(bool isDepth, bool allowUav)
+{
+    ResourceBindFlags flags = ResourceBind::ShaderResource;
+    flags |= isDepth ? ResourceBind::DepthStencil : ResourceBind::RenderTarget;
+    if (allowUav)
+    {
+        flags |= ResourceBind::UnorderedAccess;
+    }
+    return flags;
+}
+
+SPtr<Texture> CreateTexture2D(uint32 w, uint32 h, ResourceFormat format, uint32 sampleCount, uint32 arrayLayers, uint32 mipLevels, ResourceBindFlags flags)
+{
+    CT_CHECK(format != ResourceFormat::Unknown);
+
+    if (sampleCount > 1)
+    {
+        return Texture::Create2DMS(w, h, format, sampleCount, arrayLayers, flags);
+    }
+    else
+    {
+        return Texture::Create2D(w, h, format, arrayLayers, mipLevels, nullptr, flags);
+    }
+}
+
+SPtr<FrameBuffer> FrameBuffer::Create(const Array<SPtr<Texture>> &colors, const SPtr<Texture> &depthStencil)
+{
+    auto ptr = FrameBuffer::Create();
+
+    for(const auto &e : colors)
+    {
+        ptr->AddColorAttachment(e);
+    }
+    if(depthStencil)
+    {
+        ptr->SetDepthStencilAttachment(depthStencil);
+    }
+    ptr->Apply();
+
+    return ptr;
+}
+
+SPtr<FrameBuffer> FrameBuffer::Create2D(uint32 width, uint32 height, const FrameBufferDesc &desc, uint32 arrayLayers, uint32 mipLevels)
+{
+    CT_CHECK(width != 0);
+    CT_CHECK(height != 0);
+    CT_CHECK(arrayLayers != 0);
+    CT_CHECK(mipLevels != 0);
+    if(desc.sampleCount > 1)
+    {
+        CT_CHECK(mipLevels == 1);
+    }
+
+    auto ptr = FrameBuffer::Create();
+    for(const auto &e : desc.colors)
+    {
+        ResourceBindFlags flags = GetBindFlags(false, e.allowUav);
+        auto texture = CreateTexture2D(width, height, e.format, desc.sampleCount, arrayLayers, mipLevels, flags);
+        ptr->AddColorAttachment(texture);
+    }
+    if(desc.hasDepthStencil)
+    {
+        ResourceBindFlags flags = GetBindFlags(true, desc.depthStencil.allowUav);
+        auto texture = CreateTexture2D(width, height, desc.depthStencil.format, desc.sampleCount, arrayLayers, mipLevels, flags);
+        ptr->SetDepthStencilAttachment(texture);
+    }
+    ptr->Apply();
+
+    return ptr;
+}
+
+SPtr<FrameBuffer> FrameBuffer::CreateCubemap(uint32 width, uint32 height, const FrameBufferDesc& desc, uint32 arrayLayers, uint32 mipLevels)
+{
+    CT_CHECK(width != 0);
+    CT_CHECK(height != 0);
+    CT_CHECK(arrayLayers != 0);
+    CT_CHECK(mipLevels != 0);
+    CT_CHECK(desc.sampleCount == 1);
+
+    auto ptr = FrameBuffer::Create();
+    for(const auto &e : desc.colors)
+    {
+        ResourceBindFlags flags = GetBindFlags(false, e.allowUav);
+        auto texture = Texture::CreateCube(width, height, e.format, arrayLayers, mipLevels, nullptr, flags);
+        ptr->AddColorAttachment(texture);
+    }
+    if(desc.hasDepthStencil)
+    {
+        ResourceBindFlags flags = GetBindFlags(true, desc.depthStencil.allowUav);
+        auto texture = Texture::CreateCube(width, height, desc.depthStencil.format, arrayLayers, mipLevels, nullptr, flags);
+        ptr->SetDepthStencilAttachment(texture);
+    }
+    ptr->Apply();
+
+    return ptr;
+}
+
 void FrameBuffer::AddColorAttachment(const SPtr<Texture> &texture, uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers)
 {
     if(colorAttachments.Count() >= COLOR_ATTCHMENT_MAX_NUM)

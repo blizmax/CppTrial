@@ -101,16 +101,19 @@ void RenderAPI::Destroy()
     DestroyShaderCompiler(gVulkanShaderCompiler);
     gVulkanShaderCompiler = nullptr;
 
+    gVulkanDevice = nullptr;
+
     if (debugMessenger != VK_NULL_HANDLE)
         DestroyDebugUtilsMessengerEXT(gVulkanInstance, debugMessenger, gVulkanAlloc);
 
     vkDestroyInstance(gVulkanInstance, gVulkanAlloc);
 }
 
-SPtr<Device> CreateDevice(RenderWindow *window, const DeviceDesc &desc)
+SPtr<Device> RenderAPI::CreateDevice(RenderWindow *window, const DeviceDesc &desc)
 {
+    CT_CHECK(gVulkanDevice == nullptr);
+
     auto ptr = Device::Create(window, desc);
-    gVulkanDevice = static_cast<VulkanDevice *>(ptr.get());
     return ptr;
 }
 }

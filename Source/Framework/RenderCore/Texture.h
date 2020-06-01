@@ -112,7 +112,8 @@ public:
     static SPtr<Texture> Create2D(uint32 width, uint32 height, ResourceFormat format, uint32 arrayLayers = 1, uint32 mipLevels = UINT32_MAX, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
     static SPtr<Texture> Create3D(uint32 width, uint32 height, uint32 depth, ResourceFormat format, uint32 arrayLayers = 1, uint32 mipLevels = UINT32_MAX, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
     static SPtr<Texture> CreateCube(uint32 width, uint32 height, ResourceFormat format, uint32 arrayLayers = 1, uint32 mipLevels = UINT32_MAX, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
-    
+    static SPtr<Texture> Create2DMS(uint32 width, uint32 height, ResourceFormat format, uint32 sampleCount, uint32 arrayLayers = 1, ResourceBindFlags flags = ResourceBind::ShaderResource);
+
     static SPtr<Texture> Create2D(uint32 width, uint32 height, ResourceFormat format, void *handle, ResourceBindFlags flags = ResourceBind::ShaderResource);
 
 protected:

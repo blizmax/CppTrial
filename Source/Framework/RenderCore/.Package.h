@@ -14,6 +14,7 @@ enum class ResourceType
     Texture2D,
     Texture3D,
     TextureCube,
+    Texture2DMultisample,
 };
 
 enum class ResourceState

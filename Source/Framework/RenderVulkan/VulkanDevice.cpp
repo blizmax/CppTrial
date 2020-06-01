@@ -13,6 +13,8 @@ SPtr<Device> Device::Create(RenderWindow *window, const DeviceDesc &desc)
 VulkanDevice::VulkanDevice(RenderWindow *window, const DeviceDesc &desc)
     : Device(window, desc)
 {
+    gVulkanDevice = this;
+
     InitPhysicalDevice();
     CreateLogicalDevice();
     CreateSurface();

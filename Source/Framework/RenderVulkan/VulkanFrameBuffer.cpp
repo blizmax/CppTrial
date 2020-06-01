@@ -4,21 +4,9 @@
 
 namespace RenderCore
 {
-SPtr<FrameBuffer> FrameBuffer::Create(const Array<SPtr<Texture>> &colors, const SPtr<Texture> &depthStencil)
+SPtr<FrameBuffer> FrameBuffer::Create()
 {
-    auto ptr = Memory::MakeShared<VulkanFrameBuffer>();
-
-    for(const auto &e : colors)
-    {
-        ptr->AddColorAttachment(e);
-    }
-    if(depthStencil)
-    {
-        ptr->SetDepthStencilAttachment(depthStencil);
-    }
-    ptr->Apply();
-
-    return ptr;
+    return Memory::MakeShared<VulkanFrameBuffer>();
 }
 
 VulkanFrameBuffer::~VulkanFrameBuffer()

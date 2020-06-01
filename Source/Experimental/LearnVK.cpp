@@ -2,21 +2,95 @@
 #include "Core/Exception.h"
 #include "IO/FileHandle.h"
 
-// #define GLFW_INCLUDE_VULKAN
-// #include <GLFW/glfw3.h>
+#include "RenderCore/RenderAPI.h"
 
-// #include "RenderVulkan/VulkanSync.h"
-// #include "RenderCore/VertexLayout.h"
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+#include "RenderVulkan/VulkanRenderWindow.h"
 
-//using namespace RenderCore;
+using namespace RenderCore;
 
-// const int32 WIDTH = 800;
-// const int32 HEIGHT = 600;
+const int32 WIDTH = 800;
+const int32 HEIGHT = 600;
 
-// GLFWwindow *window;
-// SPtr<VertexLayout> vertexLayout;
-// SPtr<VulkanRenderPipelineState> pipelineState;
-// Array<SPtr<VulkanCommandBuffer>> commandBuffers;
+class VkWindow : public VulkanRenderWindow
+{
+public:
+    GLFWwindow *window;
+
+    VkWindow()
+    {
+        glfwInit();
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        window = glfwCreateWindow(WIDTH, HEIGHT, "LearnVK", nullptr, nullptr);
+    }
+
+    ~VkWindow()
+    {
+        glfwDestroyWindow(window);
+        glfwTerminate();
+    }
+
+    virtual uint32 GetPositionX() const override
+    {
+        int32 x, y;
+        glfwGetWindowPos(window, &x, &y);
+        return x;
+    }
+
+    virtual uint32 GetPositionY() const override
+    {   
+        int32 x, y;
+        glfwGetWindowPos(window, &x, &y);
+        return y;
+    }
+
+    virtual uint32 GetWidth() const override
+    {
+        int32 w, h;
+        glfwGetWindowSize(window, &w, &h);
+        return w;
+    }
+
+    virtual uint32 GetHeight() const override
+    {
+        int32 w, h;
+        glfwGetWindowSize(window, &w, &h);
+        return h;
+    }
+
+    virtual VkSurfaceKHR CreateSurface() override
+    {
+        VkSurfaceKHR surface;
+        if (glfwCreateWindowSurface(gVulkanInstance, window, gVulkanAlloc, &surface) != VK_SUCCESS)
+            CT_EXCEPTION(LearnVK, "Create surface failed.");
+        return surface;
+    }
+
+    bool Run()
+    {
+        glfwPollEvents();
+
+        if(glfwWindowShouldClose(window))
+            return false;
+        return true;
+    }
+
+};
+
+class Renderer
+{
+public:
+    void Render(RenderContext *ctx, const SPtr<FrameBuffer> &fbo)
+    {
+
+    }
+};
+
+SPtr<VkWindow> window;
+SPtr<Device> device;
+SPtr<Renderer> renderer;
+SPtr<FrameBuffer> targetFbo;
 
 // SPtr<Shader> CreateShader()
 // {
@@ -27,6 +101,16 @@
 //     desc.fragmentSource = fragSrcFile.ReadString();
 //     return Shader::Create(desc);
 // }
+
+SPtr<VkWindow> CreateWindow()
+{
+    return Memory::MakeShared<VkWindow>();
+}
+
+SPtr<Renderer> CreateRenderer()
+{
+    return Memory::MakeShared<Renderer>();
+}
 
 // void InitVulkan()
 // {
@@ -87,14 +171,27 @@
 
 //}
 
-// void CleanupVulkan()
-// {
-//     auto &context = VulkanContext::Get();
-//     context.Destroy();
-// }
-
 int main(int argc, char **argv)
 {
+    window = CreateWindow();
+
+    RenderAPI::Init();
+    device = RenderAPI::CreateDevice(window.get(), DeviceDesc());
+    
+    auto backBufferFbo = device->GetSwapChainFrameBuffer();
+    targetFbo = FrameBuffer::Create2D(backBufferFbo->GetWidth(), backBufferFbo->GetHeight(), backBufferFbo->GetDesc());
+
+    renderer = CreateRenderer();
+
+    while(window->Run())
+    {
+        auto renderContext = device->GetRenderContext();
+        auto swapChainFbo = device->GetSwapChainFrameBuffer();
+
+        renderer->Render(renderContext, targetFbo);
+        renderContext->CopyResource(swapChainFbo->GetColorTexture(0).get(), targetFbo->GetColorTexture(0).get());
+        device->Present();
+    }
 
     return 0;
 }

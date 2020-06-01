@@ -13,11 +13,16 @@ endif()
 add_subdirectory(Private)
 
 aux_source_directory(. DIR_RENDER_VULKAN)
+file(GLOB DIR_RENDER_CORE "../RenderCore/*.cpp")
+
 add_library(RenderVulkan
+    ${DIR_RENDER_CORE}
     ${DIR_RENDER_VULKAN}
 )
 
+message("${DIR_RENDER_CORE}")
+message("${DIR_RENDER_VULKAN}")
+
 target_link_libraries(RenderVulkan
     ${VULKAN_LIBRARY}
-    RenderCore
 )
