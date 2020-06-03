@@ -9,7 +9,7 @@ namespace RenderCore
 class VulkanRenderContextImpl : public VulkanComputeContextImpl
 {
 public:
-    VulkanRenderContextImpl(const SPtr<GpuQueue> &queue);
+    VulkanRenderContextImpl(const SPtr<GpuQueue> &queue, RenderContext *ctx);
     ~VulkanRenderContextImpl();
 
     void ClearFrameBuffer(const FrameBuffer *fbo, const Color &color, float depth, uint8 stencil, bool clearColor, bool clearDepthStencil);
@@ -35,7 +35,7 @@ public:
         return bindFlags;
     }
 
-private:
+protected:
     bool ApplyGraphicsVars(GraphicsVars *vars, RootSignature *rootSignature);
     void SetPipelineState(GraphicsStateObject *gso);
     void SetVao(const VertexArray *vao);
@@ -44,14 +44,15 @@ private:
     void SetScissors(const Array<Scissor> &scissors);
     bool PrepareForDraw(GraphicsState *state, GraphicsVars *vars);
 
-private:
+protected:
+    RenderContext *renderContext;
     GraphicsStateBindFlags bindFlags = GraphicsStateBind::All;
 };
 
 class VulkanRenderContext : public RenderContext
 {
 public:
-    VulkanRenderContext(const SPtr<GpuQueue> &queue) : impl(queue)
+    VulkanRenderContext(const SPtr<GpuQueue> &queue) : impl(queue, this)
     {
     }
 
@@ -112,12 +113,12 @@ public:
 
     virtual Array<uint8> ReadSubresource(const Texture *texture, uint32 subresource) override
     {
-        return impl.ReadSubresource(this, texture, subresource);
+        return impl.ReadSubresource(texture, subresource);
     }
 
     virtual SPtr<ReadTextureTask> ReadSubresourceAsync(const Texture *texture, uint32 subresource) override
     {
-        return impl.ReadSubresourceAsync(this, texture, subresource);
+        return impl.ReadSubresourceAsync(texture, subresource);
     }
 
     virtual void Dispatch(ComputeState *state, ComputeVars *vars, const UVector3 &size) override

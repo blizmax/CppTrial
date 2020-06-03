@@ -12,8 +12,8 @@ SPtr<RenderContext> RenderContext::Create(const SPtr<GpuQueue> &queue)
     return Memory::MakeShared<VulkanRenderContext>(queue);
 }
 
-VulkanRenderContextImpl::VulkanRenderContextImpl(const SPtr<GpuQueue> &queue)
-    : VulkanComputeContextImpl(queue)
+VulkanRenderContextImpl::VulkanRenderContextImpl(const SPtr<GpuQueue> &queue, RenderContext *ctx)
+    : VulkanComputeContextImpl(queue, ctx), renderContext(ctx)
 {
 
 }
@@ -208,7 +208,11 @@ void VulkanRenderContextImpl::ResolveSubresource(Texture *src, uint32 srcSub, Te
 
 bool VulkanRenderContextImpl::ApplyGraphicsVars(GraphicsVars *vars, RootSignature *rootSignature)
 {
-    //TODO
+    if (vars->Apply(renderContext, rootSignature) == false)
+    {
+        CT_LOG(Warning, CT_TEXT("Call ApplyGraphicsVars() failed."));
+        return false;
+    }
     return true;
 }
 

@@ -10,8 +10,8 @@ SPtr<ComputeContext> ComputeContext::Create(const SPtr<GpuQueue> &queue)
     return Memory::MakeShared<VulkanComputeContext>(queue);
 }
 
-VulkanComputeContextImpl::VulkanComputeContextImpl(const SPtr<GpuQueue> &queue)
-    : VulkanCopyContextImpl(queue)
+VulkanComputeContextImpl::VulkanComputeContextImpl(const SPtr<GpuQueue> &queue, ComputeContext *ctx)
+    : VulkanCopyContextImpl(queue, ctx), computeContext(ctx)
 {
 
 }

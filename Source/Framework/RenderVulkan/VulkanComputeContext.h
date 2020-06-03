@@ -9,10 +9,8 @@ namespace RenderCore
 class VulkanComputeContextImpl : public VulkanCopyContextImpl
 {
 public:
-    VulkanComputeContextImpl(const SPtr<GpuQueue> &queue);
+    VulkanComputeContextImpl(const SPtr<GpuQueue> &queue, ComputeContext *ctx);
     ~VulkanComputeContextImpl();
-
-    //virtual void Flush(bool wait) override;
 
     void Dispatch(ComputeState *state, ComputeVars *vars, const UVector3 &size);
     void DispatchIndirect(ComputeState *state, ComputeVars *vars, const Buffer *argBuffer, uint32 argBufferOffset);
@@ -23,15 +21,16 @@ public:
 protected:
     void ClearColorImage(const ResourceView *view, float v0, float v1, float v2, float v3);
     void ClearColorImage(const ResourceView *view, uint32 v0, uint32 v1, uint32 v2, uint32 v3);
-
-private:
     bool PrepareForDispatch(ComputeState *state, ComputeVars *vars);
+
+protected:
+    ComputeContext *computeContext;
 };
 
 class VulkanComputeContext : public ComputeContext
 {
 public:
-    VulkanComputeContext(const SPtr<GpuQueue> &queue) : impl(queue)
+    VulkanComputeContext(const SPtr<GpuQueue> &queue) : impl(queue, this)
     {
     }
 
@@ -92,12 +91,12 @@ public:
 
     virtual Array<uint8> ReadSubresource(const Texture *texture, uint32 subresource) override
     {
-        return impl.ReadSubresource(this, texture, subresource);
+        return impl.ReadSubresource(texture, subresource);
     }
 
     virtual SPtr<ReadTextureTask> ReadSubresourceAsync(const Texture *texture, uint32 subresource) override
     {
-        return impl.ReadSubresourceAsync(this, texture, subresource);
+        return impl.ReadSubresourceAsync(texture, subresource);
     }
 
     virtual void Dispatch(ComputeState *state, ComputeVars *vars, const UVector3 &size) override

@@ -187,6 +187,7 @@ Array<uchar8> VulkanShaderCompilerImpl::Compile(ShaderType shaderType, const Str
 
     program.mapIO();
     program.buildReflection();
+    program.dumpReflection();
 
     std::vector<uint32> spv;
     glslang::GlslangToSpv(*program.getIntermediate(stage), spv, nullptr, &spvOptions);

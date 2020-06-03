@@ -63,7 +63,8 @@ SPtr<CopyContext> CopyContext::Create(const SPtr<GpuQueue> &queue)
     return Memory::MakeShared<VulkanCopyContext>(queue);
 }
 
-VulkanCopyContextImpl::VulkanCopyContextImpl(const SPtr<GpuQueue> &queue)
+VulkanCopyContextImpl::VulkanCopyContextImpl(const SPtr<GpuQueue> &queue, CopyContext *ctx)
+    : copyContext(ctx)
 {
     contextData = VulkanContextData::Create(queue);
 }
@@ -348,15 +349,15 @@ void VulkanCopyContextImpl::UpdateSubresources(const Texture *texture, uint32 fi
     commandsPending = true;
 }
 
-Array<uint8> VulkanCopyContextImpl::ReadSubresource(CopyContext *ctx, const Texture *texture, uint32 subresource)
+Array<uint8> VulkanCopyContextImpl::ReadSubresource(const Texture *texture, uint32 subresource)
 {
-    auto task = ReadSubresourceAsync(ctx, texture, subresource);
+    auto task = ReadSubresourceAsync(texture, subresource);
     return task->GetData();
 }
 
-SPtr<ReadTextureTask> VulkanCopyContextImpl::ReadSubresourceAsync(CopyContext *ctx, const Texture *texture, uint32 subresource)
+SPtr<ReadTextureTask> VulkanCopyContextImpl::ReadSubresourceAsync(const Texture *texture, uint32 subresource)
 {
-    return ReadTextureTask::Create(ctx, texture, subresource);
+    return ReadTextureTask::Create(copyContext, texture, subresource);
 }
 
 bool VulkanCopyContextImpl::BufferBarrier(const Buffer *buffer, ResourceState newState)

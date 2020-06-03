@@ -8,7 +8,7 @@ namespace RenderCore
 class VulkanCopyContextImpl
 {
 public:
-    VulkanCopyContextImpl(const SPtr<GpuQueue> &queue);
+    VulkanCopyContextImpl(const SPtr<GpuQueue> &queue, CopyContext *ctx);
     ~VulkanCopyContextImpl();
 
     virtual void Flush(bool wait);
@@ -23,8 +23,8 @@ public:
     void UpdateTexture(const Texture *texture, const void *data);
     void UpdateSubresource(const Texture *texture, uint32 subresource, const void* data, const IVector3 &offset, const UVector3 &size);
     void UpdateSubresources(const Texture *texture, uint32 firstSub, uint32 subCount, const void* data);
-    Array<uint8> ReadSubresource(CopyContext *ctx, const Texture *texture, uint32 subresource);
-    SPtr<ReadTextureTask> ReadSubresourceAsync(CopyContext *ctx, const Texture *texture, uint32 subresource);
+    Array<uint8> ReadSubresource(const Texture *texture, uint32 subresource);
+    SPtr<ReadTextureTask> ReadSubresourceAsync(const Texture *texture, uint32 subresource);
     const SPtr<VulkanContextData> &GetContextData() {return contextData;}
 
 protected:
@@ -35,12 +35,13 @@ protected:
 protected:
     SPtr<VulkanContextData> contextData;
     bool commandsPending = false;
+    CopyContext *copyContext;
 };
 
 class VulkanCopyContext : public CopyContext
 {
 public:
-    VulkanCopyContext(const SPtr<GpuQueue> &queue) : impl(queue)
+    VulkanCopyContext(const SPtr<GpuQueue> &queue) : impl(queue, this)
     {
     }
 
@@ -101,12 +102,12 @@ public:
 
     virtual Array<uint8> ReadSubresource(const Texture *texture, uint32 subresource) override
     {
-        return impl.ReadSubresource(this, texture, subresource);
+        return impl.ReadSubresource(texture, subresource);
     }
 
     virtual SPtr<ReadTextureTask> ReadSubresourceAsync(const Texture *texture, uint32 subresource) override
     {
-        return impl.ReadSubresourceAsync(this, texture, subresource);
+        return impl.ReadSubresourceAsync(texture, subresource);
     }
 
     const SPtr<VulkanContextData> &GetContextData()
