@@ -147,9 +147,39 @@ static void ParseUniforms(const glslang::TProgram &program)
     for (int32 i = 0; i < program.getNumLiveUniformVariables(); ++i)
     {
         const char8 *name = program.getUniformName(i);
-        const auto unifromType = program.getUniformTType(i);
-        const auto &qualifier = unifromType->getQualifier();
-        //auto basicType = unifromType->getBasicType();
+        const auto ttype = program.getUniformTType(i);
+        const auto &qualifier = ttype->getQualifier();
+        auto basicType = ttype->getBasicType();
+
+        DescriptorType desciptorType = DescriptorType::Cbv;
+
+        if (basicType == glslang::EbtSampler) // object type
+		{
+            const auto &sampler = ttype->getSampler();
+
+            CT_CHECK(qualifier.hasBinding());
+            CT_CHECK(!sampler.isCombined());
+
+            uint32 binding = qualifier.layoutBinding;
+            uint32 set = qualifier.layoutSet;
+            if(set == glslang::TQualifier::layoutSetEnd)
+                set = 0;
+
+            if (sampler.isPureSampler())
+            {
+                desciptorType = DescriptorType::Sampler;
+            }
+            else if (sampler.isTexture())
+            {
+
+            }
+            else
+            {
+
+            }
+
+            CT_LOG(Debug, CT_TEXT("layout(set = {0}, binding = {1}) {3}"), set, binding, String(sampler.getString().c_str()));            
+        }
     }
 }
 
@@ -187,7 +217,7 @@ Array<uchar8> VulkanShaderCompilerImpl::Compile(ShaderType shaderType, const Str
 
     program.mapIO();
     program.buildReflection();
-    program.dumpReflection();
+    //program.dumpReflection();
 
     std::vector<uint32> spv;
     glslang::GlslangToSpv(*program.getIntermediate(stage), spv, nullptr, &spvOptions);

@@ -20,8 +20,8 @@ add_library(RenderVulkan
     ${DIR_RENDER_VULKAN}
 )
 
-message("${DIR_RENDER_CORE}")
-message("${DIR_RENDER_VULKAN}")
+#message("${DIR_RENDER_CORE}")
+#message("${DIR_RENDER_VULKAN}")
 
 target_link_libraries(RenderVulkan
     ${VULKAN_LIBRARY}

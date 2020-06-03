@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderCore/RootSignature.h"
+#include "RenderCore/ParameterBlock.h"
 
 namespace RenderCore
 {
@@ -8,17 +8,12 @@ namespace RenderCore
 class CopyContext;
 class ComputeContext;
 class RenderContext;
+class Program;
 
-class ProgramVars
+class ProgramVars : public ParameterBlock
 {
 public:
     virtual ~ProgramVars() = default;
-
-protected:
-    bool PrepareDescriptorSets(CopyContext *ctx)
-    {
-        return true;
-    }
 };
 
 class GraphicsVars : public ProgramVars
@@ -29,7 +24,7 @@ public:
         return true;
     }
 
-    static SPtr<GraphicsVars> Create();
+    static SPtr<GraphicsVars> Create(const SPtr<Program> &program);
 };
 
 class ComputeVars : public ProgramVars
