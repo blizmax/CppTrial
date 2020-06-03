@@ -4,42 +4,50 @@
 
 namespace RenderCore
 {
-class DescriptorSetLayout
+
+struct DescriptorSetLayoutDesc
 {
-public:
     struct Element
     {
         String name;
-        DescriptorType descriptorType;
-
-        Element(const String &name, DescriptorType type)
-            : name(name), descriptorType(type)
-        {
-        }
+        DescriptorType descriptorType = DescriptorType::Unknown;
+        uint32 binding = 0;
+        uint32 arrayLength = 1;
     };
 
-    DescriptorSetLayout(std::initializer_list<Element> initList, ShaderVisibilityFlags visibility)
-        : elements(initList), visibility(visibility)
+    Array<Element> elements;
+    ShaderVisibilityFlags visibility = ShaderVisibility::All;
+    uint32 setIndex = 0;
+};
+
+class DescriptorSetLayout
+{
+public:
+    DescriptorSetLayout(const DescriptorSetLayoutDesc &desc) : desc(desc)
     {
     }
 
     virtual ~DescriptorSetLayout() = default;
 
-    const Array<Element> &GetElements() const
+    const DescriptorSetLayoutDesc &GetDesc() const
     {
-        return elements;
+        return desc;
+    }
+
+    const Array<DescriptorSetLayoutDesc::Element> &GetElements() const
+    {
+        return desc.elements;
     }
 
     ShaderVisibilityFlags GetVisibility() const
     {
-        return visibility;
+        return desc.visibility;
     }
 
-    static SPtr<DescriptorSetLayout> Create(std::initializer_list<Element> initList, ShaderVisibilityFlags visibility = ShaderVisibility::All);
+    static SPtr<DescriptorSetLayout> Create(const DescriptorSetLayoutDesc &desc);
 
 protected:
-    Array<Element> elements;
-    ShaderVisibilityFlags visibility = ShaderVisibility::All;
+    DescriptorSetLayoutDesc desc;
 };
 
 }

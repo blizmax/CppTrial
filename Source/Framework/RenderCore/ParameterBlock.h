@@ -9,6 +9,8 @@
 namespace RenderCore
 {
 
+class CopyContext;
+
 class ParameterBlock
 {
 public:

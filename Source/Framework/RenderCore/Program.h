@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderCore/RootSignature.h"
+#include "RenderCore/ProgramReflection.h"
 
 namespace RenderCore
 {
@@ -43,6 +44,7 @@ public:
 protected:
     ProgramDesc desc;
     SPtr<RootSignature> rootSignature;
+    SPtr<ProgramReflection> reflection;
 };
 
 class Program

@@ -114,6 +114,8 @@ enum class Topology
 
 enum class DescriptorType
 {
+    Unknown = -1,
+
     Sampler,
     TextureSrv,
     TextureUav,

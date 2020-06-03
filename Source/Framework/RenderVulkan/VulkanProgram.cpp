@@ -11,13 +11,18 @@ SPtr<ProgramKernel> ProgramKernel::Create(const ProgramDesc &desc)
 
 VulkanProgramKernel::VulkanProgramKernel(const ProgramDesc &desc) : ProgramKernel(desc)
 {
+    reflection = ProgramReflection::Create();
+
     for(const auto &d : desc.shaderDescs)
     {
         shaderDatas.Add(CompileShader(d));
     }
 
-    //TODO reflection
     RootSignatureDesc rootSignatureDesc;
+    for(int32 i = 0; i < reflection->GetDescriptorSetCount(); ++i)
+    {
+        rootSignatureDesc.layouts.Add(DescriptorSetLayout::Create(reflection->GetDescriptorSetLayoutDesc(i)));
+    }
     rootSignature = RootSignature::Create(rootSignatureDesc);
 }
 
@@ -37,7 +42,7 @@ VulkanProgramKernel::~VulkanProgramKernel()
 
 VulkanProgramKernel::ShaderData VulkanProgramKernel::CompileShader(const ShaderDesc &desc)
 {
-    auto code = gVulkanShaderCompiler->Compile(desc.shaderType, desc.source);
+    auto code = gVulkanShaderCompiler->Compile(desc.shaderType, desc.source, reflection);
 
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

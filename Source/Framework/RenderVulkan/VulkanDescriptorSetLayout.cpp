@@ -4,23 +4,23 @@
 namespace RenderCore
 {
 
-SPtr<DescriptorSetLayout> DescriptorSetLayout::Create(std::initializer_list<Element> initList, ShaderVisibilityFlags visibility)
+SPtr<DescriptorSetLayout> DescriptorSetLayout::Create(const DescriptorSetLayoutDesc &desc)
 {
-    return Memory::MakeShared<VulkanDescriptorSetLayout>(initList, visibility);
+    return Memory::MakeShared<VulkanDescriptorSetLayout>(desc);
 }
 
-VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(std::initializer_list<Element> initList, ShaderVisibilityFlags visibility)
-    : DescriptorSetLayout(initList, visibility)
+VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(const DescriptorSetLayoutDesc &desc)
+    : DescriptorSetLayout(desc)
 {
     Array<VkDescriptorSetLayoutBinding> bindings;
-    for (int32 i = 0; i < elements.Count(); ++i)
+    for (const auto &e : desc.elements)
     {
         VkDescriptorSetLayoutBinding b = {};
-        b.binding = i;
-        b.descriptorCount = 1;
-        b.descriptorType = ToVkDescriptorType(elements[i].descriptorType);
+        b.binding = e.binding;
+        b.descriptorCount = e.arrayLength;
+        b.descriptorType = ToVkDescriptorType(e.descriptorType);
         b.pImmutableSamplers = nullptr;
-        b.stageFlags = ToVkShaderVisibility(visibility);
+        b.stageFlags = ToVkShaderVisibility(desc.visibility);
         bindings.Add(b);
     }
 

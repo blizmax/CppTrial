@@ -22,6 +22,8 @@ SPtr<Renderer> renderer;
 SPtr<FrameBuffer> targetFbo;
 SPtr<Program> program;
 
+SPtr<Program> reflectionProgram;
+
 class VkWindow : public VulkanRenderWindow
 {
 public:
@@ -179,6 +181,13 @@ int main(int argc, char **argv)
     targetFbo = FrameBuffer::Create2D(backBufferFbo->GetWidth(), backBufferFbo->GetHeight(), backBufferFbo->GetDesc());
 
     program = CreateProgram();
+
+    {
+        ProgramDesc desc;
+        IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/LearnVK/reflection.frag"));
+        desc.shaderDescs.Add({ShaderType::Pixel, fragSrcFile.ReadString()});
+        reflectionProgram = Program::Create(desc);
+    }
 
     renderer = CreateRenderer();
 

@@ -142,7 +142,7 @@ static EShLanguage ToEShLanguage(ShaderType shaderType)
     return EShLangCount;
 }
 
-static void ParseUniforms(const glslang::TProgram &program)
+static void ParseUniforms(const glslang::TProgram &program, const SPtr<ProgramReflection> &reflection)
 {
     for (int32 i = 0; i < program.getNumLiveUniformVariables(); ++i)
     {
@@ -151,19 +151,19 @@ static void ParseUniforms(const glslang::TProgram &program)
         const auto &qualifier = ttype->getQualifier();
         auto basicType = ttype->getBasicType();
 
-        DescriptorType desciptorType = DescriptorType::Cbv;
+        CT_LOG(Debug, CT_TEXT("{0}"), String(ttype->getCompleteString().c_str()));
+
+        DescriptorType desciptorType = DescriptorType::Unknown;
+        uint32 binding = qualifier.layoutBinding;
+        uint32 set = qualifier.layoutSet == glslang::TQualifier::layoutSetEnd ? 0 : qualifier.layoutSet;
+        uint32 arrayLength = ttype->isArray() ? ttype->getCumulativeArraySize() : 1;
 
         if (basicType == glslang::EbtSampler) // object type
 		{
-            const auto &sampler = ttype->getSampler();
-
             CT_CHECK(qualifier.hasBinding());
-            CT_CHECK(!sampler.isCombined());
 
-            uint32 binding = qualifier.layoutBinding;
-            uint32 set = qualifier.layoutSet;
-            if(set == glslang::TQualifier::layoutSetEnd)
-                set = 0;
+            const auto &sampler = ttype->getSampler();
+            CT_CHECK(!sampler.isCombined());
 
             if (sampler.isPureSampler())
             {
@@ -171,19 +171,31 @@ static void ParseUniforms(const glslang::TProgram &program)
             }
             else if (sampler.isTexture())
             {
-
+                desciptorType = DescriptorType::TextureSrv;
             }
             else
             {
-
+                //TODO image or buffer
+                //desciptorType = DescriptorType::TextureUav;
             }
-
-            CT_LOG(Debug, CT_TEXT("layout(set = {0}, binding = {1}) {3}"), set, binding, String(sampler.getString().c_str()));            
         }
+        else
+        {
+            //Uniform data inside a uniform block.
+        }
+
+        for (int32 i = 0; i < program.getNumLiveUniformBlocks(); ++i)
+        {
+            //TODO
+        }
+        
+
+        if(desciptorType != DescriptorType::Unknown)
+            reflection->AddBindingData(String(name), desciptorType, binding, arrayLength, set);
     }
 }
 
-Array<uchar8> VulkanShaderCompilerImpl::Compile(ShaderType shaderType, const String &source)
+Array<uchar8> VulkanShaderCompilerImpl::Compile(ShaderType shaderType, const String &source, const SPtr<ProgramReflection> &reflection)
 {
     auto u8Str = StringEncode::UTF8::ToChars(source);
     char8 *cstr = u8Str.GetData();
@@ -217,13 +229,11 @@ Array<uchar8> VulkanShaderCompilerImpl::Compile(ShaderType shaderType, const Str
 
     program.mapIO();
     program.buildReflection();
-    //program.dumpReflection();
 
     std::vector<uint32> spv;
     glslang::GlslangToSpv(*program.getIntermediate(stage), spv, nullptr, &spvOptions);
 
-    //TODO
-    ParseUniforms(program);
+    ParseUniforms(program, reflection);
 
     auto size = 4 * spv.size();
     Array<uchar8> result;

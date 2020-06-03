@@ -9,9 +9,7 @@ namespace RenderCore
 class VulkanDescriptorSetLayout : public DescriptorSetLayout
 {
 public:
-    using Element = DescriptorSetLayout::Element;
-
-    VulkanDescriptorSetLayout(std::initializer_list<Element> initList, ShaderVisibilityFlags visibility);
+    VulkanDescriptorSetLayout(const DescriptorSetLayoutDesc &desc);
     virtual ~VulkanDescriptorSetLayout();
 
     VkDescriptorSetLayout GetHandle() const

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderVulkan/.Package.h"
+#include "RenderCore/ProgramReflection.h"
 
 namespace RenderCore
 {
@@ -11,7 +12,7 @@ public:
 
     virtual void Init() = 0;
     virtual void Deinit() = 0;
-    virtual Array<uchar8> Compile(ShaderType shaderType, const String &source) = 0;
+    virtual Array<uchar8> Compile(ShaderType shaderType, const String &source, const SPtr<ProgramReflection> &reflection) = 0;
 };
 
 class VulkanShaderCompilerImpl : public VulkanShaderCompiler
@@ -19,7 +20,7 @@ class VulkanShaderCompilerImpl : public VulkanShaderCompiler
 public:
     virtual void Init() override;
     virtual void Deinit() override;
-    virtual Array<uchar8> Compile(ShaderType shaderType, const String &source) override;
+    virtual Array<uchar8> Compile(ShaderType shaderType, const String &source, const SPtr<ProgramReflection> &reflection) override;
 };
 
 extern "C"
