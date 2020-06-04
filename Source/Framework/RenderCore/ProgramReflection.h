@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderCore/DescriptorSetLayout.h"
+#include "RenderCore/RootSignature.h"
 #include "Core/HashMap.h"
 
 namespace RenderCore
@@ -26,10 +26,10 @@ public:
 
     ProgramReflection() = default;
 
-    DescriptorSetLayoutDesc GetDescriptorSetLayoutDesc(int32 setIndex) const;
-
     void AddBindingData(const String &name, DescriptorType descriptorType, uint32 binding, uint32 arrayLength = 1, uint32 setIndex = 0)
     {
+        CT_CHECK(dirty);
+
         bindingDatas.Add({bindingDatas.Count(), name, descriptorType, binding, arrayLength, setIndex});
         const int32 bindingDataIndex = bindingDatas.Count() - 1;
 
@@ -56,9 +56,16 @@ public:
         return bindingDatas[*ptr];
     }
 
-    int32 GetDescriptorSetCount() const
+    uint32 GetDescriptorSetCount() const
     {
         return setDatas.Count();
+    }
+
+    const RootSignatureDesc &GetRootSignatureDesc() const;
+
+    const SPtr<DescriptorSetLayout> &GetDescriptorSetLayout(uint32 setIndex) const
+    {
+        return GetRootSignatureDesc().layouts[setIndex];
     }
 
     static SPtr<ProgramReflection> Create()
@@ -67,6 +74,9 @@ public:
     }
 
 private:
+    mutable RootSignatureDesc rootSignatureDesc;
+    mutable bool dirty = true;
+
     Array<BindingData> bindingDatas;
     Array<SetData> setDatas;
     HashMap<String, int32> bindingNames;

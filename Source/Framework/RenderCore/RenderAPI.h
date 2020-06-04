@@ -11,6 +11,10 @@ public:
     static void Init();
     static void Destroy();
 
-    static SPtr<Device> CreateDevice(RenderWindow *window, const DeviceDesc &desc);
+    static Device *GetDevice();
+    static Device *CreateDevice(RenderWindow *window, const DeviceDesc &desc);
+
+private:
+    static SPtr<Device> device;
 };
 }

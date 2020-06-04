@@ -2,6 +2,7 @@
 
 
 #include "RenderCore/RootSignature.h"
+#include "RenderCore/DescriptorSet.h"
 #include "RenderCore/Texture.h"
 #include "RenderCore/Buffer.h"
 #include "RenderCore/Sampler.h"
@@ -29,11 +30,16 @@ public:
     static SPtr<ParameterBlock> Create(const SPtr<ProgramReflection> &reflection);
 
 protected:
+    void MarkDescriptorSetDirty(uint32 setIndex);
+    bool BindIntoDescriptorSet(uint32 setIndex);
+
     bool SetResourceSrvUav(const Resource *resource, const ProgramReflection::BindingData &binding);
+    bool PrepareResources(CopyContext *ctx);
     bool PrepareDescriptorSets(CopyContext *ctx);
 
 protected:
     SPtr<ProgramReflection> reflection;
+    Array<SPtr<DescriptorSet>> sets;
 
     HashMap<int32, SPtr<ResourceView>> cbvs; //TODO Owns const buffers?
 

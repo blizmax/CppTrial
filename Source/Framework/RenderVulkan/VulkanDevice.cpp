@@ -27,6 +27,18 @@ VulkanDevice::VulkanDevice(RenderWindow *window, const DeviceDesc &desc)
     }
 
     frameFence = GpuFence::Create();
+
+    {
+        DescriptorPoolDesc poolDesc;
+        for (int32 i = 0; i < (int32)DescriptorType::Dsv; ++i)
+            poolDesc.descCount[i] = 2048;
+        poolDesc.descCount[(int32)DescriptorType::TextureSrv] = 4096;
+        gpuDescriptorPool = DescriptorPool::Create(poolDesc, frameFence);
+    }
+    {
+        //TODO cpuDescriptorPool
+    }
+
     renderContext = RenderContext::Create(GetQueue(GpuQueueType::Graphics));
     renderContext->Flush();
 

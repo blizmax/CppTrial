@@ -18,12 +18,7 @@ VulkanProgramKernel::VulkanProgramKernel(const ProgramDesc &desc) : ProgramKerne
         shaderDatas.Add(CompileShader(d));
     }
 
-    RootSignatureDesc rootSignatureDesc;
-    for(int32 i = 0; i < reflection->GetDescriptorSetCount(); ++i)
-    {
-        rootSignatureDesc.layouts.Add(DescriptorSetLayout::Create(reflection->GetDescriptorSetLayoutDesc(i)));
-    }
-    rootSignature = RootSignature::Create(rootSignatureDesc);
+    rootSignature = RootSignature::Create(reflection->GetRootSignatureDesc());
 }
 
 VulkanProgramKernel::~VulkanProgramKernel()

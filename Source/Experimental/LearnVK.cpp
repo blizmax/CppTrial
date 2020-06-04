@@ -16,8 +16,8 @@ const int32 HEIGHT = 600;
 class VkWindow;
 class Renderer;
 
+Device *device;
 SPtr<VkWindow> window;
-SPtr<Device> device;
 SPtr<Renderer> renderer;
 SPtr<FrameBuffer> targetFbo;
 SPtr<Program> program;
@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 
     RenderAPI::Init();
     device = RenderAPI::CreateDevice(window.get(), DeviceDesc());
-    
+
     auto backBufferFbo = device->GetSwapChainFrameBuffer();
     targetFbo = FrameBuffer::Create2D(backBufferFbo->GetWidth(), backBufferFbo->GetHeight(), backBufferFbo->GetDesc());
 

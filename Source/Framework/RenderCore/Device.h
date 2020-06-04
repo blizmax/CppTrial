@@ -5,6 +5,7 @@
 #include "RenderCore/GpuFence.h"
 #include "RenderCore/RenderContext.h"
 #include "RenderCore/FrameBuffer.h"
+#include "RenderCore/DescriptorPool.h"
 #include "Core/List.h"
 
 namespace RenderCore
@@ -65,6 +66,16 @@ public:
         return desc;
     }
 
+    const SPtr<DescriptorPool> &GetCpuDescriptorPool() const
+    {
+        return cpuDescriptorPool;
+    }
+
+    const SPtr<DescriptorPool> &GetGpuDescriptorPool() const
+    {
+        return gpuDescriptorPool;
+    }
+
     SPtr<FrameBuffer> GetSwapChainFrameBuffer() const
     {
         return swapChainFrameBuffers[curBackBufferIndex];
@@ -95,6 +106,9 @@ protected:
     SPtr<GpuFence> frameFence;
     DeferredReleaser deferredReleaser;
     SPtr<RenderContext> renderContext;
+
+    SPtr<DescriptorPool> cpuDescriptorPool;
+    SPtr<DescriptorPool> gpuDescriptorPool;
 
     uint32 backBufferCount;
     Array<SPtr<FrameBuffer>> swapChainFrameBuffers;

@@ -4,6 +4,11 @@
 namespace RenderCore
 {
 
+SPtr<DescriptorPool> DescriptorPool::Create(const DescriptorPoolDesc &desc, const SPtr<GpuFence> &fence)
+{
+    return Memory::MakeShared<VulkanDescriptorPool>(desc, fence);
+}
+
 VulkanDescriptorPool::VulkanDescriptorPool(const DescriptorPoolDesc &desc, const SPtr<GpuFence> &fence)
     : DescriptorPool(desc, fence)
 {

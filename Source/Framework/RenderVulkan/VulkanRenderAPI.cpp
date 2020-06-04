@@ -6,6 +6,8 @@
 namespace RenderCore
 {
 
+SPtr<Device> RenderAPI::device;
+
 VkAllocationCallbacks *gVulkanAlloc = nullptr;
 VulkanDevice *gVulkanDevice = nullptr;
 VkInstance gVulkanInstance = VK_NULL_HANDLE;
@@ -102,6 +104,7 @@ void RenderAPI::Destroy()
     gVulkanShaderCompiler = nullptr;
 
     gVulkanDevice = nullptr;
+    device = nullptr;
 
     if (debugMessenger != VK_NULL_HANDLE)
         DestroyDebugUtilsMessengerEXT(gVulkanInstance, debugMessenger, gVulkanAlloc);
@@ -109,11 +112,15 @@ void RenderAPI::Destroy()
     vkDestroyInstance(gVulkanInstance, gVulkanAlloc);
 }
 
-SPtr<Device> RenderAPI::CreateDevice(RenderWindow *window, const DeviceDesc &desc)
+Device *RenderAPI::GetDevice()
 {
-    CT_CHECK(gVulkanDevice == nullptr);
+    return device.get();
+}
 
-    auto ptr = Device::Create(window, desc);
-    return ptr;
+Device *RenderAPI::CreateDevice(RenderWindow *window, const DeviceDesc &desc)
+{
+    CT_CHECK(!device);
+    device = Device::Create(window, desc);
+    return device.get();
 }
 }
