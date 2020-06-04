@@ -10,6 +10,7 @@ class ProgramReflection
 public:
     struct BindingData
     {
+        int32 index = -1;  
         String name;
         DescriptorType descriptorType = DescriptorType::Unknown;
         uint32 binding = 0;
@@ -29,7 +30,7 @@ public:
 
     void AddBindingData(const String &name, DescriptorType descriptorType, uint32 binding, uint32 arrayLength = 1, uint32 setIndex = 0)
     {
-        bindingDatas.Add({name, descriptorType, binding, arrayLength, setIndex});
+        bindingDatas.Add({bindingDatas.Count(), name, descriptorType, binding, arrayLength, setIndex});
         const int32 bindingDataIndex = bindingDatas.Count() - 1;
 
         if (setDatas.Count() <= setIndex)
@@ -39,13 +40,20 @@ public:
 
         if (setDatas[setIndex].bindings.Count() <= binding)
         {
-            for (int32 i = setDatas[setIndex].bindings.Count(); i <= binding; ++i)
-            {
-                setDatas[setIndex].bindings.Add(-1);
-            }
+            setDatas[setIndex].bindings.Add(-1, binding - setDatas[setIndex].bindings.Count() + 1);
         }
         setDatas[setIndex].bindings[binding] = bindingDataIndex;
         bindingNames.Put(name, bindingDataIndex);
+    }
+
+    const BindingData &GetBindingData(const String &name) const
+    {
+        static const BindingData INVALID = {};
+        
+        auto *ptr = bindingNames.TryGet(name);
+        if (!ptr)
+            return INVALID;
+        return bindingDatas[*ptr];
     }
 
     int32 GetDescriptorSetCount() const
