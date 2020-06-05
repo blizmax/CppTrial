@@ -49,11 +49,11 @@ bool ParameterBlock::SetSampler(const String &name, const SPtr<Sampler> &sampler
     if (bindingData.descriptorType != DescriptorType::Sampler)
         return false;
     
-    auto ptr = samplers.TryGet(bindingData.index);
+    auto ptr = samplers.TryGet(bindingData.slot);
     if (ptr && *ptr == sampler)
         return true;
 
-    samplers.Put(bindingData.index, sampler);
+    samplers.Put(bindingData.slot, sampler);
     MarkDescriptorSetDirty(bindingData.set); 
     return true;
 }
@@ -65,7 +65,22 @@ void ParameterBlock::MarkDescriptorSetDirty(uint32 setIndex)
 
 bool ParameterBlock::BindIntoDescriptorSet(uint32 setIndex)
 {
+    const auto &set = sets[setIndex];
 
+    for(int32 slot : reflection->GetBindingSlots(setIndex))
+    {
+        const auto &bindingData = reflection->GetBindingData(slot);
+        uint32 binding = bindingData.binding;
+        auto descriptorType = bindingData.descriptorType;
+
+        // switch (descriptorType)
+        // {
+        // case DescriptorType::Cbv:
+        //     {
+        //         set->SetCbv( [slot]
+        //     }
+        // }
+    }
 }
 
 bool ParameterBlock::SetResourceSrvUav(const Resource *resource, const ProgramReflection::BindingData &binding)

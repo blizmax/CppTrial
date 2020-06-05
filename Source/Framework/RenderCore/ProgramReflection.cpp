@@ -8,12 +8,12 @@ const RootSignatureDesc &ProgramReflection::GetRootSignatureDesc() const
     if (dirty)
     {
         dirty = false;
-        for (int32 s = 0; s < setDatas.Count(); ++s)
+        for (int32 setIndex = 0; setIndex < setDatas.Count(); ++setIndex)
         {
             DescriptorSetLayoutDesc desc;
-            desc.setIndex = s;
-            desc.visibility = setDatas[s].visibility;
-            for (int32 i : setDatas[s].bindings)
+            desc.setIndex = setIndex;
+            desc.visibility = setDatas[setIndex].visibility;
+            for (int32 i : setDatas[setIndex].bindingSlots)
             {
                 const auto &b = bindingDatas[i];
                 desc.elements.Add({b.name, b.descriptorType, b.binding, b.arrayLength});

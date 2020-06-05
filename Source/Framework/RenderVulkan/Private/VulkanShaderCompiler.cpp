@@ -151,7 +151,7 @@ static void ParseUniforms(const glslang::TProgram &program, const SPtr<ProgramRe
         const auto &qualifier = ttype->getQualifier();
         auto basicType = ttype->getBasicType();
 
-        CT_LOG(Debug, CT_TEXT("{0}"), String(ttype->getCompleteString().c_str()));
+        CT_LOG(Debug, CT_TEXT("Var: {0}"), String(ttype->getCompleteString().c_str()));
 
         DescriptorType desciptorType = DescriptorType::Unknown;
         uint32 binding = qualifier.layoutBinding;
@@ -181,17 +181,25 @@ static void ParseUniforms(const glslang::TProgram &program, const SPtr<ProgramRe
         }
         else
         {
-            //Uniform data inside a uniform block.
+            if(qualifier.storage == glslang::EvqUniform || qualifier.storage == glslang::EvqGlobal)
+            {
+                uint32 bufferOffset = program.getUniformBufferOffset(i);
+            }
         }
-
-        for (int32 i = 0; i < program.getNumLiveUniformBlocks(); ++i)
-        {
-            //TODO
-        }
-        
 
         if(desciptorType != DescriptorType::Unknown)
             reflection->AddBindingData(String(name), desciptorType, binding, arrayLength, set);
+    }
+
+    for (int32 i = 0; i < program.getNumLiveUniformBlocks(); ++i)
+    {
+        const char8 *name = program.getUniformBlockName(i);
+        const auto ttype = program.getUniformBlockTType(i);
+        const auto &qualifier = ttype->getQualifier();
+
+        CT_LOG(Debug, CT_TEXT("Block: {0}"), String(ttype->getCompleteString().c_str()));
+
+        //TODO
     }
 }
 
