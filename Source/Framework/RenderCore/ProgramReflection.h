@@ -72,35 +72,191 @@ enum class ShaderAccess
     ReadWrite,
 };
 
-// struct UniformVarOffset
-// {
-//     uint32 byteOffset;
-// };
-
-// struct ResourceVarOffset
-// {
-//     uint32 binding;
-//     uint32 arrayIndex;
-// };
-
-class ReflectionTypeBase
+struct ShaderVarLocation
 {
-public:
-    virtual ~ReflectionTypeBase() = default;
-
-    virtual bool IsArray() const {return false;}
-    virtual bool IsStruct() const {return false;}
-    virtual bool IsResource() const {return false;}
-
-    uint32 GetBytes() const {return bytes;}
-
-protected:
-    uint32 bytes = 0;
+    uint32 binding = 0;
+    uint32 arrayIndex = 0;
+    uint32 byteOffset = 0;
 };
 
-class ProgramData
-{
+class ReflectionDataType;
+class ReflectionResourceType;
+class ReflectionArrayType;
+class ReflectionStructType;
+class ReflectionVar;
+class ParameterBlockReflection;
 
+class ReflectionType
+{
+public:
+    struct Range
+    {
+    };
+
+    ReflectionType(uint32 size) : size(size)
+    {
+    }
+
+    virtual ~ReflectionType() = default;
+
+    virtual bool IsArray() const { return false; }
+    virtual bool IsStruct() const { return false; }
+    virtual bool IsData() const { return false; }
+    virtual bool IsResource() const { return false; }
+
+    virtual uint32 GetSize() const { return size; }
+
+    const ReflectionDataType *AsData() const;
+    const ReflectionResourceType *AsResource() const;
+    const ReflectionArrayType *AsArray() const;
+    const ReflectionStructType *AsStruct() const;
+    const ReflectionType *UnwrapArray() const;
+    uint32 GetTotalElementCount() const;
+    SPtr<ReflectionVar> FindMember(const String &name) const;
+
+protected:
+    uint32 size = 0;
+};
+
+class ReflectionDataType : public ReflectionType
+{
+public:
+    virtual bool IsData() const override 
+    { 
+        return true; 
+    }
+
+    ShaderDataType GetShaderDataType() const
+    {
+        return dataType;
+    }
+
+private:
+    ShaderDataType dataType = ShaderDataType::Unknown;
+};
+
+class ReflectionResourceType : public ReflectionType
+{
+public:
+    virtual bool IsResource() const override
+    {
+        return true;
+    }
+
+    virtual uint32 GetSize() const override
+    {
+        if(structType)
+            return structType->GetSize();
+        return 0;
+    }
+
+    ShaderResourceType GetShaderResourceType() const
+    {
+        return resourceType;
+    }
+
+    ShaderAccess GetShaderAccess() const
+    {
+        return shaderAccess;
+    }
+
+    const SPtr<ReflectionType> &GetStructType() const
+    {
+        return structType;
+    }
+
+private:
+    ShaderResourceType resourceType = ShaderResourceType::Unknown;
+    ShaderAccess shaderAccess = ShaderAccess::Undefined;
+    SPtr<ReflectionType> structType;
+};
+
+class ReflectionArrayType : public ReflectionType
+{
+public:
+    virtual bool IsArray() const override
+    { 
+        return true; 
+    }
+
+    uint32 GetElementCount() const
+    {
+        return elementCount;
+    }
+
+    const SPtr<ReflectionType> &GetElementType() const
+    {
+        return elementType;
+    }
+
+private:
+    uint32 elementCount = 0;
+    SPtr<ReflectionType> elementType;
+};
+
+class ReflectionStructType : public ReflectionType
+{
+public:
+    virtual bool IsStruct() const override
+    {
+        return true;
+    }
+
+    const String &GetName() const
+    {
+        return name;
+    }
+
+    uint32 GetMemberCount() const
+    {
+        return members.Count();
+    }
+
+    SPtr<ReflectionVar> GetMember(int32 index) const;
+    SPtr<ReflectionVar> GetMember(const String &name) const;
+    int32 GetMemberIndex(const String &name) const;
+    
+private:
+    String name;
+    Array<SPtr<ReflectionVar>> members;
+    HashMap<String, int32> memberNames;
+};
+
+class ReflectionVar
+{
+public:
+    const String &GetName() const
+    {
+        return name;
+    }
+
+    const SPtr<ReflectionType> &GetReflectionType() const
+    {
+        return reflectionType;
+    };
+
+    ShaderVarLocation GetLocation() const
+    {
+        return location;
+    }
+
+    uint32 GetByteOffset() const
+    {
+        return location.byteOffset;
+    }
+
+private:
+    String name;
+    SPtr<ReflectionType> reflectionType;
+    ShaderVarLocation location;
+};
+
+class ParameterBlockReflection
+{
+public:
+    //SPtr<ReflectionVar> GetMember(const String &name);
+
+private:
 };
 
 class ProgramReflection
@@ -108,7 +264,7 @@ class ProgramReflection
 public:
     struct BindingData
     {
-        int32 slot = -1;  
+        int32 slot = -1;
         String name;
         DescriptorType descriptorType = DescriptorType::Unknown;
         uint32 binding = 0;
@@ -190,6 +346,5 @@ private:
     Array<SetData> setDatas;
     HashMap<String, int32> bindingNames;
 };
-
 
 }
