@@ -28,9 +28,6 @@ public:
     }
 
 private:
-    ShaderData CompileShader(const ShaderDesc &desc);
-
-private:
     Array<ShaderData> shaderDatas;
 };
 

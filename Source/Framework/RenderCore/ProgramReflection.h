@@ -91,6 +91,7 @@ class ReflectionType
 public:
     struct Range
     {
+
     };
 
     ReflectionType(uint32 size) : size(size)
@@ -121,6 +122,11 @@ protected:
 class ReflectionDataType : public ReflectionType
 {
 public:
+    ReflectionDataType(ShaderDataType dataType, uint32 size)
+        : ReflectionType(size), dataType(dataType)
+    {
+    }
+
     virtual bool IsData() const override 
     { 
         return true; 
@@ -131,6 +137,11 @@ public:
         return dataType;
     }
 
+    static SPtr<ReflectionDataType> Create(ShaderDataType dataType, uint32 size)
+    {
+        return Memory::MakeShared<ReflectionDataType>(dataType, size);
+    }
+
 private:
     ShaderDataType dataType = ShaderDataType::Unknown;
 };
@@ -138,6 +149,12 @@ private:
 class ReflectionResourceType : public ReflectionType
 {
 public:
+    ReflectionResourceType(ShaderResourceType resourceType, ShaderAccess shaderAccess)
+        : ReflectionType(0), resourceType(resourceType), shaderAccess(shaderAccess)
+    {
+        //TODO Range
+    }
+
     virtual bool IsResource() const override
     {
         return true;
@@ -165,6 +182,12 @@ public:
         return structType;
     }
 
+    template <typename... Args>
+    static SPtr<ReflectionResourceType> Create(Args&&... args)
+    {
+        return Memory::MakeShared<ReflectionResourceType>(std::forward<Args>(args)...);
+    }
+
 private:
     ShaderResourceType resourceType = ShaderResourceType::Unknown;
     ShaderAccess shaderAccess = ShaderAccess::Undefined;
@@ -174,6 +197,12 @@ private:
 class ReflectionArrayType : public ReflectionType
 {
 public:
+    ReflectionArrayType(uint32 elementCount, uint32 stride, const SPtr<ReflectionType> &elementType, uint32 totalSize)
+        : ReflectionType(totalSize), elementCount(elementCount), stride(stride), elementType(elementType)
+    {
+        //TODO Range
+    }
+
     virtual bool IsArray() const override
     { 
         return true; 
@@ -189,14 +218,26 @@ public:
         return elementType;
     }
 
+    template <typename... Args>
+    static SPtr<ReflectionArrayType> Create(Args&&... args)
+    {
+        return Memory::MakeShared<ReflectionArrayType>(std::forward<Args>(args)...);
+    }
+
 private:
     uint32 elementCount = 0;
+    uint32 stride = 0;
     SPtr<ReflectionType> elementType;
 };
 
 class ReflectionStructType : public ReflectionType
 {
 public:
+    ReflectionStructType(uint32 size, const String &name)
+        : ReflectionType(size), name(name)
+    {
+    }
+
     virtual bool IsStruct() const override
     {
         return true;
@@ -212,19 +253,36 @@ public:
         return members.Count();
     }
 
+    CT_INLINE int32 AddMember(const SPtr<ReflectionVar> &var);
+
     SPtr<ReflectionVar> GetMember(int32 index) const;
     SPtr<ReflectionVar> GetMember(const String &name) const;
     int32 GetMemberIndex(const String &name) const;
+
+    static SPtr<ReflectionStructType> Create(uint32 size, const String &name)
+    {
+        return Memory::MakeShared<ReflectionStructType>(size, name);
+    }
     
 private:
     String name;
     Array<SPtr<ReflectionVar>> members;
     HashMap<String, int32> memberNames;
+
+    uint32 cbvCount = 0;
+    uint32 srvCount = 0;
+    uint32 uavCount = 0;
+    uint32 samplerCount = 0;
 };
 
 class ReflectionVar
 {
 public:
+    ReflectionVar(const String &name, const SPtr<ReflectionType> &reflectionType, const ShaderVarLocation location)
+        : name(name), reflectionType(reflectionType), location(location)
+    {
+    }
+
     const String &GetName() const
     {
         return name;
@@ -245,6 +303,11 @@ public:
         return location.byteOffset;
     }
 
+    static SPtr<ReflectionVar> Create(const String &name, const SPtr<ReflectionType> &reflectionType, const ShaderVarLocation location)
+    {
+        return Memory::MakeShared<ReflectionVar>(name, reflectionType, location);
+    }
+
 private:
     String name;
     SPtr<ReflectionType> reflectionType;
@@ -254,9 +317,19 @@ private:
 class ParameterBlockReflection
 {
 public:
+    void Finalize();
+
     //SPtr<ReflectionVar> GetMember(const String &name);
 
+    static SPtr<ParameterBlockReflection> Create()
+    {
+        return Memory::MakeShared<ParameterBlockReflection>();
+    }
+
 private:
+    friend class ProgramReflectionBuilder;
+
+    SPtr<ReflectionType> elementType;
 };
 
 class ProgramReflection
@@ -279,6 +352,13 @@ public:
     };
 
     ProgramReflection() = default;
+
+    void Finalize();
+
+    SPtr<ParameterBlockReflection> GetDefaultParameterBlock() const
+    {
+        return defaultBlock;
+    }
 
     const RootSignatureDesc &GetRootSignatureDesc() const;
 
@@ -339,12 +419,63 @@ public:
     }
 
 private:
+    friend class ProgramReflectionBuilder;
+
     mutable RootSignatureDesc rootSignatureDesc;
     mutable bool dirty = true;
+
+    SPtr<ParameterBlockReflection> defaultBlock;
 
     Array<BindingData> bindingDatas;
     Array<SetData> setDatas;
     HashMap<String, int32> bindingNames;
+};
+
+//========================================================================
+
+CT_INLINE int32 ReflectionStructType::AddMember(const SPtr<ReflectionVar> &var)
+{
+    if (memberNames.Contains(var->GetName()))
+    {
+        CT_LOG(Error, CT_TEXT("Struct type add member failed, member named {0} already exists."), var->GetName());
+        return -1;
+    }
+
+    int32 newIndex = members.Count();
+    members.Add(var);
+    memberNames.Put(var->GetName(), newIndex);
+
+    auto memberType = var->GetReflectionType();
+    //TODO
+
+    return newIndex;
+}
+
+class ProgramReflectionBuilder
+{
+public:
+    ProgramReflectionBuilder()
+    {
+        auto globalStruct = ReflectionStructType::Create(0, CT_TEXT(""));
+        auto blockReflection = ParameterBlockReflection::Create();
+        blockReflection->elementType = globalStruct;
+
+        reflection = ProgramReflection::Create();
+        reflection->defaultBlock = blockReflection;
+    }
+
+    void Build()
+    {
+        reflection->Finalize();
+    }
+
+    const SPtr<ProgramReflection> &GetReflection() const
+    {
+        return reflection;
+    }
+
+private:
+    SPtr<ProgramReflection> reflection;
 };
 
 }

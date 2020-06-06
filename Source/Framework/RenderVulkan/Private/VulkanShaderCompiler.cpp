@@ -142,7 +142,7 @@ static EShLanguage ToEShLanguage(ShaderType shaderType)
     return EShLangCount;
 }
 
-static void ParseUniforms(const glslang::TProgram &program, const SPtr<ProgramReflection> &reflection)
+static void ParseReflection(const glslang::TProgram &program, const ProgramReflectionBuilder &builder)
 {
     for (int32 i = 0; i < program.getNumLiveUniformVariables(); ++i)
     {
@@ -188,7 +188,7 @@ static void ParseUniforms(const glslang::TProgram &program, const SPtr<ProgramRe
         }
 
         if(desciptorType != DescriptorType::Unknown)
-            reflection->AddBindingData(String(name), desciptorType, binding, arrayLength, set);
+            builder.GetReflection()->AddBindingData(String(name), desciptorType, binding, arrayLength, set);
     }
 
     for (int32 i = 0; i < program.getNumLiveUniformBlocks(); ++i)
@@ -203,31 +203,45 @@ static void ParseUniforms(const glslang::TProgram &program, const SPtr<ProgramRe
     }
 }
 
-Array<uchar8> VulkanShaderCompilerImpl::Compile(ShaderType shaderType, const String &source, const SPtr<ProgramReflection> &reflection)
+bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModuleFunc &func, const ProgramReflectionBuilder &builder)
 {
-    auto u8Str = StringEncode::UTF8::ToChars(source);
-    char8 *cstr = u8Str.GetData();
+    glslang::TProgram program;
+    Array<UPtr<glslang::TShader>> shaders;
 
-    auto stage = ToEShLanguage(shaderType);
-    glslang::TShader shader(stage);
-    shader.setStrings(&cstr, 1);
-    shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, 100);
-    shader.setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_0);
-    shader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
-
-    if (!shader.parse(&DefaultTBuiltInResource, 100, true, EShMsgDefault))
+    for (const auto & e : desc.shaderDescs)
     {
-        CT_LOG(Error, CT_TEXT("Parse error: {0}"), String(shader.getInfoLog()));
-        CT_EXCEPTION(RenderCore, "Parse failed.");
+        auto u8Str = StringEncode::UTF8::ToChars(e.source);
+        char8 *cstr = u8Str.GetData();
+
+        auto stage = ToEShLanguage(e.shaderType);
+        shaders.Add(Memory::MakeUnique<glslang::TShader>(stage));
+        auto shader = shaders.Last().get();
+
+        shader->setStrings(&cstr, 1);
+        shader->setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, 100);
+        shader->setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_0);
+        shader->setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
+
+        if (!shader->parse(&DefaultTBuiltInResource, 100, true, EShMsgDefault))
+        {
+            CT_LOG(Error, CT_TEXT("Parse error: {0}"), String(shader->getInfoLog()));
+            CT_EXCEPTION(RenderCore, "Parse failed.");
+            return false;
+        }
+
+        program.addShader(shader);
     }
 
-    glslang::TProgram program;
-    program.addShader(&shader);
     if (!program.link(EShMsgDefault))
     {
         CT_LOG(Error, CT_TEXT("Link error: {0}"), String(program.getInfoLog()));
         CT_EXCEPTION(RenderCore, "Link failed.");
+        return false;
     }
+
+    program.mapIO();
+    program.buildReflection();
+    ParseReflection(program, builder);
 
     glslang::SpvOptions spvOptions;
     spvOptions.generateDebugInfo = false;
@@ -235,19 +249,21 @@ Array<uchar8> VulkanShaderCompilerImpl::Compile(ShaderType shaderType, const Str
     spvOptions.disassemble = false;
     spvOptions.validate = false;
 
-    program.mapIO();
-    program.buildReflection();
+    for (const auto & e : desc.shaderDescs)
+    {
+        std::vector<uint32> spv;
+        auto stage = ToEShLanguage(e.shaderType);
+        glslang::GlslangToSpv(*program.getIntermediate(stage), spv, nullptr, &spvOptions);
 
-    std::vector<uint32> spv;
-    glslang::GlslangToSpv(*program.getIntermediate(stage), spv, nullptr, &spvOptions);
+        auto size = 4 * spv.size();
+        Array<uchar8> codes;
+        codes.AppendUninitialized(size);
+        std::memcpy(codes.GetData(), spv.data(), size);
 
-    ParseUniforms(program, reflection);
+        func(e.shaderType, codes);
+    }
 
-    auto size = 4 * spv.size();
-    Array<uchar8> result;
-    result.AppendUninitialized(size);
-    std::memcpy(result.GetData(), spv.data(), size);
-    return result;
+    return true;
 }
 
 VulkanShaderCompiler *CreateVulkanShaderCompiler(void)

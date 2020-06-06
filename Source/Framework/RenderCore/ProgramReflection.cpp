@@ -72,6 +72,16 @@ int32 ReflectionStructType::GetMemberIndex(const String &name) const
     return ptr ? *ptr : -1;
 }
 
+void ParameterBlockReflection::Finalize()
+{
+    //TODO
+}
+
+void ProgramReflection::Finalize()
+{
+    defaultBlock->Finalize();
+}
+
 const RootSignatureDesc &ProgramReflection::GetRootSignatureDesc() const
 {
     if (dirty)
