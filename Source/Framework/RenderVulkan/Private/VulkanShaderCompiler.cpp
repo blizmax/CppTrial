@@ -142,64 +142,194 @@ static EShLanguage ToEShLanguage(ShaderType shaderType)
     return EShLangCount;
 }
 
+static SPtr<ReflectionVar> ParseSamplerVar(const String &name, const glslang::TObjectReflection &obj)
+{
+    SPtr<ReflectionVar> result;
+
+    const auto ttype = obj.getType();
+    const auto &sampler = ttype->getSampler();
+    const auto &qualifier = ttype->getQualifier();
+
+    CT_CHECK(qualifier.hasBinding());
+    CT_CHECK(!sampler.isCombined());
+
+    ShaderResourceType shaderResourceType = ShaderResourceType::Unknown;
+    ShaderAccess shaderAccess = ShaderAccess::Undefined;
+    if (sampler.isPureSampler())
+    {
+        shaderResourceType = ShaderResourceType::Sampler;
+        shaderAccess = ShaderAccess::Read;
+    }
+    else if (sampler.isTexture())
+    {
+        bool arrayed = sampler.isArrayed();
+        switch (sampler.dim)
+        {
+        case glslang::Esd1D:
+            shaderResourceType = arrayed ? ShaderResourceType::Texture1DArray : ShaderResourceType::Texture1D;
+            break;
+        case glslang::Esd2D:
+            if (sampler.isMultiSample())
+                shaderResourceType = arrayed ? ShaderResourceType::Texture2DMSArray : ShaderResourceType::Texture2DMS;
+            else
+                shaderResourceType = arrayed ? ShaderResourceType::Texture2DArray : ShaderResourceType::Texture2D;
+            break;
+        case glslang::Esd3D:
+            shaderResourceType = ShaderResourceType::Texture3D;
+            break;
+        case glslang::EsdCube:
+            shaderResourceType = arrayed ? ShaderResourceType::TextureCubeArray : ShaderResourceType::TextureCube;
+            break;
+        case glslang::EsdBuffer:
+            //TODO
+            break;
+        }
+        shaderAccess = ShaderAccess::Read;
+    }
+    else
+    {
+        //TODO
+    }
+
+    if (shaderResourceType == ShaderResourceType::Unknown)
+    {
+        CT_LOG(Error, CT_TEXT("Parse sampler like var failed, just skip it.{0}:{1}"), name, String(ttype->getCompleteString().c_str()));
+    }
+    else
+    {
+        auto resourceType = ReflectionResourceType::Create(shaderResourceType, shaderAccess);
+        ShaderVarLocation location;
+
+        if(ttype->isArray())
+        {
+            auto arraySizes = ttype->getArraySizes();
+            CT_CHECK(arraySizes->getNumDims() == 1); //These types only support one dim array
+
+            auto arrayType = ReflectionArrayType::Create(arraySizes->getDimSize(0), 0, resourceType, 0);
+            result = ReflectionVar::Create(name, arrayType, location);     
+        }
+        else
+        {
+            result = ReflectionVar::Create(name, resourceType, location);
+        }
+    }
+
+    return result;
+}
+
+static SPtr<ReflectionStructType> ParseStruct(const String &name, const glslang::TType *ttype)
+{
+    uint32 structSize = glslang::TIntermediate::getBlockSize(*ttype);
+    SPtr<ReflectionStructType> sturctType = ReflectionStructType::Create(structSize, name);
+
+    const auto &memberTypes = *(ttype->getStruct());
+    for (const auto &e : memberTypes)
+    {
+        //TODO
+        auto mtype = e.type;
+        CT_LOG(Debug, CT_TEXT("Parent name:{0}, member name:{1}"), name, String(mtype->getFieldName().c_str()));
+    }
+    return sturctType;
+}
+
+static SPtr<ReflectionVar> ParseBlockVar(const String &name, const glslang::TObjectReflection &obj)
+{
+    SPtr<ReflectionVar> result;
+
+    const auto ttype = obj.getType();
+    const auto &qualifier = ttype->getQualifier();
+
+    CT_CHECK(qualifier.hasBinding());
+
+    ShaderResourceType shaderResourceType = ShaderResourceType::Unknown;
+    ShaderAccess shaderAccess = ShaderAccess::Undefined;
+    if (qualifier.storage == glslang::EvqBuffer)
+    {
+        CT_LOG(Debug, CT_TEXT("A buffer block, {0}:{1}"), name, String(ttype->getCompleteString().c_str()));
+
+        shaderResourceType = ShaderResourceType::StructuredBuffer;
+        shaderAccess = ShaderAccess::ReadWrite;
+    }
+    else
+    {
+        CT_LOG(Debug, CT_TEXT("A uniform block, {0}:{1}"), name, String(ttype->getCompleteString().c_str()));
+    
+        shaderResourceType = ShaderResourceType::ConstantBuffer;
+        shaderAccess = ShaderAccess::Read;
+    }
+
+    ShaderVarLocation location;
+    auto resourceType = ReflectionResourceType::Create(shaderResourceType, shaderAccess);
+    result = ReflectionVar::Create(name, resourceType, location);
+
+    if (qualifier.storage == glslang::EvqUniform)
+    {
+        SPtr<ReflectionType> elementType = ParseStruct(name, ttype);
+        auto subBlockReflection = ParameterBlockReflection::Create();
+        subBlockReflection->SetElementType(elementType);
+        subBlockReflection->Finalize();
+        resourceType->SetStructType(elementType);
+        resourceType->SetBlockReflection(subBlockReflection);
+    }
+
+    return result;
+}
+
 static void ParseReflection(const glslang::TProgram &program, const ProgramReflectionBuilder &builder)
 {
-    for (int32 i = 0; i < program.getNumLiveUniformVariables(); ++i)
+    auto reflection = builder.GetReflection();
+    auto globalBlockReflection = reflection->GetDefaultBlockReflection();
+    auto globalStruct = std::static_pointer_cast<ReflectionStructType>(globalBlockReflection->GetElementType());
+
+    for (int32 i = 0; i < program.getNumUniformVariables(); ++i)
     {
-        const char8 *name = program.getUniformName(i);
+        const auto &obj = program.getUniform(i);
+        String name = obj.name.c_str();
         const auto ttype = program.getUniformTType(i);
         const auto &qualifier = ttype->getQualifier();
         auto basicType = ttype->getBasicType();
 
-        CT_LOG(Debug, CT_TEXT("Var: {0}"), String(ttype->getCompleteString().c_str()));
-
-        DescriptorType desciptorType = DescriptorType::Unknown;
-        uint32 binding = qualifier.layoutBinding;
-        uint32 set = qualifier.layoutSet == glslang::TQualifier::layoutSetEnd ? 0 : qualifier.layoutSet;
-        uint32 arrayLength = ttype->isArray() ? ttype->getCumulativeArraySize() : 1;
-
-        if (basicType == glslang::EbtSampler) // object type
+        if (basicType == glslang::EbtSampler) // sampler texture type
 		{
-            CT_CHECK(qualifier.hasBinding());
-
-            const auto &sampler = ttype->getSampler();
-            CT_CHECK(!sampler.isCombined());
-
-            if (sampler.isPureSampler())
+            auto var = ParseSamplerVar(name, obj);
+            if(var)
             {
-                desciptorType = DescriptorType::Sampler;
-            }
-            else if (sampler.isTexture())
-            {
-                desciptorType = DescriptorType::TextureSrv;
-            }
-            else
-            {
-                //TODO image or buffer
-                //desciptorType = DescriptorType::TextureUav;
+                globalStruct->AddMember(var);
+                BindingInfo bindingInfo;
+                bindingInfo.binding = qualifier.layoutBinding;
+                bindingInfo.set = qualifier.layoutSet == glslang::TQualifier::layoutSetEnd ? 0 : qualifier.layoutSet;
+                globalBlockReflection->AddBindingInfo(bindingInfo);
             }
         }
         else
         {
             if(qualifier.storage == glslang::EvqUniform || qualifier.storage == glslang::EvqGlobal)
             {
-                uint32 bufferOffset = program.getUniformBufferOffset(i);
+                //uint32 bufferOffset = program.getUniformBufferOffset(i);
+            }
+            else
+            {
+                CT_LOG(Debug, CT_TEXT("Tell me this uniform var: {0}"), String(ttype->getCompleteString().c_str()));
             }
         }
-
-        if(desciptorType != DescriptorType::Unknown)
-            builder.GetReflection()->AddBindingData(String(name), desciptorType, binding, arrayLength, set);
     }
 
-    for (int32 i = 0; i < program.getNumLiveUniformBlocks(); ++i)
+    for (int32 i = 0; i < program.getNumUniformBlocks(); ++i)
     {
-        const char8 *name = program.getUniformBlockName(i);
-        const auto ttype = program.getUniformBlockTType(i);
+        const auto &obj = program.getUniformBlock(i);
+        String name = obj.name.c_str();
+        const auto ttype = program.getUniformTType(i);
         const auto &qualifier = ttype->getQualifier();
 
-        CT_LOG(Debug, CT_TEXT("Block: {0}"), String(ttype->getCompleteString().c_str()));
-
-        //TODO
+        auto var = ParseBlockVar(name, obj);
+        if (var)
+        {
+            globalStruct->AddMember(var);
+            BindingInfo bindingInfo;
+            bindingInfo.binding = qualifier.layoutBinding;
+            bindingInfo.set = qualifier.layoutSet == glslang::TQualifier::layoutSetEnd ? 0 : qualifier.layoutSet;
+            globalBlockReflection->AddBindingInfo(bindingInfo);
+        }
     }
 }
 
@@ -239,9 +369,13 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
         return false;
     }
 
-    program.mapIO();
+    //program.mapIO();
     program.buildReflection();
+
+    CT_LOG(Debug, CT_TEXT("=============================Reflection Begin========================"));
     ParseReflection(program, builder);
+    CT_LOG(Debug, CT_TEXT("=============================Reflection End========================"));
+    program.dumpReflection();
 
     glslang::SpvOptions spvOptions;
     spvOptions.generateDebugInfo = false;
@@ -249,7 +383,7 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
     spvOptions.disassemble = false;
     spvOptions.validate = false;
 
-    for (const auto & e : desc.shaderDescs)
+    for (const auto &e : desc.shaderDescs)
     {
         std::vector<uint32> spv;
         auto stage = ToEShLanguage(e.shaderType);

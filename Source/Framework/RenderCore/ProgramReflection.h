@@ -40,12 +40,6 @@ enum class ShaderDataType
 
 enum class ShaderResourceType
 {
-    Sampler1D,
-    Sampler2D,
-    Sampler3D,
-    SamplerCube,
-    Sampler2DMS,
-
     Texture1D,
     Texture2D,
     Texture3D,
@@ -55,7 +49,7 @@ enum class ShaderResourceType
     Texture2DArray,
     TextureCubeArray,
     Texture2DMSArray,
-
+    Sampler,
     StructuredBuffer,
     RawBuffer,
     TypedBuffer,
@@ -79,6 +73,19 @@ struct ShaderVarLocation
     uint32 byteOffset = 0;
 };
 
+struct BindingRange
+{
+    DescriptorType descriptorType = DescriptorType::Unknown;
+    uint32 count = 1;
+    uint32 baseIndex = 0;
+};
+
+struct BindingInfo
+{
+    uint32 binding = 0;
+    uint32 set = 0;
+};
+
 class ReflectionDataType;
 class ReflectionResourceType;
 class ReflectionArrayType;
@@ -89,11 +96,6 @@ class ParameterBlockReflection;
 class ReflectionType
 {
 public:
-    struct Range
-    {
-
-    };
-
     ReflectionType(uint32 size) : size(size)
     {
     }
@@ -115,8 +117,24 @@ public:
     uint32 GetTotalElementCount() const;
     SPtr<ReflectionVar> FindMember(const String &name) const;
 
+    uint32 GetBindingRangeCount() const
+    {
+        return bindingRanges.Count();
+    }
+
+    const BindingRange &GetBindingRange(int32 index) const
+    {
+        return bindingRanges[index];
+    }
+
+    const Array<BindingRange> &GetBindingRanges() const
+    {
+        return bindingRanges;
+    }
+
 protected:
     uint32 size = 0;
+    Array<BindingRange> bindingRanges;
 };
 
 class ReflectionDataType : public ReflectionType
@@ -152,7 +170,47 @@ public:
     ReflectionResourceType(ShaderResourceType resourceType, ShaderAccess shaderAccess)
         : ReflectionType(0), resourceType(resourceType), shaderAccess(shaderAccess)
     {
-        //TODO Range
+        DescriptorType descriptorType = DescriptorType::Unknown;
+
+        switch (resourceType)
+        {
+        case ShaderResourceType::ConstantBuffer:
+            descriptorType = DescriptorType::Cbv;
+            break;
+        case ShaderResourceType::RawBuffer:
+            descriptorType =
+                shaderAccess == ShaderAccess::Read ? DescriptorType::RawBufferSrv : DescriptorType::RawBufferUav;
+            break;
+        case ShaderResourceType::StructuredBuffer:
+            descriptorType =
+                shaderAccess == ShaderAccess::Read ? DescriptorType::StructuredBufferSrv : DescriptorType::StructuredBufferUav;
+            break;
+        case ShaderResourceType::TypedBuffer:
+            descriptorType =
+                shaderAccess == ShaderAccess::Read ? DescriptorType::TypedBufferSrv : DescriptorType::TypedBufferUav;
+            break;
+        case ShaderResourceType::Sampler:
+            descriptorType = DescriptorType::Sampler;
+            break;
+        case ShaderResourceType::Texture1D:
+        case ShaderResourceType::Texture2D:
+        case ShaderResourceType::Texture3D:
+        case ShaderResourceType::TextureCube:
+        case ShaderResourceType::Texture2DMS:
+        case ShaderResourceType::Texture1DArray:
+        case ShaderResourceType::Texture2DArray:
+        case ShaderResourceType::TextureCubeArray:
+        case ShaderResourceType::Texture2DMSArray:
+            descriptorType =
+                shaderAccess == ShaderAccess::Read ? DescriptorType::TextureSrv : DescriptorType::TextureUav;
+            break;
+        }
+
+        BindingRange range;
+        range.descriptorType = descriptorType;
+        range.count = 1;
+        range.baseIndex = 0;
+        bindingRanges.Add(range);
     }
 
     virtual bool IsResource() const override
@@ -182,6 +240,21 @@ public:
         return structType;
     }
 
+    void SetStructType(const SPtr<ReflectionType> &newType)
+    {
+        structType = newType;
+    }
+
+    const SPtr<ParameterBlockReflection> &GetBlockReflection() const
+    {
+        return blockReflection;
+    }
+
+    void SetBlockReflection(const SPtr<ParameterBlockReflection> &reflection)
+    {
+        blockReflection = reflection;
+    }
+
     template <typename... Args>
     static SPtr<ReflectionResourceType> Create(Args&&... args)
     {
@@ -192,6 +265,7 @@ private:
     ShaderResourceType resourceType = ShaderResourceType::Unknown;
     ShaderAccess shaderAccess = ShaderAccess::Undefined;
     SPtr<ReflectionType> structType;
+    SPtr<ParameterBlockReflection> blockReflection;
 };
 
 class ReflectionArrayType : public ReflectionType
@@ -200,7 +274,15 @@ public:
     ReflectionArrayType(uint32 elementCount, uint32 stride, const SPtr<ReflectionType> &elementType, uint32 totalSize)
         : ReflectionType(totalSize), elementCount(elementCount), stride(stride), elementType(elementType)
     {
-        //TODO Range
+        for (auto &e : elementType->GetBindingRanges())
+        {
+            BindingRange range;
+            range.descriptorType = e.descriptorType;
+            range.count = e.count * elementCount;
+            range.baseIndex = e.baseIndex * elementCount;
+
+            bindingRanges.Add(range);
+        }
     }
 
     virtual bool IsArray() const override
@@ -317,9 +399,42 @@ private:
 class ParameterBlockReflection
 {
 public:
-    void Finalize();
+    void Finalize()
+    {
+        //TODO
+    }
 
     //SPtr<ReflectionVar> GetMember(const String &name);
+
+    const SPtr<ReflectionType> &GetElementType() const
+    {
+        return elementType;
+    }
+
+    void SetElementType(const SPtr<ReflectionType> &newType)
+    {
+        elementType = newType;
+    }
+
+    uint32 GetBindingInfoCount() const
+    {
+        return bindingInfos.Count();
+    }
+
+    const BindingInfo &GetBindingInfo(int32 index) const
+    {
+        return bindingInfos[index];
+    }
+
+    const Array<BindingInfo> &GetBindingInfos() const
+    {
+        return bindingInfos;
+    }
+
+    void AddBindingInfo(const BindingInfo &info)
+    {
+        bindingInfos.Add(info);
+    }
 
     static SPtr<ParameterBlockReflection> Create()
     {
@@ -327,9 +442,8 @@ public:
     }
 
 private:
-    friend class ProgramReflectionBuilder;
-
     SPtr<ReflectionType> elementType;
+    Array<BindingInfo> bindingInfos;
 };
 
 class ProgramReflection
@@ -355,9 +469,14 @@ public:
 
     void Finalize();
 
-    SPtr<ParameterBlockReflection> GetDefaultParameterBlock() const
+    SPtr<ParameterBlockReflection> GetDefaultBlockReflection() const
     {
-        return defaultBlock;
+        return defaultBlockReflection;
+    }
+
+    void SetDefaultBlockReflection(const SPtr<ParameterBlockReflection> &reflection)
+    {
+        defaultBlockReflection = reflection;
     }
 
     const RootSignatureDesc &GetRootSignatureDesc() const;
@@ -419,12 +538,10 @@ public:
     }
 
 private:
-    friend class ProgramReflectionBuilder;
-
     mutable RootSignatureDesc rootSignatureDesc;
     mutable bool dirty = true;
 
-    SPtr<ParameterBlockReflection> defaultBlock;
+    SPtr<ParameterBlockReflection> defaultBlockReflection;
 
     Array<BindingData> bindingDatas;
     Array<SetData> setDatas;
@@ -458,10 +575,10 @@ public:
     {
         auto globalStruct = ReflectionStructType::Create(0, CT_TEXT(""));
         auto blockReflection = ParameterBlockReflection::Create();
-        blockReflection->elementType = globalStruct;
+        blockReflection->SetElementType(globalStruct);
 
         reflection = ProgramReflection::Create();
-        reflection->defaultBlock = blockReflection;
+        reflection->SetDefaultBlockReflection(blockReflection);
     }
 
     void Build()

@@ -22,7 +22,9 @@ struct Inner
 
 struct Misc
 {
+    vec4 write;
     Inner inner;
+    float s;
 };
 
 layout(binding = 3, set = 1) uniform Block2
@@ -39,6 +41,9 @@ void main()
     vec4 v = mat * vec;
     v *= namedBlock.misc.inner.scls[0];
     v *= namedBlock.misc.inner.scls[1];
+    v *= namedBlock.misc.s;
+
+    //namedBlock.misc.write = v;
 
     vec4 col = texture(sampler2D(textures[1], samplers[1]), UV);
     FragColor = texture(sampler2D(textures[0], samplers[0]), UV) + col * v;
