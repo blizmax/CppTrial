@@ -22,14 +22,14 @@ struct Inner
 
 struct Misc
 {
-    vec4 write;
+    vec3 write;
     Inner inner;
     float s;
 };
 
 layout(binding = 3, set = 1) uniform Block2
 {
-    Misc misc;
+    Misc miscs[1][1];
 } namedBlock;
 
 layout(location = 0) in vec2 UV;
@@ -39,9 +39,9 @@ layout(location = 0) out vec4 FragColor;
 void main()
 {
     vec4 v = mat * vec;
-    v *= namedBlock.misc.inner.scls[0];
-    v *= namedBlock.misc.inner.scls[1];
-    v *= namedBlock.misc.s;
+    v *= namedBlock.miscs[0][0].inner.scls[0];
+    v *= namedBlock.miscs[0][0].inner.scls[1];
+    v *= namedBlock.miscs[0][0].s;
 
     //namedBlock.misc.write = v;
 
