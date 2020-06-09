@@ -79,25 +79,25 @@ void ProgramReflection::Finalize()
 
     const auto &bindingInfos = defaultBlockReflection->GetBindingInfos();
     const auto &bindingRanges = defaultBlockReflection->GetElementType()->GetBindingRanges();
-    CT_CHECK(bindingInfos.Count() == bindingRanges.Count());
 
-    HashMap<uint32, Array<DescriptorSetLayoutDesc::Element>> setElements;
-    for(int32 i = 0; i < bindingRanges.Count(); ++i)
+    for(auto & setInfo : defaultBlockReflection->setInfos)
     {
-        const auto &info = bindingInfos[i];
-        const auto &range = bindingRanges[i];
-        if(!setElements.Contains(info.set))
-            setElements.Put(info.set, {});
-        setElements[info.set].Add({info.name, range.descriptorType, info.binding, range.count});
-    }
-    for(auto &[set, elements] : setElements)
-    {
+        if(!setInfo.bindingIndices.Count() == 0)
+            continue;
+
         DescriptorSetLayoutDesc desc;
-        desc.setIndex = set;
+        desc.setIndex = setInfo.set;
         desc.visibility = ShaderVisibility::All;
-        desc.elements = std::move(elements);
+        for (auto i : setInfo.bindingIndices)
+        {
+            const auto &info = bindingInfos[i];
+            const auto &range = bindingRanges[i];
+            desc.elements.Add({info.name, range.descriptorType, info.binding, range.count});
+        }
 
-        rootSignatureDesc.layouts.Add(DescriptorSetLayout::Create(desc));
+        auto layout = DescriptorSetLayout::Create(desc);
+        setInfo.layout = layout;
+        rootSignatureDesc.layouts.Add(layout);
     }
 }
 

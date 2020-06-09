@@ -14,6 +14,9 @@ class ProgramVars : public ParameterBlock
 {
 public:
     virtual ~ProgramVars() = default;
+
+private:
+        
 };
 
 class GraphicsVars : public ProgramVars
@@ -21,6 +24,7 @@ class GraphicsVars : public ProgramVars
 public:
     bool Apply(RenderContext *ctx, RootSignature *rootSignature)
     {
+        //TODO
         return true;
     }
 

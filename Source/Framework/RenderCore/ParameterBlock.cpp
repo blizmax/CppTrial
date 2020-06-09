@@ -4,20 +4,28 @@
 namespace RenderCore
 {
 
-SPtr<ParameterBlock> ParameterBlock::Create(const SPtr<ProgramReflection> &reflection)
+SPtr<ParameterBlock> ParameterBlock::Create(const SPtr<ParameterBlockReflection> &reflection)
 {
     return Memory::MakeShared<ParameterBlock>(reflection);
 }
 
-ParameterBlock::ParameterBlock(const SPtr<ProgramReflection> &reflection)
+ParameterBlock::ParameterBlock(const SPtr<ParameterBlockReflection> &reflection)
     : reflection(reflection)
 {
-    sets.SetCount(reflection->GetDescriptorSetCount());
+    data.SetCount(reflection->GetElementType()->GetSize());
+    sets.SetCount(reflection->GetSetInfoCount());
+
+    srvs.SetCount(reflection->srvCount);
+    uavs.SetCount(reflection->uavCount);
+    samplers.SetCount(reflection->samplerCount);
+
+    //TODO
+    //cbvCount
+    //Create uniform buffer
 }
 
 bool ParameterBlock::SetBuffer(const String &name, const SPtr<Buffer> &buffer)
 {
-    const auto &bindingData = reflection->GetBindingData(name);
 
 }
 
@@ -41,25 +49,50 @@ bool ParameterBlock::SetCbv(const String &name, const SPtr<ResourceView> &cbv)
 
 }
 
-bool ParameterBlock::SetSampler(const String &name, const SPtr<Sampler> &sampler)
+bool ParameterBlock::SetSampler(const ShaderVarLocation &location, const SPtr<Sampler> &sampler)
 {
     CT_CHECK(sampler);
+    CheckResourceLocation(location);
+    CheckDescriptorType(location, DescriptorType::Sampler);
 
-    const auto &bindingData = reflection->GetBindingData(name);
-    if (bindingData.descriptorType != DescriptorType::Sampler)
-        return false;
-    
-    auto ptr = samplers.TryGet(bindingData.slot);
-    if (ptr && *ptr == sampler)
+    auto flatIndex = GetFlatIndex(location);
+    if (samplers[flatIndex] == sampler)
         return true;
 
-    samplers.Put(bindingData.slot, sampler);
-    MarkDescriptorSetDirty(bindingData.set); 
+    samplers[flatIndex] = sampler;
+    MarkDescriptorSetDirty(location);
     return true;
 }
 
-void ParameterBlock::MarkDescriptorSetDirty(uint32 setIndex)
+bool ParameterBlock::SetSampler(const String &name, const SPtr<Sampler> &sampler)
 {
+}
+
+uint32 ParameterBlock::GetFlatIndex(const ShaderVarLocation &location) const
+{
+    auto &elementType = GetElementType();
+    auto &range = elementType->GetBindingRange(location.rangeIndex);
+    return range.baseIndex + location.arrayIndex;
+}
+
+void ParameterBlock::CheckResourceLocation(const ShaderVarLocation &location) const
+{
+    auto &elementType = GetElementType();
+    CT_CHECK(location.rangeIndex < elementType->GetBindingRangeCount());
+    auto &range = elementType->GetBindingRange(location.rangeIndex);
+    CT_CHECK(location.arrayIndex < range.count);
+}
+
+void ParameterBlock::CheckDescriptorType(const ShaderVarLocation &location, DescriptorType descriptorType) const
+{
+    auto &elementType = GetElementType();
+    auto &range = elementType->GetBindingRange(location.rangeIndex);
+    CT_CHECK(range.descriptorType == descriptorType);
+}
+
+void ParameterBlock::MarkDescriptorSetDirty(const ShaderVarLocation &location)
+{
+    auto setIndex = reflection->GetBindingInfo(location.rangeIndex).set;
     sets[setIndex] = nullptr;
 }
 
@@ -67,23 +100,24 @@ bool ParameterBlock::BindIntoDescriptorSet(uint32 setIndex)
 {
     const auto &set = sets[setIndex];
 
-    for(int32 slot : reflection->GetBindingSlots(setIndex))
-    {
-        const auto &bindingData = reflection->GetBindingData(slot);
-        uint32 binding = bindingData.binding;
-        auto descriptorType = bindingData.descriptorType;
+    //TODO
+    // for(int32 slot : reflection->GetBindingSlots(setIndex))
+    // {
+    //     const auto &bindingData = reflection->GetBindingData(slot);
+    //     uint32 binding = bindingData.binding;
+    //     auto descriptorType = bindingData.descriptorType;
 
-        // switch (descriptorType)
-        // {
-        // case DescriptorType::Cbv:
-        //     {
-        //         set->SetCbv( [slot]
-        //     }
-        // }
-    }
+    //     // switch (descriptorType)
+    //     // {
+    //     // case DescriptorType::Cbv:
+    //     //     {
+    //     //         set->SetCbv( [slot]
+    //     //     }
+    //     // }
+    // }
 }
 
-bool ParameterBlock::SetResourceSrvUav(const Resource *resource, const ProgramReflection::BindingData &binding)
+bool ParameterBlock::SetResourceSrvUav(const ShaderVarLocation &location, const Resource *resource)
 {
 
 }
@@ -98,8 +132,11 @@ bool ParameterBlock::PrepareDescriptorSets(CopyContext *ctx)
     if(!PrepareResources(ctx))
         return false;
 
-    for(int32 i = 0; i < reflection->GetDescriptorSetCount(); ++i)
+    for(int32 i = 0; i < reflection->GetSetInfoCount(); ++i)
     {
+        if(reflection->GetSetInfo(i).bindingIndices.Count() == 0)
+            continue;
+
         if (!sets[i])
         {
             sets[i] = DescriptorSet::Create(RenderAPI::GetDevice()->GetGpuDescriptorPool(), reflection->GetDescriptorSetLayout(i));

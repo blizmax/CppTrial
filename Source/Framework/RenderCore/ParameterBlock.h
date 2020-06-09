@@ -17,7 +17,7 @@ class CopyContext;
 class ParameterBlock
 {
 public:
-    ParameterBlock(const SPtr<ProgramReflection> &reflection);
+    ParameterBlock(const SPtr<ParameterBlockReflection> &reflection);
     virtual ~ParameterBlock() = default;
 
     bool SetBuffer(const String &name, const SPtr<Buffer> &buffer);
@@ -25,28 +25,47 @@ public:
     bool SetSrv(const String &name, const SPtr<ResourceView> &srv);
     bool SetUav(const String &name, const SPtr<ResourceView> &uav);
     bool SetCbv(const String &name, const SPtr<ResourceView> &cbv);
+    bool SetSampler(const ShaderVarLocation &location, const SPtr<Sampler> &sampler);
     bool SetSampler(const String &name, const SPtr<Sampler> &sampler);
 
-    static SPtr<ParameterBlock> Create(const SPtr<ProgramReflection> &reflection);
+    const SPtr<ParameterBlockReflection> &GetReflection() const
+    {
+        return reflection;
+    }
+
+    const SPtr<ReflectionType> &GetElementType() const
+    {
+        return reflection->GetElementType();
+    }
+
+    uint32 GetSize() const
+    {
+        return data.Count();
+    }
+
+    static SPtr<ParameterBlock> Create(const SPtr<ParameterBlockReflection> &reflection);
 
 protected:
-    void MarkDescriptorSetDirty(uint32 setIndex);
+    uint32 GetFlatIndex(const ShaderVarLocation &location) const;
+    void CheckResourceLocation(const ShaderVarLocation &location) const;
+    void CheckDescriptorType(const ShaderVarLocation &location, DescriptorType descriptorType) const;
+    void MarkDescriptorSetDirty(const ShaderVarLocation &location);
+
     bool BindIntoDescriptorSet(uint32 setIndex);
 
-    bool SetResourceSrvUav(const Resource *resource, const ProgramReflection::BindingData &binding);
+    bool SetResourceSrvUav(const ShaderVarLocation &location, const Resource *resource);
     bool PrepareResources(CopyContext *ctx);
     bool PrepareDescriptorSets(CopyContext *ctx);
 
 protected:
-    SPtr<ProgramReflection> reflection;
+    SPtr<ParameterBlockReflection> reflection;
+    Array<uint8> data;
     Array<SPtr<DescriptorSet>> sets;
 
-    HashMap<int32, SPtr<ResourceView>> cbvs; //TODO Owns const buffers?
-
-    HashMap<int32, SPtr<ResourceView>> srvs;
-    HashMap<int32, SPtr<ResourceView>> uavs;
-    HashMap<int32, SPtr<Sampler>> samplers;
-
+    //Array<SPtr<ResourceView>> cbvs;
+    Array<SPtr<ResourceView>> srvs;
+    Array<SPtr<ResourceView>> uavs;
+    Array<SPtr<Sampler>> samplers;
 };
 
 

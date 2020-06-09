@@ -68,7 +68,7 @@ enum class ShaderAccess
 
 struct ShaderVarLocation
 {
-    uint32 binding = 0;
+    uint32 rangeIndex = 0;
     uint32 arrayIndex = 0;
     uint32 byteOffset = 0;
 };
@@ -85,6 +85,18 @@ struct BindingInfo
     String name;
     uint32 binding = 0;
     uint32 set = 0;
+};
+
+struct SetInfo
+{
+    uint32 set = 0;
+    Array<int32> bindingIndices;
+    SPtr<DescriptorSetLayout> layout;
+
+    SetInfo() = default;
+    SetInfo(uint32 set) : set(set)
+    {
+    }
 };
 
 class ReflectionDataType;
@@ -426,11 +438,6 @@ private:
     String name;
     Array<SPtr<ReflectionVar>> members;
     HashMap<String, int32> memberNames;
-
-    uint32 cbvCount = 0;
-    uint32 srvCount = 0;
-    uint32 uavCount = 0;
-    uint32 samplerCount = 0;
 };
 
 class ParameterBlockReflection
@@ -470,35 +477,48 @@ public:
         bindingInfos.Add(info);
     }
 
+    uint32 GetSetInfoCount() const
+    {
+        return setInfos.Count();
+    }
+
+    const SetInfo &GetSetInfo(int32 setIndex) const
+    {
+        return setInfos[setIndex];
+    }
+
+    const Array<SetInfo> &GetSetInfos() const
+    {
+        return setInfos;
+    }
+
+    const SPtr<DescriptorSetLayout> &GetDescriptorSetLayout(uint32 setIndex) const
+    {
+        return setInfos[setIndex].layout;
+    }
+
     static SPtr<ParameterBlockReflection> Create()
     {
         return Memory::MakeShared<ParameterBlockReflection>();
     }
 
 private:
+    friend class ProgramReflection;
+    friend class ParameterBlock;
+
     SPtr<ReflectionType> elementType;
     Array<BindingInfo> bindingInfos;
+    Array<SetInfo> setInfos;
+
+    int32 cbvCount = 0;
+    int32 srvCount = 0;
+    int32 uavCount = 0;
+    int32 samplerCount = 0;
 };
 
 class ProgramReflection
 {
 public:
-    struct BindingData
-    {
-        int32 slot = -1;
-        String name;
-        DescriptorType descriptorType = DescriptorType::Unknown;
-        uint32 binding = 0;
-        uint32 arrayLength = 1;
-        uint32 set = 0;
-    };
-
-    struct SetData
-    {
-        Array<int32> bindingSlots;
-        ShaderVisibilityFlags visibility = ShaderVisibility::All;
-    };
-
     ProgramReflection() = default;
 
     void Finalize();
@@ -519,55 +539,6 @@ public:
         return rootSignatureDesc;
     }
 
-    void AddBindingData(const String &name, DescriptorType descriptorType, uint32 binding, uint32 arrayLength = 1, uint32 setIndex = 0)
-    {
-        bindingDatas.Add({bindingDatas.Count(), name, descriptorType, binding, arrayLength, setIndex});
-        const int32 bindingDataIndex = bindingDatas.Count() - 1;
-
-        if (setDatas.Count() <= setIndex)
-        {
-            setDatas.SetCount(setIndex + 1);
-        }
-
-        if (setDatas[setIndex].bindingSlots.Count() <= binding)
-        {
-            setDatas[setIndex].bindingSlots.Add(-1, binding - setDatas[setIndex].bindingSlots.Count() + 1);
-        }
-        setDatas[setIndex].bindingSlots[binding] = bindingDataIndex;
-        bindingNames.Put(name, bindingDataIndex);
-    }
-
-    const BindingData &GeteBindingData(int32 slot) const
-    {
-        static const BindingData INVALID = {};
-
-        if (slot < 0 || slot >= bindingDatas.Count())
-            return INVALID;
-        return bindingDatas[slot];
-    }
-
-    const BindingData &GetBindingData(const String &name) const
-    {
-        auto *ptr = bindingNames.TryGet(name);
-        int32 slot = ptr ? *ptr : -1;
-        return GetBindingData(slot);
-    }
-
-    uint32 GetDescriptorSetCount() const
-    {
-        return setDatas.Count();
-    }
-
-    const Array<int32> &GetBindingSlots(uint32 setIndex) const
-    {
-        return setDatas[setIndex].bindingSlots;
-    }
-
-    const SPtr<DescriptorSetLayout> &GetDescriptorSetLayout(uint32 setIndex) const
-    {
-        return GetRootSignatureDesc().layouts[setIndex];
-    }
-
     static SPtr<ProgramReflection> Create()
     {
         return Memory::MakeShared<ProgramReflection>();
@@ -576,12 +547,7 @@ public:
 private:
     RootSignatureDesc rootSignatureDesc;
     bool finalized = false;
-
     SPtr<ParameterBlockReflection> defaultBlockReflection;
-
-    Array<BindingData> bindingDatas;
-    Array<SetData> setDatas;
-    HashMap<String, int32> bindingNames;
 };
 
 
@@ -638,13 +604,64 @@ int32 ReflectionStructType::AddMember(const SPtr<ReflectionVar> &var)
         bindingRanges.Add(range);
     }
 
-    //TODO
-
     return newIndex;
 }
 
 void ParameterBlockReflection::Finalize()
 {
+    uint32 maxSetIndex = 0;
+
+    const auto &bindingRanges = elementType->GetBindingRanges();
+    CT_CHECK(bindingInfos.Count() == bindingRanges.Count());
+
+    HashMap<uint32, SetInfo> setInfoMap;
+    for(int32 i = 0; i < bindingInfos.Count(); ++i)
+    {
+        const auto &info = bindingInfos[i];
+        uint32 set = info.set;
+        if (maxSetIndex < set) maxSetIndex = set;
+        if (!setInfoMap.Contains(set))
+            setInfoMap.Put(set, {set});
+        setInfoMap[set].bindingIndices.Add(i);
+    }
+
+    for(uint32 s = 0; s <= maxSetIndex; ++s)
+    {
+        setInfos.Add({s});
+    }
+    if(setInfos.Count() < setInfoMap.Count())
+    {
+        CT_LOG(Warning, CT_TEXT("ParameterBlockReflection setInfos has hole."));
+    }
+    for(auto &[set, info] : setInfoMap)
+    {
+        setInfos[set] = std::move(info);
+    }
+
+    for (auto &e : elementType->GetBindingRanges())
+    {
+        switch (e.descriptorType)
+        {
+        case DescriptorType::Cbv:
+            cbvCount++;
+            break;
+        case DescriptorType::TextureSrv:
+        case DescriptorType::RawBufferSrv:
+        case DescriptorType::TypedBufferSrv:
+        case DescriptorType::StructuredBufferSrv:
+            srvCount++;
+            break;
+        case DescriptorType::TextureUav:
+        case DescriptorType::RawBufferUav:
+        case DescriptorType::TypedBufferUav:
+        case DescriptorType::StructuredBufferUav:
+            uavCount++;
+            break;
+        case DescriptorType::Sampler:
+            samplerCount++;
+            break;
+        }
+    }
 }
 
 #endif
