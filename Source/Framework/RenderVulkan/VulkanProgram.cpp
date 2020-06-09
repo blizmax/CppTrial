@@ -27,6 +27,7 @@ VulkanProgramKernel::VulkanProgramKernel(const ProgramDesc &desc) : ProgramKerne
 
     ProgramReflectionBuilder builder;
     gVulkanShaderCompiler->Compile(desc, CreateShaderModule, builder);
+    builder.Build();
 
     reflection = builder.GetReflection();
     rootSignature = RootSignature::Create(reflection->GetRootSignatureDesc());

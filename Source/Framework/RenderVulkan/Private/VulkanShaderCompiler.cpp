@@ -1,3 +1,4 @@
+#define CT_RENDER_CORE_PROGRAM_REFLECTION_IMPLEMENT
 #include "RenderVulkan/Private/VulkanShaderCompiler.h"
 #include <glslang/public/ShaderLang.h>
 #include <SPIRV/GlslangToSpv.h>
@@ -206,7 +207,7 @@ static SPtr<ReflectionVar> ParseSamplerVar(const String &name, const glslang::TO
     }
     else
     {
-        //TODO
+        
     }
 
     if (shaderResourceType == ShaderResourceType::Unknown)
@@ -223,7 +224,7 @@ static SPtr<ReflectionVar> ParseSamplerVar(const String &name, const glslang::TO
             auto arraySizes = ttype->getArraySizes();
             CT_CHECK(arraySizes->getNumDims() == 1); //These types only support one dim array
 
-            auto arrayType = ReflectionArrayType::Create(arraySizes->getDimSize(0), 0, resourceType, 0);
+            auto arrayType = ReflectionArrayType::Create(arraySizes->getDimSize(0), 0, resourceType);
             result = ReflectionVar::Create(name, arrayType, location);     
         }
         else
@@ -237,13 +238,13 @@ static SPtr<ReflectionVar> ParseSamplerVar(const String &name, const glslang::TO
 
 static SPtr<ReflectionStructType> ParseStructType(const glslang::TType *blockType, const String &name, const glslang::TType *structType, int32 baseOffset, int32 totalSize);
 
-static SPtr<ReflectionType> ParseDataType(const glslang::TType *blockType, const String &name, const glslang::TType *dataType, int32 baseOffset, int32 totalSize)
+static SPtr<ReflectionType> ParseDataType(const glslang::TType *blockType, const String &name, const glslang::TType *ttype, int32 baseOffset, int32 totalSize)
 {
     ShaderDataType shaderDataType = ShaderDataType::Unknown;
-    if(dataType->isVector())
+    if(ttype->isVector())
     {
-        int32 vectorSize = dataType->getVectorSize();
-        switch (dataType->getBasicType())
+        int32 vectorSize = ttype->getVectorSize();
+        switch (ttype->getBasicType())
         {
         case glslang::EbtFloat:
             switch (vectorSize)
@@ -303,15 +304,15 @@ static SPtr<ReflectionType> ParseDataType(const glslang::TType *blockType, const
             break;
         }
     }
-    else if(dataType->isMatrix())
+    else if(ttype->isMatrix())
     {
-        switch (dataType->getBasicType()) 
+        switch (ttype->getBasicType()) 
         {
         case glslang::EbtFloat: //Only support float matrix
-            switch (dataType->getMatrixCols()) 
+            switch (ttype->getMatrixCols()) 
             {
             case 2:
-                switch (dataType->getMatrixRows()) 
+                switch (ttype->getMatrixRows()) 
                 {
                     case 2:
                         shaderDataType = ShaderDataType::Mat2;
@@ -325,7 +326,7 @@ static SPtr<ReflectionType> ParseDataType(const glslang::TType *blockType, const
                 }
                 break;
             case 3:
-                switch (dataType->getMatrixRows()) 
+                switch (ttype->getMatrixRows()) 
                 {
                     case 2:
                         shaderDataType = ShaderDataType::Mat2x3;
@@ -339,7 +340,7 @@ static SPtr<ReflectionType> ParseDataType(const glslang::TType *blockType, const
                 }
                 break;
             case 4:
-                switch (dataType->getMatrixRows()) 
+                switch (ttype->getMatrixRows()) 
                 {
                     case 2:
                         shaderDataType = ShaderDataType::Mat2x4;
@@ -358,7 +359,7 @@ static SPtr<ReflectionType> ParseDataType(const glslang::TType *blockType, const
     }
     else
     {
-        switch (dataType->getBasicType())
+        switch (ttype->getBasicType())
         {
         case glslang::EbtFloat:
             shaderDataType = ShaderDataType::Float;
@@ -377,48 +378,47 @@ static SPtr<ReflectionType> ParseDataType(const glslang::TType *blockType, const
 
     CT_CHECK(shaderDataType != ShaderDataType::Unknown);
 
-    CT_LOG(Debug, CT_TEXT("Data type, name={0},detail:{1}"), name, String(dataType->getCompleteString().c_str()));
+    auto reflectionType = ReflectionDataType::Create(shaderDataType);
 
-    //TODO
-    return nullptr;
+    return reflectionType;
 }
 
-static SPtr<ReflectionArrayType> ParseArrayType(const glslang::TType *blockType, const String &name, const glslang::TType *arrayType, int32 baseOffset, int32 totalSize, int32 dim = 0)
+static SPtr<ReflectionArrayType> ParseArrayType(const glslang::TType *blockType, const String &name, const glslang::TType *ttype, int32 baseOffset, int32 totalSize, int32 dim = 0)
 {
     SPtr<ReflectionType> elementType;
-    auto basicType = arrayType->getBasicType();
-    auto arraySizes = arrayType->getArraySizes();
+    auto basicType = ttype->getBasicType();
+    auto arraySizes = ttype->getArraySizes();
     uint32 elementCount = arraySizes->getDimSize(dim);
     int32 nextDim = dim + 1;
     if(arraySizes->getNumDims() > nextDim)
     {
-        elementType = ParseArrayType(blockType, name, arrayType, 0, totalSize, nextDim);
+        elementType = ParseArrayType(blockType, name, ttype, 0, totalSize, nextDim);
     }
     else if(basicType == glslang::EbtStruct)
     {
         //TODO
-        elementType = ParseStructType(blockType, name, arrayType, 0, totalSize / elementCount);
+        elementType = ParseStructType(blockType, name, ttype, 0, totalSize / elementCount);
     }
     else
     {
         //TODO
-        elementType = ParseDataType(blockType, name, arrayType, 0, totalSize);
+        elementType = ParseDataType(blockType, name, ttype, 0, totalSize);
     }
 
-    CT_LOG(Debug, CT_TEXT("Array type, name={0},dim={1},detail:{2}"), name, dim, String(arrayType->getCompleteString().c_str()));
+    //CT_LOG(Debug, CT_TEXT("Array type, name={0},dim={1},detail:{2}"), name, dim, String(ttype->getCompleteString().c_str()));
 
-    //TODO
-    //auto ret = ReflectionArrayType::Create()
+    uint32 stride = 0; //TODO
+    auto reflectionType = ReflectionArrayType::Create(elementCount, stride, elementType);
 
-    return nullptr;
+    return reflectionType;
 }
 
-static SPtr<ReflectionStructType> ParseStructType(const glslang::TType *blockType, const String &name, const glslang::TType *structType, int32 structOffset, int32 structSize)
+static SPtr<ReflectionStructType> ParseStructType(const glslang::TType *blockType, const String &name, const glslang::TType *ttype, int32 structOffset, int32 structSize)
 {
-    SPtr<ReflectionStructType> ret = ReflectionStructType::Create(structSize, name);
+    SPtr<ReflectionStructType> structType = ReflectionStructType::Create(name);
 
     int32 offset = structOffset;
-    const auto &memberTypes = *(structType->getStruct());
+    const auto &memberTypes = *(ttype->getStruct());
     for (const auto &e : memberTypes)
     {
         auto memberType = e.type;
@@ -427,14 +427,16 @@ static SPtr<ReflectionStructType> ParseStructType(const glslang::TType *blockTyp
         String memberName = memberType->getFieldName().c_str();
         ShaderVarLocation location;
     
+        SPtr<ReflectionType> reflectionType;
+
         if(memberType->isArray())
         {
-            auto reflectType = ParseArrayType(blockType, memberName, memberType, offset, memberSize);
+            reflectionType = ParseArrayType(blockType, memberName, memberType, offset, memberSize);
             //TODO
         }
         else if(memberType->getBasicType() == glslang::EbtStruct)
         {
-            auto reflectType = ParseStructType(blockType, memberName, memberType, offset, memberSize);
+            reflectionType = ParseStructType(blockType, memberName, memberType, offset, memberSize);
             // location.byteOffset = offset;
             // memberSize = ret->GetSize();
             // offset += memberSize;
@@ -442,24 +444,13 @@ static SPtr<ReflectionStructType> ParseStructType(const glslang::TType *blockTyp
         }
         else
         {
-            auto reflectType = ParseDataType(blockType, memberName, memberType, offset, memberSize);
+            reflectionType = ParseDataType(blockType, memberName, memberType, offset, memberSize);
             //TODO
         }
+        structType->AddMember(ReflectionVar::Create(memberName, reflectionType, location));
     }
 
-    int32 offset = 0;
-    for (const auto &e : memberTypes)
-    {
-        int32 memberSize = 0;
-        int32 beforeOffset = offset;
-        glslang::TIntermediate::updateOffset(*blockType, *e.type, offset, memberSize);
-        String memberName = e.type->getFieldName().c_str();
-        CT_LOG(Debug, CT_TEXT("Member name={0},size={1},offset={2},beforeOffset={3}"), memberName, memberSize, offset, beforeOffset);
-    
-        offset += memberSize;
-    }
-
-    return ret;
+    return structType;
 }
 
 static SPtr<ReflectionVar> ParseBlockVar(const String &name, const glslang::TObjectReflection &obj)
@@ -525,6 +516,7 @@ static void ParseReflection(const glslang::TProgram &program, const ProgramRefle
             {
                 globalStruct->AddMember(var);
                 BindingInfo bindingInfo;
+                bindingInfo.name = name;
                 bindingInfo.binding = qualifier.layoutBinding;
                 bindingInfo.set = qualifier.layoutSet == glslang::TQualifier::layoutSetEnd ? 0 : qualifier.layoutSet;
                 globalBlockReflection->AddBindingInfo(bindingInfo);
@@ -534,11 +526,6 @@ static void ParseReflection(const glslang::TProgram &program, const ProgramRefle
         {
             if(qualifier.storage == glslang::EvqUniform || qualifier.storage == glslang::EvqGlobal)
             {
-                // uint32 bufferOffset = program.getUniformBufferOffset(i);
-                // uint32 size = obj.size;
-                // uint32 stride = obj.arrayStride;
-                // CT_LOG(Debug, CT_TEXT("Uniform var, name={0},offset={1},stride={2},size={3},detail:{4}"), name, bufferOffset, stride, size,
-                //     obj.offset);
             }
             else
             {
@@ -551,7 +538,7 @@ static void ParseReflection(const glslang::TProgram &program, const ProgramRefle
     {
         const auto &obj = program.getUniformBlock(i);
         String name = obj.name.c_str();
-        const auto ttype = program.getUniformTType(i);
+        const auto ttype = program.getUniformBlockTType(i);
         const auto &qualifier = ttype->getQualifier();
 
         auto var = ParseBlockVar(name, obj);
@@ -559,11 +546,16 @@ static void ParseReflection(const glslang::TProgram &program, const ProgramRefle
         {
             globalStruct->AddMember(var);
             BindingInfo bindingInfo;
+            bindingInfo.name = name;
             bindingInfo.binding = qualifier.layoutBinding;
             bindingInfo.set = qualifier.layoutSet == glslang::TQualifier::layoutSetEnd ? 0 : qualifier.layoutSet;
             globalBlockReflection->AddBindingInfo(bindingInfo);
         }
     }
+
+    globalBlockReflection->Finalize();
+
+    CT_LOG(Debug, CT_TEXT("Parse result:{0}"), globalStruct->ToString());
 }
 
 bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModuleFunc &func, const ProgramReflectionBuilder &builder)

@@ -82,6 +82,7 @@ struct BindingRange
 
 struct BindingInfo
 {
+    String name;
     uint32 binding = 0;
     uint32 set = 0;
 };
@@ -96,10 +97,6 @@ class ParameterBlockReflection;
 class ReflectionType
 {
 public:
-    ReflectionType(uint32 size) : size(size)
-    {
-    }
-
     virtual ~ReflectionType() = default;
 
     virtual bool IsArray() const { return false; }
@@ -107,7 +104,10 @@ public:
     virtual bool IsData() const { return false; }
     virtual bool IsResource() const { return false; }
 
+    virtual String ToString() const = 0;
+
     virtual uint32 GetSize() const { return size; }
+    void SetSize(uint32 newSize) { size = newSize; }
 
     const ReflectionDataType *AsData() const;
     const ReflectionResourceType *AsResource() const;
@@ -137,11 +137,54 @@ protected:
     Array<BindingRange> bindingRanges;
 };
 
+class ReflectionVar
+{
+public:
+    ReflectionVar(const String &name, const SPtr<ReflectionType> &reflectionType, const ShaderVarLocation location)
+        : name(name), reflectionType(reflectionType), location(location)
+    {
+    }
+
+    const String &GetName() const
+    {
+        return name;
+    }
+
+    const SPtr<ReflectionType> &GetReflectionType() const
+    {
+        return reflectionType;
+    };
+
+    ShaderVarLocation GetLocation() const
+    {
+        return location;
+    }
+
+    uint32 GetByteOffset() const
+    {
+        return location.byteOffset;
+    }
+
+    String ToString() const
+    {
+        return String::Format(CT_TEXT("{0}: {1}"), name, reflectionType ? reflectionType->ToString() : CT_TEXT(""));
+    }
+
+    static SPtr<ReflectionVar> Create(const String &name, const SPtr<ReflectionType> &reflectionType, const ShaderVarLocation location)
+    {
+        return Memory::MakeShared<ReflectionVar>(name, reflectionType, location);
+    }
+
+private:
+    String name;
+    SPtr<ReflectionType> reflectionType;
+    ShaderVarLocation location;
+};
+
 class ReflectionDataType : public ReflectionType
 {
 public:
-    ReflectionDataType(ShaderDataType dataType, uint32 size)
-        : ReflectionType(size), dataType(dataType)
+    ReflectionDataType(ShaderDataType dataType) : dataType(dataType)
     {
     }
 
@@ -155,9 +198,14 @@ public:
         return dataType;
     }
 
-    static SPtr<ReflectionDataType> Create(ShaderDataType dataType, uint32 size)
+    virtual String ToString() const override
     {
-        return Memory::MakeShared<ReflectionDataType>(dataType, size);
+        return String::Format(CT_TEXT("DataType"));
+    }
+
+    static SPtr<ReflectionDataType> Create(ShaderDataType dataType)
+    {
+        return Memory::MakeShared<ReflectionDataType>(dataType);
     }
 
 private:
@@ -168,7 +216,7 @@ class ReflectionResourceType : public ReflectionType
 {
 public:
     ReflectionResourceType(ShaderResourceType resourceType, ShaderAccess shaderAccess)
-        : ReflectionType(0), resourceType(resourceType), shaderAccess(shaderAccess)
+        : resourceType(resourceType), shaderAccess(shaderAccess)
     {
         DescriptorType descriptorType = DescriptorType::Unknown;
 
@@ -225,6 +273,16 @@ public:
         return 0;
     }
 
+    virtual String ToString() const override
+    {
+        String ret = CT_TEXT("ResourceType");
+        if(structType)
+        {
+            ret += String::Format(CT_TEXT(", inner {0}"), structType->ToString());
+        }
+        return ret;
+    }
+
     ShaderResourceType GetShaderResourceType() const
     {
         return resourceType;
@@ -271,8 +329,8 @@ private:
 class ReflectionArrayType : public ReflectionType
 {
 public:
-    ReflectionArrayType(uint32 elementCount, uint32 stride, const SPtr<ReflectionType> &elementType, uint32 totalSize)
-        : ReflectionType(totalSize), elementCount(elementCount), stride(stride), elementType(elementType)
+    ReflectionArrayType(uint32 elementCount, uint32 stride, const SPtr<ReflectionType> &elementType)
+        : elementCount(elementCount), stride(stride), elementType(elementType)
     {
         for (auto &e : elementType->GetBindingRanges())
         {
@@ -288,6 +346,11 @@ public:
     virtual bool IsArray() const override
     { 
         return true; 
+    }
+
+    virtual String ToString() const override
+    {
+        return String::Format(CT_TEXT("ArrayType, {0}elements of ({1})"), elementCount, elementType->ToString());
     }
 
     uint32 GetElementCount() const
@@ -315,14 +378,27 @@ private:
 class ReflectionStructType : public ReflectionType
 {
 public:
-    ReflectionStructType(uint32 size, const String &name)
-        : ReflectionType(size), name(name)
+    ReflectionStructType(const String &name) : name(name)
     {
     }
 
     virtual bool IsStruct() const override
     {
         return true;
+    }
+
+    virtual String ToString() const override
+    {
+        String ret = CT_TEXT("StructType, {\n");
+        bool first = true;
+        for(const auto &m : members)
+        {
+            if(!first) ret += CT_TEXT("\n");
+            ret += m->ToString();
+            first = false;
+        }
+        ret += CT_TEXT("}");
+        return ret;
     }
 
     const String &GetName() const
@@ -335,15 +411,15 @@ public:
         return members.Count();
     }
 
-    CT_INLINE int32 AddMember(const SPtr<ReflectionVar> &var);
+    int32 AddMember(const SPtr<ReflectionVar> &var);
 
     SPtr<ReflectionVar> GetMember(int32 index) const;
     SPtr<ReflectionVar> GetMember(const String &name) const;
     int32 GetMemberIndex(const String &name) const;
 
-    static SPtr<ReflectionStructType> Create(uint32 size, const String &name)
+    static SPtr<ReflectionStructType> Create(const String &name)
     {
-        return Memory::MakeShared<ReflectionStructType>(size, name);
+        return Memory::MakeShared<ReflectionStructType>(name);
     }
     
 private:
@@ -357,52 +433,10 @@ private:
     uint32 samplerCount = 0;
 };
 
-class ReflectionVar
-{
-public:
-    ReflectionVar(const String &name, const SPtr<ReflectionType> &reflectionType, const ShaderVarLocation location)
-        : name(name), reflectionType(reflectionType), location(location)
-    {
-    }
-
-    const String &GetName() const
-    {
-        return name;
-    }
-
-    const SPtr<ReflectionType> &GetReflectionType() const
-    {
-        return reflectionType;
-    };
-
-    ShaderVarLocation GetLocation() const
-    {
-        return location;
-    }
-
-    uint32 GetByteOffset() const
-    {
-        return location.byteOffset;
-    }
-
-    static SPtr<ReflectionVar> Create(const String &name, const SPtr<ReflectionType> &reflectionType, const ShaderVarLocation location)
-    {
-        return Memory::MakeShared<ReflectionVar>(name, reflectionType, location);
-    }
-
-private:
-    String name;
-    SPtr<ReflectionType> reflectionType;
-    ShaderVarLocation location;
-};
-
 class ParameterBlockReflection
 {
 public:
-    void Finalize()
-    {
-        //TODO
-    }
+    void Finalize();
 
     //SPtr<ReflectionVar> GetMember(const String &name);
 
@@ -479,12 +513,14 @@ public:
         defaultBlockReflection = reflection;
     }
 
-    const RootSignatureDesc &GetRootSignatureDesc() const;
+    const RootSignatureDesc &GetRootSignatureDesc() const
+    {
+        CT_CHECK(finalized);
+        return rootSignatureDesc;
+    }
 
     void AddBindingData(const String &name, DescriptorType descriptorType, uint32 binding, uint32 arrayLength = 1, uint32 setIndex = 0)
     {
-        CT_CHECK(dirty);
-
         bindingDatas.Add({bindingDatas.Count(), name, descriptorType, binding, arrayLength, setIndex});
         const int32 bindingDataIndex = bindingDatas.Count() - 1;
 
@@ -538,8 +574,8 @@ public:
     }
 
 private:
-    mutable RootSignatureDesc rootSignatureDesc;
-    mutable bool dirty = true;
+    RootSignatureDesc rootSignatureDesc;
+    bool finalized = false;
 
     SPtr<ParameterBlockReflection> defaultBlockReflection;
 
@@ -548,32 +584,13 @@ private:
     HashMap<String, int32> bindingNames;
 };
 
-//========================================================================
-
-CT_INLINE int32 ReflectionStructType::AddMember(const SPtr<ReflectionVar> &var)
-{
-    if (memberNames.Contains(var->GetName()))
-    {
-        CT_LOG(Error, CT_TEXT("Struct type add member failed, member named {0} already exists."), var->GetName());
-        return -1;
-    }
-
-    int32 newIndex = members.Count();
-    members.Add(var);
-    memberNames.Put(var->GetName(), newIndex);
-
-    auto memberType = var->GetReflectionType();
-    //TODO
-
-    return newIndex;
-}
 
 class ProgramReflectionBuilder
 {
 public:
     ProgramReflectionBuilder()
     {
-        auto globalStruct = ReflectionStructType::Create(0, CT_TEXT(""));
+        auto globalStruct = ReflectionStructType::Create(CT_TEXT(""));
         auto blockReflection = ParameterBlockReflection::Create();
         blockReflection->SetElementType(globalStruct);
 
@@ -594,5 +611,42 @@ public:
 private:
     SPtr<ProgramReflection> reflection;
 };
+
+//========================================================================
+//#define CT_RENDER_CORE_PROGRAM_REFLECTION_IMPLEMENT
+#ifdef CT_RENDER_CORE_PROGRAM_REFLECTION_IMPLEMENT
+int32 ReflectionStructType::AddMember(const SPtr<ReflectionVar> &var)
+{
+    if (memberNames.Contains(var->GetName()))
+    {
+        CT_LOG(Error, CT_TEXT("Struct type add member failed, member named {0} already exists."), var->GetName());
+        return -1;
+    }
+
+    int32 newIndex = members.Count();
+    members.Add(var);
+    memberNames.Put(var->GetName(), newIndex);
+
+    auto memberType = var->GetReflectionType();
+    for (auto &e : memberType->GetBindingRanges())
+    {
+        BindingRange range;
+        range.descriptorType = e.descriptorType;
+        range.count = e.count;
+        range.baseIndex = e.baseIndex;
+
+        bindingRanges.Add(range);
+    }
+
+    //TODO
+
+    return newIndex;
+}
+
+void ParameterBlockReflection::Finalize()
+{
+}
+
+#endif
 
 }

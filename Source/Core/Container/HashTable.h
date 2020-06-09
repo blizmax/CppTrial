@@ -342,7 +342,10 @@ public:
     public:
         Iterator(HashTable &table, int32 index) : table(table), index(index)
         {
-            Step();
+            if(index != INDEX_NONE)
+            {
+                Step();
+            }
         }
 
         Iterator(const Iterator &other) : table(other.table), index(other.index)
@@ -415,7 +418,10 @@ public:
     public:
         ConstIterator(const HashTable &table, int32 index) : table(table), index(index)
         {
-            Step();
+            if(index != INDEX_NONE)
+            {
+                Step();
+            }
         }
 
         ConstIterator(const ConstIterator &other) : table(other.table), index(other.index)
