@@ -66,18 +66,17 @@ enum class ShaderAccess
     ReadWrite,
 };
 
-struct ShaderVarLocation
-{
-    uint32 rangeIndex = 0;
-    uint32 arrayIndex = 0;
-    uint32 byteOffset = 0;
-};
-
 struct BindingRange
 {
     DescriptorType descriptorType = DescriptorType::Unknown;
     uint32 count = 1;
     uint32 baseIndex = 0;
+
+    String ToString() const
+    {
+        return String::Format(CT_TEXT("descriptorType:{0},count:{1},baseIndex:{2}"),
+            (int32)descriptorType, count, baseIndex);
+    }
 };
 
 struct BindingInfo
@@ -115,6 +114,7 @@ public:
     virtual bool IsStruct() const { return false; }
     virtual bool IsData() const { return false; }
     virtual bool IsResource() const { return false; }
+    virtual bool IsResourceArray() const { return false; }
 
     virtual String ToString() const = 0;
 
@@ -149,10 +149,29 @@ protected:
     Array<BindingRange> bindingRanges;
 };
 
+struct VarLocation
+{
+    uint32 rangeIndex = 0;
+    uint32 arrayIndex = 0;
+    uint32 byteOffset = 0;
+};
+
+struct ShaderVarLocation : VarLocation
+{
+    SPtr<ReflectionType> varType;
+
+    ShaderVarLocation() = default;
+
+    ShaderVarLocation(const SPtr<ReflectionType> &varType, const ShaderVarLocation &location)
+        : VarLocation(location), varType(varType)
+    {
+    }
+};
+
 class ReflectionVar
 {
 public:
-    ReflectionVar(const String &name, const SPtr<ReflectionType> &reflectionType, const ShaderVarLocation location)
+    ReflectionVar(const String &name, const SPtr<ReflectionType> &reflectionType, const VarLocation location)
         : name(name), reflectionType(reflectionType), location(location)
     {
     }
@@ -167,7 +186,7 @@ public:
         return reflectionType;
     };
 
-    ShaderVarLocation GetLocation() const
+    VarLocation GetLocation() const
     {
         return location;
     }
@@ -182,7 +201,7 @@ public:
         return String::Format(CT_TEXT("{0}: {1}"), name, reflectionType ? reflectionType->ToString() : CT_TEXT(""));
     }
 
-    static SPtr<ReflectionVar> Create(const String &name, const SPtr<ReflectionType> &reflectionType, const ShaderVarLocation location)
+    static SPtr<ReflectionVar> Create(const String &name, const SPtr<ReflectionType> &reflectionType, const VarLocation location)
     {
         return Memory::MakeShared<ReflectionVar>(name, reflectionType, location);
     }
@@ -190,7 +209,7 @@ public:
 private:
     String name;
     SPtr<ReflectionType> reflectionType;
-    ShaderVarLocation location;
+    VarLocation location;
 };
 
 class ReflectionDataType : public ReflectionType
@@ -360,9 +379,14 @@ public:
         return true; 
     }
 
+    virtual bool IsResourceArray() const 
+    { 
+        return elementType->IsResource();
+    }
+
     virtual String ToString() const override
     {
-        return String::Format(CT_TEXT("ArrayType, {0}elements of ({1})"), elementCount, elementType->ToString());
+        return String::Format(CT_TEXT("ArrayType, {0} elements of ({1})"), elementCount, elementType->ToString());
     }
 
     uint32 GetElementCount() const
@@ -401,15 +425,19 @@ public:
 
     virtual String ToString() const override
     {
-        String ret = CT_TEXT("StructType, {\n");
-        bool first = true;
+        String ret = CT_TEXT("StructType,\n{");
         for(const auto &m : members)
         {
-            if(!first) ret += CT_TEXT("\n");
-            ret += m->ToString();
-            first = false;
+            ret += CT_TEXT("\n");
+            String debugInfo;
+            if(m->GetReflectionType()->IsResource() || m->GetReflectionType()->IsResourceArray())
+            {
+                auto &range = GetBindingRange(m->GetLocation().rangeIndex);
+                debugInfo = String::Format(CT_TEXT("BindingRange({0}),"), range);
+            }
+            ret += String::Format(CT_TEXT("   {0}{1}"), debugInfo, m->ToString());
         }
-        ret += CT_TEXT("}");
+        ret += CT_TEXT("\n}");
         return ret;
     }
 
@@ -435,9 +463,16 @@ public:
     }
     
 private:
+    friend class ParameterBlock;
+
     String name;
     Array<SPtr<ReflectionVar>> members;
     HashMap<String, int32> memberNames;
+
+    int32 cbvCount = 0;
+    int32 srvCount = 0;
+    int32 uavCount = 0;
+    int32 samplerCount = 0;
 };
 
 class ParameterBlockReflection
@@ -504,16 +539,10 @@ public:
 
 private:
     friend class ProgramReflection;
-    friend class ParameterBlock;
-
+   
     SPtr<ReflectionType> elementType;
     Array<BindingInfo> bindingInfos;
     Array<SetInfo> setInfos;
-
-    int32 cbvCount = 0;
-    int32 srvCount = 0;
-    int32 uavCount = 0;
-    int32 samplerCount = 0;
 };
 
 class ProgramReflection
@@ -578,9 +607,11 @@ private:
     SPtr<ProgramReflection> reflection;
 };
 
+
 //========================================================================
 //#define CT_RENDER_CORE_PROGRAM_REFLECTION_IMPLEMENT
 #ifdef CT_RENDER_CORE_PROGRAM_REFLECTION_IMPLEMENT
+
 int32 ReflectionStructType::AddMember(const SPtr<ReflectionVar> &var)
 {
     if (memberNames.Contains(var->GetName()))
@@ -599,7 +630,32 @@ int32 ReflectionStructType::AddMember(const SPtr<ReflectionVar> &var)
         BindingRange range;
         range.descriptorType = e.descriptorType;
         range.count = e.count;
-        range.baseIndex = e.baseIndex;
+
+        switch (e.descriptorType)
+        {
+        case DescriptorType::Cbv:
+            range.baseIndex = cbvCount;
+            cbvCount += e.count;
+            break;
+        case DescriptorType::TextureSrv:
+        case DescriptorType::RawBufferSrv:
+        case DescriptorType::TypedBufferSrv:
+        case DescriptorType::StructuredBufferSrv:
+            range.baseIndex = srvCount;
+            srvCount += e.count;
+            break;
+        case DescriptorType::TextureUav:
+        case DescriptorType::RawBufferUav:
+        case DescriptorType::TypedBufferUav:
+        case DescriptorType::StructuredBufferUav:
+            range.baseIndex = uavCount;
+            uavCount += e.count;
+            break;
+        case DescriptorType::Sampler:
+            range.baseIndex = samplerCount;
+            samplerCount += e.count;
+            break;
+        }
 
         bindingRanges.Add(range);
     }
@@ -636,31 +692,6 @@ void ParameterBlockReflection::Finalize()
     for(auto &[set, info] : setInfoMap)
     {
         setInfos[set] = std::move(info);
-    }
-
-    for (auto &e : elementType->GetBindingRanges())
-    {
-        switch (e.descriptorType)
-        {
-        case DescriptorType::Cbv:
-            cbvCount++;
-            break;
-        case DescriptorType::TextureSrv:
-        case DescriptorType::RawBufferSrv:
-        case DescriptorType::TypedBufferSrv:
-        case DescriptorType::StructuredBufferSrv:
-            srvCount++;
-            break;
-        case DescriptorType::TextureUav:
-        case DescriptorType::RawBufferUav:
-        case DescriptorType::TypedBufferUav:
-        case DescriptorType::StructuredBufferUav:
-            uavCount++;
-            break;
-        case DescriptorType::Sampler:
-            samplerCount++;
-            break;
-        }
     }
 }
 

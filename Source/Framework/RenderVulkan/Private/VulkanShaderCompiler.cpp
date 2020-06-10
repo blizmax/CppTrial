@@ -161,7 +161,7 @@ static EShLanguage ToEShLanguage(ShaderType shaderType)
     return EShLangCount;
 }
 
-static SPtr<ReflectionVar> ParseSamplerVar(const String &name, const glslang::TObjectReflection &obj)
+static SPtr<ReflectionVar> ParseSamplerVar(const String &name, const glslang::TObjectReflection &obj, uint32 rangeIndex)
 {
     SPtr<ReflectionVar> result;
 
@@ -217,7 +217,8 @@ static SPtr<ReflectionVar> ParseSamplerVar(const String &name, const glslang::TO
     else
     {
         auto resourceType = ReflectionResourceType::Create(shaderResourceType, shaderAccess);
-        ShaderVarLocation location;
+        VarLocation location;
+        location.rangeIndex = rangeIndex;
 
         if(ttype->isArray())
         {
@@ -425,7 +426,7 @@ static SPtr<ReflectionStructType> ParseStructType(const glslang::TType *blockTyp
         int32 memberSize = 0;
         glslang::TIntermediate::updateOffset(*blockType, *memberType, offset, memberSize);
         String memberName = memberType->getFieldName().c_str();
-        ShaderVarLocation location;
+        VarLocation location;
     
         SPtr<ReflectionType> reflectionType;
 
@@ -453,7 +454,7 @@ static SPtr<ReflectionStructType> ParseStructType(const glslang::TType *blockTyp
     return structType;
 }
 
-static SPtr<ReflectionVar> ParseBlockVar(const String &name, const glslang::TObjectReflection &obj)
+static SPtr<ReflectionVar> ParseBlockVar(const String &name, const glslang::TObjectReflection &obj, uint32 rangeIndex)
 {
     SPtr<ReflectionVar> result;
 
@@ -466,7 +467,6 @@ static SPtr<ReflectionVar> ParseBlockVar(const String &name, const glslang::TObj
     ShaderAccess shaderAccess = ShaderAccess::Undefined;
     if (qualifier.storage == glslang::EvqBuffer)
     {
-        //CT_LOG(Debug, CT_TEXT("A buffer block, {0}:{1}"), name, String(ttype->getCompleteString().c_str()));
         shaderResourceType = ShaderResourceType::StructuredBuffer;
         shaderAccess = ShaderAccess::ReadWrite;
     }
@@ -477,7 +477,8 @@ static SPtr<ReflectionVar> ParseBlockVar(const String &name, const glslang::TObj
         shaderAccess = ShaderAccess::Read;
     }
 
-    ShaderVarLocation location;
+    VarLocation location;
+    location.rangeIndex = rangeIndex;
     auto resourceType = ReflectionResourceType::Create(shaderResourceType, shaderAccess);
     result = ReflectionVar::Create(name, resourceType, location);
 
@@ -511,7 +512,7 @@ static void ParseReflection(const glslang::TProgram &program, const ProgramRefle
 
         if (basicType == glslang::EbtSampler) // sampler texture type
 		{
-            auto var = ParseSamplerVar(name, obj);
+            auto var = ParseSamplerVar(name, obj, globalStruct->GetBindingRangeCount());
             if(var)
             {
                 globalStruct->AddMember(var);
@@ -541,7 +542,7 @@ static void ParseReflection(const glslang::TProgram &program, const ProgramRefle
         const auto ttype = program.getUniformBlockTType(i);
         const auto &qualifier = ttype->getQualifier();
 
-        auto var = ParseBlockVar(name, obj);
+        auto var = ParseBlockVar(name, obj, globalStruct->GetBindingRangeCount());
         if (var)
         {
             globalStruct->AddMember(var);

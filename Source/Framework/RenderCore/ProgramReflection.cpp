@@ -77,8 +77,8 @@ void ProgramReflection::Finalize()
     CT_CHECK(!finalized);
     finalized = true;
 
-    const auto &bindingInfos = defaultBlockReflection->GetBindingInfos();
-    const auto &bindingRanges = defaultBlockReflection->GetElementType()->GetBindingRanges();
+    auto &bindingInfos = defaultBlockReflection->GetBindingInfos();
+    auto &bindingRanges = defaultBlockReflection->GetElementType()->GetBindingRanges();
 
     for(auto & setInfo : defaultBlockReflection->setInfos)
     {
@@ -90,8 +90,8 @@ void ProgramReflection::Finalize()
         desc.visibility = ShaderVisibility::All;
         for (auto i : setInfo.bindingIndices)
         {
-            const auto &info = bindingInfos[i];
-            const auto &range = bindingRanges[i];
+            auto &info = bindingInfos[i];
+            auto &range = bindingRanges[i];
             desc.elements.Add({info.name, range.descriptorType, info.binding, range.count});
         }
 

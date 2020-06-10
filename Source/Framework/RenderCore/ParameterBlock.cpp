@@ -15,9 +15,10 @@ ParameterBlock::ParameterBlock(const SPtr<ParameterBlockReflection> &reflection)
     data.SetCount(reflection->GetElementType()->GetSize());
     sets.SetCount(reflection->GetSetInfoCount());
 
-    srvs.SetCount(reflection->srvCount);
-    uavs.SetCount(reflection->uavCount);
-    samplers.SetCount(reflection->samplerCount);
+    auto structType = reflection->GetElementType()->AsStruct();
+    srvs.SetCount(structType->srvCount);
+    uavs.SetCount(structType->uavCount);
+    samplers.SetCount(structType->samplerCount);
 
     //TODO
     //cbvCount
