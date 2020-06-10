@@ -43,6 +43,11 @@ public:
         return GetUav(0);
     }
 
+    virtual SPtr<Texture> AsTexture() override
+    {
+        return weakThis.lock();
+    }
+
     void ClearViews();
     void GenerateMips(RenderContext *ctx);
 

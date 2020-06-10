@@ -39,6 +39,11 @@ public:
         return GetUav(0);
     }
 
+    virtual SPtr<Buffer> AsBuffer() override
+    {
+        return weakThis.lock();
+    }
+
     void ClearViews();
     SPtr<ResourceView> GetCbv();
     SPtr<ResourceView> GetSrv(uint32 first, uint32 count = UINT32_MAX);

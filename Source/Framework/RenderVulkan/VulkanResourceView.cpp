@@ -45,7 +45,7 @@ VulkanBufferView::VulkanBufferView(const WPtr<Resource> &resource, uint32 firstE
     : ResourceView(resource, firstElement, elementCount)
 {
     auto buffer = dynamic_cast<VulkanBuffer *>(GetResource());
-    if(buffer && buffer->IsTyped())
+    if (buffer && buffer->IsTyped())
     {
         VkBufferViewCreateInfo bufferInfo = {};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
@@ -54,14 +54,14 @@ VulkanBufferView::VulkanBufferView(const WPtr<Resource> &resource, uint32 firstE
         bufferInfo.range = VK_WHOLE_SIZE;
         bufferInfo.format = ToVkResourceFormat(buffer->GetResourceFormat());
 
-        if(vkCreateBufferView(gVulkanDevice->GetLogicalDeviceHandle(), &bufferInfo, gVulkanAlloc, &bufferView) != VK_SUCCESS)
+        if (vkCreateBufferView(gVulkanDevice->GetLogicalDeviceHandle(), &bufferInfo, gVulkanAlloc, &bufferView) != VK_SUCCESS)
             CT_EXCEPTION(RenderCore, "Create buffer view failed.");
     }
 }
 
 VulkanBufferView::~VulkanBufferView()
 {
-    if(bufferView != VK_NULL_HANDLE)
+    if (bufferView != VK_NULL_HANDLE)
     {
         if (gVulkanDevice)
         {
@@ -79,7 +79,7 @@ VulkanImageView::VulkanImageView(const WPtr<Resource> &resource, uint32 mostDeta
     auto texture = dynamic_cast<VulkanTexture *>(GetResource());
     if (texture)
     {
-        if(texture->GetResourceType() == ResourceType::TextureCube)
+        if (texture->GetResourceType() == ResourceType::TextureCube)
         {
             firstArraySlice *= 6;
             arrayLayers *= 6;

@@ -53,6 +53,16 @@ public:
     virtual SPtr<ResourceView> GetSrv() = 0;
     virtual SPtr<ResourceView> GetUav() = 0;
 
+    virtual SPtr<Buffer> AsBuffer()
+    {
+        return nullptr;
+    }
+
+    virtual SPtr<Texture> AsTexture()
+    {
+        return nullptr;
+    }
+
 protected:
     struct StateData
     {

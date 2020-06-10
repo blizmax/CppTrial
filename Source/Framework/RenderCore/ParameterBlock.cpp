@@ -24,50 +24,6 @@ ParameterBlock::ParameterBlock(const SPtr<ParameterBlockReflection> &reflection)
     //Create uniform buffer
 }
 
-bool ParameterBlock::SetBuffer(const String &name, const SPtr<Buffer> &buffer)
-{
-
-}
-
-bool ParameterBlock::SetTexture(const String &name, const SPtr<Texture> &texture)
-{
-
-}
-
-bool ParameterBlock::SetSrv(const String &name, const SPtr<ResourceView> &srv)
-{
-
-}
-
-bool ParameterBlock::SetUav(const String &name, const SPtr<ResourceView> &uav)
-{
-
-}
-
-bool ParameterBlock::SetCbv(const String &name, const SPtr<ResourceView> &cbv)
-{
-
-}
-
-bool ParameterBlock::SetSampler(const ShaderVarLocation &location, const SPtr<Sampler> &sampler)
-{
-    CT_CHECK(sampler);
-    CheckResourceLocation(location);
-    CheckDescriptorType(location, DescriptorType::Sampler);
-
-    auto flatIndex = GetFlatIndex(location);
-    if (samplers[flatIndex] == sampler)
-        return true;
-
-    samplers[flatIndex] = sampler;
-    MarkDescriptorSetDirty(location);
-    return true;
-}
-
-bool ParameterBlock::SetSampler(const String &name, const SPtr<Sampler> &sampler)
-{
-}
-
 uint32 ParameterBlock::GetFlatIndex(const ShaderVarLocation &location) const
 {
     auto &elementType = GetElementType();
@@ -90,10 +46,35 @@ void ParameterBlock::CheckDescriptorType(const ShaderVarLocation &location, Desc
     CT_CHECK(range.descriptorType == descriptorType);
 }
 
+void ParameterBlock::CheckDescriptorSrv(const ShaderVarLocation &location, const SPtr<ResourceView> &view) const
+{
+    auto &elementType = GetElementType();
+    auto &range = elementType->GetBindingRange(location.rangeIndex);
+    auto descriptorType = range.descriptorType;
+
+    CT_CHECK(descriptorType == DescriptorType::TextureSrv || descriptorType == DescriptorType::RawBufferSrv
+        || descriptorType == DescriptorType::TypedBufferSrv || descriptorType == DescriptorType::StructuredBufferSrv);
+}
+
+void ParameterBlock::CheckDescriptorUav(const ShaderVarLocation &location, const SPtr<ResourceView> &view) const
+{
+    auto &elementType = GetElementType();
+    auto &range = elementType->GetBindingRange(location.rangeIndex);
+    auto descriptorType = range.descriptorType;
+
+    CT_CHECK(descriptorType == DescriptorType::TextureUav || descriptorType == DescriptorType::RawBufferUav
+        || descriptorType == DescriptorType::TypedBufferUav || descriptorType == DescriptorType::StructuredBufferUav);
+}
+
 void ParameterBlock::MarkDescriptorSetDirty(const ShaderVarLocation &location)
 {
     auto setIndex = reflection->GetBindingInfo(location.rangeIndex).set;
     sets[setIndex] = nullptr;
+}
+
+void ParameterBlock::MarkUniformDataDirty()
+{
+    //TODO
 }
 
 bool ParameterBlock::BindIntoDescriptorSet(uint32 setIndex)
@@ -117,9 +98,123 @@ bool ParameterBlock::BindIntoDescriptorSet(uint32 setIndex)
     // }
 }
 
-bool ParameterBlock::SetResourceSrvUav(const ShaderVarLocation &location, const Resource *resource)
+SPtr<Resource> ParameterBlock::GetReourceSrvUavCommon(const ShaderVarLocation &location) const
 {
 
+}
+
+bool ParameterBlock::SetResourceSrvUavCommon(const ShaderVarLocation &location, const SPtr<Resource> &resource)
+{
+
+}
+
+SPtr<Buffer> ParameterBlock::GetBuffer(const ShaderVarLocation &location) const
+{
+    return GetReourceSrvUavCommon(location)->AsBuffer();
+}
+
+SPtr<Buffer> ParameterBlock::GetBuffer(const String &name) const
+{
+
+}
+
+SPtr<Texture> ParameterBlock::GetTexture(const ShaderVarLocation &location) const
+{
+    return GetReourceSrvUavCommon(location)->AsTexture();
+}
+
+SPtr<Texture> ParameterBlock::GetTexture(const String &name) const
+{
+
+}
+
+SPtr<ResourceView> ParameterBlock::GetSrv(const ShaderVarLocation &location) const
+{
+
+}
+
+SPtr<ResourceView> ParameterBlock::GetUav(const ShaderVarLocation &location) const
+{
+
+}
+
+SPtr<Sampler> ParameterBlock::GetSampler(const ShaderVarLocation &location) const
+{
+
+}
+
+SPtr<Sampler> ParameterBlock::GetSampler(const String &name) const
+{
+
+}
+
+bool ParameterBlock::SetBuffer(const ShaderVarLocation &location, const SPtr<Buffer> &buffer)
+{
+    return SetResourceSrvUavCommon(location, buffer);
+}
+
+bool ParameterBlock::SetBuffer(const String &name, const SPtr<Buffer> &buffer)
+{
+
+}
+
+bool ParameterBlock::SetTexture(const ShaderVarLocation &location, const SPtr<Texture> &texture)
+{
+    return SetResourceSrvUavCommon(location, texture);
+}
+
+bool ParameterBlock::SetTexture(const String &name, const SPtr<Texture> &texture)
+{
+
+}
+
+bool ParameterBlock::SetSrv(const ShaderVarLocation &location, const SPtr<ResourceView> &srv)
+{
+    CT_CHECK(srv);
+    CheckResourceLocation(location);
+    CheckDescriptorSrv(location, srv);
+
+    auto flatIndex = GetFlatIndex(location);
+    if (srvs[flatIndex] == srv)
+        return true;
+
+    srvs[flatIndex] = srv;
+    MarkDescriptorSetDirty(location);
+    return true;
+}
+
+bool ParameterBlock::SetUav(const ShaderVarLocation &location, const SPtr<ResourceView> &uav)
+{
+    CT_CHECK(uav);
+    CheckResourceLocation(location);
+    CheckDescriptorUav(location, uav);
+
+    auto flatIndex = GetFlatIndex(location);
+    if (uavs[flatIndex] == uav)
+        return true;
+
+    uavs[flatIndex] = uav;
+    MarkDescriptorSetDirty(location);
+    return true;
+}
+
+bool ParameterBlock::SetSampler(const ShaderVarLocation &location, const SPtr<Sampler> &sampler)
+{
+    CT_CHECK(sampler);
+    CheckResourceLocation(location);
+    CheckDescriptorType(location, DescriptorType::Sampler);
+
+    auto flatIndex = GetFlatIndex(location);
+    if (samplers[flatIndex] == sampler)
+        return true;
+
+    samplers[flatIndex] = sampler;
+    MarkDescriptorSetDirty(location);
+    return true;
+}
+
+bool ParameterBlock::SetSampler(const String &name, const SPtr<Sampler> &sampler)
+{
 }
 
 bool ParameterBlock::PrepareResources(CopyContext *ctx)
@@ -145,6 +240,11 @@ bool ParameterBlock::PrepareDescriptorSets(CopyContext *ctx)
     }
 
     return true;
+}
+
+ShaderVar ShaderVar::FindMember(const String &name) const
+{
+    //TODO
 }
 
 }
