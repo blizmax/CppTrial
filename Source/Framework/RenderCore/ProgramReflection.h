@@ -115,11 +115,9 @@ public:
     virtual bool IsData() const { return false; }
     virtual bool IsResource() const { return false; }
     virtual bool IsResourceArray() const { return false; }
-
-    virtual String ToString() const = 0;
-
     virtual uint32 GetSize() const { return size; }
-    void SetSize(uint32 newSize) { size = newSize; }
+    virtual void SetSize(uint32 newSize) { size = newSize; }
+    virtual String Dump(int32 depth = 0) const = 0;
 
     const ReflectionDataType *AsData() const;
     const ReflectionResourceType *AsResource() const;
@@ -144,6 +142,11 @@ public:
         return bindingRanges;
     }
 
+    String ToString() const
+    {
+        return Dump();
+    }
+
 protected:
     uint32 size = 0;
     Array<BindingRange> bindingRanges;
@@ -154,6 +157,8 @@ struct VarLocation
     uint32 rangeIndex = 0;
     uint32 arrayIndex = 0;
     uint32 byteOffset = 0;
+
+    VarLocation() = default;
 };
 
 struct ShaderVarLocation : VarLocation
@@ -162,9 +167,14 @@ struct ShaderVarLocation : VarLocation
 
     ShaderVarLocation() = default;
 
-    ShaderVarLocation(const SPtr<ReflectionType> &varType, const ShaderVarLocation &location)
+    ShaderVarLocation(const SPtr<ReflectionType> &varType, const VarLocation &location)
         : VarLocation(location), varType(varType)
     {
+    }
+
+    bool IsValid() const
+    {
+        return varType != nullptr;
     }
 };
 
@@ -229,9 +239,9 @@ public:
         return dataType;
     }
 
-    virtual String ToString() const override
+    virtual String Dump(int32 depth) const override
     {
-        return String::Format(CT_TEXT("DataType"));
+        return String::Format(CT_TEXT("<Data>"));
     }
 
     static SPtr<ReflectionDataType> Create(ShaderDataType dataType)
@@ -304,12 +314,12 @@ public:
         return 0;
     }
 
-    virtual String ToString() const override
+    virtual String Dump(int32 depth) const override
     {
-        String ret = CT_TEXT("ResourceType");
+        String ret = CT_TEXT("<Resource>");
         if(structType)
         {
-            ret += String::Format(CT_TEXT(", inner {0}"), structType->ToString());
+            ret += String::Format(CT_TEXT(", inner {0}"), structType->Dump(depth + 1));
         }
         return ret;
     }
@@ -384,9 +394,9 @@ public:
         return elementType->IsResource();
     }
 
-    virtual String ToString() const override
+    virtual String Dump(int32 depth) const override
     {
-        return String::Format(CT_TEXT("ArrayType, {0} elements of ({1})"), elementCount, elementType->ToString());
+        return String::Format(CT_TEXT("<Array>, {0} elements of ({1})"), elementCount, elementType->Dump(depth));
     }
 
     uint32 GetElementCount() const
@@ -423,21 +433,30 @@ public:
         return true;
     }
 
-    virtual String ToString() const override
+    virtual String Dump(int32 depth) const override
     {
-        String ret = CT_TEXT("StructType,\n{");
+        const CharType *PADDING = CT_TEXT("  ");
+
+        String ret = CT_TEXT("<Struct>, {\n");
         for(const auto &m : members)
         {
-            ret += CT_TEXT("\n");
+            for(int32 i = 0; i < depth + 1; ++i)
+                ret += PADDING;
+  
             String debugInfo;
             if(m->GetReflectionType()->IsResource() || m->GetReflectionType()->IsResourceArray())
             {
                 auto &range = GetBindingRange(m->GetLocation().rangeIndex);
                 debugInfo = String::Format(CT_TEXT("BindingRange({0}),"), range);
             }
-            ret += String::Format(CT_TEXT("   {0}{1}"), debugInfo, m->ToString());
+
+            ret += String::Format(CT_TEXT("{0}: {1}{2}"), m->GetName(), debugInfo, m->GetReflectionType()->Dump(depth + 1));
+            ret += CT_TEXT("\n");
         }
-        ret += CT_TEXT("\n}");
+        for(int32 i = 0; i < depth; ++i)
+            ret += PADDING;
+        ret += CT_TEXT("}");
+
         return ret;
     }
 

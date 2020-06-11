@@ -20,6 +20,8 @@ public:
     ParameterBlock(const SPtr<ParameterBlockReflection> &reflection);
     virtual ~ParameterBlock() = default;
 
+    ShaderVar GetRootVar() const;
+
     SPtr<Buffer> GetBuffer(const ShaderVarLocation &location) const;
     SPtr<Buffer> GetBuffer(const String &name) const;
     SPtr<Texture> GetTexture(const ShaderVarLocation &location) const;
@@ -28,6 +30,8 @@ public:
     SPtr<ResourceView> GetUav(const ShaderVarLocation &location) const;
     SPtr<Sampler> GetSampler(const ShaderVarLocation &location) const;
     SPtr<Sampler> GetSampler(const String &name) const;
+    SPtr<ParameterBlock> GetParameterBlock(const ShaderVarLocation &location) const;
+    SPtr<ParameterBlock> GetParameterBlock(const String &name) const;
 
     bool SetBuffer(const ShaderVarLocation &location, const SPtr<Buffer> &buffer);
     bool SetBuffer(const String &name, const SPtr<Buffer> &buffer);
@@ -37,6 +41,8 @@ public:
     bool SetUav(const ShaderVarLocation &location, const SPtr<ResourceView> &uav);
     bool SetSampler(const ShaderVarLocation &location, const SPtr<Sampler> &sampler);
     bool SetSampler(const String &name, const SPtr<Sampler> &sampler);
+    bool SetParameterBlock(const ShaderVarLocation &location, const SPtr<ParameterBlock> &block);
+    bool SetParameterBlock(const String &name, const SPtr<ParameterBlock> &block);
 
     const SPtr<ParameterBlockReflection> &GetReflection() const
     {
@@ -59,8 +65,11 @@ protected:
     uint32 GetFlatIndex(const ShaderVarLocation &location) const;
     void CheckResourceLocation(const ShaderVarLocation &location) const;
     void CheckDescriptorType(const ShaderVarLocation &location, DescriptorType descriptorType) const;
-    void CheckDescriptorSrv(const ShaderVarLocation &location, const SPtr<ResourceView> &view) const;
-    void CheckDescriptorUav(const ShaderVarLocation &location, const SPtr<ResourceView> &view) const;
+    void CheckDescriptorSrv(const ShaderVarLocation &location, const ResourceView *view) const;
+    void CheckDescriptorUav(const ShaderVarLocation &location, const ResourceView *view) const;
+    bool IsBufferVarValid(const ShaderVar &var, const Buffer *buffer) const;
+    bool IsTextureVarValid(const ShaderVar &var, const Texture *texture) const;
+    bool IsSamplerVarValid(const ShaderVar &var, const Sampler *sampler) const;
     void MarkDescriptorSetDirty(const ShaderVarLocation &location);
     void MarkUniformDataDirty();
 
@@ -86,7 +95,14 @@ protected:
 class ShaderVar
 {
 public:
-    ShaderVar(ParameterBlock *block) : block(block)
+    ShaderVar() = default;
+
+    explicit ShaderVar(ParameterBlock *block) : block(block)
+    {
+        //TODO location
+    }
+
+    ShaderVar(ParameterBlock *block, const ShaderVarLocation &location) : block(block), location(location)
     {
     }
 
@@ -98,11 +114,23 @@ public:
     SPtr<ResourceView> GetSrv() const;
     SPtr<ResourceView> GetUav() const;
     SPtr<Sampler> GetSampler() const;
+    SPtr<ParameterBlock> GetParameterBlock() const;
     bool SetBuffer(const SPtr<Buffer> &buffer) const;
     bool SetTexture(const SPtr<Texture> &texture) const;
     bool SetSrv(const SPtr<ResourceView> &srv) const;
     bool SetUav(const SPtr<ResourceView> &uav) const;
     bool SetSampler(const SPtr<Sampler> &sampler) const;
+    bool SetParameterBlock(const SPtr<ParameterBlock> &block) const;
+
+    bool IsValid() const
+    {
+        return location.IsValid();
+    }
+
+    const SPtr<ReflectionType> &GetVarType() const
+    {
+        return location.varType;
+    }
 
     ShaderVar operator[](const String &name) const;
     ShaderVar operator[](int32 index) const;

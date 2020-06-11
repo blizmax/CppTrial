@@ -47,7 +47,7 @@ void ParameterBlock::CheckDescriptorType(const ShaderVarLocation &location, Desc
     CT_CHECK(range.descriptorType == descriptorType);
 }
 
-void ParameterBlock::CheckDescriptorSrv(const ShaderVarLocation &location, const SPtr<ResourceView> &view) const
+void ParameterBlock::CheckDescriptorSrv(const ShaderVarLocation &location, const ResourceView *view) const
 {
     auto &elementType = GetElementType();
     auto &range = elementType->GetBindingRange(location.rangeIndex);
@@ -57,7 +57,7 @@ void ParameterBlock::CheckDescriptorSrv(const ShaderVarLocation &location, const
         || descriptorType == DescriptorType::TypedBufferSrv || descriptorType == DescriptorType::StructuredBufferSrv);
 }
 
-void ParameterBlock::CheckDescriptorUav(const ShaderVarLocation &location, const SPtr<ResourceView> &view) const
+void ParameterBlock::CheckDescriptorUav(const ShaderVarLocation &location, const ResourceView *view) const
 {
     auto &elementType = GetElementType();
     auto &range = elementType->GetBindingRange(location.rangeIndex);
@@ -65,6 +65,23 @@ void ParameterBlock::CheckDescriptorUav(const ShaderVarLocation &location, const
 
     CT_CHECK(descriptorType == DescriptorType::TextureUav || descriptorType == DescriptorType::RawBufferUav
         || descriptorType == DescriptorType::TypedBufferUav || descriptorType == DescriptorType::StructuredBufferUav);
+}
+
+bool ParameterBlock::IsBufferVarValid(const ShaderVar &var, const Buffer *buffer) const
+{
+    //TODO
+    return true;
+}
+
+bool ParameterBlock::IsTextureVarValid(const ShaderVar &var, const Texture *texture) const
+{
+    //TODO
+    return true;
+}
+
+bool ParameterBlock::IsSamplerVarValid(const ShaderVar &var, const Sampler *sampler) const
+{
+
 }
 
 void ParameterBlock::MarkDescriptorSetDirty(const ShaderVarLocation &location)
@@ -109,6 +126,11 @@ bool ParameterBlock::SetResourceSrvUavCommon(const ShaderVarLocation &location, 
 
 }
 
+ShaderVar ParameterBlock::GetRootVar() const
+{
+    return ShaderVar(const_cast<ParameterBlock *>(this));
+}
+
 SPtr<Buffer> ParameterBlock::GetBuffer(const ShaderVarLocation &location) const
 {
     return GetReourceSrvUavCommon(location)->AsBuffer();
@@ -116,7 +138,10 @@ SPtr<Buffer> ParameterBlock::GetBuffer(const ShaderVarLocation &location) const
 
 SPtr<Buffer> ParameterBlock::GetBuffer(const String &name) const
 {
-
+    auto var = GetRootVar()[name];
+    if (!IsBufferVarValid(var, nullptr))
+        return nullptr;
+    return var.GetBuffer();
 }
 
 SPtr<Texture> ParameterBlock::GetTexture(const ShaderVarLocation &location) const
@@ -126,25 +151,50 @@ SPtr<Texture> ParameterBlock::GetTexture(const ShaderVarLocation &location) cons
 
 SPtr<Texture> ParameterBlock::GetTexture(const String &name) const
 {
-
+    auto var = GetRootVar()[name];
+    if (!IsTextureVarValid(var, nullptr))
+        return nullptr;
+    return var.GetTexture();
 }
 
 SPtr<ResourceView> ParameterBlock::GetSrv(const ShaderVarLocation &location) const
 {
-
+    CheckResourceLocation(location);
+    CheckDescriptorSrv(location, nullptr);
+    auto flatIndex = GetFlatIndex(location);
+    return srvs[flatIndex];
 }
 
 SPtr<ResourceView> ParameterBlock::GetUav(const ShaderVarLocation &location) const
 {
-
+    CheckResourceLocation(location);
+    CheckDescriptorSrv(location, nullptr);
+    auto flatIndex = GetFlatIndex(location);
+    return uavs[flatIndex];
 }
 
 SPtr<Sampler> ParameterBlock::GetSampler(const ShaderVarLocation &location) const
 {
-
+    CheckResourceLocation(location);
+    CheckDescriptorType(location, DescriptorType::Sampler);
+    auto flatIndex = GetFlatIndex(location);
+    return samplers[flatIndex];
 }
 
 SPtr<Sampler> ParameterBlock::GetSampler(const String &name) const
+{
+    auto var = GetRootVar()[name];
+    if (!IsSamplerVarValid(var, nullptr))
+        return nullptr;
+    return var.GetSampler();
+}
+
+SPtr<ParameterBlock> ParameterBlock::GetParameterBlock(const ShaderVarLocation &location) const
+{
+
+}
+
+SPtr<ParameterBlock> ParameterBlock::GetParameterBlock(const String &name) const
 {
 
 }
@@ -173,7 +223,7 @@ bool ParameterBlock::SetSrv(const ShaderVarLocation &location, const SPtr<Resour
 {
     CT_CHECK(srv);
     CheckResourceLocation(location);
-    CheckDescriptorSrv(location, srv);
+    CheckDescriptorSrv(location, srv.get());
 
     auto flatIndex = GetFlatIndex(location);
     if (srvs[flatIndex] == srv)
@@ -188,7 +238,7 @@ bool ParameterBlock::SetUav(const ShaderVarLocation &location, const SPtr<Resour
 {
     CT_CHECK(uav);
     CheckResourceLocation(location);
-    CheckDescriptorUav(location, uav);
+    CheckDescriptorUav(location, uav.get());
 
     auto flatIndex = GetFlatIndex(location);
     if (uavs[flatIndex] == uav)
@@ -218,6 +268,16 @@ bool ParameterBlock::SetSampler(const String &name, const SPtr<Sampler> &sampler
 {
 }
 
+bool ParameterBlock::SetParameterBlock(const ShaderVarLocation &location, const SPtr<ParameterBlock> &block)
+{
+
+}
+
+bool ParameterBlock::SetParameterBlock(const String &name, const SPtr<ParameterBlock> &block)
+{
+
+}
+
 bool ParameterBlock::PrepareResources(CopyContext *ctx)
 {
 
@@ -245,7 +305,116 @@ bool ParameterBlock::PrepareDescriptorSets(CopyContext *ctx)
 
 ShaderVar ShaderVar::FindMember(const String &name) const
 {
-    //TODO
+    if (!IsValid())
+        return ShaderVar();
+    
+    auto varType = GetVarType();
+
+    if (auto resourceType = varType->AsResource())
+    {
+        if (resourceType->GetShaderResourceType() == ShaderResourceType::ConstantBuffer)
+        {
+            return GetParameterBlock()->GetRootVar().FindMember(name);
+        }
+    }
+    if (auto structType = varType->AsStruct())
+    {
+        auto member = structType->GetMember(name);
+        if (member)
+        {
+            // TODO should use local offset instead of global offset? (memberLocation = location + member->GetLocation())
+            auto memberLoc = ShaderVarLocation(member->GetReflectionType(), member->GetLocation());
+            return ShaderVar(block, memberLoc);
+        }
+    }
+    return ShaderVar();
+}
+
+ShaderVar ShaderVar::FindMember(int32 index) const
+{
+    if (!IsValid())
+        return ShaderVar();
+    
+    auto varType = GetVarType();
+
+    if (auto resourceType = varType->AsResource())
+    {
+        if (resourceType->GetShaderResourceType() == ShaderResourceType::ConstantBuffer)
+        {
+            return GetParameterBlock()->GetRootVar().FindMember(index);
+        }
+    }
+    if (auto structType = varType->AsStruct())
+    {
+        auto member = structType->GetMember(index);
+        if (member)
+        {
+            // TODO should use local offset instead of global offset? (memberLocation = location + member->GetLocation())
+            auto memberLoc = ShaderVarLocation(member->GetReflectionType(), member->GetLocation());
+            return ShaderVar(block, memberLoc);
+        }
+    }
+    return ShaderVar();
+}
+
+SPtr<Buffer> ShaderVar::GetBuffer() const
+{
+    return block->GetBuffer(location);
+}
+
+SPtr<Texture> ShaderVar::GetTexture() const
+{
+    return block->GetTexture(location);
+}
+
+SPtr<ResourceView> ShaderVar::GetSrv() const
+{
+    return block->GetSrv(location);
+}
+
+SPtr<ResourceView> ShaderVar::GetUav() const
+{
+    return block->GetUav(location);
+}
+
+SPtr<Sampler> ShaderVar::GetSampler() const
+{
+    return block->GetSampler(location);
+}
+
+SPtr<ParameterBlock> ShaderVar::GetParameterBlock() const
+{
+    return block->GetParameterBlock(location);
+}
+
+bool ShaderVar::SetBuffer(const SPtr<Buffer> &buffer) const
+{
+    return block->SetBuffer(location, buffer);
+}
+
+bool ShaderVar::SetTexture(const SPtr<Texture> &texture) const
+{
+    return block->SetTexture(location, texture);
+}
+
+bool ShaderVar::SetSrv(const SPtr<ResourceView> &srv) const
+{
+    return block->SetSrv(location, srv);
+}
+
+bool ShaderVar::SetUav(const SPtr<ResourceView> &uav) const
+{
+    return block->SetUav(location, uav);
+}
+
+bool ShaderVar::SetSampler(const SPtr<Sampler> &sampler) const
+{
+    return block->SetSampler(location, sampler);
+}
+
+bool ShaderVar::SetParameterBlock(const SPtr<ParameterBlock> &block) const
+{
+    return block->SetParameterBlock(location, block);
 }
 
 }
