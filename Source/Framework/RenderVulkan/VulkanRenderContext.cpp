@@ -240,7 +240,7 @@ void VulkanRenderContextImpl::SetVao(const VertexArray *vao)
         auto vkBuffer = static_cast<VulkanBuffer *>(vao->GetIndexBuffer().get());
         VkDeviceSize offset = vkBuffer->GetOffset();
         VkBuffer handle = vkBuffer->GetHandle();
-        vkCmdBindIndexBuffer(commandBuffer, handle, offset, ToVkIndexType(vkBuffer->GetResourceFormat()));
+        vkCmdBindIndexBuffer(commandBuffer, handle, offset, ToVkIndexType(vao->GetIndexBufferFormat()));
         ResourceBarrier(vkBuffer, ResourceState::IndexBuffer, nullptr);
     }
 }

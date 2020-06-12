@@ -116,9 +116,15 @@ public:
         };
         auto vbo = Buffer::Create(sizeof(vertices), ResourceBind::Vertex, CpuAccess::None, vertices);
 
+        uint32 indices[] = {
+            0, 1, 2
+        };
+        auto ibo = Buffer::Create(sizeof(indices), ResourceBind::Index, CpuAccess::None, indices);
+
         vao = VertexArray::Create();
         vao->SetVertexLayout(vertexLayout);
         vao->AddVertexBuffer(vbo);
+        vao->SetIndexBuffer(ibo);
 
         {
             RasterizationStateDesc desc;
@@ -146,7 +152,8 @@ public:
         state->SetProgram(program);
 
         ctx->ClearFrameBuffer(fbo.get(), Color::BLACK, 1.0f, 0);
-        ctx->Draw(state.get(), nullptr, 3, 0);
+        //ctx->Draw(state.get(), nullptr, 3, 0);
+        ctx->DrawIndexed(state.get(), nullptr, 3, 0, 0);
     }
 };
 

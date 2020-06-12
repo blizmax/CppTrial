@@ -79,17 +79,17 @@ void RenderAPI::Init()
     if (vkCreateInstance(&instanceInfo, gVulkanAlloc, &gVulkanInstance) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create instance failed.");
 
-    if (!debugLayerEnabled)
-        return;
-    VkDebugUtilsMessengerCreateInfoEXT messengerInfo = {};
-    messengerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    messengerInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    messengerInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    messengerInfo.pfnUserCallback = DebugCallback;
-
-    if (CreateDebugUtilsMessengerEXT(gVulkanInstance, &messengerInfo, gVulkanAlloc, &debugMessenger) != VK_SUCCESS)
-        CT_EXCEPTION(RenderCore, "Create debugger failed.");
-
+    if (debugLayerEnabled)
+    {
+        VkDebugUtilsMessengerCreateInfoEXT messengerInfo = {};
+        messengerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+        messengerInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+        messengerInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+        messengerInfo.pfnUserCallback = DebugCallback;
+        if (CreateDebugUtilsMessengerEXT(gVulkanInstance, &messengerInfo, gVulkanAlloc, &debugMessenger) != VK_SUCCESS)
+            CT_EXCEPTION(RenderCore, "Create debugger failed.");
+    }
+    
     shaderCompilerLib.Load();
     auto CreateShaderCompiler = (CreateVulkanShaderCompilerFunc)shaderCompilerLib.GetSymbol(CT_TEXT("CreateVulkanShaderCompiler"));
     gVulkanShaderCompiler = CreateShaderCompiler();

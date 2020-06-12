@@ -19,10 +19,30 @@ ParameterBlock::ParameterBlock(const SPtr<ParameterBlockReflection> &reflection)
     srvs.SetCount(structType->srvCount);
     uavs.SetCount(structType->uavCount);
     samplers.SetCount(structType->samplerCount);
+    parameterBlocks.SetCount(structType->cbvCount);
 
-    //TODO
-    //cbvCount
-    //Create uniform buffer
+    CreateConstantBuffers(GetRootVar());
+}
+
+void ParameterBlock::CreateConstantBuffers(const ShaderVar &var)
+{
+    auto varType = var.GetVarType();
+
+    if (auto resourceType = varType->AsResource())
+    {
+        if (resourceType->GetShaderResourceType() == ShaderResourceType::ConstantBuffer)
+        {
+            auto block = ParameterBlock::Create(resourceType->GetBlockReflection());
+            var.SetParameterBlock(block);
+        }
+    }
+    else if (auto structType = varType->AsStruct())
+    {
+        for (int32 i = 0; i < structType->GetMemberCount(); ++i)
+        {
+            CreateConstantBuffers(var[i]);
+        }
+    }
 }
 
 uint32 ParameterBlock::GetFlatIndex(const ShaderVarLocation &location) const

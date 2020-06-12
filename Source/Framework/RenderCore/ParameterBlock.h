@@ -73,11 +73,11 @@ protected:
     void MarkDescriptorSetDirty(const ShaderVarLocation &location);
     void MarkUniformDataDirty();
 
-    bool BindIntoDescriptorSet(uint32 setIndex);
-
     SPtr<Resource> GetReourceSrvUavCommon(const ShaderVarLocation &location) const;
     bool SetResourceSrvUavCommon(const ShaderVarLocation &location, const SPtr<Resource> &resource);
 
+    void CreateConstantBuffers(const ShaderVar &var);
+    bool BindIntoDescriptorSet(uint32 setIndex);
     bool PrepareResources(CopyContext *ctx);
     bool PrepareDescriptorSets(CopyContext *ctx);
 
@@ -86,7 +86,7 @@ protected:
     Array<uint8> data;
     Array<SPtr<DescriptorSet>> sets;
 
-    //Array<SPtr<ResourceView>> cbvs;
+    Array<SPtr<ParameterBlock>> parameterBlocks;
     Array<SPtr<ResourceView>> srvs;
     Array<SPtr<ResourceView>> uavs;
     Array<SPtr<Sampler>> samplers;

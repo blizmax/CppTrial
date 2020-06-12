@@ -50,6 +50,11 @@ public:
         return topology;
     }
 
+    ResourceFormat GetIndexBufferFormat() const
+    {
+        return indexBufferFormat;
+    }
+
     static SPtr<VertexArray> Create()
     {
         return Memory::MakeShared<VertexArray>();
@@ -60,5 +65,6 @@ private:
     Array<SPtr<Buffer>> vertexBuffers;
     SPtr<Buffer> indexBuffer;
     Topology topology = Topology::TriangleList;
+    ResourceFormat indexBufferFormat = ResourceFormat::R32UInt;
 };
 }
