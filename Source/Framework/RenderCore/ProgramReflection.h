@@ -531,6 +531,21 @@ public:
         bindingInfos.Add(info);
     }
 
+    bool HasConstantBuffer() const
+    {
+        return GetElementType()->GetSize() > 0;
+    }
+
+    const BindingInfo &GetConstantBufferBindingInfo() const
+    {
+        return constantBufferBindingInfo;
+    }
+
+    void SetConstantBufferBindingInfo(const BindingInfo &info)
+    {
+        constantBufferBindingInfo = info;
+    }
+
     uint32 GetSetInfoCount() const
     {
         return setInfos.Count();
@@ -562,6 +577,7 @@ private:
     SPtr<ReflectionType> elementType;
     Array<BindingInfo> bindingInfos;
     Array<SetInfo> setInfos;
+    BindingInfo constantBufferBindingInfo;
 };
 
 class ProgramReflection

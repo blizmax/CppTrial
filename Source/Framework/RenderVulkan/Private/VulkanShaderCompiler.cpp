@@ -454,7 +454,7 @@ static SPtr<ReflectionStructType> ParseStructType(const glslang::TType *blockTyp
     return structType;
 }
 
-static SPtr<ReflectionVar> ParseBlockVar(const String &name, const glslang::TObjectReflection &obj, uint32 rangeIndex)
+static SPtr<ReflectionVar> ParseBlockVar(const String &name, const glslang::TObjectReflection &obj, uint32 rangeIndex, SPtr<ParameterBlockReflection>& subBlockReflection)
 {
     SPtr<ReflectionVar> result;
 
@@ -486,7 +486,7 @@ static SPtr<ReflectionVar> ParseBlockVar(const String &name, const glslang::TObj
     {
         uint32 blockSize = glslang::TIntermediate::getBlockSize(*ttype);
         SPtr<ReflectionType> elementType = ParseStructType(ttype, name, ttype, 0, blockSize);
-        auto subBlockReflection = ParameterBlockReflection::Create();
+        subBlockReflection = ParameterBlockReflection::Create();
         subBlockReflection->SetElementType(elementType);
         subBlockReflection->Finalize();
         resourceType->SetStructType(elementType);
@@ -542,7 +542,8 @@ static void ParseReflection(const glslang::TProgram &program, const ProgramRefle
         const auto ttype = program.getUniformBlockTType(i);
         const auto &qualifier = ttype->getQualifier();
 
-        auto var = ParseBlockVar(name, obj, globalStruct->GetBindingRangeCount());
+        SPtr<ParameterBlockReflection> subBlockReflection;
+        auto var = ParseBlockVar(name, obj, globalStruct->GetBindingRangeCount(), subBlockReflection);
         if (var)
         {
             globalStruct->AddMember(var);
@@ -551,6 +552,11 @@ static void ParseReflection(const glslang::TProgram &program, const ProgramRefle
             bindingInfo.binding = qualifier.layoutBinding;
             bindingInfo.set = qualifier.layoutSet == glslang::TQualifier::layoutSetEnd ? 0 : qualifier.layoutSet;
             globalBlockReflection->AddBindingInfo(bindingInfo);
+
+            if (subBlockReflection)
+            {
+                subBlockReflection->SetConstantBufferBindingInfo(bindingInfo);
+            }
         }
     }
 

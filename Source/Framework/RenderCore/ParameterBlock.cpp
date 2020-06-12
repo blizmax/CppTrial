@@ -40,7 +40,7 @@ void ParameterBlock::CreateConstantBuffers(const ShaderVar &var)
     {
         for (int32 i = 0; i < structType->GetMemberCount(); ++i)
         {
-            CreateConstantBuffers(var[i]);
+            CreateConstantBuffers(var.FindMember(i));
         }
     }
 }
@@ -87,21 +87,117 @@ void ParameterBlock::CheckDescriptorUav(const ShaderVarLocation &location, const
         || descriptorType == DescriptorType::TypedBufferUav || descriptorType == DescriptorType::StructuredBufferUav);
 }
 
+static const ReflectionResourceType *GetResourceType(const ShaderVar &var, const Resource *resource)
+{
+    if (!var.IsValid())
+        return nullptr;
+
+    auto resourceType = var.GetVarType()->UnwrapArray()->AsResource();
+    if (!resourceType)
+        return nullptr;
+    
+    if (resource)
+    {
+        ResourceBindFlags bindFlags = 0;
+        switch (resourceType->GetShaderAccess())
+        {
+        case ShaderAccess::Read:
+            bindFlags = (resourceType->GetShaderResourceType() == ShaderResourceType::ConstantBuffer) ? ResourceBind::Constant : ResourceBind::ShaderResource;
+            break;
+        case ShaderAccess::ReadWrite:
+            bindFlags = ResourceBind::UnorderedAccess;
+            break;
+        default:
+            CT_EXCEPTION(RenderCore, "Invalid shader access.");
+            return nullptr;
+        }
+        if ((resource->GetBindFlags() & bindFlags) == 0)
+        {
+            CT_EXCEPTION(RenderCore, "Resource bind flag error.");
+            return nullptr;
+        }
+    }
+
+    return resourceType;
+}
+
 bool ParameterBlock::IsBufferVarValid(const ShaderVar &var, const Buffer *buffer) const
 {
-    //TODO
-    return true;
+    auto resourceType = GetResourceType(var, buffer);
+    if (!resourceType)
+        return false;
+    
+    switch (resourceType->GetShaderResourceType())
+    {
+    case ShaderResourceType::RawBuffer:
+    case ShaderResourceType::ConstantBuffer:
+        return true;
+    case ShaderResourceType::StructuredBuffer:
+        if (!buffer->IsStructured())
+        {
+            CT_EXCEPTION(RenderCore, "Structured buffer required.");
+            return false;
+        }
+        return true;
+    case ShaderResourceType::TypedBuffer:
+        if (!buffer->IsTyped())
+        {
+            CT_EXCEPTION(RenderCore, "Typed buffer required.");
+            return false;
+        }
+        return true;
+    }
+    CT_EXCEPTION(RenderCore, "Shader var is not a buffer var.");
+    return false;
 }
 
 bool ParameterBlock::IsTextureVarValid(const ShaderVar &var, const Texture *texture) const
 {
-    //TODO
-    return true;
+    auto resourceType = GetResourceType(var, texture);
+    if (!resourceType)
+        return false;
+    
+    switch (resourceType->GetShaderResourceType())
+    {
+    case ShaderResourceType::Texture1D:
+    case ShaderResourceType::Texture2D:
+    case ShaderResourceType::Texture3D:
+    case ShaderResourceType::TextureCube:
+    case ShaderResourceType::Texture2DMS:
+    case ShaderResourceType::Texture1DArray:
+    case ShaderResourceType::Texture2DArray:
+    case ShaderResourceType::TextureCubeArray:
+    case ShaderResourceType::Texture2DMSArray:
+        return true;
+    }
+    CT_EXCEPTION(RenderCore, "Shader var is not a texture var.");
+    return false;
 }
 
 bool ParameterBlock::IsSamplerVarValid(const ShaderVar &var, const Sampler *sampler) const
 {
+    auto resourceType = GetResourceType(var, nullptr);
+    if (!resourceType)
+        return false;
+    
+    if (resourceType->GetShaderResourceType() == ShaderResourceType::Sampler)
+        return true;
+   
+    CT_EXCEPTION(RenderCore, "Shader var is not a sampler var.");
+    return false;
+}
 
+bool ParameterBlock::IsParameterBlockVarValid(const ShaderVar &var, const ParameterBlock *block) const
+{
+    auto resourceType = GetResourceType(var, nullptr);
+    if (!resourceType)
+        return false;
+    
+    if (resourceType->GetShaderResourceType() == ShaderResourceType::ConstantBuffer)
+        return true;
+    
+    CT_EXCEPTION(RenderCore, "Shader var is not a parameter block var.");
+    return false;
 }
 
 void ParameterBlock::MarkDescriptorSetDirty(const ShaderVarLocation &location)
@@ -110,9 +206,15 @@ void ParameterBlock::MarkDescriptorSetDirty(const ShaderVarLocation &location)
     sets[setIndex] = nullptr;
 }
 
+void ParameterBlock::MarkDescriptorSetDirty(uint32 setIndex)
+{
+    sets[setIndex] = nullptr;
+}
+
 void ParameterBlock::MarkUniformDataDirty()
 {
-    //TODO
+    constantBufferDirty = true;
+    MarkDescriptorSetDirty(reflection->GetConstantBufferBindingInfo().set);
 }
 
 bool ParameterBlock::BindIntoDescriptorSet(uint32 setIndex)
@@ -136,14 +238,71 @@ bool ParameterBlock::BindIntoDescriptorSet(uint32 setIndex)
     // }
 }
 
-SPtr<Resource> ParameterBlock::GetReourceSrvUavCommon(const ShaderVarLocation &location) const
+static bool IsUav(const ReflectionResourceType *resourceType)
 {
+    CT_CHECK(resourceType);
 
+    CT_CHECK(resourceType->GetShaderResourceType() != ShaderResourceType::Sampler &&
+        resourceType->GetShaderResourceType() != ShaderResourceType::ConstantBuffer);
+    
+    CT_CHECK(resourceType->GetShaderAccess() != ShaderAccess::Undefined);
+    return resourceType->GetShaderAccess() == ShaderAccess::ReadWrite;
+}
+
+Resource *ParameterBlock::GetResourceSrvUavCommon(const ShaderVarLocation &location) const
+{
+    CheckResourceLocation(location);
+
+    auto resourceType = location.varType->UnwrapArray()->AsResource();
+    bool isUav = IsUav(resourceType);
+    auto flatIndex = GetFlatIndex(location);
+
+    if (isUav)
+    {
+        CheckDescriptorUav(location, nullptr);
+        if (uavs[flatIndex])
+            return uavs[flatIndex]->GetResource();
+    }
+    else
+    {
+        CheckDescriptorSrv(location, nullptr);
+        if (srvs[flatIndex])
+            return srvs[flatIndex]->GetResource();
+    }
+    return nullptr;
 }
 
 bool ParameterBlock::SetResourceSrvUavCommon(const ShaderVarLocation &location, const SPtr<Resource> &resource)
 {
+    CT_CHECK(resource);
+    CheckResourceLocation(location);
 
+    auto resourceType = location.varType->UnwrapArray()->AsResource();
+    bool isUav = IsUav(resourceType);
+    auto flatIndex = GetFlatIndex(location);
+    if (isUav)
+    {
+        auto uav = resource->GetUav();
+        if (!uav)
+            return false;
+        CheckDescriptorUav(location, uav.get());
+        if (uavs[flatIndex] == uav)
+            return true;
+        uavs[flatIndex] = uav;
+    }
+    else
+    {
+        auto srv = resource->GetSrv();
+        if (!srv)
+            return false;
+        CheckDescriptorSrv(location, srv.get());
+        if (srvs[flatIndex] == srv)
+            return true;
+        srvs[flatIndex] = srv;
+    }
+
+    MarkDescriptorSetDirty(location);
+    return true;
 }
 
 ShaderVar ParameterBlock::GetRootVar() const
@@ -151,9 +310,19 @@ ShaderVar ParameterBlock::GetRootVar() const
     return ShaderVar(const_cast<ParameterBlock *>(this));
 }
 
+SPtr<Buffer> ParameterBlock::GetUnderlyingConstantBuffer() const
+{
+    if (constantBuffer == nullptr)
+    {
+        uint32 size = GetElementType()->GetSize();
+        constantBuffer = Buffer::Create(size, ResourceBind::Constant, CpuAccess::Write);
+    }
+    return constantBuffer;
+}
+
 SPtr<Buffer> ParameterBlock::GetBuffer(const ShaderVarLocation &location) const
 {
-    return GetReourceSrvUavCommon(location)->AsBuffer();
+    return GetResourceSrvUavCommon(location)->AsBuffer();
 }
 
 SPtr<Buffer> ParameterBlock::GetBuffer(const String &name) const
@@ -166,7 +335,7 @@ SPtr<Buffer> ParameterBlock::GetBuffer(const String &name) const
 
 SPtr<Texture> ParameterBlock::GetTexture(const ShaderVarLocation &location) const
 {
-    return GetReourceSrvUavCommon(location)->AsTexture();
+    return GetResourceSrvUavCommon(location)->AsTexture();
 }
 
 SPtr<Texture> ParameterBlock::GetTexture(const String &name) const
@@ -211,12 +380,18 @@ SPtr<Sampler> ParameterBlock::GetSampler(const String &name) const
 
 SPtr<ParameterBlock> ParameterBlock::GetParameterBlock(const ShaderVarLocation &location) const
 {
-
+    CheckResourceLocation(location);
+    CheckDescriptorType(location, DescriptorType::Cbv);
+    auto flatIndex = GetFlatIndex(location);
+    return parameterBlocks[flatIndex];
 }
 
 SPtr<ParameterBlock> ParameterBlock::GetParameterBlock(const String &name) const
 {
-
+    auto var = GetRootVar()[name];
+    if (!IsParameterBlockVarValid(var, nullptr))
+        return nullptr;
+    return var.GetParameterBlock();
 }
 
 bool ParameterBlock::SetBuffer(const ShaderVarLocation &location, const SPtr<Buffer> &buffer)
@@ -226,7 +401,10 @@ bool ParameterBlock::SetBuffer(const ShaderVarLocation &location, const SPtr<Buf
 
 bool ParameterBlock::SetBuffer(const String &name, const SPtr<Buffer> &buffer)
 {
-
+    auto var = GetRootVar()[name];
+    if (!IsBufferVarValid(var, buffer.get()))
+        return false;
+    return var.SetBuffer(buffer);
 }
 
 bool ParameterBlock::SetTexture(const ShaderVarLocation &location, const SPtr<Texture> &texture)
@@ -236,7 +414,10 @@ bool ParameterBlock::SetTexture(const ShaderVarLocation &location, const SPtr<Te
 
 bool ParameterBlock::SetTexture(const String &name, const SPtr<Texture> &texture)
 {
-
+    auto var = GetRootVar()[name];
+    if (!IsTextureVarValid(var, texture.get()))
+        return false;
+    return var.SetTexture(texture);
 }
 
 bool ParameterBlock::SetSrv(const ShaderVarLocation &location, const SPtr<ResourceView> &srv)
@@ -248,7 +429,6 @@ bool ParameterBlock::SetSrv(const ShaderVarLocation &location, const SPtr<Resour
     auto flatIndex = GetFlatIndex(location);
     if (srvs[flatIndex] == srv)
         return true;
-
     srvs[flatIndex] = srv;
     MarkDescriptorSetDirty(location);
     return true;
@@ -263,7 +443,6 @@ bool ParameterBlock::SetUav(const ShaderVarLocation &location, const SPtr<Resour
     auto flatIndex = GetFlatIndex(location);
     if (uavs[flatIndex] == uav)
         return true;
-
     uavs[flatIndex] = uav;
     MarkDescriptorSetDirty(location);
     return true;
@@ -278,7 +457,6 @@ bool ParameterBlock::SetSampler(const ShaderVarLocation &location, const SPtr<Sa
     auto flatIndex = GetFlatIndex(location);
     if (samplers[flatIndex] == sampler)
         return true;
-
     samplers[flatIndex] = sampler;
     MarkDescriptorSetDirty(location);
     return true;
@@ -286,39 +464,64 @@ bool ParameterBlock::SetSampler(const ShaderVarLocation &location, const SPtr<Sa
 
 bool ParameterBlock::SetSampler(const String &name, const SPtr<Sampler> &sampler)
 {
+    auto var = GetRootVar()[name];
+    if (!IsSamplerVarValid(var, sampler.get()))
+        return false;
+    return var.SetSampler(sampler);
 }
 
 bool ParameterBlock::SetParameterBlock(const ShaderVarLocation &location, const SPtr<ParameterBlock> &block)
 {
+    CT_CHECK(block);
+    CheckResourceLocation(location);
+    CheckDescriptorType(location, DescriptorType::Cbv);
 
+    auto flatIndex = GetFlatIndex(location);
+    if (parameterBlocks[flatIndex] == block)
+        return true;
+    parameterBlocks[flatIndex] = block;
+    MarkDescriptorSetDirty(location);
+    return true;
 }
 
 bool ParameterBlock::SetParameterBlock(const String &name, const SPtr<ParameterBlock> &block)
 {
-
+    auto var = GetRootVar()[name];
+    if (!IsParameterBlockVarValid(var, block.get()))
+        return false;
+    return var.SetParameterBlock(block);
 }
 
 bool ParameterBlock::PrepareResources(CopyContext *ctx)
 {
+    if (reflection->HasConstantBuffer())
+    {
+        if (constantBufferDirty)
+        {
 
+        }
+    }
+
+    //TODO
 }
 
 bool ParameterBlock::PrepareDescriptorSets(CopyContext *ctx)
 {
-    if(!PrepareResources(ctx))
-        return false;
+    //TODO
+    // if(!PrepareResources(ctx))
+    //     return false;
 
-    for(int32 i = 0; i < reflection->GetSetInfoCount(); ++i)
-    {
-        if(reflection->GetSetInfo(i).bindingIndices.Count() == 0)
-            continue;
+    // for(int32 i = 0; i < reflection->GetSetInfoCount(); ++i)
+    // {
+    //     if(reflection->GetSetInfo(i).bindingIndices.Count() == 0)
+    //         continue;
 
-        if (!sets[i])
-        {
-            sets[i] = DescriptorSet::Create(RenderAPI::GetDevice()->GetGpuDescriptorPool(), reflection->GetDescriptorSetLayout(i));
-            BindIntoDescriptorSet(i);
-        }
-    }
+    //     if (!sets[i])
+    //     {
+    //         sets[i] = DescriptorSet::Create(RenderAPI::GetDevice()->GetGpuDescriptorPool(), reflection->GetDescriptorSetLayout(i));
+    //         BindIntoDescriptorSet(i);
+    //     }
+    // }
 
     return true;
 }

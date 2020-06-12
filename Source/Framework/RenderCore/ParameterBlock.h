@@ -21,6 +21,7 @@ public:
     virtual ~ParameterBlock() = default;
 
     ShaderVar GetRootVar() const;
+    SPtr<Buffer> GetUnderlyingConstantBuffer() const;
 
     SPtr<Buffer> GetBuffer(const ShaderVarLocation &location) const;
     SPtr<Buffer> GetBuffer(const String &name) const;
@@ -70,10 +71,12 @@ protected:
     bool IsBufferVarValid(const ShaderVar &var, const Buffer *buffer) const;
     bool IsTextureVarValid(const ShaderVar &var, const Texture *texture) const;
     bool IsSamplerVarValid(const ShaderVar &var, const Sampler *sampler) const;
+    bool IsParameterBlockVarValid(const ShaderVar &var, const ParameterBlock *block) const;
     void MarkDescriptorSetDirty(const ShaderVarLocation &location);
+    void MarkDescriptorSetDirty(uint32 setIndex);
     void MarkUniformDataDirty();
 
-    SPtr<Resource> GetReourceSrvUavCommon(const ShaderVarLocation &location) const;
+    Resource *GetResourceSrvUavCommon(const ShaderVarLocation &location) const;
     bool SetResourceSrvUavCommon(const ShaderVarLocation &location, const SPtr<Resource> &resource);
 
     void CreateConstantBuffers(const ShaderVar &var);
@@ -90,6 +93,9 @@ protected:
     Array<SPtr<ResourceView>> srvs;
     Array<SPtr<ResourceView>> uavs;
     Array<SPtr<Sampler>> samplers;
+
+    mutable SPtr<Buffer> constantBuffer;
+    mutable bool constantBufferDirty = false;
 };
 
 class ShaderVar
