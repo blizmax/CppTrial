@@ -39,6 +39,11 @@ public:
         return desc;
     }
 
+    const SPtr<ProgramReflection> &GetReflection() const
+    {
+        return reflection;
+    }
+
     static SPtr<ProgramKernel> Create(const ProgramDesc &desc);
 
 protected:
@@ -53,6 +58,11 @@ public:
     const ProgramDesc &GetDesc() const
     {
         return kernel->GetDesc();
+    }
+
+    const SPtr<ProgramReflection> &GetReflection() const
+    {
+        return kernel->GetReflection();
     }
 
     const SPtr<ProgramKernel> &GetKernel() const

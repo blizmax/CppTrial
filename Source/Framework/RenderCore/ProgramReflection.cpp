@@ -80,9 +80,9 @@ void ProgramReflection::Finalize()
     auto &bindingInfos = defaultBlockReflection->GetBindingInfos();
     auto &bindingRanges = defaultBlockReflection->GetElementType()->GetBindingRanges();
 
-    for(auto & setInfo : defaultBlockReflection->setInfos)
+    for(auto &setInfo : defaultBlockReflection->setInfos)
     {
-        if(!setInfo.bindingIndices.Count() == 0)
+        if(setInfo.bindingIndices.Count() == 0)
             continue;
 
         DescriptorSetLayoutDesc desc;

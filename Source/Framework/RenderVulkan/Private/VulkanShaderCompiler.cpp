@@ -161,85 +161,9 @@ static EShLanguage ToEShLanguage(ShaderType shaderType)
     return EShLangCount;
 }
 
-static SPtr<ReflectionVar> ParseSamplerVar(const String &name, const glslang::TObjectReflection &obj, uint32 rangeIndex)
-{
-    SPtr<ReflectionVar> result;
+static SPtr<ReflectionStructType> ParseStructType(const glslang::TType *blockType, const String &name, const glslang::TType *structType, int32 baseOffset);
 
-    const auto ttype = obj.getType();
-    const auto &sampler = ttype->getSampler();
-    const auto &qualifier = ttype->getQualifier();
-
-    CT_CHECK(qualifier.hasBinding());
-    CT_CHECK(!sampler.isCombined());
-
-    ShaderResourceType shaderResourceType = ShaderResourceType::Unknown;
-    ShaderAccess shaderAccess = ShaderAccess::Undefined;
-    if (sampler.isPureSampler())
-    {
-        shaderResourceType = ShaderResourceType::Sampler;
-        shaderAccess = ShaderAccess::Read;
-    }
-    else if (sampler.isTexture())
-    {
-        bool arrayed = sampler.isArrayed();
-        switch (sampler.dim)
-        {
-        case glslang::Esd1D:
-            shaderResourceType = arrayed ? ShaderResourceType::Texture1DArray : ShaderResourceType::Texture1D;
-            break;
-        case glslang::Esd2D:
-            if (sampler.isMultiSample())
-                shaderResourceType = arrayed ? ShaderResourceType::Texture2DMSArray : ShaderResourceType::Texture2DMS;
-            else
-                shaderResourceType = arrayed ? ShaderResourceType::Texture2DArray : ShaderResourceType::Texture2D;
-            break;
-        case glslang::Esd3D:
-            shaderResourceType = ShaderResourceType::Texture3D;
-            break;
-        case glslang::EsdCube:
-            shaderResourceType = arrayed ? ShaderResourceType::TextureCubeArray : ShaderResourceType::TextureCube;
-            break;
-        case glslang::EsdBuffer:
-            //TODO
-            break;
-        }
-        shaderAccess = ShaderAccess::Read;
-    }
-    else
-    {
-        
-    }
-
-    if (shaderResourceType == ShaderResourceType::Unknown)
-    {
-        CT_LOG(Error, CT_TEXT("Parse unsupported sampler var, ignored.{0}:{1}"), name, String(ttype->getCompleteString().c_str()));
-    }
-    else
-    {
-        auto resourceType = ReflectionResourceType::Create(shaderResourceType, shaderAccess);
-        VarLocation location;
-        location.rangeIndex = rangeIndex;
-
-        if(ttype->isArray())
-        {
-            auto arraySizes = ttype->getArraySizes();
-            CT_CHECK(arraySizes->getNumDims() == 1); //These types only support one dim array
-
-            auto arrayType = ReflectionArrayType::Create(arraySizes->getDimSize(0), 0, resourceType);
-            result = ReflectionVar::Create(name, arrayType, location);     
-        }
-        else
-        {
-            result = ReflectionVar::Create(name, resourceType, location);
-        }
-    }
-
-    return result;
-}
-
-static SPtr<ReflectionStructType> ParseStructType(const glslang::TType *blockType, const String &name, const glslang::TType *structType, int32 baseOffset, int32 totalSize);
-
-static SPtr<ReflectionType> ParseDataType(const glslang::TType *blockType, const String &name, const glslang::TType *ttype, int32 baseOffset, int32 totalSize)
+static SPtr<ReflectionType> ParseDataType(const glslang::TType *blockType, const String &name, const glslang::TType *ttype, int32 totalSize)
 {
     ShaderDataType shaderDataType = ShaderDataType::Unknown;
     if(ttype->isVector())
@@ -380,78 +304,153 @@ static SPtr<ReflectionType> ParseDataType(const glslang::TType *blockType, const
     CT_CHECK(shaderDataType != ShaderDataType::Unknown);
 
     auto reflectionType = ReflectionDataType::Create(shaderDataType);
+    reflectionType->SetSize(totalSize);
 
     return reflectionType;
 }
 
-static SPtr<ReflectionArrayType> ParseArrayType(const glslang::TType *blockType, const String &name, const glslang::TType *ttype, int32 baseOffset, int32 totalSize, int32 dim = 0)
+static SPtr<ReflectionArrayType> ParseArrayType(const glslang::TType *blockType, const String &name, const glslang::TType *ttype, int32 totalSize, int32 dim)
 {
     SPtr<ReflectionType> elementType;
     auto basicType = ttype->getBasicType();
     auto arraySizes = ttype->getArraySizes();
     uint32 elementCount = arraySizes->getDimSize(dim);
+    uint32 stride = totalSize / elementCount;
     int32 nextDim = dim + 1;
+
     if(arraySizes->getNumDims() > nextDim)
     {
-        elementType = ParseArrayType(blockType, name, ttype, 0, totalSize, nextDim);
+        elementType = ParseArrayType(blockType, name, ttype, stride, nextDim);
     }
     else if(basicType == glslang::EbtStruct)
     {
-        //TODO
-        elementType = ParseStructType(blockType, name, ttype, 0, totalSize / elementCount);
+        elementType = ParseStructType(blockType, name, ttype, 0);
     }
     else
     {
-        //TODO
-        elementType = ParseDataType(blockType, name, ttype, 0, totalSize);
+        elementType = ParseDataType(blockType, name, ttype, totalSize);
     }
 
-    //CT_LOG(Debug, CT_TEXT("Array type, name={0},dim={1},detail:{2}"), name, dim, String(ttype->getCompleteString().c_str()));
-
-    uint32 stride = 0; //TODO
     auto reflectionType = ReflectionArrayType::Create(elementCount, stride, elementType);
+    reflectionType->SetSize(totalSize);
 
     return reflectionType;
 }
 
-static SPtr<ReflectionStructType> ParseStructType(const glslang::TType *blockType, const String &name, const glslang::TType *ttype, int32 structOffset, int32 structSize)
+static SPtr<ReflectionStructType> ParseStructType(const glslang::TType *blockType, const String &name, const glslang::TType *ttype, int32 baseOffset)
 {
     SPtr<ReflectionStructType> structType = ReflectionStructType::Create(name);
 
-    int32 offset = structOffset;
+    int32 offset = baseOffset;
+    int32 totalSize = 0;
     const auto &memberTypes = *(ttype->getStruct());
     for (const auto &e : memberTypes)
     {
         auto memberType = e.type;
+        String memberName = memberType->getFieldName().c_str();
         int32 memberSize = 0;
         glslang::TIntermediate::updateOffset(*blockType, *memberType, offset, memberSize);
-        String memberName = memberType->getFieldName().c_str();
-        VarLocation location;
-    
+        int32 localOffset = offset - baseOffset;
         SPtr<ReflectionType> reflectionType;
-
         if(memberType->isArray())
         {
-            reflectionType = ParseArrayType(blockType, memberName, memberType, offset, memberSize);
-            //TODO
+            reflectionType = ParseArrayType(blockType, memberName, memberType, memberSize, 0);
         }
         else if(memberType->getBasicType() == glslang::EbtStruct)
         {
-            reflectionType = ParseStructType(blockType, memberName, memberType, offset, memberSize);
-            // location.byteOffset = offset;
-            // memberSize = ret->GetSize();
-            // offset += memberSize;
-            // structType->AddMember(ReflectionVar::Create(name, ret, location));
+            reflectionType = ParseStructType(blockType, memberName, memberType, offset);
         }
         else
         {
-            reflectionType = ParseDataType(blockType, memberName, memberType, offset, memberSize);
-            //TODO
+            reflectionType = ParseDataType(blockType, memberName, memberType, memberSize);
         }
+
+        offset += memberSize;
+        totalSize += memberSize;
+
+        VarLocation location;
+        location.byteOffset = localOffset;
         structType->AddMember(ReflectionVar::Create(memberName, reflectionType, location));
     }
 
+    structType->SetSize(totalSize);
+
     return structType;
+}
+
+static SPtr<ReflectionVar> ParseSamplerVar(const String &name, const glslang::TObjectReflection &obj, uint32 rangeIndex)
+{
+    SPtr<ReflectionVar> result;
+
+    const auto ttype = obj.getType();
+    const auto &sampler = ttype->getSampler();
+    const auto &qualifier = ttype->getQualifier();
+
+    CT_CHECK(qualifier.hasBinding());
+    CT_CHECK(!sampler.isCombined());
+
+    ShaderResourceType shaderResourceType = ShaderResourceType::Unknown;
+    ShaderAccess shaderAccess = ShaderAccess::Undefined;
+    if (sampler.isPureSampler())
+    {
+        shaderResourceType = ShaderResourceType::Sampler;
+        shaderAccess = ShaderAccess::Read;
+    }
+    else if (sampler.isTexture())
+    {
+        bool arrayed = sampler.isArrayed();
+        switch (sampler.dim)
+        {
+        case glslang::Esd1D:
+            shaderResourceType = arrayed ? ShaderResourceType::Texture1DArray : ShaderResourceType::Texture1D;
+            break;
+        case glslang::Esd2D:
+            if (sampler.isMultiSample())
+                shaderResourceType = arrayed ? ShaderResourceType::Texture2DMSArray : ShaderResourceType::Texture2DMS;
+            else
+                shaderResourceType = arrayed ? ShaderResourceType::Texture2DArray : ShaderResourceType::Texture2D;
+            break;
+        case glslang::Esd3D:
+            shaderResourceType = ShaderResourceType::Texture3D;
+            break;
+        case glslang::EsdCube:
+            shaderResourceType = arrayed ? ShaderResourceType::TextureCubeArray : ShaderResourceType::TextureCube;
+            break;
+        case glslang::EsdBuffer:
+            //TODO
+            break;
+        }
+        shaderAccess = ShaderAccess::Read;
+    }
+    else
+    {
+    }
+
+    if (shaderResourceType == ShaderResourceType::Unknown)
+    {
+        CT_LOG(Error, CT_TEXT("Parse unsupported sampler var, ignored.{0}:{1}"), name, String(ttype->getCompleteString().c_str()));
+    }
+    else
+    {
+        auto resourceType = ReflectionResourceType::Create(shaderResourceType, shaderAccess);
+        VarLocation location;
+        location.rangeIndex = rangeIndex;
+
+        if (ttype->isArray())
+        {
+            auto arraySizes = ttype->getArraySizes();
+            CT_CHECK(arraySizes->getNumDims() == 1); //These types only support one dim array
+
+            auto arrayType = ReflectionArrayType::Create(arraySizes->getDimSize(0), 0, resourceType);
+            result = ReflectionVar::Create(name, arrayType, location);
+        }
+        else
+        {
+            result = ReflectionVar::Create(name, resourceType, location);
+        }
+    }
+
+    return result;
 }
 
 static SPtr<ReflectionVar> ParseBlockVar(const String &name, const glslang::TObjectReflection &obj, uint32 rangeIndex, SPtr<ParameterBlockReflection>& subBlockReflection)
@@ -484,8 +483,7 @@ static SPtr<ReflectionVar> ParseBlockVar(const String &name, const glslang::TObj
 
     if (qualifier.storage == glslang::EvqUniform)
     {
-        uint32 blockSize = glslang::TIntermediate::getBlockSize(*ttype);
-        SPtr<ReflectionType> elementType = ParseStructType(ttype, name, ttype, 0, blockSize);
+        SPtr<ReflectionType> elementType = ParseStructType(ttype, name, ttype, 0);
         subBlockReflection = ParameterBlockReflection::Create();
         subBlockReflection->SetElementType(elementType);
         subBlockReflection->Finalize();

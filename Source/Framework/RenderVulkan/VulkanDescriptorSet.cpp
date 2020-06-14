@@ -9,6 +9,11 @@
 namespace RenderCore
 {
 
+SPtr<DescriptorSet> DescriptorSet::Create(const SPtr<DescriptorPool> &pool, const SPtr<DescriptorSetLayout> &layout)
+{
+    return Memory::MakeShared<VulkanDescriptorSet>(pool, layout);
+}
+
 VulkanDescriptorSet::VulkanDescriptorSet(const SPtr<DescriptorPool> &pool, const SPtr<DescriptorSetLayout> &layout)
 {
     this->pool = std::static_pointer_cast<VulkanDescriptorPool>(pool);

@@ -12,8 +12,8 @@ SPtr<ParameterBlock> ParameterBlock::Create(const SPtr<ParameterBlockReflection>
 ParameterBlock::ParameterBlock(const SPtr<ParameterBlockReflection> &reflection)
     : reflection(reflection)
 {
-    data.SetCount(reflection->GetElementType()->GetSize());
     sets.SetCount(reflection->GetSetInfoCount());
+    constBufferData.SetCount(reflection->GetElementType()->GetSize());
 
     auto structType = reflection->GetElementType()->AsStruct();
     srvs.SetCount(structType->srvCount);
@@ -21,10 +21,10 @@ ParameterBlock::ParameterBlock(const SPtr<ParameterBlockReflection> &reflection)
     samplers.SetCount(structType->samplerCount);
     parameterBlocks.SetCount(structType->cbvCount);
 
-    CreateConstantBuffers(GetRootVar());
+    CreateParameterBlocks(GetRootVar());
 }
 
-void ParameterBlock::CreateConstantBuffers(const ShaderVar &var)
+void ParameterBlock::CreateParameterBlocks(const ShaderVar &var)
 {
     auto varType = var.GetVarType();
 
@@ -40,12 +40,12 @@ void ParameterBlock::CreateConstantBuffers(const ShaderVar &var)
     {
         for (int32 i = 0; i < structType->GetMemberCount(); ++i)
         {
-            CreateConstantBuffers(var.FindMember(i));
+            CreateParameterBlocks(var.FindMember(i));
         }
     }
 }
 
-uint32 ParameterBlock::GetFlatIndex(const ShaderVarLocation &location) const
+int32 ParameterBlock::GetFlatIndex(const ShaderVarLocation &location) const
 {
     auto &elementType = GetElementType();
     auto &range = elementType->GetBindingRange(location.rangeIndex);
@@ -203,39 +203,25 @@ bool ParameterBlock::IsParameterBlockVarValid(const ShaderVar &var, const Parame
 void ParameterBlock::MarkDescriptorSetDirty(const ShaderVarLocation &location)
 {
     auto setIndex = reflection->GetBindingInfo(location.rangeIndex).set;
-    sets[setIndex] = nullptr;
+    MarkDescriptorSetDirty(setIndex);
 }
 
 void ParameterBlock::MarkDescriptorSetDirty(uint32 setIndex)
 {
-    sets[setIndex] = nullptr;
+    if (parent)
+    {
+        parent->MarkDescriptorSetDirty(setIndex);
+    }
+    else
+    {
+        sets[setIndex] = nullptr;
+    }
 }
 
 void ParameterBlock::MarkUniformDataDirty()
 {
     constantBufferDirty = true;
     MarkDescriptorSetDirty(reflection->GetConstantBufferBindingInfo().set);
-}
-
-bool ParameterBlock::BindIntoDescriptorSet(uint32 setIndex)
-{
-    const auto &set = sets[setIndex];
-
-    //TODO
-    // for(int32 slot : reflection->GetBindingSlots(setIndex))
-    // {
-    //     const auto &bindingData = reflection->GetBindingData(slot);
-    //     uint32 binding = bindingData.binding;
-    //     auto descriptorType = bindingData.descriptorType;
-
-    //     // switch (descriptorType)
-    //     // {
-    //     // case DescriptorType::Cbv:
-    //     //     {
-    //     //         set->SetCbv( [slot]
-    //     //     }
-    //     // }
-    // }
 }
 
 static bool IsUav(const ReflectionResourceType *resourceType)
@@ -481,6 +467,9 @@ bool ParameterBlock::SetParameterBlock(const ShaderVarLocation &location, const 
         return true;
     parameterBlocks[flatIndex] = block;
     MarkDescriptorSetDirty(location);
+
+    block->parent = this;
+
     return true;
 }
 
@@ -492,39 +481,141 @@ bool ParameterBlock::SetParameterBlock(const String &name, const SPtr<ParameterB
     return var.SetParameterBlock(block);
 }
 
-bool ParameterBlock::PrepareResources(CopyContext *ctx)
+void ParameterBlock::UpdateConstantBuffer()
 {
     if (reflection->HasConstantBuffer())
     {
         if (constantBufferDirty)
         {
+            constantBufferDirty = false;
 
+            auto buffer = GetUnderlyingConstantBuffer().get();
+            uint8 *data = (uint8 *)buffer->Map(BufferMapType::WriteDiscard);
+            std::memcpy(data, constBufferData.GetData(), constBufferData.Count());
+            buffer->Unmap();
+        }
+    }
+}
+
+static void PrepareResource(CopyContext *ctx, Resource *resource, bool isUav)
+{
+    if (!resource)
+        return;
+
+    auto buffer = resource->AsBuffer().get();
+    if (buffer && isUav && buffer->GetUavCounter())
+    {
+        ctx->ResourceBarrier(buffer->GetUavCounter().get(), ResourceState::UnorderedAccess);
+    }
+
+    bool insertBarrier = ctx->ResourceBarrier(resource, isUav ? ResourceState::UnorderedAccess : ResourceState::ShaderResource);
+    
+    if (insertBarrier && isUav)
+    {
+        ctx->UavBarrier(resource);
+    }
+}
+
+bool ParameterBlock::PrepareResources(CopyContext *ctx)
+{
+    for (auto & srv : srvs)
+    {
+        auto resource = srv->GetResource();
+        PrepareResource(ctx, resource, false);
+    }
+    for (auto &uav : uavs)
+    {
+        auto resource = uav->GetResource();
+        PrepareResource(ctx, resource, true);
+    }
+
+    for (auto &subBlock : parameterBlocks)
+    {
+        subBlock->PrepareResourcesAndConstantBuffer(ctx);
+    }
+
+    return true;
+}
+
+bool ParameterBlock::PrepareResourcesAndConstantBuffer(CopyContext *ctx)
+{
+    UpdateConstantBuffer();
+    return PrepareResources(ctx);
+}
+
+bool ParameterBlock::BindIntoDescriptorSet(uint32 setIndex, const SPtr<DescriptorSet> &set)
+{
+    if (reflection->HasConstantBuffer())
+    {
+        auto bindingInfo = reflection->GetConstantBufferBindingInfo();
+        if (setIndex == bindingInfo.set)
+        {
+            set->SetCbv(bindingInfo.binding, 0, GetUnderlyingConstantBuffer()->GetCbv().get());
         }
     }
 
-    //TODO
+    auto setInfo = reflection->GetSetInfo(setIndex);
+    for (auto index : setInfo.bindingIndices)
+    {
+        auto &bindingInfo = reflection->GetBindingInfo(index);
+        auto &range = GetElementType()->GetBindingRange(index);
+        for (int32 i = 0; i < range.count; ++i)
+        {
+            int32 flatIndex = range.baseIndex + i;
+            switch (range.descriptorType)
+            {
+            case DescriptorType::Cbv:
+                CT_CHECK(range.count == 1);
+                CT_CHECK(parameterBlocks[flatIndex]);
+                parameterBlocks[flatIndex]->BindIntoDescriptorSet(setIndex, set);
+                break;
+            case DescriptorType::Sampler:
+                CT_CHECK(samplers[flatIndex]);
+                set->SetSampler(bindingInfo.binding, i, samplers[flatIndex].get());
+                break;
+            case DescriptorType::TextureSrv:
+            case DescriptorType::RawBufferSrv:
+            case DescriptorType::TypedBufferSrv:
+            case DescriptorType::StructuredBufferSrv:
+                CT_CHECK(srvs[flatIndex]);
+                set->SetSrv(bindingInfo.binding, i, srvs[flatIndex].get());
+                break;
+            case DescriptorType::TextureUav:
+            case DescriptorType::RawBufferUav:
+            case DescriptorType::TypedBufferUav:
+            case DescriptorType::StructuredBufferUav:
+                CT_CHECK(uavs[flatIndex]);
+                set->SetSrv(bindingInfo.binding, i, uavs[flatIndex].get());
+                break;
+            }
+        }
+    }
+
+    return true;
 }
 
 bool ParameterBlock::PrepareDescriptorSets(CopyContext *ctx)
 {
-    //TODO
-    // if(!PrepareResources(ctx))
-    //     return false;
+    if (!PrepareResourcesAndConstantBuffer(ctx))
+        return false;
 
-    // for(int32 i = 0; i < reflection->GetSetInfoCount(); ++i)
-    // {
-    //     if(reflection->GetSetInfo(i).bindingIndices.Count() == 0)
-    //         continue;
+    //Only main block contains descriptor set.
+    for(int32 i = 0; i < reflection->GetSetInfoCount(); ++i)
+    {
+        if(reflection->GetSetInfo(i).bindingIndices.Count() == 0)
+            continue;
 
-    //     if (!sets[i])
-    //     {
-    //         sets[i] = DescriptorSet::Create(RenderAPI::GetDevice()->GetGpuDescriptorPool(), reflection->GetDescriptorSetLayout(i));
-    //         BindIntoDescriptorSet(i);
-    //     }
-    // }
+        if (!sets[i])
+        {
+            sets[i] = DescriptorSet::Create(RenderAPI::GetDevice()->GetGpuDescriptorPool(), reflection->GetDescriptorSetLayout(i));
+            BindIntoDescriptorSet(i, sets[i]);
+        }
+    }
 
     return true;
 }
+
+//===========================================================================
 
 ShaderVar ShaderVar::FindMember(const String &name) const
 {
@@ -545,8 +636,7 @@ ShaderVar ShaderVar::FindMember(const String &name) const
         auto member = structType->GetMember(name);
         if (member)
         {
-            // TODO should use local offset instead of global offset? (memberLocation = location + member->GetLocation())
-            auto memberLoc = ShaderVarLocation(member->GetReflectionType(), member->GetLocation());
+            auto memberLoc = ShaderVarLocation(member->GetReflectionType(), location + member->GetLocation());
             return ShaderVar(block, memberLoc);
         }
     }
@@ -567,14 +657,24 @@ ShaderVar ShaderVar::FindMember(int32 index) const
             return GetParameterBlock()->GetRootVar().FindMember(index);
         }
     }
-    if (auto structType = varType->AsStruct())
+    else if (auto structType = varType->AsStruct())
     {
         auto member = structType->GetMember(index);
         if (member)
         {
-            // TODO should use local offset instead of global offset? (memberLocation = location + member->GetLocation())
-            auto memberLoc = ShaderVarLocation(member->GetReflectionType(), member->GetLocation());
+            auto memberLoc = ShaderVarLocation(member->GetReflectionType(), location + member->GetLocation());
             return ShaderVar(block, memberLoc);
+        }
+    }
+    else if (auto arrayType = varType->AsArray())
+    {
+        if (index >= 0 && index < arrayType->GetElementCount())
+        {
+            VarLocation newLoc;
+            newLoc.rangeIndex = location.arrayIndex;
+            newLoc.arrayIndex = index;
+            newLoc.byteOffset = location.byteOffset + arrayType->GetStride() * index;
+            return ShaderVar(block, ShaderVarLocation(arrayType->GetElementType(), newLoc));
         }
     }
     return ShaderVar();
@@ -635,9 +735,44 @@ bool ShaderVar::SetSampler(const SPtr<Sampler> &sampler) const
     return block->SetSampler(location, sampler);
 }
 
-bool ShaderVar::SetParameterBlock(const SPtr<ParameterBlock> &block) const
+bool ShaderVar::SetParameterBlock(const SPtr<ParameterBlock> &newBlock) const
 {
-    return block->SetParameterBlock(location, block);
+    return block->SetParameterBlock(location, newBlock);
+}
+
+ShaderVar::operator SPtr<Buffer>() const
+{
+    return block->GetBuffer(location);
+}
+
+ShaderVar::operator SPtr<Texture>() const
+{
+    return block->GetTexture(location);
+}
+
+ShaderVar::operator SPtr<Sampler>() const
+{
+    return block->GetSampler(location);
+}
+
+ShaderVar ShaderVar::operator[](const String &name) const
+{
+    auto ret = FindMember(name);
+    if (!ret.IsValid() && IsValid())
+    {
+        CT_LOG(Error, CT_TEXT("ShaderVar[] attemp to find invalid member, name is {0}"), name);
+    }
+    return ret;
+}
+
+ShaderVar ShaderVar::operator[](int32 index) const
+{
+    auto ret = FindMember(index);
+    if (!ret.IsValid() && IsValid())
+    {
+        CT_LOG(Error, CT_TEXT("ShaderVar[] attemp to find invalid member, index is {0}"), index);
+    }
+    return ret;
 }
 
 }

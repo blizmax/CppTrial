@@ -22,6 +22,7 @@ public:
 
     ShaderVar GetRootVar() const;
     SPtr<Buffer> GetUnderlyingConstantBuffer() const;
+    bool PrepareDescriptorSets(CopyContext *ctx);
 
     SPtr<Buffer> GetBuffer(const ShaderVarLocation &location) const;
     SPtr<Buffer> GetBuffer(const String &name) const;
@@ -45,6 +46,17 @@ public:
     bool SetParameterBlock(const ShaderVarLocation &location, const SPtr<ParameterBlock> &block);
     bool SetParameterBlock(const String &name, const SPtr<ParameterBlock> &block);
 
+    template <typename T>
+    bool Set(const ShaderVarLocation &location, const T& val)
+    {
+        CT_CHECK(location.varType->IsData());
+        //TODO Check val type
+        uint8 *ptr = constBufferData.GetData() + location.byteOffset;
+        *(T*)ptr = val;
+        MarkUniformDataDirty();
+        return true;
+    }
+
     const SPtr<ParameterBlockReflection> &GetReflection() const
     {
         return reflection;
@@ -57,13 +69,18 @@ public:
 
     uint32 GetSize() const
     {
-        return data.Count();
+        return constBufferData.Count();
+    }
+
+    const Array<SPtr<DescriptorSet>> &GetDescriptorSets() const
+    {
+        return sets;
     }
 
     static SPtr<ParameterBlock> Create(const SPtr<ParameterBlockReflection> &reflection);
 
 protected:
-    uint32 GetFlatIndex(const ShaderVarLocation &location) const;
+    int32 GetFlatIndex(const ShaderVarLocation &location) const;
     void CheckResourceLocation(const ShaderVarLocation &location) const;
     void CheckDescriptorType(const ShaderVarLocation &location, DescriptorType descriptorType) const;
     void CheckDescriptorSrv(const ShaderVarLocation &location, const ResourceView *view) const;
@@ -79,21 +96,23 @@ protected:
     Resource *GetResourceSrvUavCommon(const ShaderVarLocation &location) const;
     bool SetResourceSrvUavCommon(const ShaderVarLocation &location, const SPtr<Resource> &resource);
 
-    void CreateConstantBuffers(const ShaderVar &var);
-    bool BindIntoDescriptorSet(uint32 setIndex);
+    void CreateParameterBlocks(const ShaderVar &var);
+    void UpdateConstantBuffer();
     bool PrepareResources(CopyContext *ctx);
-    bool PrepareDescriptorSets(CopyContext *ctx);
+    bool PrepareResourcesAndConstantBuffer(CopyContext *ctx);
+    bool BindIntoDescriptorSet(uint32 setIndex, const SPtr<DescriptorSet> &set);
 
 protected:
     SPtr<ParameterBlockReflection> reflection;
-    Array<uint8> data;
     Array<SPtr<DescriptorSet>> sets;
 
+    ParameterBlock *parent = nullptr;
     Array<SPtr<ParameterBlock>> parameterBlocks;
     Array<SPtr<ResourceView>> srvs;
     Array<SPtr<ResourceView>> uavs;
     Array<SPtr<Sampler>> samplers;
 
+    Array<uint8> constBufferData;
     mutable SPtr<Buffer> constantBuffer;
     mutable bool constantBufferDirty = false;
 };
@@ -105,7 +124,8 @@ public:
 
     explicit ShaderVar(ParameterBlock *block) : block(block)
     {
-        //TODO location
+        if (block)
+            location = ShaderVarLocation(block->GetElementType(), VarLocation());
     }
 
     ShaderVar(ParameterBlock *block, const ShaderVarLocation &location) : block(block), location(location)
@@ -128,6 +148,12 @@ public:
     bool SetSampler(const SPtr<Sampler> &sampler) const;
     bool SetParameterBlock(const SPtr<ParameterBlock> &block) const;
 
+    template <typename T>
+    bool Set(const T& val) const
+    {
+        return block->Set(location, val);
+    }
+
     bool IsValid() const
     {
         return location.IsValid();
@@ -137,6 +163,36 @@ public:
     {
         return location.varType;
     }
+
+    const ShaderVarLocation &GetLocation() const
+    {
+        return location;
+    }
+
+    void operator=(const SPtr<Buffer> &buffer) const
+    {
+        SetBuffer(buffer);
+    }
+
+    void operator=(const SPtr<Texture> &texture) const
+    {
+        SetTexture(texture);
+    }
+
+    void operator=(const SPtr<Sampler> &sampler) const
+    {
+        SetSampler(sampler);
+    }
+
+    template <typename T>
+    void operator=(const T &val) const
+    {
+        Set(val);
+    }
+
+    operator SPtr<Buffer>() const;
+    operator SPtr<Texture>() const;
+    operator SPtr<Sampler>() const;
 
     ShaderVar operator[](const String &name) const;
     ShaderVar operator[](int32 index) const;

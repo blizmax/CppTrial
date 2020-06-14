@@ -21,6 +21,7 @@ SPtr<VkWindow> window;
 SPtr<Renderer> renderer;
 SPtr<FrameBuffer> targetFbo;
 SPtr<Program> program;
+SPtr<GraphicsVars> vars;
 
 SPtr<Program> reflectionProgram;
 
@@ -153,7 +154,7 @@ public:
 
         ctx->ClearFrameBuffer(fbo.get(), Color::BLACK, 1.0f, 0);
         //ctx->Draw(state.get(), nullptr, 3, 0);
-        ctx->DrawIndexed(state.get(), nullptr, 3, 0, 0);
+        ctx->DrawIndexed(state.get(), vars.get(), 3, 0, 0);
     }
 };
 
@@ -188,6 +189,8 @@ int main(int argc, char **argv)
     targetFbo = FrameBuffer::Create2D(backBufferFbo->GetWidth(), backBufferFbo->GetHeight(), backBufferFbo->GetDesc());
 
     program = CreateProgram();
+    vars = GraphicsVars::Create(program);
+    vars->Root()[CT_TEXT("UB")][CT_TEXT("v")] = 1.0f;
 
     {
         ProgramDesc desc;

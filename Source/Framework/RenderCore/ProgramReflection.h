@@ -159,6 +159,13 @@ struct VarLocation
     uint32 byteOffset = 0;
 
     VarLocation() = default;
+
+    VarLocation operator+(const VarLocation &other) const
+    {
+        return {rangeIndex + other.rangeIndex,
+            arrayIndex + other.arrayIndex,
+            byteOffset + other.byteOffset};
+    }
 };
 
 struct ShaderVarLocation : VarLocation
@@ -404,6 +411,11 @@ public:
         return elementCount;
     }
 
+    uint32 GetStride() const
+    {
+        return stride;
+    }
+
     const SPtr<ReflectionType> &GetElementType() const
     {
         return elementType;
@@ -448,6 +460,11 @@ public:
             {
                 auto &range = GetBindingRange(m->GetLocation().rangeIndex);
                 debugInfo = String::Format(CT_TEXT("BindingRange({0}),"), range);
+            }
+            else
+            {
+                auto offset = m->GetLocation().byteOffset;
+                debugInfo = String::Format(CT_TEXT("ByteOffset({0}),"), offset);
             }
 
             ret += String::Format(CT_TEXT("{0}: {1}{2}"), m->GetName(), debugInfo, m->GetReflectionType()->Dump(depth + 1));
