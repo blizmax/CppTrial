@@ -103,8 +103,8 @@ void RenderAPI::Destroy()
     DestroyShaderCompiler(gVulkanShaderCompiler);
     gVulkanShaderCompiler = nullptr;
 
-    gVulkanDevice = nullptr;
     device = nullptr;
+    gVulkanDevice = nullptr;
 
     if (debugMessenger != VK_NULL_HANDLE)
         DestroyDebugUtilsMessengerEXT(gVulkanInstance, debugMessenger, gVulkanAlloc);

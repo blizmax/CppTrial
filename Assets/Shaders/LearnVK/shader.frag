@@ -3,15 +3,19 @@
 
 layout(binding = 0) uniform UB
 {
-    float v;
+    vec4 tint;
 };
 
-layout(location = 0) in vec3 Color;
+layout(binding = 1) uniform sampler mainSampler;
+layout(binding = 2) uniform texture2D mainTexture;
+
+layout(location = 0) in vec2 UV;
 
 layout(location = 0) out vec4 FragmentColor;
 
-void main() {
-    vec3 col = vec3(v);
-
-    FragmentColor = vec4(col, 1.0);
+void main() 
+{
+    vec4 col = texture(sampler2D(mainTexture, mainSampler), UV);
+    col *= tint;
+    FragmentColor = col;
 }

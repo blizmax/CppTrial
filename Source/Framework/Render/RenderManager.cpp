@@ -23,8 +23,6 @@ void RenderManager::Shutdown()
 
 void RenderManager::Tick()
 {
-    auto ctx = GetRenderContext();
-    ctx->ClearFrameBuffer(targetFrameBuffer.get(), Color::BLACK, 1.0f, 0);
 }
 
 void RenderManager::Present()
@@ -34,6 +32,8 @@ void RenderManager::Present()
     auto swapChainFrameBuffer = device->GetSwapChainFrameBuffer();
     ctx->CopyResource(swapChainFrameBuffer->GetColorTexture(0).get(), targetFrameBuffer->GetColorTexture(0).get());
     device->Present();
+
+    ctx->ClearFrameBuffer(targetFrameBuffer.get(), Color(0.1f, 0.1f, 0.1f), 1.0f, 0);
 }
 
 RenderContext *RenderManager::GetRenderContext() const

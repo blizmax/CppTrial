@@ -585,7 +585,7 @@ bool ParameterBlock::BindIntoDescriptorSet(uint32 setIndex, const SPtr<Descripto
             case DescriptorType::TypedBufferUav:
             case DescriptorType::StructuredBufferUav:
                 CT_CHECK(uavs[flatIndex]);
-                set->SetSrv(bindingInfo.binding, i, uavs[flatIndex].get());
+                set->SetUav(bindingInfo.binding, i, uavs[flatIndex].get());
                 break;
             }
         }

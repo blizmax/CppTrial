@@ -153,7 +153,7 @@ void ImGuiLab::BindRenderer()
     auto vertexBufferLayout = VertexBufferLayout::Create({
         {CT_TEXT("VertexPosition"), ResourceFormat::RG32Float},
         {CT_TEXT("VertexUV"), ResourceFormat::RG32Float},
-        {CT_TEXT("VertexColor"), ResourceFormat::RGB32Float}
+        {CT_TEXT("VertexColor"), ResourceFormat::RGBA8Unorm}
     });
     vertexLayout = VertexLayout::Create();
     vertexLayout->AddBufferLayout(vertexBufferLayout);
@@ -163,15 +163,23 @@ void ImGuiLab::BindRenderer()
     SPtr<BlendState> blendState;
     {
         RasterizationStateDesc desc;
+        desc.cullMode = CullMode::None;
+        desc.scissorEnabled = true;
+        desc.depthClampEnabled = false;
         rasterizationState = RasterizationState::Create(desc);
     }
     {
         DepthStencilStateDesc desc;
+        desc.depthReadEnabled = false;
+        desc.depthWriteEnabled = false;
         depthStencilState = DepthStencilState::Create(desc);
     }
     {
         BlendStateDesc desc;
         desc.attachments.SetCount(1);
+        desc.attachments[0].enabled = true;
+        desc.attachments[0].srcAlphaFactor = BlendFactor::OneMinusSrcAlpha;
+        desc.attachments[0].dstAlphaFactor = BlendFactor::Zero;
         blendState = BlendState::Create(desc);
     }
 
@@ -271,8 +279,8 @@ void ImGuiLab::End()
 void ImGuiLab::SetupRenderState(ImDrawData *drawData, uint32 width, uint32 height)
 {
     Viewport viewport;
-    viewport.width = width;
-    viewport.height = height;
+    viewport.width = (float)width;
+    viewport.height = (float)height;
     graphicsState->SetViewport(0, viewport);
 
     float L = drawData->DisplayPos.x;
@@ -281,6 +289,12 @@ void ImGuiLab::SetupRenderState(ImDrawData *drawData, uint32 width, uint32 heigh
     float B = drawData->DisplayPos.y + drawData->DisplaySize.y;
 
     Matrix4 mvp = Matrix4::Ortho(L, R, B, T, -1.0f, 1.0f);
+    // mvp(1, 1) = -mvp(1, 1);
+    // // mvp(2, 0) = (mvp(2, 0) + mvp(3, 0)) / 2;
+    // // mvp(2, 1) = (mvp(2, 1) + mvp(3, 1)) / 2;
+    // // mvp(2, 2) = (mvp(2, 2) + mvp(3, 2)) / 2;
+    // // mvp(2, 3) = (mvp(2, 3) + mvp(3, 3)) / 2;
+
     programVars->Root()[CT_TEXT("UB")][CT_TEXT("mvp")] = mvp;
 }
 
@@ -342,18 +356,24 @@ void ImGuiLab::RenderDrawData(ImDrawData *drawData)
                 clipRect.w = (cmd->ClipRect.w - clipOff.y) * clipScale.y;
                 if (clipRect.x < width && clipRect.y < height && clipRect.z >= 0.0f && clipRect.w >= 0.0f)
                 {
+                    if (clipRect.x < 0.0f)
+                        clipRect.x = 0.0f;
+                    if (clipRect.y < 0.0f)
+                        clipRect.y = 0.0f;
+
                     Scissor scissor;
                     scissor.x = (int32)clipRect.x;
-                    scissor.y = (int32)(height - clipRect.w);
+                    scissor.y = (int32)(clipRect.y);
                     scissor.width = (uint32)(clipRect.z - clipRect.x);
                     scissor.height = (uint32)(clipRect.w - clipRect.y);
                     graphicsState->SetScissor(0, scissor);
 
-                    ctx->DrawIndexed(graphicsState.get(), programVars.get(), cmd->ElemCount, indexOffset, vertexOffset);
-                    indexOffset += cmd->ElemCount;
+                    ctx->DrawIndexed(graphicsState.get(), programVars.get(), cmd->ElemCount, cmd->IdxOffset + indexOffset, cmd->VtxOffset + vertexOffset);
                 }
-                vertexOffset += cmdList->VtxBuffer.Size;
             }
         }
+
+        vertexOffset += cmdList->VtxBuffer.Size;
+        indexOffset += cmdList->IdxBuffer.Size;
     }
 }

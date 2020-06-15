@@ -62,7 +62,7 @@ public:
         {
             if(i != currentIndex && comp(nodes[i].data))
             {
-                for(int32 j = 0; j < nodes.Count(); ++i)
+                for(int32 j = 0; j < nodes.Count(); ++j)
                 {
                     for(auto &[k, v] : nodes[j].edges)
                     {
