@@ -79,8 +79,9 @@ void Application::Run()
 #if CT_DEBUG
         gDebugManager->Tick();
 #endif
-
         window->Tick();
+
+        gRenderManager->Present();
 
         if(window->ShouldClose())
             RequestQuit();

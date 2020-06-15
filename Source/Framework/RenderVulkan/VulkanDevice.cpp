@@ -224,7 +224,7 @@ void VulkanDevice::CreateLogicalDevice()
 
 void VulkanDevice::CreateSurface()
 {
-    auto vkWindow = static_cast<VulkanRenderWindow *>(window);
+    auto vkWindow = dynamic_cast<VulkanRenderWindow *>(window);
     surface = vkWindow->CreateSurface();
 
     VkBool32 supported = VK_FALSE;

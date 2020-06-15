@@ -35,6 +35,11 @@ public:
         return vertexLayout;
     }
 
+    const SPtr<Buffer> &GetVertexBuffer(int32 index) const
+    {
+        return vertexBuffers[index];
+    }
+
     const Array<SPtr<Buffer>> &GetVertexBuffers() const
     {
         return vertexBuffers;

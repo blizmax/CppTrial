@@ -130,7 +130,7 @@ void VulkanDescriptorSet::SetBufferView(uint32 binding, uint32 index, const Vulk
     write.dstSet = descriptorSet;
     write.dstBinding = binding;
     write.dstArrayElement = index;
-    write.descriptorType = ToVkDescriptorType(layout->GetElements()[binding].descriptorType);
+    write.descriptorType = ToVkDescriptorType(layout->GetElement(binding).descriptorType);
     write.descriptorCount = 1;
     
     if(buffer->IsTyped())
@@ -151,17 +151,15 @@ void VulkanDescriptorSet::SetBufferView(uint32 binding, uint32 index, const Vulk
 
 void VulkanDescriptorSet::SetImageView(uint32 binding, uint32 index, const VulkanImageView *view, bool uav)
 {
-    auto buffer = static_cast<const VulkanBuffer *>(view->GetResource());
-
     VkDescriptorImageInfo info = {};
     VkWriteDescriptorSet write = {};
     write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     write.dstSet = descriptorSet;
     write.dstBinding = binding;
     write.dstArrayElement = index;
-    write.descriptorType = ToVkDescriptorType(layout->GetElements()[binding].descriptorType);
+    write.descriptorType = ToVkDescriptorType(layout->GetElement(binding).descriptorType);
     write.descriptorCount = 1;
-    
+
     info.imageLayout = uav ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     info.imageView = view->GetHandle();
     info.sampler = nullptr;

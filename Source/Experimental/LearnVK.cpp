@@ -1,106 +1,48 @@
 #include "Core/String.h"
-#include "Core/Exception.h"
 #include "IO/FileHandle.h"
-
 #include "RenderCore/RenderAPI.h"
-
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#include "RenderVulkan/VulkanRenderWindow.h"
+#include "Application/Application.h"
+#include "Render/RenderManager.h"
 
 using namespace RenderCore;
 
-const int32 WIDTH = 800;
-const int32 HEIGHT = 600;
-
-class VkWindow;
-class Renderer;
-
-Device *device;
-SPtr<VkWindow> window;
-SPtr<Renderer> renderer;
-SPtr<FrameBuffer> targetFbo;
-SPtr<Program> program;
-SPtr<GraphicsVars> vars;
-
-SPtr<Program> reflectionProgram;
-
-class VkWindow : public VulkanRenderWindow
-{
-public:
-    GLFWwindow *window;
-
-    VkWindow()
-    {
-        glfwInit();
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        window = glfwCreateWindow(WIDTH, HEIGHT, "LearnVK", nullptr, nullptr);
-    }
-
-    ~VkWindow()
-    {
-        glfwDestroyWindow(window);
-        glfwTerminate();
-    }
-
-    virtual uint32 GetPositionX() const override
-    {
-        int32 x, y;
-        glfwGetWindowPos(window, &x, &y);
-        return x;
-    }
-
-    virtual uint32 GetPositionY() const override
-    {   
-        int32 x, y;
-        glfwGetWindowPos(window, &x, &y);
-        return y;
-    }
-
-    virtual uint32 GetWidth() const override
-    {
-        int32 w, h;
-        glfwGetWindowSize(window, &w, &h);
-        return w;
-    }
-
-    virtual uint32 GetHeight() const override
-    {
-        int32 w, h;
-        glfwGetWindowSize(window, &w, &h);
-        return h;
-    }
-
-    virtual VkSurfaceKHR CreateSurface() override
-    {
-        VkSurfaceKHR surface;
-        if (glfwCreateWindowSurface(gVulkanInstance, window, gVulkanAlloc, &surface) != VK_SUCCESS)
-            CT_EXCEPTION(LearnVK, "Create surface failed.");
-        return surface;
-    }
-
-    bool Run()
-    {
-        glfwPollEvents();
-
-        if(glfwWindowShouldClose(window))
-            return false;
-        return true;
-    }
-
-};
-
 class Renderer
 {
-public:
+private:
     SPtr<GraphicsState> state;
     SPtr<VertexArray> vao;
     SPtr<RasterizationState> rasterizationState;
     SPtr<DepthStencilState> depthStencilState;
     SPtr<BlendState> blendState;
 
+    SPtr<Program> program;
+    SPtr<GraphicsVars> vars;
+    SPtr<Program> reflectionProgram;
+
+    SPtr<Program> CreateProgram()
+    {
+        ProgramDesc desc;
+        IO::FileHandle vertSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.vert"));
+        IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.frag"));
+        desc.shaderDescs.Add({ShaderType::Vertex, vertSrcFile.ReadString()});
+        desc.shaderDescs.Add({ShaderType::Pixel, fragSrcFile.ReadString()});
+        return Program::Create(desc);
+    }
+
+public:
     Renderer()
     {
+        program = CreateProgram();
+        vars = GraphicsVars::Create(program);
+        vars->Root()[CT_TEXT("UB")][CT_TEXT("v")] = 1.0f;
+
+        // {
+        //     ProgramDesc desc;
+        //     IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/LearnVK/reflection.frag"));
+        //     desc.shaderDescs.Add({ShaderType::Pixel, fragSrcFile.ReadString()});
+        //     reflectionProgram = Program::Create(desc);
+        // }
+
         state = GraphicsState::Create();
 
         auto vertexBufferLayout = VertexBufferLayout::Create({
@@ -152,64 +94,32 @@ public:
         state->SetFrameBuffer(fbo);
         state->SetProgram(program);
 
-        ctx->ClearFrameBuffer(fbo.get(), Color::BLACK, 1.0f, 0);
         //ctx->Draw(state.get(), nullptr, 3, 0);
         ctx->DrawIndexed(state.get(), vars.get(), 3, 0, 0);
     }
 };
 
-SPtr<Program> CreateProgram()
+class LearnVK : public Logic
 {
-    ProgramDesc desc;
-    IO::FileHandle vertSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.vert"));
-    IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.frag"));
-    desc.shaderDescs.Add({ShaderType::Vertex, vertSrcFile.ReadString()});
-    desc.shaderDescs.Add({ShaderType::Pixel, fragSrcFile.ReadString()});
-    return Program::Create(desc);
-}
+private:
+    SPtr<Renderer> renderer;
 
-SPtr<VkWindow> CreateWindow()
-{
-    return Memory::MakeShared<VkWindow>();
-}
-
-SPtr<Renderer> CreateRenderer()
-{
-    return Memory::MakeShared<Renderer>();
-}
-
-int main(int argc, char **argv)
-{
-    window = CreateWindow();
-
-    RenderAPI::Init();
-    device = RenderAPI::CreateDevice(window.get(), DeviceDesc());
-
-    auto backBufferFbo = device->GetSwapChainFrameBuffer();
-    targetFbo = FrameBuffer::Create2D(backBufferFbo->GetWidth(), backBufferFbo->GetHeight(), backBufferFbo->GetDesc());
-
-    program = CreateProgram();
-    vars = GraphicsVars::Create(program);
-    vars->Root()[CT_TEXT("UB")][CT_TEXT("v")] = 1.0f;
-
+public:
+    virtual void Startup() override
     {
-        ProgramDesc desc;
-        IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/LearnVK/reflection.frag"));
-        desc.shaderDescs.Add({ShaderType::Pixel, fragSrcFile.ReadString()});
-        reflectionProgram = Program::Create(desc);
+        renderer = Memory::MakeShared<Renderer>();
     }
 
-    renderer = CreateRenderer();
-
-    while(window->Run())
+    virtual void Shutdown() override
     {
-        auto renderContext = device->GetRenderContext();
-        auto swapChainFbo = device->GetSwapChainFrameBuffer();
-
-        renderer->Render(renderContext, targetFbo);
-        renderContext->CopyResource(swapChainFbo->GetColorTexture(0).get(), targetFbo->GetColorTexture(0).get());
-        device->Present();
+        renderer.reset();
     }
 
-    return 0;
-}
+    virtual void Tick() override
+    {
+        renderer->Render(gRenderManager->GetRenderContext(), gRenderManager->GetTargetFrameBuffer());
+    }
+};
+
+LearnVK logic;
+Logic *gLogic = &logic;

@@ -6,7 +6,6 @@ add_subdirectory(Json)
 add_subdirectory(Assets)
 add_subdirectory(RenderCore)
 add_subdirectory(Render)
-add_subdirectory(RenderOpenGL)
 add_subdirectory(RenderVulkan)
 
 if(WIN32)

@@ -39,6 +39,11 @@ public:
         return desc.elements;
     }
 
+    const DescriptorSetLayoutDesc::Element &GetElement(uint32 binding) const
+    {
+        return desc.elements[binding];
+    }
+
     ShaderVisibilityFlags GetVisibility() const
     {
         return desc.visibility;

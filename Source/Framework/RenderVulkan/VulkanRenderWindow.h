@@ -6,7 +6,7 @@
 namespace RenderCore
 {
 
-class VulkanRenderWindow : public RenderWindow
+class VulkanRenderWindow : virtual public RenderWindow
 {
 public:
     virtual VkSurfaceKHR CreateSurface() = 0;

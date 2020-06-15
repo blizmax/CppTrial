@@ -15,13 +15,16 @@ VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(const DescriptorSetLayoutDe
     Array<VkDescriptorSetLayoutBinding> bindings;
     for (const auto &e : desc.elements)
     {
-        VkDescriptorSetLayoutBinding b = {};
-        b.binding = e.binding;
-        b.descriptorCount = e.arrayLength;
-        b.descriptorType = ToVkDescriptorType(e.descriptorType);
-        b.pImmutableSamplers = nullptr;
-        b.stageFlags = ToVkShaderVisibility(desc.visibility);
-        bindings.Add(b);
+        if (e.descriptorType != DescriptorType::Unknown)
+        {
+            VkDescriptorSetLayoutBinding b = {};
+            b.binding = e.binding;
+            b.descriptorCount = e.arrayLength;
+            b.descriptorType = ToVkDescriptorType(e.descriptorType);
+            b.pImmutableSamplers = nullptr;
+            b.stageFlags = ToVkShaderVisibility(desc.visibility);
+            bindings.Add(b);
+        }
     }
 
     VkDescriptorSetLayoutCreateInfo layoutInfo = {};

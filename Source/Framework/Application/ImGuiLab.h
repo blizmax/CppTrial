@@ -1,12 +1,9 @@
 #pragma once
 
 #include "Application/Application.h"
-#include "Render/Shader.h"
-#include "Render/Texture.h"
-#include "Render/VertexArray.h"
-
+#include "RenderCore/RenderAPI.h"
+#include "Render/.Package.h"
 #include <imgui.h>
-
 
 class ImGuiLab : public Module
 {
@@ -31,6 +28,7 @@ private:
     void UnbindPlatform();
     void UnbindRenderer(); 
 
+    void CreateVertexArray(ImDrawData *drawData);
     void SetupRenderState(ImDrawData *drawData, uint32 width, uint32 height);
     void RenderDrawData(ImDrawData *drawData);
 
@@ -43,11 +41,13 @@ private:
     Input::MouseMovedEventDelegate::Handle mouseMovedHandle;
     Input::MouseScrolledEventDelegate::Handle mouseScrolledHandle;
 
-    SPtr<Shader> shader;
-    SPtr<Texture> texture;
+    SPtr<VertexLayout> vertexLayout;
     SPtr<VertexArray> vertexArray;
-    SPtr<VertexBuffer> vertexBuffer;
-    SPtr<IndexBuffer> indexBuffer;
+    SPtr<Texture> texture;
+    SPtr<Sampler> sampler;
+    SPtr<Program> program;
+    SPtr<GraphicsVars> programVars;
+    SPtr<GraphicsState> graphicsState;
 };
 
 extern ImGuiLab *gImGuiLab;

@@ -18,7 +18,7 @@ if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
     message(FATAL_ERROR "64 bits compiler required.")
 endif()
 
-option(CT_BUILD_VULKAN "Build RenderVulkan library." OFF)
+option(CT_BUILD_VULKAN "Build RenderVulkan library." ON)
 option(CT_BUILD_TESTS "Build Tests." OFF)
 option(CT_BUILD_EXPERIMENTAL "Build Experimental." ON)
 

@@ -88,11 +88,20 @@ void ProgramReflection::Finalize()
         DescriptorSetLayoutDesc desc;
         desc.setIndex = setInfo.set;
         desc.visibility = ShaderVisibility::All;
+
+        uint32 maxBinding = 0;
+        for (auto i : setInfo.bindingIndices)
+        {
+            auto binding = bindingInfos[i].binding;
+            if (binding > maxBinding)
+                maxBinding = binding;
+        }
+        desc.elements.SetCount(maxBinding + 1);
         for (auto i : setInfo.bindingIndices)
         {
             auto &info = bindingInfos[i];
             auto &range = bindingRanges[i];
-            desc.elements.Add({info.name, range.descriptorType, info.binding, range.count});
+            desc.elements[info.binding] = {info.name, range.descriptorType, info.binding, range.count};
         }
 
         auto layout = DescriptorSetLayout::Create(desc);

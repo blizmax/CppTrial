@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderCore/Texture.h"
+#include "Render/Texture.h"
 #include "Math/Rect.h"
 
 /** Contains a rectangular area of a texture, (x, y) is the left bottom point of the region.*/

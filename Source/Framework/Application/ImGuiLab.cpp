@@ -1,6 +1,7 @@
 #include "Application/ImGuiLab.h"
-#include "Render/RenderAPI.H"
+#include "IO/FileHandle.h"
 #include "Render/OrthographicCamera.h"
+#include "Render/RenderManager.h"
 
 ImGuiLab imguiLab;
 ImGuiLab *gImGuiLab = &imguiLab;
@@ -139,27 +140,55 @@ void ImGuiLab::BindRenderer()
     ImGuiIO &io = ImGui::GetIO();
     io.BackendRendererName = "WIP";
 
-    shader = Shader::Create(CT_TEXT("Assets/Shaders/ImGuiShader.glsl"));
+    ProgramDesc desc;
+    IO::FileHandle vertSrcFile(CT_TEXT("Assets/Shaders/Vulkan/imgui.vert"));
+    IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/Vulkan/imgui.frag"));
+    desc.shaderDescs.Add({ShaderType::Vertex, vertSrcFile.ReadString()});
+    desc.shaderDescs.Add({ShaderType::Pixel, fragSrcFile.ReadString()});
+    program = Program::Create(desc);
+    programVars = GraphicsVars::Create(program);
+    graphicsState = GraphicsState::Create();
+    graphicsState->SetProgram(program);
 
-    vertexBuffer = VertexBuffer::Create(nullptr, 0, GpuBufferUsage::Dynamic);
-    vertexBuffer->SetLayout({
-        {CT_TEXT("VertexPosition"), VertexDataType::Float2},
-        {CT_TEXT("VertexUV"), VertexDataType::Float2},
-        {CT_TEXT("VertexColor"), VertexDataType::UByte4, true},
+    auto vertexBufferLayout = VertexBufferLayout::Create({
+        {CT_TEXT("VertexPosition"), ResourceFormat::RG32Float},
+        {CT_TEXT("VertexUV"), ResourceFormat::RG32Float},
+        {CT_TEXT("VertexColor"), ResourceFormat::RGB32Float}
     });
+    vertexLayout = VertexLayout::Create();
+    vertexLayout->AddBufferLayout(vertexBufferLayout);
 
-    indexBuffer = IndexBuffer::Create(nullptr, 0, GpuBufferUsage::Dynamic);
-    vertexArray = VertexArray::Create();
-    vertexArray->AddVertexBuffer(vertexBuffer);
-    vertexArray->SetIndexBuffer(indexBuffer);
+    SPtr<RasterizationState> rasterizationState;
+    SPtr<DepthStencilState> depthStencilState;
+    SPtr<BlendState> blendState;
+    {
+        RasterizationStateDesc desc;
+        rasterizationState = RasterizationState::Create(desc);
+    }
+    {
+        DepthStencilStateDesc desc;
+        depthStencilState = DepthStencilState::Create(desc);
+    }
+    {
+        BlendStateDesc desc;
+        desc.attachments.SetCount(1);
+        blendState = BlendState::Create(desc);
+    }
+
+    graphicsState->SetRasterizationState(rasterizationState);
+    graphicsState->SetDepthStencilState(depthStencilState);
+    graphicsState->SetBlendState(blendState);
 
     uchar8 *pixels;
     int32 width, height;
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-    auto pixmap = Pixmap::Create(width, height, PixelFormat::RGBA8888, pixels);
-    texture = Texture::Create(pixmap);
+    sampler = Sampler::Create(SamplerDesc());
+    texture = Texture::Create2D(width, height, ResourceFormat::RGBA8Unorm, 1, 1, pixels);
 
     //io.Fonts->TexID = 0;
+
+    programVars->Root()[CT_TEXT("mainSampler")] = sampler;
+    programVars->Root()[CT_TEXT("mainTex")] = texture;
 }
 
 void ImGuiLab::UnbindPlatform()
@@ -175,8 +204,37 @@ void ImGuiLab::UnbindPlatform()
 
 void ImGuiLab::UnbindRenderer()
 {
-    shader.reset();
+    vertexLayout.reset();
+    vertexArray.reset();
     texture.reset();
+    sampler.reset();
+    programVars.reset();
+    graphicsState.reset();
+    program.reset();
+}
+
+void ImGuiLab::CreateVertexArray(ImDrawData *drawData)
+{
+    int32 vboSize = drawData->TotalVtxCount * sizeof(ImDrawVert);
+    int32 iboSize = drawData->TotalIdxCount * sizeof(ImDrawIdx);
+
+    bool createVbo = true;
+    bool createIbo = true;
+    if (vertexArray)
+    {
+        createVbo = vertexArray->GetVertexBuffer(0)->GetSize() <= vboSize;
+        createIbo = vertexArray->GetIndexBuffer()->GetSize() <= iboSize;
+        if (!createVbo && !createIbo)
+            return;
+    }
+
+    auto vbo = createVbo ? Buffer::Create(vboSize, ResourceBind::Vertex, CpuAccess::Write) : vertexArray->GetVertexBuffer(0);
+    auto ibo = createIbo ? Buffer::Create(iboSize, ResourceBind::Index, CpuAccess::Write) : vertexArray->GetIndexBuffer();
+
+    vertexArray = VertexArray::Create();
+    vertexArray->SetVertexLayout(vertexLayout);
+    vertexArray->AddVertexBuffer(vbo);
+    vertexArray->SetIndexBuffer(ibo);
 }
 
 void ImGuiLab::Begin()
@@ -190,8 +248,8 @@ void ImGuiLab::Begin()
 
     io.DeltaTime = gApp->GetDeltaTime();
 
-    uint32 width = gApp->GetWindow().GetWidth();
-    uint32 height = gApp->GetWindow().GetHeight();
+    auto width = gApp->GetWindow().GetWidth();
+    auto height = gApp->GetWindow().GetHeight();
     io.DisplaySize = ImVec2((float)width, (float)height);
     if (width > 0 && height > 0)
         io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
@@ -208,17 +266,14 @@ void ImGuiLab::End()
     ImGui::Render();
 
     RenderDrawData(ImGui::GetDrawData());
-
-    uint32 width = gApp->GetWindow().GetWidth();
-    uint32 height = gApp->GetWindow().GetHeight();
-
-    RenderAPI::SetViewport(0, 0, width, height);
-    RenderAPI::SetScissor(0, 0, width, height);
 }
 
 void ImGuiLab::SetupRenderState(ImDrawData *drawData, uint32 width, uint32 height)
 {
-    RenderAPI::SetViewport(0, 0, width, height);
+    Viewport viewport;
+    viewport.width = width;
+    viewport.height = height;
+    graphicsState->SetViewport(0, viewport);
 
     float L = drawData->DisplayPos.x;
     float R = drawData->DisplayPos.x + drawData->DisplaySize.x;
@@ -226,11 +281,7 @@ void ImGuiLab::SetupRenderState(ImDrawData *drawData, uint32 width, uint32 heigh
     float B = drawData->DisplayPos.y + drawData->DisplaySize.y;
 
     Matrix4 mvp = Matrix4::Ortho(L, R, B, T, -1.0f, 1.0f);
-
-    shader->Bind();
-    texture->Bind(0);
-    shader->SetInt(CT_TEXT("MainTex"), 0);
-    shader->SetMatrix4(CT_TEXT("MVP"), mvp);
+    programVars->Root()[CT_TEXT("UB")][CT_TEXT("mvp")] = mvp;
 }
 
 void ImGuiLab::RenderDrawData(ImDrawData *drawData)
@@ -240,46 +291,68 @@ void ImGuiLab::RenderDrawData(ImDrawData *drawData)
     if (width <= 0 || height <= 0)
         return;
 
-    SetupRenderState(drawData, width, height);
+    if (drawData->CmdListsCount == 0)
+        return;
+    
+    auto ctx = gRenderManager->GetRenderContext();
+    auto &fbo = gRenderManager->GetTargetFrameBuffer();
+    graphicsState->SetFrameBuffer(fbo);
 
-    ImVec2 clip_off = drawData->DisplayPos;
-    ImVec2 clip_scale = drawData->FramebufferScale;
-
+    CreateVertexArray(drawData);
+    graphicsState->SetVertexArray(vertexArray);
+    auto vertexPtr = (ImDrawVert*)vertexArray->GetVertexBuffer(0)->Map(BufferMapType::WriteDiscard);
+    auto indexPtr = (ImDrawIdx*)vertexArray->GetIndexBuffer()->Map(BufferMapType::WriteDiscard);
     for (int32 n = 0; n < drawData->CmdListsCount; n++)
     {
-        const ImDrawList *cmd_list = drawData->CmdLists[n];
+        const ImDrawList *cmdList = drawData->CmdLists[n];
+        std::memcpy(vertexPtr, cmdList->VtxBuffer.Data, cmdList->VtxBuffer.Size * sizeof(ImDrawVert));
+        std::memcpy(indexPtr, cmdList->IdxBuffer.Data, cmdList->IdxBuffer.Size * sizeof(ImDrawIdx));
+        vertexPtr += cmdList->VtxBuffer.Size;
+        indexPtr += cmdList->IdxBuffer.Size;
+    }
+    vertexArray->GetVertexBuffer(0)->Unmap();
+    vertexArray->GetIndexBuffer()->Unmap();
 
-        vertexBuffer->SetData((float *)cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
-        indexBuffer->SetData((uint32 *)cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size);
+    SetupRenderState(drawData, width, height);
 
-        for (int32 cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
+    ImVec2 clipOff = drawData->DisplayPos;
+    ImVec2 clipScale = drawData->FramebufferScale;
+    uint32 vertexOffset = 0;
+    uint32 indexOffset = 0;
+    for (int32 n = 0; n < drawData->CmdListsCount; n++)
+    {
+        const ImDrawList *cmdList = drawData->CmdLists[n];
+        for (int32 i = 0; i < cmdList->CmdBuffer.Size; i++)
         {
-            const ImDrawCmd *pcmd = &cmd_list->CmdBuffer[cmd_i];
+            const ImDrawCmd *cmd = &cmdList->CmdBuffer[i];
 
-            if (pcmd->UserCallback != NULL)
+            if (cmd->UserCallback != NULL)
             {
-                if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
+                if (cmd->UserCallback == ImDrawCallback_ResetRenderState)
                     SetupRenderState(drawData, width, height);
                 else
-                    pcmd->UserCallback(cmd_list, pcmd);
+                    cmd->UserCallback(cmdList, cmd);
             }
             else
             {
-                ImVec4 clip_rect;
-                clip_rect.x = (pcmd->ClipRect.x - clip_off.x) * clip_scale.x;
-                clip_rect.y = (pcmd->ClipRect.y - clip_off.y) * clip_scale.y;
-                clip_rect.z = (pcmd->ClipRect.z - clip_off.x) * clip_scale.x;
-                clip_rect.w = (pcmd->ClipRect.w - clip_off.y) * clip_scale.y;
-
-                if (clip_rect.x < width && clip_rect.y < height && clip_rect.z >= 0.0f && clip_rect.w >= 0.0f)
+                ImVec4 clipRect;
+                clipRect.x = (cmd->ClipRect.x - clipOff.x) * clipScale.x;
+                clipRect.y = (cmd->ClipRect.y - clipOff.y) * clipScale.y;
+                clipRect.z = (cmd->ClipRect.z - clipOff.x) * clipScale.x;
+                clipRect.w = (cmd->ClipRect.w - clipOff.y) * clipScale.y;
+                if (clipRect.x < width && clipRect.y < height && clipRect.z >= 0.0f && clipRect.w >= 0.0f)
                 {
-                    RenderAPI::SetScissor((int32)clip_rect.x, (int32)(height - clip_rect.w), (int32)(clip_rect.z - clip_rect.x), (int32)(clip_rect.w - clip_rect.y));
+                    Scissor scissor;
+                    scissor.x = (int32)clipRect.x;
+                    scissor.y = (int32)(height - clipRect.w);
+                    scissor.width = (uint32)(clipRect.z - clipRect.x);
+                    scissor.height = (uint32)(clipRect.w - clipRect.y);
+                    graphicsState->SetScissor(0, scissor);
 
-                    //glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
-                    vertexArray->Bind();
-                    RenderAPI::DrawIndexed(pcmd->IdxOffset, pcmd->ElemCount);
-                    vertexArray->Unbind();
+                    ctx->DrawIndexed(graphicsState.get(), programVars.get(), cmd->ElemCount, indexOffset, vertexOffset);
+                    indexOffset += cmd->ElemCount;
                 }
+                vertexOffset += cmdList->VtxBuffer.Size;
             }
         }
     }

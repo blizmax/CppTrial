@@ -15,13 +15,13 @@ add_subdirectory(Private)
 aux_source_directory(. DIR_RENDER_VULKAN)
 file(GLOB DIR_RENDER_CORE "../RenderCore/*.cpp")
 
+set(DIR_RENDER_VULKAN_PLATFORM Desktop/VulkanDesktopWindow.cpp)
+
 add_library(RenderVulkan
     ${DIR_RENDER_CORE}
     ${DIR_RENDER_VULKAN}
+    ${DIR_RENDER_VULKAN_PLATFORM}
 )
-
-#message("${DIR_RENDER_CORE}")
-#message("${DIR_RENDER_VULKAN}")
 
 target_link_libraries(RenderVulkan
     ${VULKAN_LIBRARY}
