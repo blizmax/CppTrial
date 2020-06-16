@@ -21,7 +21,7 @@ public:
     //TODO DrawIndirect
 
     /** From srv to rtv, rect: [left, up, right, down]  */
-    virtual void Blit(ResourceView *src, ResourceView *dst, const UVector4 &srcRect = UVector4(UINT32_MAX), const UVector4 &dstRect = UVector4(UINT32_MAX), TextureFilter filter = TextureFilter::Linear) = 0;
+    virtual void Blit(ResourceView *srcSrv, ResourceView *dstRtv, const UVector4 &srcRect = UVector4(UINT32_MAX), const UVector4 &dstRect = UVector4(UINT32_MAX), TextureFilter filter = TextureFilter::Linear) = 0;
     virtual void ResolveResource(Texture *src, Texture *dst) = 0;
     virtual void ResolveSubresource(Texture *src, uint32 srcSub, Texture *dst, uint32 dstSub) = 0;
 

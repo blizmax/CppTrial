@@ -90,7 +90,7 @@ protected:
     bool IsSamplerVarValid(const ShaderVar &var, const Sampler *sampler) const;
     bool IsParameterBlockVarValid(const ShaderVar &var, const ParameterBlock *block) const;
     void MarkDescriptorSetDirty(const ShaderVarLocation &location);
-    void MarkDescriptorSetDirty(uint32 setIndex);
+    void MarkDescriptorSetDirty(int32 setIndex);
     void MarkUniformDataDirty();
 
     Resource *GetResourceSrvUavCommon(const ShaderVarLocation &location) const;
@@ -100,7 +100,7 @@ protected:
     void UpdateConstantBuffer();
     bool PrepareResources(CopyContext *ctx);
     bool PrepareResourcesAndConstantBuffer(CopyContext *ctx);
-    bool BindIntoDescriptorSet(uint32 setIndex, const SPtr<DescriptorSet> &set);
+    bool BindIntoDescriptorSet(int32 setIndex, const SPtr<DescriptorSet> &set);
 
 protected:
     SPtr<ParameterBlockReflection> reflection;

@@ -110,8 +110,8 @@ protected:
     SPtr<DescriptorPool> cpuDescriptorPool;
     SPtr<DescriptorPool> gpuDescriptorPool;
 
-    uint32 backBufferCount;
+    int32 backBufferCount;
     Array<SPtr<FrameBuffer>> swapChainFrameBuffers;
-    uint32 curBackBufferIndex = 0;
+    int32 curBackBufferIndex = 0;
 };
 }

@@ -33,16 +33,16 @@ const ReflectionType *ReflectionType::UnwrapArray() const
     return rtype;
 }
 
-uint32 ReflectionType::GetTotalElementCount() const
+int32 ReflectionType::GetTotalElementCount() const
 {
-    uint32 len = 1;
+    int32 count = 1;
     const ReflectionType *rtype = this;
     while (auto arrayType = rtype->AsArray())
     {
-        len *= arrayType->GetElementCount();
+        count *= arrayType->GetElementCount();
         rtype = arrayType->GetElementType().get();
     }
-    return len;
+    return count;
 }
 
 SPtr<ReflectionVar> ReflectionType::FindMember(const String &name) const
@@ -89,7 +89,7 @@ void ProgramReflection::Finalize()
         desc.setIndex = setInfo.set;
         desc.visibility = ShaderVisibility::All;
 
-        uint32 maxBinding = 0;
+        int32 maxBinding = 0;
         for (auto i : setInfo.bindingIndices)
         {
             auto binding = bindingInfos[i].binding;

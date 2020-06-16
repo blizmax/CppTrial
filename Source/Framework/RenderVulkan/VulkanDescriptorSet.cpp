@@ -43,7 +43,7 @@ VulkanDescriptorSet::~VulkanDescriptorSet()
     }
 }
 
-void VulkanDescriptorSet::SetSrv(uint32 binding, uint32 index, const ResourceView *srv)
+void VulkanDescriptorSet::SetSrv(int32 binding, int32 index, const ResourceView *srv)
 {
     CT_CHECK(srv);
 
@@ -59,7 +59,7 @@ void VulkanDescriptorSet::SetSrv(uint32 binding, uint32 index, const ResourceVie
     }
 }
 
-void VulkanDescriptorSet::SetUav(uint32 binding, uint32 index, const ResourceView *uav)
+void VulkanDescriptorSet::SetUav(int32 binding, int32 index, const ResourceView *uav)
 {
     CT_CHECK(uav);
 
@@ -75,7 +75,7 @@ void VulkanDescriptorSet::SetUav(uint32 binding, uint32 index, const ResourceVie
     }
 }
 
-void VulkanDescriptorSet::SetCbv(uint32 binding, uint32 index, const ResourceView *cbv)
+void VulkanDescriptorSet::SetCbv(int32 binding, int32 index, const ResourceView *cbv)
 {
     CT_CHECK(cbv);
 
@@ -83,7 +83,7 @@ void VulkanDescriptorSet::SetCbv(uint32 binding, uint32 index, const ResourceVie
     SetBufferView(binding, index, bufferView);
 }
 
-void VulkanDescriptorSet::SetSampler(uint32 binding, uint32 index, const Sampler *sampler)
+void VulkanDescriptorSet::SetSampler(int32 binding, int32 index, const Sampler *sampler)
 {
     CT_CHECK(sampler);
 
@@ -104,7 +104,7 @@ void VulkanDescriptorSet::SetSampler(uint32 binding, uint32 index, const Sampler
     vkUpdateDescriptorSets(gVulkanDevice->GetLogicalDeviceHandle(), 1, &write, 0, nullptr);
 }
 
-void VulkanDescriptorSet::BindForGraphics(CopyContext *ctx, const RootSignature *rootSignature, uint32 setIndex)
+void VulkanDescriptorSet::BindForGraphics(CopyContext *ctx, const RootSignature *rootSignature, int32 setIndex)
 {
     auto vkCtx = static_cast<VulkanCopyContext *>(ctx);
     auto commandBuffer = vkCtx->GetContextData()->GetCommandBufferHandle();
@@ -112,7 +112,7 @@ void VulkanDescriptorSet::BindForGraphics(CopyContext *ctx, const RootSignature 
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vkRootSig->GetHandle(), setIndex, 1, &descriptorSet, 0, nullptr);
 }
 
-void VulkanDescriptorSet::BindForCompute(CopyContext *ctx, const RootSignature *rootSignature, uint32 setIndex)
+void VulkanDescriptorSet::BindForCompute(CopyContext *ctx, const RootSignature *rootSignature, int32 setIndex)
 {
     auto vkCtx = static_cast<VulkanCopyContext *>(ctx);
     auto commandBuffer = vkCtx->GetContextData()->GetCommandBufferHandle();
@@ -120,7 +120,7 @@ void VulkanDescriptorSet::BindForCompute(CopyContext *ctx, const RootSignature *
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, vkRootSig->GetHandle(), setIndex, 1, &descriptorSet, 0, nullptr);
 }
 
-void VulkanDescriptorSet::SetBufferView(uint32 binding, uint32 index, const VulkanBufferView *view)
+void VulkanDescriptorSet::SetBufferView(int32 binding, int32 index, const VulkanBufferView *view)
 {
     auto buffer = static_cast<const VulkanBuffer *>(view->GetResource());
 
@@ -149,7 +149,7 @@ void VulkanDescriptorSet::SetBufferView(uint32 binding, uint32 index, const Vulk
     vkUpdateDescriptorSets(gVulkanDevice->GetLogicalDeviceHandle(), 1, &write, 0, nullptr);
 }
 
-void VulkanDescriptorSet::SetImageView(uint32 binding, uint32 index, const VulkanImageView *view, bool uav)
+void VulkanDescriptorSet::SetImageView(int32 binding, int32 index, const VulkanImageView *view, bool uav)
 {
     VkDescriptorImageInfo info = {};
     VkWriteDescriptorSet write = {};

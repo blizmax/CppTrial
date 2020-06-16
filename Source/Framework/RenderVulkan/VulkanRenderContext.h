@@ -21,7 +21,7 @@ public:
     void DrawIndexed(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 firstIndex, int32 vertexOffset);
     void DrawIndexedInstanced(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 instanceCount, uint32 firstIndex, int32 vertexOffset, uint32 firstInstance);
 
-    void Blit(ResourceView *src, ResourceView *dst, const UVector4 &srcRect = UVector4(UINT32_MAX), const UVector4 &dstRect = UVector4(UINT32_MAX), TextureFilter filter = TextureFilter::Linear);
+    void Blit(ResourceView *srcSrv, ResourceView *dstRtv, const UVector4 &srcRect = UVector4(UINT32_MAX), const UVector4 &dstRect = UVector4(UINT32_MAX), TextureFilter filter = TextureFilter::Linear);
     void ResolveResource(Texture *src, Texture *dst);
     void ResolveSubresource(Texture *src, uint32 srcSub, Texture *dst, uint32 dstSub);
 
@@ -186,9 +186,9 @@ public:
         impl.DrawIndexedInstanced(state, vars, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
     }
 
-    virtual void Blit(ResourceView *src, ResourceView *dst, const UVector4 &srcRect, const UVector4 &dstRect, TextureFilter filter) override
+    virtual void Blit(ResourceView *srcSrv, ResourceView *dstRtv, const UVector4 &srcRect, const UVector4 &dstRect, TextureFilter filter) override
     {
-        impl.Blit(src, dst, srcRect, dstRect, filter);
+        impl.Blit(srcSrv, dstRtv, srcRect, dstRect, filter);
     }
 
     virtual void ResolveResource(Texture *src, Texture *dst) override

@@ -12,11 +12,11 @@ class VulkanDevice : public Device
 public:
     struct QueueData
     {
-        uint32 familyIndex = UINT32_MAX;
+        int32 familyIndex = -1;
         Array<SPtr<GpuQueue>> queues;
 
         QueueData() = default;
-        QueueData(uint32 index) : familyIndex(index)
+        QueueData(int32 index) : familyIndex(index)
         {
         }
     };
@@ -24,7 +24,7 @@ public:
     VulkanDevice(RenderWindow *window, const DeviceDesc &desc);
     virtual ~VulkanDevice();
 
-    uint32 GetQueueFamilyIndex(GpuQueueType queueType) const
+    int32 GetQueueFamilyIndex(GpuQueueType queueType) const
     {
         return queueDatas[(int32)queueType].familyIndex;
     }
@@ -92,7 +92,7 @@ private:
     void CreateVmaAllocator();
 
     void UpdateBackBuffers(uint32 width, uint32 height, ResourceFormat colorFormat, ResourceFormat depthFormat);
-    uint32 GetCurrentBackBufferIndex();
+    int32 GetCurrentBackBufferIndex();
 
 private:
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
@@ -102,7 +102,7 @@ private:
     VkSwapchainKHR swapChain = VK_NULL_HANDLE;
 
     Array<SPtr<VulkanFence>> presentFences;
-    uint32 curPresentFenceIndex = 0;
+    int32 curPresentFenceIndex = 0;
 
     VkPhysicalDeviceProperties properties;
     VkPhysicalDeviceFeatures features;

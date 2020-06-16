@@ -11,13 +11,13 @@ struct DescriptorSetLayoutDesc
     {
         String name;
         DescriptorType descriptorType = DescriptorType::Unknown;
-        uint32 binding = 0;
-        uint32 arrayLength = 1;
+        int32 binding = 0;
+        int32 arrayLength = 1;
     };
 
     Array<Element> elements;
     ShaderVisibilityFlags visibility = ShaderVisibility::All;
-    uint32 setIndex = 0;
+    int32 setIndex = 0;
 };
 
 class DescriptorSetLayout
@@ -39,7 +39,7 @@ public:
         return desc.elements;
     }
 
-    const DescriptorSetLayoutDesc::Element &GetElement(uint32 binding) const
+    const DescriptorSetLayoutDesc::Element &GetElement(int32 binding) const
     {
         return desc.elements[binding];
     }

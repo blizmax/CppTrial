@@ -12,7 +12,7 @@ SPtr<DescriptorPool> DescriptorPool::Create(const DescriptorPoolDesc &desc, cons
 VulkanDescriptorPool::VulkanDescriptorPool(const DescriptorPoolDesc &desc, const SPtr<GpuFence> &fence)
     : DescriptorPool(desc, fence)
 {
-    uint32 totalCount = 0;
+    int32 totalCount = 0;
     Array<VkDescriptorPoolSize> poolSizes;
 
     for (int32 i = 0; i < (int32)DescriptorType::Count; ++i)

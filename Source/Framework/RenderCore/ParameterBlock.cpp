@@ -206,7 +206,7 @@ void ParameterBlock::MarkDescriptorSetDirty(const ShaderVarLocation &location)
     MarkDescriptorSetDirty(setIndex);
 }
 
-void ParameterBlock::MarkDescriptorSetDirty(uint32 setIndex)
+void ParameterBlock::MarkDescriptorSetDirty(int32 setIndex)
 {
     if (parent)
     {
@@ -543,7 +543,7 @@ bool ParameterBlock::PrepareResourcesAndConstantBuffer(CopyContext *ctx)
     return PrepareResources(ctx);
 }
 
-bool ParameterBlock::BindIntoDescriptorSet(uint32 setIndex, const SPtr<DescriptorSet> &set)
+bool ParameterBlock::BindIntoDescriptorSet(int32 setIndex, const SPtr<DescriptorSet> &set)
 {
     if (reflection->HasConstantBuffer())
     {

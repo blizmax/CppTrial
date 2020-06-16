@@ -69,8 +69,8 @@ enum class ShaderAccess
 struct BindingRange
 {
     DescriptorType descriptorType = DescriptorType::Unknown;
-    uint32 count = 1;
-    uint32 baseIndex = 0;
+    int32 count = 1;
+    int32 baseIndex = 0;
 
     String ToString() const
     {
@@ -82,18 +82,18 @@ struct BindingRange
 struct BindingInfo
 {
     String name;
-    uint32 binding = 0;
-    uint32 set = 0;
+    int32 binding = 0;
+    int32 set = 0;
 };
 
 struct SetInfo
 {
-    uint32 set = 0;
+    int32 set = 0;
     Array<int32> bindingIndices;
     SPtr<DescriptorSetLayout> layout;
 
     SetInfo() = default;
-    SetInfo(uint32 set) : set(set)
+    SetInfo(int32 set) : set(set)
     {
     }
 };
@@ -124,10 +124,10 @@ public:
     const ReflectionArrayType *AsArray() const;
     const ReflectionStructType *AsStruct() const;
     const ReflectionType *UnwrapArray() const;
-    uint32 GetTotalElementCount() const;
+    int32 GetTotalElementCount() const;
     SPtr<ReflectionVar> FindMember(const String &name) const;
 
-    uint32 GetBindingRangeCount() const
+    int32 GetBindingRangeCount() const
     {
         return bindingRanges.Count();
     }
@@ -148,14 +148,14 @@ public:
     }
 
 protected:
-    uint32 size = 0;
+    int32 size = 0;
     Array<BindingRange> bindingRanges;
 };
 
 struct VarLocation
 {
-    uint32 rangeIndex = 0;
-    uint32 arrayIndex = 0;
+    int32 rangeIndex = 0;
+    int32 arrayIndex = 0;
     uint32 byteOffset = 0;
 
     VarLocation() = default;
@@ -377,7 +377,7 @@ private:
 class ReflectionArrayType : public ReflectionType
 {
 public:
-    ReflectionArrayType(uint32 elementCount, uint32 stride, const SPtr<ReflectionType> &elementType)
+    ReflectionArrayType(int32 elementCount, uint32 stride, const SPtr<ReflectionType> &elementType)
         : elementCount(elementCount), stride(stride), elementType(elementType)
     {
         for (auto &e : elementType->GetBindingRanges())
@@ -406,7 +406,7 @@ public:
         return String::Format(CT_TEXT("<Array>, {0} elements of ({1})"), elementCount, elementType->Dump(depth));
     }
 
-    uint32 GetElementCount() const
+    int32 GetElementCount() const
     {
         return elementCount;
     }
@@ -428,7 +428,7 @@ public:
     }
 
 private:
-    uint32 elementCount = 0;
+    int32 elementCount = 0;
     uint32 stride = 0;
     SPtr<ReflectionType> elementType;
 };
@@ -482,7 +482,7 @@ public:
         return name;
     }
 
-    uint32 GetMemberCount() const
+    int32 GetMemberCount() const
     {
         return members.Count();
     }
@@ -528,7 +528,7 @@ public:
         elementType = newType;
     }
 
-    uint32 GetBindingInfoCount() const
+    int32 GetBindingInfoCount() const
     {
         return bindingInfos.Count();
     }
@@ -563,7 +563,7 @@ public:
         constantBufferBindingInfo = info;
     }
 
-    uint32 GetSetInfoCount() const
+    int32 GetSetInfoCount() const
     {
         return setInfos.Count();
     }
@@ -578,7 +578,7 @@ public:
         return setInfos;
     }
 
-    const SPtr<DescriptorSetLayout> &GetDescriptorSetLayout(uint32 setIndex) const
+    const SPtr<DescriptorSetLayout> &GetDescriptorSetLayout(int32 setIndex) const
     {
         return setInfos[setIndex].layout;
     }
@@ -717,23 +717,23 @@ int32 ReflectionStructType::AddMember(const SPtr<ReflectionVar> &var)
 
 void ParameterBlockReflection::Finalize()
 {
-    uint32 maxSetIndex = 0;
+    int32 maxSetIndex = 0;
 
     const auto &bindingRanges = elementType->GetBindingRanges();
     CT_CHECK(bindingInfos.Count() == bindingRanges.Count());
 
-    HashMap<uint32, SetInfo> setInfoMap;
+    HashMap<int32, SetInfo> setInfoMap;
     for(int32 i = 0; i < bindingInfos.Count(); ++i)
     {
         const auto &info = bindingInfos[i];
-        uint32 set = info.set;
+        int32 set = info.set;
         if (maxSetIndex < set) maxSetIndex = set;
         if (!setInfoMap.Contains(set))
             setInfoMap.Put(set, {set});
         setInfoMap[set].bindingIndices.Add(i);
     }
 
-    for(uint32 s = 0; s <= maxSetIndex; ++s)
+    for(int32 s = 0; s <= maxSetIndex; ++s)
     {
         setInfos.Add({s});
     }

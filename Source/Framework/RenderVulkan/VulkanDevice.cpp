@@ -76,11 +76,12 @@ void VulkanDevice::Present()
     renderContext->ResourceBarrier(swapChainFrameBuffers[curBackBufferIndex]->GetColorTexture(0).get(), ResourceState::Present, nullptr);
     renderContext->Flush();
 
+    uint32 curIndex = curBackBufferIndex;
     VkPresentInfoKHR info = {};
     info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     info.swapchainCount = 1;
     info.pSwapchains = &swapChain;
-    info.pImageIndices = &curBackBufferIndex;
+    info.pImageIndices = &curIndex;
     auto &contextData = static_cast<VulkanRenderContext *>(renderContext.get())->GetContextData();
     auto queueHandle = contextData->GetQueue()->GetHandle();
     vkQueuePresentKHR(queueHandle, &info);
@@ -106,7 +107,6 @@ void VulkanDevice::InitPhysicalDevice()
 {
     Array<VkPhysicalDevice> devices;
     uint32 deviceCount = 0;
-
     if (vkEnumeratePhysicalDevices(gVulkanInstance, &deviceCount, nullptr) == VK_SUCCESS && deviceCount > 0)
     {
         devices.AppendUninitialized(deviceCount);
@@ -145,8 +145,8 @@ void VulkanDevice::CreateLogicalDevice()
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.GetData());
 
     Array<VkDeviceQueueCreateInfo> queueCreateInfos;
-    auto DetermineQueue = [this](Array<VkDeviceQueueCreateInfo> &arr, GpuQueueType q, uint32 i) {
-        if (queueDatas[(int32)q].familyIndex != UINT32_MAX)
+    auto DetermineQueue = [this](Array<VkDeviceQueueCreateInfo> &arr, GpuQueueType q, int32 i) {
+        if (queueDatas[(int32)q].familyIndex != -1)
             return false;
 
         queueDatas[(int32)q].familyIndex = i;
@@ -313,12 +313,11 @@ void VulkanDevice::CreateSwapChain()
         }
     }
 
-    uint32 imageCount = surfaceCaps.minImageCount;
-
+    uint32 minImageCount = surfaceCaps.minImageCount;
     VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.surface = surface;
-    createInfo.minImageCount = imageCount;
+    createInfo.minImageCount = minImageCount;
     createInfo.imageFormat = surfaceFormat.format;
     createInfo.imageColorSpace = surfaceFormat.colorSpace;
     createInfo.imageExtent = extent;
@@ -335,8 +334,11 @@ void VulkanDevice::CreateSwapChain()
 
     if (vkCreateSwapchainKHR(logicalDevice, &createInfo, gVulkanAlloc, &swapChain) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create swap chain failed.");
-    if (vkGetSwapchainImagesKHR(logicalDevice, swapChain, &backBufferCount, nullptr) != VK_SUCCESS)
+
+    uint32 imageCount = 0;
+    if (vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, nullptr) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Get swap chain images failed.");
+    backBufferCount = imageCount;
 }
 
 void VulkanDevice::CreateVmaAllocator()
@@ -352,7 +354,8 @@ void VulkanDevice::UpdateBackBuffers(uint32 width, uint32 height, ResourceFormat
 {
     Array<VkImage> images;
     images.AppendUninitialized(backBufferCount);
-    vkGetSwapchainImagesKHR(logicalDevice, swapChain, &backBufferCount, images.GetData());
+    uint32 imageCount = backBufferCount;
+    vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, images.GetData());
 
     for(int32 i = 0; i < backBufferCount; ++i)
     {
@@ -364,16 +367,18 @@ void VulkanDevice::UpdateBackBuffers(uint32 width, uint32 height, ResourceFormat
     }
 }
 
-uint32 VulkanDevice::GetCurrentBackBufferIndex()
+int32 VulkanDevice::GetCurrentBackBufferIndex()
 {
     auto &fence = presentFences[curPresentFenceIndex];
     fence->Wait();
     curPresentFenceIndex = (curPresentFenceIndex + 1) % presentFences.Count();
     auto &nextFence = presentFences[curPresentFenceIndex];
     nextFence->Reset();
+
     uint32 imageIndex;
     VkResult result = vkAcquireNextImageKHR(logicalDevice, swapChain, UINT64_MAX, VK_NULL_HANDLE, nextFence->GetHandle(), &imageIndex);
-    CT_CHECK(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR);
+    //CT_CHECK(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR || result == VK_ERROR_OUT_OF_DATE_KHR);
+    CT_CHECK(result == VK_SUCCESS);
     return imageIndex;
 }
 }
