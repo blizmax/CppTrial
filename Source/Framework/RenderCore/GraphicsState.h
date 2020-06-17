@@ -15,12 +15,12 @@ public:
     GraphicsState();
     ~GraphicsState() = default;
 
-    void SetViewport(uint32 index, const Viewport &viewport, bool setScissor = true);
-    void SetScissor(uint32 index, const Scissor &scissor);
-    void PushViewport(uint32 index, const Viewport &viewport, bool setScissor = true);
-    void PopViewport(uint32 index, bool setScissor = true);
-    void PushScissor(uint32 index, const Scissor &scissor);
-    void PopScissor(uint32 index);
+    void SetViewport(int32 index, const Viewport &viewport, bool setScissor = true);
+    void SetScissor(int32 index, const Scissor &scissor);
+    void PushViewport(int32 index, const Viewport &viewport, bool setScissor = true);
+    void PopViewport(int32 index, bool setScissor = true);
+    void PushScissor(int32 index, const Scissor &scissor);
+    void PopScissor(int32 index);
     void SetFrameBuffer(const SPtr<FrameBuffer> &fbo, bool setVp0Sc0 = true);
     void PushFrameBuffer(const SPtr<FrameBuffer> &fbo, bool setVp0Sc0 = true);
     void PopFrameBuffer(bool setVp0Sc0 = true);
@@ -31,7 +31,7 @@ public:
     void SetSampleMask(uint32 sampleMask);
     SPtr<GraphicsStateObject> GetGso(const GraphicsVars *vars);
 
-    const Viewport &GetViewport(uint32 index) const
+    const Viewport &GetViewport(int32 index) const
     {
         return viewports[index];
     }
@@ -41,7 +41,7 @@ public:
         return viewports;
     }
 
-    const Scissor &GetScissor(uint32 index) const
+    const Scissor &GetScissor(int32 index) const
     {
         return scissors[index];
     }

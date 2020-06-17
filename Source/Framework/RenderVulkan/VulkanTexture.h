@@ -14,7 +14,7 @@ public:
         VmaAllocation allocation = VK_NULL_HANDLE;
     };
 
-    VulkanTexture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, uint32 mipLevels, uint32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags);
+    VulkanTexture(int32 width, int32 height, int32 depth, int32 arrayLayers, int32 mipLevels, int32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags);
 
     virtual ~VulkanTexture();
 

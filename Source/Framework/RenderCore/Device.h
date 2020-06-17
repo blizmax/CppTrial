@@ -57,7 +57,7 @@ public:
 
     virtual ~Device() = default;
 
-    virtual void ResizeSwapChain(uint32 width, uint32 height) = 0;
+    virtual void ResizeSwapChain(int32 width, int32 height) = 0;
     virtual void Present() = 0;
     virtual void FlushAndSync() = 0;
 

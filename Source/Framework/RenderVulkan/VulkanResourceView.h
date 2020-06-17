@@ -8,7 +8,7 @@ namespace RenderCore
 class VulkanBufferView : public ResourceView
 {
 public:
-    VulkanBufferView(const WPtr<Resource> &resource, uint32 firstElement, uint32 elementCount);
+    VulkanBufferView(const WPtr<Resource> &resource, int32 firstElement, int32 elementCount);
     virtual ~VulkanBufferView();
 
     VkBufferView GetHandle() const
@@ -23,7 +23,7 @@ private:
 class VulkanImageView : public ResourceView
 {
 public:
-    VulkanImageView(const WPtr<Resource> &resource, uint32 mostDetailedMip, uint32 mipLevels, uint32 firstArraySlice, uint32 arrayLayers);
+    VulkanImageView(const WPtr<Resource> &resource, int32 mostDetailedMip, int32 mipLevels, int32 firstArraySlice, int32 arrayLayers);
     virtual ~VulkanImageView();
 
     VkImageView GetHandle() const

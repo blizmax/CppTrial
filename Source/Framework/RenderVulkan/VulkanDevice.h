@@ -80,7 +80,7 @@ public:
         return properties.limits;
     }
 
-    virtual void ResizeSwapChain(uint32 width, uint32 height) override;
+    virtual void ResizeSwapChain(int32 width, int32 height) override;
     virtual void Present() override;
     virtual void FlushAndSync() override;
 
@@ -91,7 +91,7 @@ private:
     void CreateSwapChain();
     void CreateVmaAllocator();
 
-    void UpdateBackBuffers(uint32 width, uint32 height, ResourceFormat colorFormat, ResourceFormat depthFormat);
+    void UpdateBackBuffers(int32 width, int32 height, ResourceFormat colorFormat, ResourceFormat depthFormat);
     int32 GetCurrentBackBufferIndex();
 
 private:

@@ -47,8 +47,8 @@ public:
         stateData.state = newState;
     }
 
-    virtual ResourceState GetSubresourceState(uint32 arraySlice, uint32 mipLevel) const = 0;
-    virtual void SetSubresourceState(uint32 arraySlice, uint32 mipLevel, ResourceState newState) const = 0;
+    virtual ResourceState GetSubresourceState(int32 arraySlice, int32 mipLevel) const = 0;
+    virtual void SetSubresourceState(int32 arraySlice, int32 mipLevel, ResourceState newState) const = 0;
 
     virtual SPtr<ResourceView> GetSrv() = 0;
     virtual SPtr<ResourceView> GetUav() = 0;

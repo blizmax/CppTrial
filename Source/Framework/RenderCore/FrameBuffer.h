@@ -29,9 +29,9 @@ struct FrameBufferDesc
 
     Array<AttachmentDesc> colors;
     AttachmentDesc depthStencil;
-    uint32 sampleCount = 1;
+    int32 sampleCount = 1;
     bool hasDepthStencil = false;
-    void *renderPass = nullptr;
+    void *renderPass = nullptr; //FIXME
 
     bool operator==(const FrameBufferDesc &other) const
     {
@@ -60,34 +60,34 @@ public:
     struct Attachment
     {
         SPtr<Texture> texture = nullptr;
-        uint32 mipLevel = 0;
-        uint32 arrayLayers = 1;
-        uint32 firstArraySlice = 0;
+        int32 mipLevel = 0;
+        int32 arrayLayers = 1;
+        int32 firstArraySlice = 0;
     };
 
     virtual ~FrameBuffer() = default;
 
     virtual void Apply();
 
-    void AddColorAttachment(const SPtr<Texture> &texture, uint32 mipLevel = 0, uint32 firstArraySlice = 0, uint32 arrayLayers = UINT32_MAX);
-    void SetDepthStencilAttachment(const SPtr<Texture> &texture, uint32 mipLevel = 0, uint32 firstArraySlice = 0, uint32 arrayLayers = UINT32_MAX);
+    void AddColorAttachment(const SPtr<Texture> &texture, int32 mipLevel = 0, int32 firstArraySlice = 0, int32 arrayLayers = -1);
+    void SetDepthStencilAttachment(const SPtr<Texture> &texture, int32 mipLevel = 0, int32 firstArraySlice = 0, int32 arrayLayers = -1);
 
-    uint32 GetWidth() const
+    int32 GetWidth() const
     {
         return width;
     }
 
-    uint32 GetHeight() const
+    int32 GetHeight() const
     {
         return height;
     }
 
-    uint32 GetDepth() const
+    int32 GetDepth() const
     {
         return depth;
     }
 
-    uint32 GetSampleCount() const
+    int32 GetSampleCount() const
     {
         return desc.sampleCount;
     }
@@ -97,12 +97,12 @@ public:
         return desc;
     }
 
-    uint32 GetColorTextureCount() const
+    int32 GetColorTextureCount() const
     {
         return colorAttachments.Count();
     }
 
-    const SPtr<Texture> &GetColorTexture(uint32 index) const
+    const SPtr<Texture> &GetColorTexture(int32 index) const
     {
         return colorAttachments[index].texture;
     }
@@ -112,7 +112,7 @@ public:
         return depthStencilAttachment.texture;
     }
 
-    SPtr<ResourceView> GetRtv(uint32 index) const
+    SPtr<ResourceView> GetRtv(int32 index) const
     {
         CT_CHECK(index < COLOR_ATTCHMENT_MAX_NUM);
         const auto &a = colorAttachments[index];
@@ -135,13 +135,13 @@ public:
 
     static SPtr<FrameBuffer> Create();
     static SPtr<FrameBuffer> Create(const Array<SPtr<Texture>> &colors, const SPtr<Texture> &depthStencil = nullptr);
-    static SPtr<FrameBuffer> Create2D(uint32 width, uint32 height, const FrameBufferDesc &desc, uint32 arrayLayers = 1, uint32 mipLevels = 1);
-    static SPtr<FrameBuffer> CreateCubemap(uint32 width, uint32 height, const FrameBufferDesc& desc, uint32 arrayLayers = 1, uint32 mipLevels = 1);
+    static SPtr<FrameBuffer> Create2D(int32 width, int32 height, const FrameBufferDesc &desc, int32 arrayLayers = 1, int32 mipLevels = 1);
+    static SPtr<FrameBuffer> CreateCubemap(int32 width, int32 height, const FrameBufferDesc& desc, int32 arrayLayers = 1, int32 mipLevels = 1);
 
 protected:
-    uint32 width;
-    uint32 height;
-    uint32 depth;
+    int32 width;
+    int32 height;
+    int32 depth;
     Array<Attachment> colorAttachments;
     Attachment depthStencilAttachment;
     FrameBufferDesc desc;

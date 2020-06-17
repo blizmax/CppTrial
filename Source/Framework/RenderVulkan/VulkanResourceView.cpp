@@ -6,12 +6,12 @@
 namespace RenderCore
 {
 
-SPtr<ResourceView> ResourceView::CreateSrv(const SPtr<Buffer> &buffer, uint32 first, uint32 count)
+SPtr<ResourceView> ResourceView::CreateSrv(const SPtr<Buffer> &buffer, int32 first, int32 count)
 {
     return Memory::MakeShared<VulkanBufferView>(buffer, first, count);
 }
 
-SPtr<ResourceView> ResourceView::CreateUav(const SPtr<Buffer> &buffer, uint32 first, uint32 count)
+SPtr<ResourceView> ResourceView::CreateUav(const SPtr<Buffer> &buffer, int32 first, int32 count)
 {
     return Memory::MakeShared<VulkanBufferView>(buffer, first, count);
 }
@@ -21,27 +21,27 @@ SPtr<ResourceView> ResourceView::CreateCbv(const SPtr<Buffer> &buffer)
     return Memory::MakeShared<VulkanBufferView>(buffer, 0, 1);
 }
 
-SPtr<ResourceView> ResourceView::CreateSrv(const SPtr<Texture> &texture, uint32 mostDetailedMip, uint32 mipLevels, uint32 firstArraySlice, uint32 arrayLayers)
+SPtr<ResourceView> ResourceView::CreateSrv(const SPtr<Texture> &texture, int32 mostDetailedMip, int32 mipLevels, int32 firstArraySlice, int32 arrayLayers)
 {
     return Memory::MakeShared<VulkanImageView>(texture, mostDetailedMip, mipLevels, firstArraySlice, arrayLayers);
 }
 
-SPtr<ResourceView> ResourceView::CreateUav(const SPtr<Texture> &texture, uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers)
+SPtr<ResourceView> ResourceView::CreateUav(const SPtr<Texture> &texture, int32 mipLevel, int32 firstArraySlice, int32 arrayLayers)
 {
     return Memory::MakeShared<VulkanImageView>(texture, mipLevel, 1, firstArraySlice, arrayLayers);
 }
 
-SPtr<ResourceView> ResourceView::CreateRtv(const SPtr<Texture> &texture, uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers)
+SPtr<ResourceView> ResourceView::CreateRtv(const SPtr<Texture> &texture, int32 mipLevel, int32 firstArraySlice, int32 arrayLayers)
 {
     return Memory::MakeShared<VulkanImageView>(texture, mipLevel, 1, firstArraySlice, arrayLayers);
 }
 
-SPtr<ResourceView> ResourceView::CreateDsv(const SPtr<Texture> &texture, uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers)
+SPtr<ResourceView> ResourceView::CreateDsv(const SPtr<Texture> &texture, int32 mipLevel, int32 firstArraySlice, int32 arrayLayers)
 {
     return Memory::MakeShared<VulkanImageView>(texture, mipLevel, 1, firstArraySlice, arrayLayers);
 }
 
-VulkanBufferView::VulkanBufferView(const WPtr<Resource> &resource, uint32 firstElement, uint32 elementCount)
+VulkanBufferView::VulkanBufferView(const WPtr<Resource> &resource, int32 firstElement, int32 elementCount)
     : ResourceView(resource, firstElement, elementCount)
 {
     auto buffer = dynamic_cast<VulkanBuffer *>(GetResource());
@@ -73,7 +73,7 @@ VulkanBufferView::~VulkanBufferView()
     }
 }
 
-VulkanImageView::VulkanImageView(const WPtr<Resource> &resource, uint32 mostDetailedMip, uint32 mipLevels, uint32 firstArraySlice, uint32 arrayLayers)
+VulkanImageView::VulkanImageView(const WPtr<Resource> &resource, int32 mostDetailedMip, int32 mipLevels, int32 firstArraySlice, int32 arrayLayers)
     : ResourceView(resource, mostDetailedMip, mipLevels, firstArraySlice, arrayLayers)
 {
     auto texture = dynamic_cast<VulkanTexture *>(GetResource());

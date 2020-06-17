@@ -41,12 +41,12 @@ void VulkanFrameBuffer::Apply()
     desc.renderPass = (void*)renderPass;
 
     Array<VkImageView> imageViews;
-    uint32 arrayLayers = UINT32_MAX;
+    int32 arrayLayers = -1;
     for(int32 i = 0; i < colorAttachments.Count(); ++i)
     {
         auto rtv = GetRtv(i);
         const auto &viewInfo = rtv->GetViewInfo();
-        CT_CHECK(arrayLayers == UINT32_MAX || arrayLayers == viewInfo.arrayLayers);
+        CT_CHECK(arrayLayers == -1 || arrayLayers == viewInfo.arrayLayers);
         arrayLayers = viewInfo.arrayLayers;
         imageViews.Add(std::static_pointer_cast<VulkanImageView>(rtv)->GetHandle());
     }
@@ -55,7 +55,7 @@ void VulkanFrameBuffer::Apply()
     {
         auto dsv = GetDsv();
         const auto &viewInfo = dsv->GetViewInfo();
-        CT_CHECK(arrayLayers == UINT32_MAX || arrayLayers == viewInfo.arrayLayers);
+        CT_CHECK(arrayLayers == -1 || arrayLayers == viewInfo.arrayLayers);
         arrayLayers = viewInfo.arrayLayers;
         imageViews.Add(std::static_pointer_cast<VulkanImageView>(dsv)->GetHandle());
     }

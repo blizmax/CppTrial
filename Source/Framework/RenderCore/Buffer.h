@@ -18,13 +18,13 @@ public:
     virtual void Unmap() = 0;
     virtual void SetBlob(const void *data, uint32 offset, uint32 dataSize) = 0;
 
-    virtual ResourceState GetSubresourceState(uint32 arraySlice, uint32 mipLevel) const override
+    virtual ResourceState GetSubresourceState(int32 arraySlice, int32 mipLevel) const override
     {
         CT_LOG(Warning, CT_TEXT("Get subresouce state from buffer is invalid, return global state instead."));
         return stateData.state;
     }
 
-    virtual void SetSubresourceState(uint32 arraySlice, uint32 mipLevel, ResourceState newState) const override
+    virtual void SetSubresourceState(int32 arraySlice, int32 mipLevel, ResourceState newState) const override
     {
         CT_LOG(Warning, CT_TEXT("Set subresouce state to buffer is invalid, do nothing."));
     }
@@ -46,8 +46,8 @@ public:
 
     void ClearViews();
     SPtr<ResourceView> GetCbv();
-    SPtr<ResourceView> GetSrv(uint32 first, uint32 count = UINT32_MAX);
-    SPtr<ResourceView> GetUav(uint32 first, uint32 count = UINT32_MAX);
+    SPtr<ResourceView> GetSrv(int32 first, int32 count = -1);
+    SPtr<ResourceView> GetUav(int32 first, int32 count = -1);
 
     uint32 GetOffset() const
     {
@@ -59,7 +59,7 @@ public:
         return cpuAccess;
     }
 
-    uint32 GetElementCount() const
+    int32 GetElementCount() const
     {
         return elementCount;
     }
@@ -90,13 +90,13 @@ public:
     }
 
     static SPtr<Buffer> Create(uint32 size, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr);
-    static SPtr<Buffer> CreateTyped(ResourceFormat format, uint32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr);
-    static SPtr<Buffer> CreateStructured(uint32 structSize, uint32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr, bool createCounter = true);
+    static SPtr<Buffer> CreateTyped(ResourceFormat format, int32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr);
+    static SPtr<Buffer> CreateStructured(uint32 structSize, int32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr, bool createCounter = true);
 
 protected:
     uint32 offset = 0;
     CpuAccess cpuAccess;
-    uint32 elementCount = 0;
+    int32 elementCount = 0;
     uint32 structSize = 0;
     ResourceFormat format = ResourceFormat::Unknown;
 

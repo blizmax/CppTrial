@@ -3,7 +3,7 @@
 namespace RenderCore
 {
 
-SPtr<Buffer> Buffer::CreateTyped(ResourceFormat format, uint32 count, ResourceBindFlags bindFlags, CpuAccess access, const void *data)
+SPtr<Buffer> Buffer::CreateTyped(ResourceFormat format, int32 count, ResourceBindFlags bindFlags, CpuAccess access, const void *data)
 {
     uint32 size = count * GetResourceFormatBytes(format);
     auto buffer = Create(size, bindFlags, access, data);
@@ -12,7 +12,7 @@ SPtr<Buffer> Buffer::CreateTyped(ResourceFormat format, uint32 count, ResourceBi
     return buffer;
 }
 
-SPtr<Buffer> Buffer::CreateStructured(uint32 structSize, uint32 count, ResourceBindFlags bindFlags, CpuAccess access, const void *data, bool createCounter)
+SPtr<Buffer> Buffer::CreateStructured(uint32 structSize, int32 count, ResourceBindFlags bindFlags, CpuAccess access, const void *data, bool createCounter)
 {
     uint32 size = structSize * count;
     auto buffer = Create(size, bindFlags, access, data);
@@ -41,7 +41,7 @@ SPtr<ResourceView> Buffer::GetCbv()
     return cbv;
 }
 
-SPtr<ResourceView> Buffer::GetSrv(uint32 first, uint32 count)
+SPtr<ResourceView> Buffer::GetSrv(int32 first, int32 count)
 {
     auto viewInfo = ResourceViewInfo(first, count);
     for (const auto &e : srvs)
@@ -54,7 +54,7 @@ SPtr<ResourceView> Buffer::GetSrv(uint32 first, uint32 count)
     return newView;
 }
 
-SPtr<ResourceView> Buffer::GetUav(uint32 first, uint32 count)
+SPtr<ResourceView> Buffer::GetUav(int32 first, int32 count)
 {
     auto viewInfo = ResourceViewInfo(first, count);
     for (const auto &e : uavs)

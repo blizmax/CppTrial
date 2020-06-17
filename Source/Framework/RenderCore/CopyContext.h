@@ -23,7 +23,7 @@ public:
         return result;
     }
 
-    static SPtr<ReadTextureTask> Create(class CopyContext *ctx, const Texture *texture, uint32 subresource);
+    static SPtr<ReadTextureTask> Create(class CopyContext *ctx, const Texture *texture, int32 subresource);
 
 private:
     SPtr<GpuFence> fence;
@@ -41,15 +41,15 @@ public:
     virtual bool ResourceBarrier(const Resource *resource, ResourceState newState, const ResourceViewInfo *viewInfo = nullptr) = 0;
     virtual void UavBarrier(const Resource *resource) = 0;
     virtual void CopyResource(const Resource *dst, const Resource *src) = 0;
-    virtual void CopyBufferRegion(const Buffer *dst, uint32 dstOffset, const Buffer *src, uint32 srcOffset, uint32 size) = 0;
-    virtual void CopySubresource(const Texture *dst, uint32 dstSub, const Texture *src, uint32 srcSub) = 0;
-    virtual void CopySubresourceRegion(const Texture *dst, uint32 dstSub, const Texture *src, uint32 srcSub, const IVector3 &dstOffset, const IVector3 &srcOffset, const UVector3 &size) = 0;
-    virtual void UpdateBuffer(const Buffer *buffer, const void *data, uint32 offset, uint32 size) = 0;
+    virtual void CopyBufferRegion(const Buffer *dst, int32 dstOffset, const Buffer *src, int32 srcOffset, uint32 size) = 0;
+    virtual void CopySubresource(const Texture *dst, int32 dstSub, const Texture *src, int32 srcSub) = 0;
+    virtual void CopySubresourceRegion(const Texture *dst, int32 dstSub, const Texture *src, int32 srcSub, const Vector3I &dstOffset = Vector3I(), const Vector3I &srcOffset = Vector3I(), const Vector3I &size = Vector3I(-1)) = 0;
+    virtual void UpdateBuffer(const Buffer *buffer, const void *data, int32 offset, uint32 size) = 0;
     virtual void UpdateTexture(const Texture *texture, const void *data) = 0;
-    virtual void UpdateSubresource(const Texture *texture, uint32 subresource, const void* data, const IVector3 &offset, const UVector3 &size) = 0;
-    virtual void UpdateSubresources(const Texture *texture, uint32 firstSub, uint32 subCount, const void* data) = 0;
-    virtual Array<uint8> ReadSubresource(const Texture *texture, uint32 subresource) = 0;
-    virtual SPtr<ReadTextureTask> ReadSubresourceAsync(const Texture *texture, uint32 subresource) = 0;
+    virtual void UpdateSubresource(const Texture *texture, int32 subresource, const void* data, const Vector3I &offset = Vector3I(), const Vector3I &size = Vector3I(-1)) = 0;
+    virtual void UpdateSubresources(const Texture *texture, int32 firstSub, int32 subCount, const void* data) = 0;
+    virtual Array<uint8> ReadSubresource(const Texture *texture, int32 subresource) = 0;
+    virtual SPtr<ReadTextureTask> ReadSubresourceAsync(const Texture *texture, int32 subresource) = 0;
 
     static SPtr<CopyContext> Create(const SPtr<GpuQueue> &queue);
 

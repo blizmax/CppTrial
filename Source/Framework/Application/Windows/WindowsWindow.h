@@ -17,10 +17,10 @@ public:
         return input;
     }
 
-    virtual uint32 GetPositionX() const override;
-    virtual uint32 GetPositionY() const override;
-    virtual uint32 GetWidth() const override;
-    virtual uint32 GetHeight() const override;
+    virtual int32 GetPositionX() const override;
+    virtual int32 GetPositionY() const override;
+    virtual int32 GetWidth() const override;
+    virtual int32 GetHeight() const override;
 
     virtual void SetTitle(const String &title) override;
 

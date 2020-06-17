@@ -61,7 +61,7 @@ VulkanDevice::~VulkanDevice()
     vkDestroyDevice(logicalDevice, gVulkanAlloc);
 }
 
-void VulkanDevice::ResizeSwapChain(uint32 width, uint32 height)
+void VulkanDevice::ResizeSwapChain(int32 width, int32 height)
 {
     renderContext->Flush(true);
 
@@ -106,7 +106,7 @@ void VulkanDevice::FlushAndSync()
 void VulkanDevice::InitPhysicalDevice()
 {
     Array<VkPhysicalDevice> devices;
-    uint32 deviceCount = 0;
+    uint32 deviceCount;
     if (vkEnumeratePhysicalDevices(gVulkanInstance, &deviceCount, nullptr) == VK_SUCCESS && deviceCount > 0)
     {
         devices.AppendUninitialized(deviceCount);
@@ -138,7 +138,7 @@ void VulkanDevice::CreateLogicalDevice()
     vkGetPhysicalDeviceFeatures(physicalDevice, &features);
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
 
-    uint32 queueFamilyCount = 0;
+    uint32 queueFamilyCount;
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
     Array<VkQueueFamilyProperties> queueFamilies;
     queueFamilies.AppendUninitialized(queueFamilyCount);
@@ -234,8 +234,8 @@ void VulkanDevice::CreateSurface()
 
 void VulkanDevice::CreateSwapChain()
 {
-    uint32 width = window->GetWidth();
-    uint32 height = window->GetHeight();
+    int32 width = window->GetWidth();
+    int32 height = window->GetHeight();
 
     VkSurfaceCapabilitiesKHR surfaceCaps;
     if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCaps) != VK_SUCCESS)
@@ -335,7 +335,7 @@ void VulkanDevice::CreateSwapChain()
     if (vkCreateSwapchainKHR(logicalDevice, &createInfo, gVulkanAlloc, &swapChain) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create swap chain failed.");
 
-    uint32 imageCount = 0;
+    uint32 imageCount;
     if (vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, nullptr) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Get swap chain images failed.");
     backBufferCount = imageCount;
@@ -350,7 +350,7 @@ void VulkanDevice::CreateVmaAllocator()
     vmaCreateAllocator(&allocatorInfo, &allocator);
 }
 
-void VulkanDevice::UpdateBackBuffers(uint32 width, uint32 height, ResourceFormat colorFormat, ResourceFormat depthFormat)
+void VulkanDevice::UpdateBackBuffers(int32 width, int32 height, ResourceFormat colorFormat, ResourceFormat depthFormat)
 {
     Array<VkImage> images;
     images.AppendUninitialized(backBufferCount);

@@ -20,7 +20,7 @@ VulkanComputeContextImpl::~VulkanComputeContextImpl()
 {
 }
 
-void VulkanComputeContextImpl::Dispatch(ComputeState *state, ComputeVars *vars, const UVector3 &size)
+void VulkanComputeContextImpl::Dispatch(ComputeState *state, ComputeVars *vars, const Vector3U &size)
 {
     if(PrepareForDispatch(state, vars) == false)
         return;
@@ -44,7 +44,7 @@ void VulkanComputeContextImpl::ClearUav(const ResourceView *uav, const Vector4 &
     commandsPending = true;
 }
 
-void VulkanComputeContextImpl::ClearUav(const ResourceView *uav, const UVector4 &value)
+void VulkanComputeContextImpl::ClearUav(const ResourceView *uav, const Vector4U &value)
 {
     auto vkBuffer = dynamic_cast<const VulkanBuffer *>(uav->GetResource());
     if(vkBuffer)
@@ -64,7 +64,7 @@ void VulkanComputeContextImpl::ClearUavCounter(const Buffer *buffer, uint32 valu
     auto uavCounter = buffer->GetUavCounter();
     if(uavCounter)
     {
-        UVector4 uvec{value, 0, 0, 0};
+        Vector4U uvec{value, 0, 0, 0};
         ClearUav(uavCounter->GetUav().get(), uvec);
     }
 }

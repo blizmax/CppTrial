@@ -137,28 +137,28 @@ void DesktopWindow::Tick()
     glfwPollEvents();
 }
 
-uint32 DesktopWindow::GetPositionX() const
+int32 DesktopWindow::GetPositionX() const
 {
     int32 x, y;
     glfwGetWindowPos(window, &x, &y);
     return x;
 }
 
-uint32 DesktopWindow::GetPositionY() const
+int32 DesktopWindow::GetPositionY() const
 {
     int32 x, y;
     glfwGetWindowPos(window, &x, &y);
     return y;
 }
 
-uint32 DesktopWindow::GetWidth() const
+int32 DesktopWindow::GetWidth() const
 {
     int32 w, h;
     glfwGetWindowSize(window, &w, &h);
     return w;
 }
 
-uint32 DesktopWindow::GetHeight() const
+int32 DesktopWindow::GetHeight() const
 {
     int32 w, h;
     glfwGetWindowSize(window, &w, &h);

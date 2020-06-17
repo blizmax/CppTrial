@@ -3,48 +3,48 @@
 #include "Math/.Package.h"
 
 template <typename T>
-class TIVector2
+class IntVector2
 {
 public:
     T x = 0;
     T y = 0;
 
-    TIVector2() = default;
-    TIVector2(const TIVector2 &) = default;
-    TIVector2 &operator=(const TIVector2 &) = default;
+    IntVector2() = default;
+    IntVector2(const IntVector2 &) = default;
+    IntVector2 &operator=(const IntVector2 &) = default;
 
-    TIVector2(T x, T y) : x(x), y(y)
+    IntVector2(T x, T y) : x(x), y(y)
     {
     }
 
-    TIVector2(T v) : x(v), y(v)
+    IntVector2(T v) : x(v), y(v)
     {
     }
 };
 
 template <typename T>
-class TIVector3
+class IntVector3
 {
 public:
     T x = 0;
     T y = 0;
     T z = 0;
 
-    TIVector3() = default;
-    TIVector3(const TIVector3 &) = default;
-    TIVector3 &operator=(const TIVector3 &) = default;
+    IntVector3() = default;
+    IntVector3(const IntVector3 &) = default;
+    IntVector3 &operator=(const IntVector3 &) = default;
 
-    TIVector3(T x, T y, T z) : x(x), y(y), z(z)
+    IntVector3(T x, T y, T z) : x(x), y(y), z(z)
     {
     }
 
-    TIVector3(T v) : x(v), y(v), z(v)
+    IntVector3(T v) : x(v), y(v), z(v)
     {
     }
 };
 
 template <typename T>
-class TIVector4
+class IntVector4
 {
 public:
     T x = 0;
@@ -52,23 +52,23 @@ public:
     T z = 0;
     T w = 0;
 
-    TIVector4() = default;
-    TIVector4(const TIVector4 &) = default;
-    TIVector4 &operator=(const TIVector4 &) = default;
+    IntVector4() = default;
+    IntVector4(const IntVector4 &) = default;
+    IntVector4 &operator=(const IntVector4 &) = default;
 
-    TIVector4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w)
+    IntVector4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w)
     {
     }
 
-    TIVector4(T v) : x(v), y(v), z(v), w(v)
+    IntVector4(T v) : x(v), y(v), z(v), w(v)
     {
     }
 };
 
-using IVector2 = TIVector2<int32>;
-using UVector2 = TIVector2<uint32>;
-using IVector3 = TIVector3<int32>;
-using UVector3 = TIVector3<uint32>;
-using IVector4 = TIVector4<int32>;
-using UVector4 = TIVector4<uint32>;
+using Vector2I = IntVector2<int32>;
+using Vector2U = IntVector2<uint32>;
+using Vector3I = IntVector3<int32>;
+using Vector3U = IntVector3<uint32>;
+using Vector4I = IntVector4<int32>;
+using Vector4U = IntVector4<uint32>;
 

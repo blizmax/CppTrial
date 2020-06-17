@@ -5,15 +5,15 @@
 namespace RenderCore
 {
 
-SPtr<Texture> Texture::Create(uint32 width, uint32 height, uint32 depth, ResourceFormat format, ResourceType resourceType, uint32 arrayLayers, uint32 mipLevels, uint32 sampleCount, const void *data, ResourceBindFlags flags)
+SPtr<Texture> Texture::Create(int32 width, int32 height, int32 depth, ResourceFormat format, ResourceType resourceType, int32 arrayLayers, int32 mipLevels, int32 sampleCount, const void *data, ResourceBindFlags flags)
 {
     auto ptr = Memory::MakeShared<VulkanTexture>(width, height, depth, arrayLayers, mipLevels, sampleCount, format, resourceType, flags);
     ptr->weakThis = ptr;
-    ptr->InitData(data, mipLevels == UINT32_MAX);
+    ptr->InitData(data, mipLevels == -1);
     return ptr;
 }
 
-SPtr<Texture> Texture::Create2D(uint32 width, uint32 height, ResourceFormat format, void *handle, ResourceBindFlags flags)
+SPtr<Texture> Texture::Create2D(int32 width, int32 height, ResourceFormat format, void *handle, ResourceBindFlags flags)
 {
     auto ptr = Memory::MakeShared<VulkanTexture>(width, height, 1, 1, 1, 1, format, ResourceType::Texture2D, flags);
     ptr->weakThis = ptr;
@@ -22,7 +22,7 @@ SPtr<Texture> Texture::Create2D(uint32 width, uint32 height, ResourceFormat form
     return ptr;
 }
 
-VulkanTexture::VulkanTexture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, uint32 mipLevels, uint32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags)
+VulkanTexture::VulkanTexture(int32 width, int32 height, int32 depth, int32 arrayLayers, int32 mipLevels, int32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags)
     : Texture(width, height, depth, arrayLayers, mipLevels, sampleCount, format, resourceType, flags)
 {
 
@@ -119,19 +119,19 @@ void VulkanTexture::InitData(const void *data, bool autoGenMips)
         auto context = gVulkanDevice->GetRenderContext();
         if(autoGenMips)
         {
-            uint32 sliceSize = width * height * GetResourceFormatBytes(format);
+            int32 sliceSize = width * height * GetResourceFormatBytes(format);
             const uint8 *src = reinterpret_cast<const uint8 *>(data);
-            uint32 count = arrayLayers;
+            int32 count = arrayLayers;
             if(resourceType == ResourceType::TextureCube)
                 count *= 6;
             
-            for (uint32 i = 0; i < count; i++)
+            for (int32 i = 0; i < count; i++)
             {
-                uint32 subresource = GetSubresourceIndex(i, 0);
-                uint32 mipLevel = 0; //GetSubresourceMipLevel(subresource);
-                uint32 w = GetWidth(mipLevel);
-                uint32 h = GetHeight(mipLevel);
-                uint32 d = GetDepth(mipLevel);
+                int32 subresource = GetSubresourceIndex(i, 0);
+                int32 mipLevel = 0; //GetSubresourceMipLevel(subresource);
+                int32 w = GetWidth(mipLevel);
+                int32 h = GetHeight(mipLevel);
+                int32 d = GetDepth(mipLevel);
                 context->UpdateSubresource(this, subresource, src, {0, 0, 0}, {w, h, d});
                 src += sliceSize;
             }

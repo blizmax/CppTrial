@@ -5,46 +5,46 @@
 namespace RenderCore
 {
 
-ResourceBindFlags UpdateBindFlags(ResourceBindFlags flags, bool hasInitData, uint32 mipLevels, ResourceFormat format)
+ResourceBindFlags UpdateBindFlags(ResourceBindFlags flags, bool hasInitData, int32 mipLevels, ResourceFormat format)
 {
-    if(hasInitData && mipLevels == UINT32_MAX)
+    if(hasInitData && mipLevels == -1)
     {
         flags |= ResourceBind::RenderTarget;
     }
     return flags;
 }
 
-SPtr<Texture> Texture::Create1D(uint32 width, ResourceFormat format, uint32 arrayLayers, uint32 mipLevels, const void *data, ResourceBindFlags flags)
+SPtr<Texture> Texture::Create1D(int32 width, ResourceFormat format, int32 arrayLayers, int32 mipLevels, const void *data, ResourceBindFlags flags)
 {
     flags = UpdateBindFlags(flags, data != nullptr, mipLevels, format);
     return Create(width, 1, 1, format, ResourceType::Texture1D, arrayLayers, mipLevels, 1, data, flags);
 }
 
-SPtr<Texture> Texture::Create2D(uint32 width, uint32 height, ResourceFormat format, uint32 arrayLayers, uint32 mipLevels, const void *data, ResourceBindFlags flags)
+SPtr<Texture> Texture::Create2D(int32 width, int32 height, ResourceFormat format, int32 arrayLayers, int32 mipLevels, const void *data, ResourceBindFlags flags)
 {
     flags = UpdateBindFlags(flags, data != nullptr, mipLevels, format);
     return Create(width, height, 1, format, ResourceType::Texture2D, arrayLayers, mipLevels, 1, data, flags);
 }
 
-SPtr<Texture> Texture::Create3D(uint32 width, uint32 height, uint32 depth, ResourceFormat format, uint32 arrayLayers, uint32 mipLevels, const void *data, ResourceBindFlags flags)
+SPtr<Texture> Texture::Create3D(int32 width, int32 height, int32 depth, ResourceFormat format, int32 arrayLayers, int32 mipLevels, const void *data, ResourceBindFlags flags)
 {
     flags = UpdateBindFlags(flags, data != nullptr, mipLevels, format);
     return Create(width, height, depth, format, ResourceType::Texture3D, arrayLayers, mipLevels, 1, data, flags);
 }
 
-SPtr<Texture> Texture::CreateCube(uint32 width, uint32 height, ResourceFormat format, uint32 arrayLayers, uint32 mipLevels, const void *data, ResourceBindFlags flags)
+SPtr<Texture> Texture::CreateCube(int32 width, int32 height, ResourceFormat format, int32 arrayLayers, int32 mipLevels, const void *data, ResourceBindFlags flags)
 {
     flags = UpdateBindFlags(flags, data != nullptr, mipLevels, format);
     return Create(width, height, 1, format, ResourceType::TextureCube, arrayLayers, mipLevels, 1, data, flags);
 }
 
-SPtr<Texture> Texture::Create2DMS(uint32 width, uint32 height, ResourceFormat format, uint32 sampleCount, uint32 arrayLayers, ResourceBindFlags flags)
+SPtr<Texture> Texture::Create2DMS(int32 width, int32 height, ResourceFormat format, int32 sampleCount, int32 arrayLayers, ResourceBindFlags flags)
 {
     flags = UpdateBindFlags(flags, false, 1, format);
     return Create(width, height, 1, format, ResourceType::Texture2DMultisample, arrayLayers, 1, sampleCount, nullptr, flags);
 }
 
-Texture::Texture(uint32 width, uint32 height, uint32 depth, uint32 arrayLayers, uint32 mipLevels, uint32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags)
+Texture::Texture(int32 width, int32 height, int32 depth, int32 arrayLayers, int32 mipLevels, int32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags)
     : Resource(resourceType, flags, 0), width(width), height(height), depth(depth), arrayLayers(arrayLayers), mipLevels(mipLevels), sampleCount(sampleCount), format(format)
 {
     CT_CHECK(width > 0 && height > 0 && depth > 0);
@@ -64,7 +64,7 @@ void Texture::ClearViews()
     dsvs.Clear();
 }
 
-SPtr<ResourceView> Texture::GetSrv(uint32 mostDetailedMip, uint32 mipLevels, uint32 firstArraySlice, uint32 arrayLayers)
+SPtr<ResourceView> Texture::GetSrv(int32 mostDetailedMip, int32 mipLevels, int32 firstArraySlice, int32 arrayLayers)
 {
     CheckViewParams(mostDetailedMip, mipLevels, firstArraySlice, arrayLayers);
 
@@ -79,10 +79,10 @@ SPtr<ResourceView> Texture::GetSrv(uint32 mostDetailedMip, uint32 mipLevels, uin
     return newView;
 }
 
-SPtr<ResourceView> Texture::GetUav(uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers)
+SPtr<ResourceView> Texture::GetUav(int32 mipLevel, int32 firstArraySlice, int32 arrayLayers)
 {
-    uint32 mostDetailedMip = mipLevel;
-    uint32 mipLevels = 1;
+    int32 mostDetailedMip = mipLevel;
+    int32 mipLevels = 1;
 
     CheckViewParams(mostDetailedMip, mipLevels, firstArraySlice, arrayLayers);
 
@@ -97,10 +97,10 @@ SPtr<ResourceView> Texture::GetUav(uint32 mipLevel, uint32 firstArraySlice, uint
     return newView;
 }
 
-SPtr<ResourceView> Texture::GetRtv(uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers)
+SPtr<ResourceView> Texture::GetRtv(int32 mipLevel, int32 firstArraySlice, int32 arrayLayers)
 {
-    uint32 mostDetailedMip = mipLevel;
-    uint32 mipLevels = 1;
+    int32 mostDetailedMip = mipLevel;
+    int32 mipLevels = 1;
 
     CheckViewParams(mostDetailedMip, mipLevels, firstArraySlice, arrayLayers);
 
@@ -115,10 +115,10 @@ SPtr<ResourceView> Texture::GetRtv(uint32 mipLevel, uint32 firstArraySlice, uint
     return newView;
 }
 
-SPtr<ResourceView> Texture::GetDsv(uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers)
+SPtr<ResourceView> Texture::GetDsv(int32 mipLevel, int32 firstArraySlice, int32 arrayLayers)
 {
-    uint32 mostDetailedMip = mipLevel;
-    uint32 mipLevels = 1;
+    int32 mostDetailedMip = mipLevel;
+    int32 mipLevels = 1;
 
     CheckViewParams(mostDetailedMip, mipLevels, firstArraySlice, arrayLayers);
 
@@ -133,16 +133,16 @@ SPtr<ResourceView> Texture::GetDsv(uint32 mipLevel, uint32 firstArraySlice, uint
     return newView;
 }
 
-uint32 Texture::GetMaxMipLevel(uint32 width, uint32 height, uint32 depth) const
+int32 Texture::GetMaxMipLevel(int32 width, int32 height, int32 depth) const
 {
     auto dim = Math::Max(width, height, depth);
-    return (uint32)Math::Log2((float)dim);
+    return (int32)Math::Log2((float)dim);
 }
 
-void Texture::CheckViewParams(uint32 &mostDetailedMip, uint32 &mipLevels, uint32 &firstArraySlice, uint32 &arrayLayers) const
+void Texture::CheckViewParams(int32 &mostDetailedMip, int32 &mipLevels, int32 &firstArraySlice, int32 &arrayLayers) const
 {
-    const uint32 texMipLevels = this->mipLevels;
-    const uint32 texArrayLayers = this->arrayLayers;
+    const int32 texMipLevels = this->mipLevels;
+    const int32 texArrayLayers = this->arrayLayers;
 
     if (mostDetailedMip >= texMipLevels)
     {
@@ -150,7 +150,7 @@ void Texture::CheckViewParams(uint32 &mostDetailedMip, uint32 &mipLevels, uint32
         mostDetailedMip = mipLevels - 1;
     }
 
-    if (mipLevels == UINT32_MAX)
+    if (mipLevels == -1)
     {
         mipLevels = texMipLevels - mostDetailedMip;
     }
@@ -166,7 +166,7 @@ void Texture::CheckViewParams(uint32 &mostDetailedMip, uint32 &mipLevels, uint32
         firstArraySlice = texArrayLayers - 1;
     }
 
-    if (arrayLayers == UINT32_MAX)
+    if (arrayLayers == -1)
     {
         arrayLayers = texArrayLayers - firstArraySlice;
     }
@@ -179,9 +179,9 @@ void Texture::CheckViewParams(uint32 &mostDetailedMip, uint32 &mipLevels, uint32
 
 void Texture::GenerateMips(RenderContext *ctx)
 {
-    for (uint32 m = 0; m < mipLevels - 1; ++m)
+    for (int32 m = 0; m < mipLevels - 1; ++m)
     {
-        for (uint32 a = 0; a < arrayLayers; ++a)
+        for (int32 a = 0; a < arrayLayers; ++a)
         {
             auto srv = GetSrv(m, 1, a, 1);
             auto rtv = GetRtv(m + 1, a, 1);

@@ -23,7 +23,7 @@ GraphicsState::GraphicsState()
     }
 }
 
-void GraphicsState::SetViewport(uint32 index, const Viewport &viewport, bool setScissor)
+void GraphicsState::SetViewport(int32 index, const Viewport &viewport, bool setScissor)
 {
     viewports[index] = viewport;
 
@@ -34,18 +34,18 @@ void GraphicsState::SetViewport(uint32 index, const Viewport &viewport, bool set
     }
 }
 
-void GraphicsState::SetScissor(uint32 index, const Scissor &scissor)
+void GraphicsState::SetScissor(int32 index, const Scissor &scissor)
 {
     scissors[index] = scissor;
 }
 
-void GraphicsState::PushViewport(uint32 index, const Viewport &viewport, bool setScissor)
+void GraphicsState::PushViewport(int32 index, const Viewport &viewport, bool setScissor)
 {
     viewportStacks[index].Add(viewports[index]);
     SetViewport(index, viewport, setScissor);
 }
 
-void GraphicsState::PopViewport(uint32 index, bool setScissor)
+void GraphicsState::PopViewport(int32 index, bool setScissor)
 {
     if(viewportStacks[index].IsEmpty())
     {
@@ -57,13 +57,13 @@ void GraphicsState::PopViewport(uint32 index, bool setScissor)
     viewportStacks[index].RemoveLast();
 }
 
-void GraphicsState::PushScissor(uint32 index, const Scissor &scissor)
+void GraphicsState::PushScissor(int32 index, const Scissor &scissor)
 {
     scissorStacks[index].Add(scissors[index]);
     SetScissor(index, scissor);
 }
 
-void GraphicsState::PopScissor(uint32 index)
+void GraphicsState::PopScissor(int32 index)
 {
     if(scissorStacks[index].IsEmpty())
     {
@@ -81,8 +81,8 @@ void GraphicsState::SetFrameBuffer(const SPtr<FrameBuffer> &fbo, bool setVp0Sc0)
 
     if(setVp0Sc0 && fbo)
     {
-        uint32 w = fbo->GetWidth();
-        uint32 h = fbo->GetHeight();
+        int32 w = fbo->GetWidth();
+        int32 h = fbo->GetHeight();
         Viewport viewport = {0.0f, 0.0f, (float)w, (float)h, 0.0f, 1.0f};
         SetViewport(0, viewport, true);
     }

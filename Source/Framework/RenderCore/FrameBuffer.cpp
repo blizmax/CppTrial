@@ -15,7 +15,7 @@ static ResourceBindFlags GetBindFlags(bool isDepth, bool allowUav)
     return flags;
 }
 
-SPtr<Texture> CreateTexture2D(uint32 w, uint32 h, ResourceFormat format, uint32 sampleCount, uint32 arrayLayers, uint32 mipLevels, ResourceBindFlags flags)
+SPtr<Texture> CreateTexture2D(int32 w, int32 h, ResourceFormat format, int32 sampleCount, int32 arrayLayers, int32 mipLevels, ResourceBindFlags flags)
 {
     CT_CHECK(format != ResourceFormat::Unknown);
 
@@ -46,16 +46,15 @@ SPtr<FrameBuffer> FrameBuffer::Create(const Array<SPtr<Texture>> &colors, const 
     return ptr;
 }
 
-SPtr<FrameBuffer> FrameBuffer::Create2D(uint32 width, uint32 height, const FrameBufferDesc &desc, uint32 arrayLayers, uint32 mipLevels)
+SPtr<FrameBuffer> FrameBuffer::Create2D(int32 width, int32 height, const FrameBufferDesc &desc, int32 arrayLayers, int32 mipLevels)
 {
-    CT_CHECK(width != 0);
-    CT_CHECK(height != 0);
-    CT_CHECK(arrayLayers != 0);
-    CT_CHECK(mipLevels != 0);
+    CT_CHECK(width > 0);
+    CT_CHECK(height > 0);
+    CT_CHECK(arrayLayers > 0);
+    CT_CHECK(mipLevels > 0);
+    CT_CHECK(desc.sampleCount >= 0);
     if(desc.sampleCount > 1)
-    {
         CT_CHECK(mipLevels == 1);
-    }
 
     auto ptr = FrameBuffer::Create();
     for(const auto &e : desc.colors)
@@ -75,12 +74,12 @@ SPtr<FrameBuffer> FrameBuffer::Create2D(uint32 width, uint32 height, const Frame
     return ptr;
 }
 
-SPtr<FrameBuffer> FrameBuffer::CreateCubemap(uint32 width, uint32 height, const FrameBufferDesc& desc, uint32 arrayLayers, uint32 mipLevels)
+SPtr<FrameBuffer> FrameBuffer::CreateCubemap(int32 width, int32 height, const FrameBufferDesc& desc, int32 arrayLayers, int32 mipLevels)
 {
-    CT_CHECK(width != 0);
-    CT_CHECK(height != 0);
-    CT_CHECK(arrayLayers != 0);
-    CT_CHECK(mipLevels != 0);
+    CT_CHECK(width > 0);
+    CT_CHECK(height > 0);
+    CT_CHECK(arrayLayers > 0);
+    CT_CHECK(mipLevels > 0);
     CT_CHECK(desc.sampleCount == 1);
 
     auto ptr = FrameBuffer::Create();
@@ -101,7 +100,7 @@ SPtr<FrameBuffer> FrameBuffer::CreateCubemap(uint32 width, uint32 height, const 
     return ptr;
 }
 
-void FrameBuffer::AddColorAttachment(const SPtr<Texture> &texture, uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers)
+void FrameBuffer::AddColorAttachment(const SPtr<Texture> &texture, int32 mipLevel, int32 firstArraySlice, int32 arrayLayers)
 {
     if(colorAttachments.Count() >= COLOR_ATTCHMENT_MAX_NUM)
     {
@@ -122,7 +121,7 @@ void FrameBuffer::AddColorAttachment(const SPtr<Texture> &texture, uint32 mipLev
     desc.colors.Add(attachmentDesc);
 }
 
-void FrameBuffer::SetDepthStencilAttachment(const SPtr<Texture> &texture, uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers)
+void FrameBuffer::SetDepthStencilAttachment(const SPtr<Texture> &texture, int32 mipLevel, int32 firstArraySlice, int32 arrayLayers)
 {
     //TODO Check params
     Attachment attachment = {};

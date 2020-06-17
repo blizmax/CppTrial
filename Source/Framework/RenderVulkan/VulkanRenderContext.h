@@ -16,14 +16,14 @@ public:
     void ClearRtv(const ResourceView *rtv, const Color &color);
     void ClearDsv(const ResourceView *dsv, float depth, uint8 stencil, bool clearDepth, bool clearStencil);
     void ClearTexture(Texture *texture, const Color &color);
-    void Draw(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 firstVertex);
-    void DrawInstanced(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 instanceCount, uint32 firstVertex, uint32 firstInstance);
-    void DrawIndexed(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 firstIndex, int32 vertexOffset);
-    void DrawIndexedInstanced(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 instanceCount, uint32 firstIndex, int32 vertexOffset, uint32 firstInstance);
+    void Draw(GraphicsState *state, GraphicsVars *vars, int32 vertexCount, int32 firstVertex);
+    void DrawInstanced(GraphicsState *state, GraphicsVars *vars, int32 vertexCount, int32 instanceCount, int32 firstVertex, int32 firstInstance);
+    void DrawIndexed(GraphicsState *state, GraphicsVars *vars, int32 indexCount, int32 firstIndex, int32 vertexOffset);
+    void DrawIndexedInstanced(GraphicsState *state, GraphicsVars *vars, int32 indexCount, int32 instanceCount, int32 firstIndex, int32 vertexOffset, int32 firstInstance);
 
-    void Blit(ResourceView *srcSrv, ResourceView *dstRtv, const UVector4 &srcRect = UVector4(UINT32_MAX), const UVector4 &dstRect = UVector4(UINT32_MAX), TextureFilter filter = TextureFilter::Linear);
+    void Blit(ResourceView *srcSrv, ResourceView *dstRtv, const Vector4I &srcRect = Vector4I(-1), const Vector4I &dstRect = Vector4I(-1), TextureFilter filter = TextureFilter::Linear);
     void ResolveResource(Texture *src, Texture *dst);
-    void ResolveSubresource(Texture *src, uint32 srcSub, Texture *dst, uint32 dstSub);
+    void ResolveSubresource(Texture *src, int32 srcSub, Texture *dst, int32 dstSub);
 
     void SetBindFlags(GraphicsStateBindFlags flags)
     {
@@ -76,22 +76,22 @@ public:
         impl.CopyResource(dst, src);
     }
 
-    virtual void CopyBufferRegion(const Buffer *dst, uint32 dstOffset, const Buffer *src, uint32 srcOffset, uint32 size) override
+    virtual void CopyBufferRegion(const Buffer *dst, int32 dstOffset, const Buffer *src, int32 srcOffset, uint32 size) override
     {
         impl.CopyBufferRegion(dst, dstOffset, src, srcOffset, size);
     }
 
-    virtual void CopySubresource(const Texture *dst, uint32 dstSub, const Texture *src, uint32 srcSub) override
+    virtual void CopySubresource(const Texture *dst, int32 dstSub, const Texture *src, int32 srcSub) override
     {
         impl.CopySubresource(dst, dstSub, src, srcSub);
     }
 
-    virtual void CopySubresourceRegion(const Texture *dst, uint32 dstSub, const Texture *src, uint32 srcSub, const IVector3 &dstOffset, const IVector3 &srcOffset, const UVector3 &size) override
+    virtual void CopySubresourceRegion(const Texture *dst, int32 dstSub, const Texture *src, int32 srcSub, const Vector3I &dstOffset, const Vector3I &srcOffset, const Vector3I &size) override
     {
         impl.CopySubresourceRegion(dst, dstSub, src, srcSub, dstOffset, srcOffset, size);
     }
 
-    virtual void UpdateBuffer(const Buffer *buffer, const void *data, uint32 offset, uint32 size) override
+    virtual void UpdateBuffer(const Buffer *buffer, const void *data, int32 offset, uint32 size) override
     {
         impl.UpdateBuffer(buffer, data, offset, size);
     }
@@ -101,27 +101,27 @@ public:
         impl.UpdateTexture(texture, data);
     }
 
-    virtual void UpdateSubresource(const Texture *texture, uint32 subresource, const void *data, const IVector3 &offset, const UVector3 &size) override
+    virtual void UpdateSubresource(const Texture *texture, int32 subresource, const void *data, const Vector3I &offset, const Vector3I &size) override
     {
         impl.UpdateSubresource(texture, subresource, data, offset, size);
     }
 
-    virtual void UpdateSubresources(const Texture *texture, uint32 firstSub, uint32 subCount, const void *data) override
+    virtual void UpdateSubresources(const Texture *texture, int32 firstSub, int32 subCount, const void *data) override
     {
         impl.UpdateSubresources(texture, firstSub, subCount, data);
     }
 
-    virtual Array<uint8> ReadSubresource(const Texture *texture, uint32 subresource) override
+    virtual Array<uint8> ReadSubresource(const Texture *texture, int32 subresource) override
     {
         return impl.ReadSubresource(texture, subresource);
     }
 
-    virtual SPtr<ReadTextureTask> ReadSubresourceAsync(const Texture *texture, uint32 subresource) override
+    virtual SPtr<ReadTextureTask> ReadSubresourceAsync(const Texture *texture, int32 subresource) override
     {
         return impl.ReadSubresourceAsync(texture, subresource);
     }
 
-    virtual void Dispatch(ComputeState *state, ComputeVars *vars, const UVector3 &size) override
+    virtual void Dispatch(ComputeState *state, ComputeVars *vars, const Vector3U &size) override
     {
         impl.Dispatch(state, vars, size);
     }
@@ -136,7 +136,7 @@ public:
         impl.ClearUav(uav, value);
     }
 
-    virtual void ClearUav(const ResourceView *uav, const UVector4 &value) override
+    virtual void ClearUav(const ResourceView *uav, const Vector4U &value) override
     {
         impl.ClearUav(uav, value);
     }
@@ -166,27 +166,27 @@ public:
         impl.ClearTexture(texture, color);
     }
 
-    virtual void Draw(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 firstVertex) override
+    virtual void Draw(GraphicsState *state, GraphicsVars *vars, int32 vertexCount, int32 firstVertex) override
     {
         impl.Draw(state, vars, vertexCount, firstVertex);
     }
 
-    virtual void DrawInstanced(GraphicsState *state, GraphicsVars *vars, uint32 vertexCount, uint32 instanceCount, uint32 firstVertex, uint32 firstInstance) override
+    virtual void DrawInstanced(GraphicsState *state, GraphicsVars *vars, int32 vertexCount, int32 instanceCount, int32 firstVertex, int32 firstInstance) override
     {
         impl.DrawInstanced(state, vars, vertexCount, instanceCount, firstVertex, firstInstance);
     }
     
-    virtual void DrawIndexed(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 firstIndex, int32 vertexOffset) override
+    virtual void DrawIndexed(GraphicsState *state, GraphicsVars *vars, int32 indexCount, int32 firstIndex, int32 vertexOffset) override
     {
         impl.DrawIndexed(state, vars, indexCount, firstIndex, vertexOffset);
     }
 
-    virtual void DrawIndexedInstanced(GraphicsState *state, GraphicsVars *vars, uint32 indexCount, uint32 instanceCount, uint32 firstIndex, int32 vertexOffset, uint32 firstInstance) override
+    virtual void DrawIndexedInstanced(GraphicsState *state, GraphicsVars *vars, int32 indexCount, int32 instanceCount, int32 firstIndex, int32 vertexOffset, int32 firstInstance) override
     {
         impl.DrawIndexedInstanced(state, vars, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
     }
 
-    virtual void Blit(ResourceView *srcSrv, ResourceView *dstRtv, const UVector4 &srcRect, const UVector4 &dstRect, TextureFilter filter) override
+    virtual void Blit(ResourceView *srcSrv, ResourceView *dstRtv, const Vector4I &srcRect, const Vector4I &dstRect, TextureFilter filter) override
     {
         impl.Blit(srcSrv, dstRtv, srcRect, dstRect, filter);
     }
@@ -196,7 +196,7 @@ public:
         impl.ResolveResource(src, dst);
     }
 
-    virtual void ResolveSubresource(Texture *src, uint32 srcSub, Texture *dst, uint32 dstSub) override
+    virtual void ResolveSubresource(Texture *src, int32 srcSub, Texture *dst, int32 dstSub) override
     {
         impl.ResolveSubresource(src, srcSub, dst, dstSub);
     }

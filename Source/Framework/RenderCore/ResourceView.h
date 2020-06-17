@@ -11,22 +11,22 @@ class Texture;
 
 struct ResourceViewInfo
 {
-    uint32 firstElement = 0;
-    uint32 elementCount = UINT32_MAX;
+    int32 firstElement = 0;
+    int32 elementCount = -1;
 
-    uint32 mostDetailedMip = 0;
-    uint32 mipLevels = UINT32_MAX;
-    uint32 firstArraySlice = 0;
-    uint32 arrayLayers = UINT32_MAX;
+    int32 mostDetailedMip = 0;
+    int32 mipLevels = -1;
+    int32 firstArraySlice = 0;
+    int32 arrayLayers = -1;
 
     ResourceViewInfo() = default;
 
-    ResourceViewInfo(uint32 firstElement, uint32 elementCount)
+    ResourceViewInfo(int32 firstElement, int32 elementCount)
         : firstElement(firstElement), elementCount(elementCount)
     {
     }
 
-    ResourceViewInfo(uint32 mostDetailedMip, uint32 mipLevels, uint32 firstArraySlice, uint32 arrayLayers)
+    ResourceViewInfo(int32 mostDetailedMip, int32 mipLevels, int32 firstArraySlice, int32 arrayLayers)
         : mostDetailedMip(mostDetailedMip), mipLevels(mipLevels), firstArraySlice(firstArraySlice), arrayLayers(arrayLayers)
     {
     }
@@ -45,12 +45,12 @@ struct ResourceViewInfo
 class ResourceView
 {
 public:
-    ResourceView(const WPtr<Resource> &resource, uint32 firstElement, uint32 elementCount)
+    ResourceView(const WPtr<Resource> &resource, int32 firstElement, int32 elementCount)
         :resource(resource), viewInfo(firstElement, elementCount)
     {
     }
 
-    ResourceView(const WPtr<Resource> &resource, uint32 mostDetailedMip, uint32 mipLevels, uint32 firstArraySlice, uint32 arrayLayers)
+    ResourceView(const WPtr<Resource> &resource, int32 mostDetailedMip, int32 mipLevels, int32 firstArraySlice, int32 arrayLayers)
         : resource(resource), viewInfo(mostDetailedMip, mipLevels, firstArraySlice, arrayLayers)
     {
     }
@@ -67,14 +67,14 @@ public:
         return resource.lock().get();
     }
 
-    static SPtr<ResourceView> CreateSrv(const SPtr<Buffer> &buffer, uint32 first, uint32 count);
-    static SPtr<ResourceView> CreateUav(const SPtr<Buffer> &buffer, uint32 first, uint32 count);
+    static SPtr<ResourceView> CreateSrv(const SPtr<Buffer> &buffer, int32 first, int32 count);
+    static SPtr<ResourceView> CreateUav(const SPtr<Buffer> &buffer, int32 first, int32 count);
     static SPtr<ResourceView> CreateCbv(const SPtr<Buffer> &buffer);
 
-    static SPtr<ResourceView> CreateSrv(const SPtr<Texture> &texture, uint32 mostDetailedMip, uint32 mipLevels, uint32 firstArraySlice, uint32 arrayLayers);
-    static SPtr<ResourceView> CreateUav(const SPtr<Texture> &texture, uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers);
-    static SPtr<ResourceView> CreateRtv(const SPtr<Texture> &texture, uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers);
-    static SPtr<ResourceView> CreateDsv(const SPtr<Texture> &texture, uint32 mipLevel, uint32 firstArraySlice, uint32 arrayLayers);
+    static SPtr<ResourceView> CreateSrv(const SPtr<Texture> &texture, int32 mostDetailedMip, int32 mipLevels, int32 firstArraySlice, int32 arrayLayers);
+    static SPtr<ResourceView> CreateUav(const SPtr<Texture> &texture, int32 mipLevel, int32 firstArraySlice, int32 arrayLayers);
+    static SPtr<ResourceView> CreateRtv(const SPtr<Texture> &texture, int32 mipLevel, int32 firstArraySlice, int32 arrayLayers);
+    static SPtr<ResourceView> CreateDsv(const SPtr<Texture> &texture, int32 mipLevel, int32 firstArraySlice, int32 arrayLayers);
 
 protected:
     ResourceViewInfo viewInfo;

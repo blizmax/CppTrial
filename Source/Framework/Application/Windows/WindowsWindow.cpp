@@ -268,28 +268,28 @@ void WindowsWindow::ProcessFilesDropped(Array<String> &&paths)
     fileDroppedHandler(event);
 }
 
-uint32 WindowsWindow::GetPositionX() const
+int32 WindowsWindow::GetPositionX() const
 {
     POINT pos = {0, 0};
     ClientToScreen(hwnd, &pos);
     return pos.x;
 }
 
-uint32 WindowsWindow::GetPositionY() const
+int32 WindowsWindow::GetPositionY() const
 {
     POINT pos = {0, 0};
     ClientToScreen(hwnd, &pos);
     return pos.y;
 }
 
-uint32 WindowsWindow::GetWidth() const
+int32 WindowsWindow::GetWidth() const
 {
     RECT area;
     GetClientRect(hwnd, &area);
     return area.right;
 }
 
-uint32 WindowsWindow::GetHeight() const
+int32 WindowsWindow::GetHeight() const
 {
     RECT area;
     GetClientRect(hwnd, &area);
