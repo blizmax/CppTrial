@@ -1,14 +1,19 @@
-#type vertex
-#version 330 core
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
 
+layout(binding = 0) uniform UB
+{
+    mat4 Model;
+    mat4 View;
+    mat4 Projection;
+    float Time;
+};
+
+#type vertex
 layout(location = 0) in vec3 VertexPosition;
 layout(location = 1) in vec2 VertexUV;
 
-out vec2 UV;
-
-uniform mat4 Model;
-uniform mat4 View;
-uniform mat4 Projection;
+layout(location = 0) out vec2 UV;
 
 void main()
 {
@@ -17,13 +22,12 @@ void main()
 }
 
 #type fragment
-#version 330 core
-
 layout(location = 0) out vec4 FragmentColor;
 
-in vec2 UV;
+layout(location = 0) in vec2 UV;
 
-uniform sampler2D Texture;
+layout(binding = 1) uniform sampler Sampler;
+layout(binding = 2) uniform texture2D Texture;
 
 float Smooth(vec2 p, vec2 p0, vec2 p1)
 {
@@ -152,6 +156,8 @@ float Axis(vec2 p)
 
 void main()
 {
+    vec4 dummy = texture(sampler2D(Texture, Sampler), UV);
+
     vec2 uv = (UV - 0.5) * 9.7;
     vec2 p0 = uv;
     vec2 p1 = uv + 0.0001;

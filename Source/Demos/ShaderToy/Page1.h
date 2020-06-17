@@ -9,14 +9,4 @@ public:
     {
         return CT_TEXT("Builtin Functions");
     }
-
-    virtual void OnImGuiDraw() override
-    {
-        
-    }
-
-    virtual void OnShaderUpdate(SPtr<Shader> &shader) override
-    {
-
-    }
 };

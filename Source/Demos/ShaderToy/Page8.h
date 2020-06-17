@@ -22,10 +22,11 @@ public:
         ImGui::ColorEdit3("CloudColor", &cloudColor[0]);
     }
 
-    virtual void OnShaderUpdate(SPtr<Shader> &shader) override
+    virtual void OnShaderUpdate(SPtr<GraphicsVars> &vars) override
     {
-        shader->SetColor("SkyColor", skyColor);
-        shader->SetColor("MoonColor", moonColor);
-        shader->SetColor("CloudColor", cloudColor);
+        auto rootVar = vars->Root();
+        rootVar[CT_TEXT("SkyColor")] = skyColor;
+        rootVar[CT_TEXT("MoonColor")] = moonColor;
+        rootVar[CT_TEXT("CloudColor")] = cloudColor;
     }
 };

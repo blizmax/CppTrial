@@ -17,8 +17,8 @@ public:
         ImGui::SliderFloat("Progress", &progress, 0.0f, 1.0f);
     }
 
-    virtual void OnShaderUpdate(SPtr<Shader> &shader) override
+    virtual void OnShaderUpdate(SPtr<GraphicsVars> &vars) override
     {
-        shader->SetFloat(CT_TEXT("Progress"), progress);
+        vars->Root()[CT_TEXT("Progress")] = progress;
     }
 };

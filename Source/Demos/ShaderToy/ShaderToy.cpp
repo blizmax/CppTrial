@@ -1,13 +1,12 @@
 #include "Application/Application.h"
 #include "Application/ThreadManager.h"
 #include "Application/ImGuiLab.h"
-#include "Render/Shader.h"
-#include "Render/RenderAPI.h"
-#include "Render/OrthographicCameraController.h"
-#include "Render/VertexArray.h"
-#include "Render/Texture.h"
 #include "IO/FileWatcher.h"
 #include "Core/Thread.h"
+#include "Render/OrthographicCameraController.h"
+#include "Render/ImageLoader.h"
+#include "RenderCore/RenderAPI.h"
+#include "Render/RenderManager.h"
 #include "Demos/ShaderToy/Page1.h"
 #include "Demos/ShaderToy/Page2.h"
 #include "Demos/ShaderToy/Page3.h"
@@ -17,12 +16,21 @@
 #include "Demos/ShaderToy/Page7.h"
 #include "Demos/ShaderToy/Page8.h"
 
+using namespace RenderCore;
+
 class ShaderToy : public Logic
 {
 private:
-    SPtr<VertexArray> vertexArray;
-    SPtr<Shader> shader;
+    SPtr<GraphicsState> state;
+    SPtr<VertexArray> vao;
+    SPtr<RasterizationState> rasterizationState;
+    SPtr<DepthStencilState> depthStencilState;
+    SPtr<BlendState> blendState;
     SPtr<Texture> texture;
+    SPtr<Sampler> sampler;
+    SPtr<Program> program;
+    SPtr<GraphicsVars> vars;
+
     OrthographicCameraController cameraController;
 
     UPtr<IO::FileWatcher> watcher;
@@ -96,8 +104,6 @@ public:
         });
 
         window.windowResizedHandler.On([this](auto &event) {
-            RenderAPI::SetViewport(0, 0, event.width, event.height);
-
             cameraController.OnWindowResized(event);
         });
 
@@ -124,34 +130,60 @@ public:
             ImGui::End();
         });
 
-        float vertexData[] =
-            {
-                -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-                0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-                0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
-                -0.5f, 0.5f, 0.0f, 0.0f, 1.0f};
 
-        uint32 indexData[] =
-            {
-                0, 1, 2,
-                2, 3, 0};
+        state = GraphicsState::Create();
 
-        auto vertexBuffer = VertexBuffer::Create(vertexData, sizeof(vertexData));
-        vertexBuffer->SetLayout({
-            {CT_TEXT("Position"), VertexDataType::Float3},
-            {CT_TEXT("UV"), VertexDataType::Float2},
-        });
+        auto vertexBufferLayout = VertexBufferLayout::Create({{CT_TEXT("VertexPosition"), ResourceFormat::RGB32Float},
+                                                              {CT_TEXT("VertexUV"), ResourceFormat::RG32Float}});
+        auto vertexLayout = VertexLayout::Create();
+        vertexLayout->AddBufferLayout(vertexBufferLayout);
 
-        auto indexBuffer = IndexBuffer::Create(indexData, 6);
+        float vertices[] = {
+            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+            0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+            0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
+            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f};
+        auto vbo = Buffer::Create(sizeof(vertices), ResourceBind::Vertex, CpuAccess::None, vertices);
 
-        vertexArray = VertexArray::Create();
-        vertexArray->AddVertexBuffer(vertexBuffer);
-        vertexArray->SetIndexBuffer(indexBuffer);
+        uint32 indices[] = {
+            0, 1, 2, 2, 3, 0};
+        auto ibo = Buffer::Create(sizeof(indices), ResourceBind::Index, CpuAccess::None, indices);
 
-        //texture = Texture::Create(CT_TEXT("Assets/Textures/wheel.png"));
-        auto pixmap = Pixmap::Create(100, 100);
-        pixmap->Fill(Color::GREEN);
-        texture = Texture::Create(pixmap);
+        vao = VertexArray::Create();
+        vao->SetVertexLayout(vertexLayout);
+        vao->AddVertexBuffer(vbo);
+        vao->SetIndexBuffer(ibo);
+
+        {
+            RasterizationStateDesc desc;
+            rasterizationState = RasterizationState::Create(desc);
+        }
+        {
+            DepthStencilStateDesc desc;
+            desc.depthReadEnabled = false;
+            desc.depthWriteEnabled = false;
+            depthStencilState = DepthStencilState::Create(desc);
+        }
+        {
+            BlendStateDesc desc;
+            desc.attachments.SetCount(1);
+            desc.attachments[0].enabled = true;
+            blendState = BlendState::Create(desc);
+        }
+
+        state->SetVertexArray(vao);
+        state->SetRasterizationState(rasterizationState);
+        state->SetDepthStencilState(depthStencilState);
+        state->SetBlendState(blendState);
+
+        {
+            sampler = Sampler::Create(SamplerDesc());
+            int32 w, h, c;
+            void *data = ImageLoader::Load(CT_TEXT("Assets/Textures/test.png"), w, h, c);
+            CT_CHECK(data);
+            texture = Texture::Create2D(w, h, ResourceFormat::RGBA8Unorm, 1, 1, data);
+            ImageLoader::Free(data);
+        }
 
         watcher = Memory::MakeUnique<IO::FileWatcher>(
             CT_TEXT("Assets/Shaders"),
@@ -186,38 +218,36 @@ public:
         cameraController.Update();
         auto camera = cameraController.GetCamera();
 
-        RenderAPI::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        RenderAPI::Clear();
-
         if (reloadShader)
         {
             reloadShader = false;
-            shader = Shader::Create(String::Format(CT_TEXT("{0}Shader{1}.glsl"), page->GetShaderDirectory(), pageIndex + 1));
+
+            program = Program::Create(String::Format(CT_TEXT("{0}Shader{1}.glsl"), page->GetShaderDirectory(), pageIndex + 1));
+            vars = GraphicsVars::Create(program);
+            state->SetProgram(program);
+
+            vars->Root()[CT_TEXT("Sampler")] = sampler;
+            vars->Root()[CT_TEXT("Texture")] = texture;
         }
 
-        shader->Bind();
-        page->OnShaderUpdate(shader);
+        page->OnShaderUpdate(vars);
 
         float factor = 3.0f;
         //Matrix4 rotateMat = Matrix4::Rotate(0.0f, 0.0f, 30.0f * Math::DEG_TO_RAD);
         Matrix4 rotateMat = Matrix4();
         Matrix4 scaleMat = Matrix4::Scale(texture->GetWidth() * factor, texture->GetHeight() * factor, 1.0f);
-
-        shader->SetMatrix4(CT_TEXT("Model"), scaleMat * rotateMat);
-        shader->SetMatrix4(CT_TEXT("View"), camera->view);
-        shader->SetMatrix4(CT_TEXT("Projection"), camera->projection);
-        shader->SetInt(CT_TEXT("Texture"), 0);
+        auto ubuffer = vars->Root()[CT_TEXT("UB")];
+        ubuffer[CT_TEXT("Model")] = scaleMat * rotateMat;
+        ubuffer[CT_TEXT("View")] = camera->view;
+        ubuffer[CT_TEXT("Projection")] = camera->projection;
 
         static float totalTime = 0.0f;
         totalTime += gApp->GetDeltaTime();
-        shader->SetFloat(CT_TEXT("Time"), totalTime);
+        ubuffer[CT_TEXT("Time")] = totalTime;
 
-        texture->Bind(0);
-        vertexArray->Bind();
-
-        RenderAPI::DrawIndexed(vertexArray);
-
-        vertexArray->Unbind();
+        auto ctx = gRenderManager->GetRenderContext();
+        state->SetFrameBuffer(gRenderManager->GetTargetFrameBuffer());
+        ctx->DrawIndexed(state.get(), vars.get(), 6, 0, 0);
     }
 };
 

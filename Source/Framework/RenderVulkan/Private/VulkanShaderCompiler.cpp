@@ -1,4 +1,6 @@
 #define CT_RENDER_CORE_PROGRAM_REFLECTION_IMPLEMENT
+#define CT_DUMP_REFLECTION_ENABLED 0
+
 #include "RenderVulkan/Private/VulkanShaderCompiler.h"
 #include <glslang/public/ShaderLang.h>
 #include <SPIRV/GlslangToSpv.h>
@@ -343,8 +345,8 @@ static SPtr<ReflectionStructType> ParseStructType(const glslang::TType *blockTyp
 
     int32 offset = baseOffset;
     int32 totalSize = 0;
-    const auto &memberTypes = *(ttype->getStruct());
-    for (const auto &e : memberTypes)
+    auto &memberTypes = *(ttype->getStruct());
+    for (auto &e : memberTypes)
     {
         auto memberType = e.type;
         String memberName = memberType->getFieldName().c_str();
@@ -382,9 +384,9 @@ static SPtr<ReflectionVar> ParseSamplerVar(const String &name, const glslang::TO
 {
     SPtr<ReflectionVar> result;
 
-    const auto ttype = obj.getType();
-    const auto &sampler = ttype->getSampler();
-    const auto &qualifier = ttype->getQualifier();
+    auto ttype = obj.getType();
+    auto &sampler = ttype->getSampler();
+    auto &qualifier = ttype->getQualifier();
 
     CT_CHECK(qualifier.hasBinding());
     CT_CHECK(!sampler.isCombined());
@@ -457,8 +459,8 @@ static SPtr<ReflectionVar> ParseBlockVar(const String &name, const glslang::TObj
 {
     SPtr<ReflectionVar> result;
 
-    const auto ttype = obj.getType();
-    const auto &qualifier = ttype->getQualifier();
+    auto ttype = obj.getType();
+    auto &qualifier = ttype->getQualifier();
 
     CT_CHECK(qualifier.hasBinding());
 
@@ -502,10 +504,10 @@ static void ParseReflection(const glslang::TProgram &program, const ProgramRefle
 
     for (int32 i = 0; i < program.getNumUniformVariables(); ++i)
     {
-        const auto &obj = program.getUniform(i);
+        auto &obj = program.getUniform(i);
         String name = obj.name.c_str();
-        const auto ttype = program.getUniformTType(i);
-        const auto &qualifier = ttype->getQualifier();
+        auto ttype = program.getUniformTType(i);
+        auto &qualifier = ttype->getQualifier();
         auto basicType = ttype->getBasicType();
 
         if (basicType == glslang::EbtSampler) // sampler texture type
@@ -535,10 +537,10 @@ static void ParseReflection(const glslang::TProgram &program, const ProgramRefle
 
     for (int32 i = 0; i < program.getNumUniformBlocks(); ++i)
     {
-        const auto &obj = program.getUniformBlock(i);
+        auto &obj = program.getUniformBlock(i);
         String name = obj.name.c_str();
-        const auto ttype = program.getUniformBlockTType(i);
-        const auto &qualifier = ttype->getQualifier();
+        auto ttype = program.getUniformBlockTType(i);
+        auto &qualifier = ttype->getQualifier();
 
         SPtr<ParameterBlockReflection> subBlockReflection;
         auto var = ParseBlockVar(name, obj, globalStruct->GetBindingRangeCount(), subBlockReflection);
@@ -560,15 +562,20 @@ static void ParseReflection(const glslang::TProgram &program, const ProgramRefle
 
     globalBlockReflection->Finalize();
 
+#if CT_DUMP_REFLECTION_ENABLED
     CT_LOG(Debug, CT_TEXT("Parse result:{0}"), globalStruct->ToString());
+#endif
 }
 
 bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModuleFunc &func, const ProgramReflectionBuilder &builder)
 {
     glslang::TProgram program;
+    DirStackFileIncluder includer;
+    includer.pushExternalLocalDirectory("Assets/Shaders/Vulkan/");
+
     Array<UPtr<glslang::TShader>> shaders;
 
-    for (const auto & e : desc.shaderDescs)
+    for (auto &e : desc.shaderDescs)
     {
         auto u8Str = StringEncode::UTF8::ToChars(e.source);
         char8 *cstr = u8Str.GetData();
@@ -582,7 +589,7 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
         shader->setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_0);
         shader->setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
 
-        if (!shader->parse(&DefaultTBuiltInResource, 100, true, EShMsgDefault))
+        if (!shader->parse(&DefaultTBuiltInResource, 100, true, EShMsgDefault, includer))
         {
             CT_LOG(Error, CT_TEXT("Parse error: {0}"), String(shader->getInfoLog()));
             CT_EXCEPTION(RenderCore, "Parse failed.");
@@ -602,10 +609,14 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
     //program.mapIO();
     program.buildReflection();
 
+#if CT_DUMP_REFLECTION_ENABLED
     CT_LOG(Debug, CT_TEXT("=============================Reflection Begin========================"));
     ParseReflection(program, builder);
-    CT_LOG(Debug, CT_TEXT("=============================Reflection End========================"));
+    CT_LOG(Debug, CT_TEXT("=============================Reflection End========================"));   
     //program.dumpReflection();
+#else
+    ParseReflection(program, builder);
+#endif
 
     glslang::SpvOptions spvOptions;
     spvOptions.generateDebugInfo = false;
@@ -613,7 +624,7 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
     spvOptions.disassemble = false;
     spvOptions.validate = false;
 
-    for (const auto &e : desc.shaderDescs)
+    for (auto &e : desc.shaderDescs)
     {
         std::vector<uint32> spv;
         auto stage = ToEShLanguage(e.shaderType);

@@ -9,12 +9,4 @@ public:
     {
         return CT_TEXT("Color Wheel(HSV)");
     }
-
-    virtual void OnImGuiDraw() override
-    {
-    }
-
-    virtual void OnShaderUpdate(SPtr<Shader> &shader) override
-    {
-    }
 };

@@ -26,12 +26,13 @@ private:
 
     SPtr<Program> CreateProgram()
     {
-        ProgramDesc desc;
-        IO::FileHandle vertSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.vert"));
-        IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.frag"));
-        desc.shaderDescs.Add({ShaderType::Vertex, vertSrcFile.ReadString()});
-        desc.shaderDescs.Add({ShaderType::Pixel, fragSrcFile.ReadString()});
-        return Program::Create(desc);
+        // ProgramDesc desc;
+        // IO::FileHandle vertSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.vert"));
+        // IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/LearnVK/shader.frag"));
+        // desc.shaderDescs.Add({ShaderType::Vertex, vertSrcFile.ReadString()});
+        // desc.shaderDescs.Add({ShaderType::Pixel, fragSrcFile.ReadString()});
+        // return Program::Create(desc);
+        return Program::Create(CT_TEXT("Assets/Shaders/LearnVK/shader.glsl"));
     }
 
 public:

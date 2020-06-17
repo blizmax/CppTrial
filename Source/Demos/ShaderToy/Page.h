@@ -1,14 +1,19 @@
 #pragma once
 
-#include "Render/Shader.h"
+#include "RenderCore/ProgramVars.h"
 
 class Page
 {
 public:
     virtual String GetName() = 0;
 
-    virtual void OnShaderUpdate(SPtr<Shader> &shader) = 0;
-    virtual void OnImGuiDraw() = 0;
+    virtual void OnShaderUpdate(SPtr<GraphicsVars> &vars)
+    {
+    }
+
+    virtual void OnImGuiDraw()
+    {
+    }
 
     static String GetShaderDirectory()
     {

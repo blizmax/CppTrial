@@ -77,6 +77,8 @@ public:
         return ptr;
     }
 
+    static SPtr<Program> Create(const String &path);
+
 private:
     SPtr<ProgramKernel> kernel;
 };

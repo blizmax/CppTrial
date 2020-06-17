@@ -9,6 +9,23 @@ layout(binding = 0) uniform UB
     vec4 tint;
 };
 
+
+#type vertex
+
+layout(location = 0) in vec3 VertexPosition;
+layout(location = 1) in vec2 VertexUV;
+
+layout(location = 0) out vec2 UV;
+
+void main() 
+{
+    gl_Position = vec4(VertexPosition, 1.0);
+    UV = VertexUV;
+}
+
+
+#type pixel
+
 layout(binding = 1) uniform sampler mainSampler;
 layout(binding = 2) uniform texture2D mainTexture;
 

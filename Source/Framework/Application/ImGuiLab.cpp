@@ -1,5 +1,4 @@
 #include "Application/ImGuiLab.h"
-#include "IO/FileHandle.h"
 #include "Render/OrthographicCamera.h"
 #include "Render/RenderManager.h"
 
@@ -140,12 +139,7 @@ void ImGuiLab::BindRenderer()
     ImGuiIO &io = ImGui::GetIO();
     io.BackendRendererName = "WIP";
 
-    ProgramDesc desc;
-    IO::FileHandle vertSrcFile(CT_TEXT("Assets/Shaders/Vulkan/imgui.vert"));
-    IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/Vulkan/imgui.frag"));
-    desc.shaderDescs.Add({ShaderType::Vertex, vertSrcFile.ReadString()});
-    desc.shaderDescs.Add({ShaderType::Pixel, fragSrcFile.ReadString()});
-    program = Program::Create(desc);
+    program = Program::Create(CT_TEXT("Assets/Shaders/Vulkan/ImGui.glsl"));
     programVars = GraphicsVars::Create(program);
     graphicsState = GraphicsState::Create();
     graphicsState->SetProgram(program);
