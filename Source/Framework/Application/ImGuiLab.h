@@ -2,7 +2,6 @@
 
 #include "Application/Application.h"
 #include "RenderCore/RenderAPI.h"
-#include "Render/.Package.h"
 #include <imgui.h>
 
 class ImGuiLab : public Module

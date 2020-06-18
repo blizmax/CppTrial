@@ -3,7 +3,7 @@
     "cmake.configureOnOpen": true,
 	"files.exclude": {
         "build": true,
-        //"Source/Legacy": true
+        "Source/Legacy": true
     },
     "files.associations": {
         "chrono": "cpp",

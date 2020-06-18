@@ -5,8 +5,6 @@
 #include "RenderCore/GpuQueue.h"
 #include "RenderVulkan/VulkanSync.h"
 
-namespace RenderCore
-{
 class VulkanDevice : public Device
 {
 public:
@@ -110,4 +108,3 @@ private:
 
     QueueData queueDatas[(int32)GpuQueueType::Count];
 };
-}

@@ -24,8 +24,6 @@ layout (std140) uniform ExampleBlock
 };
 */
 
-namespace RenderCore
-{
 const TBuiltInResource DefaultTBuiltInResource = {
     /* .MaxLights = */ 32,
     /* .MaxClipPlanes = */ 6,
@@ -649,6 +647,4 @@ VulkanShaderCompiler *CreateVulkanShaderCompiler(void)
 void DestroyVulkanShaderCompiler(VulkanShaderCompiler *compiler)
 {
     Memory::Delete(compiler);
-}
-
 }

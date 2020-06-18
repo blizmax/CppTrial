@@ -2,9 +2,6 @@
 #include "RenderVulkan/VulkanBuffer.h"
 #include "RenderVulkan/VulkanTexture.h"
 
-namespace RenderCore
-{
-
 SPtr<ComputeContext> ComputeContext::Create(const SPtr<GpuQueue> &queue)
 {
     return Memory::MakeShared<VulkanComputeContext>(queue);
@@ -119,6 +116,4 @@ bool VulkanComputeContextImpl::PrepareForDispatch(ComputeState *state, ComputeVa
 {
     //TODO
     return true;
-}
-
 }

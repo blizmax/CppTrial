@@ -8,12 +8,6 @@
 #include "RenderCore/Program.h"
 #include "Core/HashMap.h"
 
-namespace RenderCore
-{
-
-class CopyContext;
-class ShaderVar;
-
 class ParameterBlock
 {
 public:
@@ -201,5 +195,3 @@ private:
     ParameterBlock *block = nullptr;
     ShaderVarLocation location;
 };
-
-}

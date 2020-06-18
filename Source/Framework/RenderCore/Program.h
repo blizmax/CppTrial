@@ -3,9 +3,6 @@
 #include "RenderCore/RootSignature.h"
 #include "RenderCore/ProgramReflection.h"
 
-namespace RenderCore
-{
-
 struct ShaderDesc
 {
     ShaderType shaderType;
@@ -82,5 +79,3 @@ public:
 private:
     SPtr<ProgramKernel> kernel;
 };
-
-}

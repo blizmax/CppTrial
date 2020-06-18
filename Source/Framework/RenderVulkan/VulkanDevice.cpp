@@ -3,8 +3,6 @@
 #include "RenderVulkan/VulkanSync.h"
 #include "RenderVulkan/VulkanRenderContext.h"
 
-namespace RenderCore
-{
 SPtr<Device> Device::Create(RenderWindow *window, const DeviceDesc &desc)
 {
     return Memory::MakeShared<VulkanDevice>(window, desc);
@@ -380,5 +378,4 @@ int32 VulkanDevice::GetCurrentBackBufferIndex()
     //CT_CHECK(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR || result == VK_ERROR_OUT_OF_DATE_KHR);
     CT_CHECK(result == VK_SUCCESS);
     return imageIndex;
-}
 }

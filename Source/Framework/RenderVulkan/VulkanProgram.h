@@ -3,8 +3,6 @@
 #include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/Program.h"
 
-namespace RenderCore
-{
 class VulkanProgramKernel : public ProgramKernel
 {
 public:
@@ -30,5 +28,3 @@ public:
 private:
     Array<ShaderData> shaderDatas;
 };
-
-}

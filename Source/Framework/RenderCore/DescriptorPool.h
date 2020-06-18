@@ -2,9 +2,6 @@
 
 #include "RenderCore/GpuFence.h"
 
-namespace RenderCore
-{
-
 struct DescriptorPoolDesc
 {
     int32 descCount[(int32)DescriptorType::Count] = {0};
@@ -31,4 +28,3 @@ protected:
     DescriptorPoolDesc desc;
     SPtr<GpuFence> fence;
 };
-}

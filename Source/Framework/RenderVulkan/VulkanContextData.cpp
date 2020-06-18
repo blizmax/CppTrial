@@ -2,9 +2,6 @@
 #include "RenderVulkan/VulkanDevice.h"
 #include "RenderVulkan/VulkanGpuQueue.h"
 
-namespace RenderCore
-{
-
 SPtr<VulkanContextData> VulkanContextData::Create(const SPtr<GpuQueue> &gpuQueue)
 {
     return Memory::MakeShared<VulkanContextData>(gpuQueue);
@@ -84,6 +81,4 @@ void VulkanContextData::InitCommandBuffer()
         CT_EXCEPTION(RenderCore, "Begin command buffer failed.");
 
     recording = true;
-}
-
 }

@@ -5,9 +5,6 @@
 
 #include <vk_mem_alloc.h>
 
-namespace RenderCore
-{
- 
 class IVulkanResource
 {
 public:
@@ -40,4 +37,3 @@ public:
 private:
     HashSet<T *> resources;
 };
-}

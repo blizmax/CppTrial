@@ -2,9 +2,6 @@
 
 #include "RenderCore/.Package.h"
 
-namespace RenderCore
-{
-
 struct BlendStateDesc
 {
     struct AttachmentDesc
@@ -50,4 +47,3 @@ public:
 private:
     BlendStateDesc desc;
 };
-}

@@ -6,9 +6,6 @@
 #include "RenderVulkan/VulkanCopyContext.h"
 #include "RenderVulkan/VulkanRootSignature.h"
 
-namespace RenderCore
-{
-
 SPtr<DescriptorSet> DescriptorSet::Create(const SPtr<DescriptorPool> &pool, const SPtr<DescriptorSetLayout> &layout)
 {
     return Memory::MakeShared<VulkanDescriptorSet>(pool, layout);
@@ -166,6 +163,4 @@ void VulkanDescriptorSet::SetImageView(int32 binding, int32 index, const VulkanI
     write.pImageInfo = &info;
 
     vkUpdateDescriptorSets(gVulkanDevice->GetLogicalDeviceHandle(), 1, &write, 0, nullptr);
-}
-
 }

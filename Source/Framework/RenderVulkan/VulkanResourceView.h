@@ -3,8 +3,6 @@
 #include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/ResourceView.h"
 
-namespace RenderCore
-{
 class VulkanBufferView : public ResourceView
 {
 public:
@@ -34,5 +32,3 @@ public:
 private:    
     VkImageView imageView = VK_NULL_HANDLE;
 };
-
-}

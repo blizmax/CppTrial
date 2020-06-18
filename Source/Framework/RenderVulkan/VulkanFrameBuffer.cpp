@@ -2,8 +2,6 @@
 #include "RenderVulkan/VulkanResourceView.h"
 #include "RenderVulkan/VulkanDevice.h"
 
-namespace RenderCore
-{
 SPtr<FrameBuffer> FrameBuffer::Create()
 {
     return Memory::MakeShared<VulkanFrameBuffer>();
@@ -150,6 +148,4 @@ void VulkanFrameBuffer::CreateRenderPass()
 
     if (vkCreateRenderPass(gVulkanDevice->GetLogicalDeviceHandle(), &renderPassInfo, gVulkanAlloc, &renderPass) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create render pass failed.");
-}
-
 }

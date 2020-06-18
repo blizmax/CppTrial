@@ -2,11 +2,6 @@
 
 #include "RenderCore/Resource.h"
 
-namespace RenderCore
-{
-
-class RenderContext;
-
 class Texture : public Resource
 {
 public:
@@ -142,5 +137,3 @@ protected:
     Array<SPtr<ResourceView>> dsvs;
     WPtr<Texture> weakThis;
 };
-
-}

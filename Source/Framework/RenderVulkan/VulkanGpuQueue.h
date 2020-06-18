@@ -3,8 +3,6 @@
 #include "RenderCore/GpuQueue.h"
 #include "RenderVulkan/.Package.h"
 
-namespace RenderCore
-{
 class VulkanGpuQueue : public GpuQueue
 {
 public:
@@ -24,5 +22,3 @@ private:
     VkQueue queue = VK_NULL_HANDLE;
     GpuQueueType queueType;
 };
-
-}

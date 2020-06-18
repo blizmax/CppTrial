@@ -3,8 +3,6 @@
 #include "RenderCore/VertexLayout.h"
 #include "RenderCore/Buffer.h"
 
-namespace RenderCore
-{
 class VertexArray
 {
 public:
@@ -72,4 +70,3 @@ private:
     Topology topology = Topology::TriangleList;
     ResourceFormat indexBufferFormat = ResourceFormat::R32UInt;
 };
-}

@@ -2,8 +2,6 @@
 
 #include "RenderCore/.Package.h"
 
-namespace RenderCore
-{
 class VertexBufferLayout
 {
 public:
@@ -84,5 +82,3 @@ private:
     Array<SPtr<VertexBufferLayout>> bufferLayouts;
 
 };
-
-}

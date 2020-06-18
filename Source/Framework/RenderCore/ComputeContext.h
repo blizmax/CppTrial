@@ -5,9 +5,6 @@
 #include "RenderCore/ProgramVars.h"
 #include "Math/Vector4.h"
 
-namespace RenderCore
-{
-
 class ComputeContext : virtual public CopyContext
 {
 public:
@@ -21,5 +18,3 @@ public:
 
     static SPtr<ComputeContext> Create(const SPtr<GpuQueue> &queue);
 };
-
-}

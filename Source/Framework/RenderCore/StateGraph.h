@@ -3,9 +3,6 @@
 #include "RenderCore/.Package.h"
 #include "Core/HashMap.h"
 
-namespace RenderCore
-{
-
 template <typename NodeType, typename EdgeType = void*>
 class StateGraph
 {
@@ -81,6 +78,3 @@ private:
     Array<Node> nodes;
     int32 currentIndex = 0;
 };
-
-
-}

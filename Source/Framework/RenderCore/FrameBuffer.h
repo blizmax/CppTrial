@@ -2,8 +2,6 @@
 
 #include "RenderCore/Texture.h"
 
-namespace RenderCore
-{
 struct FrameBufferDesc
 {
     struct AttachmentDesc
@@ -147,4 +145,3 @@ protected:
     FrameBufferDesc desc;
     bool layered;
 };
-}

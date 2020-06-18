@@ -3,8 +3,6 @@
 #include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/Buffer.h"
 
-namespace RenderCore
-{
 class VulkanBuffer : public Buffer
 {
 public:
@@ -34,5 +32,3 @@ private:
     BufferData bufferData{};
     SPtr<Buffer> stagingBuffer;
 };
-
-}

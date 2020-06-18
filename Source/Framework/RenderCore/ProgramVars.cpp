@@ -1,9 +1,6 @@
 #include "RenderCore/ProgramVars.h"
 #include "RenderCore/RenderContext.h"
 
-namespace RenderCore
-{
-
 ProgramVars::ProgramVars(const SPtr<ProgramReflection> &reflection)
     : parameterBlock(reflection->GetDefaultBlockReflection()), reflection(reflection)
 {
@@ -32,6 +29,4 @@ bool GraphicsVars::Apply(RenderContext *ctx, RootSignature *rootSignature)
     }
 
     return true;
-}
-
 }

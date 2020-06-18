@@ -5,8 +5,6 @@
 #include "RenderCore/GpuFence.h"
 #include "RenderCore/GpuQueue.h"
 
-namespace RenderCore
-{
 class ReadTextureTask
 {
 public:
@@ -54,4 +52,3 @@ public:
     static SPtr<CopyContext> Create(const SPtr<GpuQueue> &queue);
 
 };
-}

@@ -1,8 +1,5 @@
 #include "RenderCore/GraphicsState.h"
 
-namespace RenderCore
-{
-
 SPtr<GraphicsState> GraphicsState::Create()
 {
     return Memory::MakeShared<GraphicsState>();
@@ -203,6 +200,4 @@ SPtr<GraphicsStateObject> GraphicsState::GetGso(const GraphicsVars *vars)
     }
 
     return gso;
-}
-
 }

@@ -1,9 +1,6 @@
 #include "RenderVulkan/VulkanDescriptorPool.h"
 #include "RenderVulkan/VulkanDevice.h"
 
-namespace RenderCore
-{
-
 SPtr<DescriptorPool> DescriptorPool::Create(const DescriptorPoolDesc &desc, const SPtr<GpuFence> &fence)
 {
     return Memory::MakeShared<VulkanDescriptorPool>(desc, fence);
@@ -50,5 +47,4 @@ VulkanDescriptorPool::~VulkanDescriptorPool()
         }
         pool = VK_NULL_HANDLE;
     }
-}
 }

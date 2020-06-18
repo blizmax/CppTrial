@@ -3,8 +3,6 @@
 #include "RenderVulkan/.Package.h"
 #include "RenderCore/Program.h"
 
-namespace RenderCore
-{
 class VulkanShaderCompiler
 {
 public:
@@ -31,6 +29,4 @@ extern "C"
     CT_PRIVATE_API void DestroyVulkanShaderCompiler(VulkanShaderCompiler *);
     typedef VulkanShaderCompiler *(*CreateVulkanShaderCompilerFunc)(void);
     typedef void (*DestroyVulkanShaderCompilerFunc)(VulkanShaderCompiler *);
-}
-
 }

@@ -3,8 +3,6 @@
 #include "RenderVulkan/VulkanContextData.h"
 #include "RenderCore/CopyContext.h"
 
-namespace RenderCore
-{
 class VulkanCopyContextImpl
 {
 public:
@@ -118,4 +116,3 @@ public:
 private:
     VulkanCopyContextImpl impl;
 };
-}

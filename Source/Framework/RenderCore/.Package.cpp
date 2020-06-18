@@ -1,7 +1,5 @@
 #include "RenderCore/.Package.h"
 
-namespace RenderCore
-{
 static ResourceFormatDesc formatDescs[] = 
 {
     {ResourceFormat::Unknown,            "Unknown",         0,              0,  ResourceComponentType::Unknown,    {false,  false, false,},        {1, 1},                                                  {0, 0, 0, 0    }},
@@ -130,6 +128,4 @@ bool IsDepthStencilFormat(ResourceFormat format)
 {
     const auto &desc = GetResourceFormatDesc(format);
     return desc.isDepth || desc.isStencil;
-}
-
 }

@@ -8,9 +8,6 @@
 #include "RenderCore/DescriptorPool.h"
 #include "Core/List.h"
 
-namespace RenderCore
-{
-
 using ReleaseFunc = std::function<void(void)>;
 
 class DeferredReleaser
@@ -114,4 +111,3 @@ protected:
     Array<SPtr<FrameBuffer>> swapChainFrameBuffers;
     int32 curBackBufferIndex = 0;
 };
-}

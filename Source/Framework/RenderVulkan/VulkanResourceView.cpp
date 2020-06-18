@@ -3,9 +3,6 @@
 #include "RenderVulkan/VulkanBuffer.h"
 #include "RenderVulkan/VulkanTexture.h"
 
-namespace RenderCore
-{
-
 SPtr<ResourceView> ResourceView::CreateSrv(const SPtr<Buffer> &buffer, int32 first, int32 count)
 {
     return Memory::MakeShared<VulkanBufferView>(buffer, first, count);
@@ -117,5 +114,4 @@ VulkanImageView::~VulkanImageView()
         }
         imageView = VK_NULL_HANDLE;
     }
-}
 }

@@ -8,8 +8,6 @@
 #include "RenderCore/RootSignature.h"
 #include "RenderCore/FrameBuffer.h"
 
-namespace RenderCore
-{
 struct GraphicsStateObjectDesc
 {
     SPtr<ProgramKernel> programKernel;
@@ -73,4 +71,3 @@ protected:
 protected:
     GraphicsStateObjectDesc desc;
 };
-}

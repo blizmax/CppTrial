@@ -4,9 +4,6 @@
 #include "RenderCore/GpuFence.h"
 #include "Core/List.h"
 
-namespace RenderCore
-{
-
 class VulkanGpuFence : public GpuFence
 {
 public:
@@ -38,5 +35,3 @@ private:
     uint64 cpuValue = 1;
     uint64 gpuValue = 0;
 };
-
-}

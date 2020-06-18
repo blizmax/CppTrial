@@ -1,9 +1,6 @@
 #include "RenderVulkan/VulkanBuffer.h"
 #include "RenderVulkan/VulkanDevice.h"
 
-namespace RenderCore
-{
-
 SPtr<Buffer> Buffer::Create(uint32 size, ResourceBindFlags bindFlags, CpuAccess access, const void *data)
 {
     auto ptr = Memory::MakeShared<VulkanBuffer>(size, bindFlags, access);
@@ -148,6 +145,4 @@ void VulkanBuffer::SetBlob(const void *data, uint32 offset, uint32 dataSize)
         auto context = gVulkanDevice->GetRenderContext();
         context->UpdateBuffer(this, data, offset, dataSize);
     }
-}
-
 }

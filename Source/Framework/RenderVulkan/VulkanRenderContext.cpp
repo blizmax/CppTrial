@@ -4,9 +4,6 @@
 #include "RenderVulkan/VulkanGraphicsStateObject.h"
 #include "RenderVulkan/VulkanFrameBuffer.h"
 
-namespace RenderCore
-{
-
 SPtr<RenderContext> RenderContext::Create(const SPtr<GpuQueue> &queue)
 {
     return Memory::MakeShared<VulkanRenderContext>(queue);
@@ -332,6 +329,4 @@ bool VulkanRenderContextImpl::PrepareForDraw(GraphicsState *state, GraphicsVars 
     vkCmdBeginRenderPass(contextData->GetCommandBufferHandle(), &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     return true;
-}
-
 }

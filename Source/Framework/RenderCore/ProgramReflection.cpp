@@ -1,8 +1,5 @@
 #include "RenderCore/ProgramReflection.h"
 
-namespace RenderCore
-{
-
 const ReflectionDataType *ReflectionType::AsData() const
 {
     return IsData() ? static_cast<const ReflectionDataType *>(this) : nullptr;
@@ -108,6 +105,4 @@ void ProgramReflection::Finalize()
         setInfo.layout = layout;
         rootSignatureDesc.layouts.Add(layout);
     }
-}
-
 }

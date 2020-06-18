@@ -2,9 +2,6 @@
 #include "RenderVulkan/VulkanTexture.h"
 #include "RenderVulkan/VulkanBuffer.h"
 
-namespace RenderCore
-{
-
 static uint32 GetMipLevelPackedDataSize(const Texture *texture, int32 w, int32 h, int32 d, ResourceFormat format)
 {
     uint32 perW = GetResourceFormatWidthCompressionRatio(format);
@@ -483,6 +480,4 @@ bool VulkanCopyContextImpl::SubresouceBarriers(const Texture *texture, ResourceS
         texture->SetGlobalState(newState);
     }
     return entireTransitioned;
-}
-
 }

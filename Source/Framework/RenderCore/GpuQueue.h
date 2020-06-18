@@ -2,8 +2,6 @@
 
 #include "RenderCore/.Package.h"
 
-namespace RenderCore
-{
 class GpuQueue
 {
 public:
@@ -13,5 +11,3 @@ public:
 
     static SPtr<GpuQueue> Create(GpuQueueType queueType, void *handle);
 };
-
-}

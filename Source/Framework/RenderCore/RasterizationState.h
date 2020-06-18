@@ -2,8 +2,6 @@
 
 #include "RenderCore/.Package.h"
 
-namespace RenderCore
-{
 struct RasterizationStateDesc
 {
     PolygonMode polygonMode = PolygonMode::Fill;
@@ -36,4 +34,3 @@ public:
 private:
     RasterizationStateDesc desc;
 };
-}

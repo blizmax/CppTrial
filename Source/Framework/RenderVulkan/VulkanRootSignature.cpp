@@ -2,9 +2,6 @@
 #include "RenderVulkan/VulkanDevice.h"
 #include "RenderVulkan/VulkanDescriptorSetLayout.h"
 
-namespace RenderCore
-{
-
 SPtr<RootSignature> RootSignature::Create(const RootSignatureDesc &desc)
 {
     return Memory::MakeShared<VulkanRootSignature>(desc);
@@ -39,6 +36,4 @@ VulkanRootSignature::~VulkanRootSignature()
         }
         pipelineLayout = VK_NULL_HANDLE;
     }
-}
-
 }

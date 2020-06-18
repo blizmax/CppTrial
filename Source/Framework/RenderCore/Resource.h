@@ -2,9 +2,6 @@
 
 #include "RenderCore/ResourceView.h"
 
-namespace RenderCore
-{
-
 class Resource
 {
 public:
@@ -77,4 +74,3 @@ protected:
     uint32 size = 0;
 
 };
-}

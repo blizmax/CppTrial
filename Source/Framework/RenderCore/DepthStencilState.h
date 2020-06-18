@@ -2,8 +2,6 @@
 
 #include "RenderCore/.Package.h"
 
-namespace RenderCore
-{
 struct DepthStencilStateDesc
 {
     bool depthReadEnabled = true;
@@ -44,4 +42,3 @@ public:
 private:
     DepthStencilStateDesc desc;
 };
-}

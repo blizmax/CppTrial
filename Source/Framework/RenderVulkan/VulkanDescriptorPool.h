@@ -3,9 +3,6 @@
 #include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/DescriptorPool.h"
 
-namespace RenderCore
-{
-
 class VulkanDescriptorPool : public DescriptorPool
 {
 public:
@@ -20,5 +17,3 @@ public:
 private:
     VkDescriptorPool pool = VK_NULL_HANDLE;
 };
-
-}

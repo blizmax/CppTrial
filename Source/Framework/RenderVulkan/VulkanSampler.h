@@ -3,8 +3,6 @@
 #include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/Sampler.h"
 
-namespace RenderCore
-{
 class VulkanSampler : public Sampler
 {
 public:
@@ -20,6 +18,3 @@ private:
     VkSampler sampler = VK_NULL_HANDLE;    
 
 };
-
-
-}

@@ -2,13 +2,6 @@
 
 #include "RenderCore/.Package.h"
 
-namespace RenderCore
-{
-
-class Resource;
-class Buffer;
-class Texture;
-
 struct ResourceViewInfo
 {
     int32 firstElement = 0;
@@ -80,5 +73,3 @@ protected:
     ResourceViewInfo viewInfo;
     WPtr<Resource> resource;
 };
-
-}

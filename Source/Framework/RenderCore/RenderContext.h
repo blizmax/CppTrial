@@ -3,8 +3,6 @@
 #include "RenderCore/ComputeContext.h"
 #include "RenderCore/GraphicsState.h"
 
-namespace RenderCore
-{
 class RenderContext : virtual public ComputeContext
 {
 public:
@@ -30,4 +28,3 @@ public:
 
     static SPtr<RenderContext> Create(const SPtr<GpuQueue> &queue);
 };
-}

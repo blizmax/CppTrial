@@ -1,8 +1,6 @@
 #include "RenderVulkan/VulkanSync.h"
 #include "RenderVulkan/VulkanDevice.h"
 
-namespace RenderCore
-{
 SPtr<VulkanSemaphore> VulkanSemaphore::Create()
 {
     return Memory::MakeShared<VulkanSemaphore>();
@@ -74,6 +72,4 @@ void VulkanFence::Reset()
 bool VulkanFence::IsSignaled() const
 {
     return vkGetFenceStatus(gVulkanDevice->GetLogicalDeviceHandle(), fence) == VK_SUCCESS;
-}
-
 }

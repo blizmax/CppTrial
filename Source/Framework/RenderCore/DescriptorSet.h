@@ -3,14 +3,6 @@
 #include "RenderCore/DescriptorSetLayout.h"
 #include "RenderCore/DescriptorPool.h"
 
-namespace RenderCore
-{
-
-class ResourceView;
-class Sampler;
-class CopyContext;
-class RootSignature;
-
 class DescriptorSet
 {
 public:
@@ -26,4 +18,3 @@ public:
 
     static SPtr<DescriptorSet> Create(const SPtr<DescriptorPool> &pool, const SPtr<DescriptorSetLayout> &layout);
 };
-}

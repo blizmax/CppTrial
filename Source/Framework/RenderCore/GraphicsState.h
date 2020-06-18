@@ -6,9 +6,6 @@
 #include "RenderCore/Program.h"
 #include "RenderCore/ProgramVars.h"
 
-namespace RenderCore
-{
-
 class GraphicsState
 {
 public:
@@ -131,5 +128,3 @@ private:
     CachedData cachedData;
     StateGraph<SPtr<GraphicsStateObject>> stateGraph;
 };
-
-}

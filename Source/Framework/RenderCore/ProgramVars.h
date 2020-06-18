@@ -2,14 +2,6 @@
 
 #include "RenderCore/ParameterBlock.h"
 
-namespace RenderCore
-{
-
-class CopyContext;
-class ComputeContext;
-class RenderContext;
-class Program;
-
 class ProgramVars
 {
 public:
@@ -41,5 +33,3 @@ class ComputeVars : public ProgramVars
 public:
     //bool Apply(ComputeContext *ctx, RootSignature *rootSignature);
 };
-
-}

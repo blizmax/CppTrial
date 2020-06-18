@@ -3,9 +3,6 @@
 #include "RenderVulkan/VulkanDevice.h"
 #include "Core/Math.h"
 
-namespace RenderCore
-{
-
 SPtr<GpuFence> GpuFence::Create()
 {
     return Memory::MakeShared<VulkanGpuFence>();
@@ -171,6 +168,4 @@ const SPtr<VulkanSemaphore> &VulkanGpuFence::GetVulkanSemaphore()
         activeSemaphores.Add(VulkanSemaphore::Create());
     }
     return activeSemaphores.Last();
-}
-
 }

@@ -1,9 +1,6 @@
 #include "RenderCore/FrameBuffer.h"
 #include "Core/Math.h"
 
-namespace RenderCore
-{
-
 static ResourceBindFlags GetBindFlags(bool isDepth, bool allowUav)
 {
     ResourceBindFlags flags = ResourceBind::ShaderResource;
@@ -173,6 +170,4 @@ void FrameBuffer::Apply()
     {
         CT_EXCEPTION(RenderCore, "Depthstencil attachment is valid.");
     }
-}
-
 }

@@ -2,9 +2,6 @@
 
 #include "RenderCore/RootSignature.h"
 
-namespace RenderCore
-{
-
 struct ComputeStateObjectDesc
 {
     SPtr<RootSignature> rootSignature;
@@ -30,6 +27,4 @@ protected:
 
 protected:    
     ComputeStateObjectDesc desc;
-};    
-
 };

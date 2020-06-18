@@ -6,9 +6,6 @@
 #include "RenderVulkan/VulkanDescriptorSetLayout.h"
 #include "RenderVulkan/VulkanResourceView.h"
 
-namespace RenderCore
-{
-
 class VulkanDescriptorSet : public DescriptorSet
 {
 public:
@@ -37,5 +34,3 @@ private:
     SPtr<VulkanDescriptorPool> pool;
     SPtr<VulkanDescriptorSetLayout> layout;
 };
-
-}

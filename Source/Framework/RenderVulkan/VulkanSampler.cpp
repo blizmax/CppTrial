@@ -1,8 +1,6 @@
 #include "RenderVulkan/VulkanSampler.h"
 #include "RenderVulkan/VulkanDevice.h"
 
-namespace RenderCore
-{
 SPtr<Sampler> Sampler::Create(const SamplerDesc &desc)
 {
     return Memory::MakeShared<VulkanSampler>(desc);
@@ -45,6 +43,4 @@ VulkanSampler::~VulkanSampler()
         }
         sampler = VK_NULL_HANDLE;
     }
-}
-
 }

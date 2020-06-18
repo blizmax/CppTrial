@@ -3,9 +3,6 @@
 #include "RenderCore/RootSignature.h"
 #include "Core/HashMap.h"
 
-namespace RenderCore
-{
-
 enum class ShaderDataType
 {
     Bool,
@@ -748,5 +745,3 @@ void ParameterBlockReflection::Finalize()
 }
 
 #endif
-
-}

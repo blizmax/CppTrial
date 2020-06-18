@@ -2,8 +2,6 @@
 
 #include "RenderCore/Resource.h"
 
-namespace RenderCore
-{
 class Buffer : public Resource
 {
 public:
@@ -106,4 +104,3 @@ protected:
     SPtr<Buffer> uavCounter;
     WPtr<Buffer> weakThis;
 };
-}

@@ -1,7 +1,5 @@
 #include "RenderVulkan/.Package.h"
 
-namespace RenderCore
-{
 VkImageLayout ToVkImageLayout(ResourceState state)
 {
     switch (state)
@@ -609,6 +607,4 @@ VkFormat ToVkResourceFormat(ResourceFormat format)
 {
     CT_CHECK(formatDescs[static_cast<int32>(format)].format == format);
     return formatDescs[static_cast<int32>(format)].vkFormat;
-}
-
 }

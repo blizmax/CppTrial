@@ -2,9 +2,6 @@
 
 #include "RenderCore/.Package.h"
 
-namespace RenderCore
-{
-
 struct SamplerDesc
 {
     TextureFilter magFilter = TextureFilter::Linear;
@@ -41,5 +38,3 @@ public:
 protected:
     SamplerDesc desc;    
 };
-
-}

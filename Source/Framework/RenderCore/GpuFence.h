@@ -2,9 +2,6 @@
 
 #include "RenderCore/GpuQueue.h"
 
-namespace RenderCore
-{
-
 class GpuFence
 {
 public:
@@ -19,5 +16,3 @@ public:
 
     static SPtr<GpuFence> Create();
 };
-
-}

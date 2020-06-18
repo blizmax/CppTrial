@@ -5,8 +5,6 @@
 #include "RenderCore/GpuFence.h"
 #include "RenderCore/FencedPool.h"
 
-namespace RenderCore
-{
 class VulkanContextData
 {
 public:
@@ -43,4 +41,3 @@ private:
     SPtr<FencedPool<VkCommandBuffer>> commandPool;
     bool recording = false;
 };
-}

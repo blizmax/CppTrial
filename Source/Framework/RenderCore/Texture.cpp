@@ -2,9 +2,6 @@
 #include "RenderCore/RenderContext.h"
 #include "Core/Math.h"
 
-namespace RenderCore
-{
-
 ResourceBindFlags UpdateBindFlags(ResourceBindFlags flags, bool hasInitData, int32 mipLevels, ResourceFormat format)
 {
     if(hasInitData && mipLevels == -1)
@@ -190,6 +187,4 @@ void Texture::GenerateMips(RenderContext *ctx)
     }
 
     //TODO Release views ?
-}
-
 }

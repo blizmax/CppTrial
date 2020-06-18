@@ -2,9 +2,6 @@
 
 #include "RenderCore/DescriptorSetLayout.h"
 
-namespace RenderCore
-{
-
 struct RootSignatureDesc
 {
     Array<SPtr<DescriptorSetLayout>> layouts;
@@ -29,4 +26,3 @@ public:
 protected:
     RootSignatureDesc desc;
 };
-}

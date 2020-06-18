@@ -3,9 +3,6 @@
 #include "RenderVulkan/VulkanRootSignature.h"
 #include "RenderVulkan/VulkanProgram.h"
 
-namespace RenderCore
-{
-
 SPtr<GraphicsStateObject> GraphicsStateObject::Create(const GraphicsStateObjectDesc &desc)
 {
     return Memory::MakeShared<VulkanGraphicsStateObject>(desc);
@@ -220,6 +217,4 @@ VulkanGraphicsStateObject::~VulkanGraphicsStateObject()
         }
         pipeline = VK_NULL_HANDLE;
     }
-}
-
 }

@@ -6,8 +6,6 @@
 #include "Render/ImageLoader.h"
 #include "Math/Color.h"
 
-using namespace RenderCore;
-
 class Renderer
 {
 private:

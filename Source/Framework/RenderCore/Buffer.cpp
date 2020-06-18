@@ -1,8 +1,5 @@
 #include "RenderCore/Buffer.h"
 
-namespace RenderCore
-{
-
 SPtr<Buffer> Buffer::CreateTyped(ResourceFormat format, int32 count, ResourceBindFlags bindFlags, CpuAccess access, const void *data)
 {
     uint32 size = count * GetResourceFormatBytes(format);
@@ -65,5 +62,4 @@ SPtr<ResourceView> Buffer::GetUav(int32 first, int32 count)
     auto newView = ResourceView::CreateUav(weakThis.lock(), first, count);
     uavs.Add(newView);
     return newView;
-}
 }

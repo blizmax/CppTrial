@@ -16,8 +16,6 @@
 #include "Demos/ShaderToy/Page7.h"
 #include "Demos/ShaderToy/Page8.h"
 
-using namespace RenderCore;
-
 class ShaderToy : public Logic
 {
 private:

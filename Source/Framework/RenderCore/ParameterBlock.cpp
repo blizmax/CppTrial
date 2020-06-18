@@ -1,9 +1,6 @@
 #include "RenderCore/ParameterBlock.h"
 #include "RenderCore/RenderAPI.h"
 
-namespace RenderCore
-{
-
 SPtr<ParameterBlock> ParameterBlock::Create(const SPtr<ParameterBlockReflection> &reflection)
 {
     return Memory::MakeShared<ParameterBlock>(reflection);
@@ -773,6 +770,4 @@ ShaderVar ShaderVar::operator[](int32 index) const
         CT_LOG(Error, CT_TEXT("ShaderVar[] attemp to find invalid member, index is {0}"), index);
     }
     return ret;
-}
-
 }

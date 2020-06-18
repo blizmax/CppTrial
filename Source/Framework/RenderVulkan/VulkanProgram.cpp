@@ -3,9 +3,6 @@
 #include "RenderVulkan/Private/VulkanShaderCompiler.h"
 #include "IO/FileHandle.h"
 
-namespace RenderCore
-{
-
 static ShaderType GetShaderType(const String &str)
 {
     if (str.StartsWith(CT_TEXT("#type vertex")))
@@ -121,5 +118,4 @@ VulkanProgramKernel::~VulkanProgramKernel()
         }
     }
     shaderDatas.Clear();
-}
 }

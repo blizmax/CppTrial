@@ -2,9 +2,6 @@
 #include "RenderVulkan/VulkanDevice.h"
 #include "Core/Math.h"
 
-namespace RenderCore
-{
-
 SPtr<Texture> Texture::Create(int32 width, int32 height, int32 depth, ResourceFormat format, ResourceType resourceType, int32 arrayLayers, int32 mipLevels, int32 sampleCount, const void *data, ResourceBindFlags flags)
 {
     auto ptr = Memory::MakeShared<VulkanTexture>(width, height, depth, arrayLayers, mipLevels, sampleCount, format, resourceType, flags);
@@ -147,6 +144,4 @@ void VulkanTexture::InitData(const void *data, bool autoGenMips)
             ClearViews();
         }
     }
-}
-
 }

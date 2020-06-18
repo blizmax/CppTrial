@@ -3,8 +3,6 @@
 #include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/Texture.h"
 
-namespace RenderCore
-{
 class VulkanTexture : public Texture
 {
 public:
@@ -31,4 +29,3 @@ private:
     TextureData textureData{};
     bool ownsImage = true;
 };
-}

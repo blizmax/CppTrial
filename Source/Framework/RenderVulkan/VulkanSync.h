@@ -2,8 +2,6 @@
 
 #include "RenderVulkan/VulkanMemory.h"
 
-namespace RenderCore
-{
 class VulkanSemaphore : public IVulkanResource
 {
 public:
@@ -43,4 +41,3 @@ public:
 private:
     VkFence fence = VK_NULL_HANDLE;
 };
-}

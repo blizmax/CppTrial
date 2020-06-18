@@ -3,8 +3,6 @@
 #include "RenderCore/.Package.h"
 #include "RenderCore/Device.h"
 
-namespace RenderCore
-{
 class RenderAPI
 {
 public:
@@ -17,4 +15,3 @@ public:
 private:
     static SPtr<Device> device;
 };
-}

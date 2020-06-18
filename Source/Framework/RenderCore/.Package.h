@@ -376,19 +376,28 @@ struct ResourceFormatDesc
     uint32 componentBits[4];
 };
 
-namespace RenderCore
-{
-    constexpr int32 COLOR_ATTCHMENT_MAX_NUM = 8;
-    constexpr int32 VERTEX_INPUT_MAX_NUM = 16;
-    constexpr int32 VIEWPORT_MAX_NUM = 16;
+class Resource;
+class Buffer;
+class Texture;
+class ResourceView;
+class Sampler;
+class RootSignature;
+class Program;
+class CopyContext;
+class ComputeContext;
+class RenderContext;
+class ShaderVar;
 
-    const ResourceFormatDesc &GetResourceFormatDesc(ResourceFormat format);
-    ResourceComponentType GetResourceComponentType(ResourceFormat format);
-    uint32 GetResourceFormatBytes(ResourceFormat format);
-    uint32 GetResourceFormatWidthCompressionRatio(ResourceFormat format);
-    uint32 GetResourceFormatHeightCompressionRatio(ResourceFormat format);
-    bool IsCompressedFormat(ResourceFormat format);
-    bool IsDepthFormat(ResourceFormat format);
-    bool IsStencilFormat(ResourceFormat format);
-    bool IsDepthStencilFormat(ResourceFormat format);
-}
+constexpr int32 COLOR_ATTCHMENT_MAX_NUM = 8;
+constexpr int32 VERTEX_INPUT_MAX_NUM = 16;
+constexpr int32 VIEWPORT_MAX_NUM = 16;
+
+const ResourceFormatDesc &GetResourceFormatDesc(ResourceFormat format);
+ResourceComponentType GetResourceComponentType(ResourceFormat format);
+uint32 GetResourceFormatBytes(ResourceFormat format);
+uint32 GetResourceFormatWidthCompressionRatio(ResourceFormat format);
+uint32 GetResourceFormatHeightCompressionRatio(ResourceFormat format);
+bool IsCompressedFormat(ResourceFormat format);
+bool IsDepthFormat(ResourceFormat format);
+bool IsStencilFormat(ResourceFormat format);
+bool IsDepthStencilFormat(ResourceFormat format);

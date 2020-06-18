@@ -3,9 +3,6 @@
 #include "RenderVulkan/Private/VulkanShaderCompiler.h"
 #include "Utils/DynamicLib.h"
 
-namespace RenderCore
-{
-
 SPtr<Device> RenderAPI::device;
 
 VkAllocationCallbacks *gVulkanAlloc = nullptr;
@@ -122,5 +119,4 @@ Device *RenderAPI::CreateDevice(RenderWindow *window, const DeviceDesc &desc)
     CT_CHECK(!device);
     device = Device::Create(window, desc);
     return device.get();
-}
 }

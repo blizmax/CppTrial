@@ -1,9 +1,6 @@
 #include "RenderVulkan/VulkanDescriptorSetLayout.h"
 #include "RenderVulkan/VulkanDevice.h"
 
-namespace RenderCore
-{
-
 SPtr<DescriptorSetLayout> DescriptorSetLayout::Create(const DescriptorSetLayoutDesc &desc)
 {
     return Memory::MakeShared<VulkanDescriptorSetLayout>(desc);
@@ -48,6 +45,4 @@ VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout()
         }
         layout = VK_NULL_HANDLE;
     }
-}
-
 }

@@ -14,7 +14,7 @@ struct WindowDesc
     bool fullScreen = false;
 };
 
-class Window : virtual public RenderCore::RenderWindow, public Module
+class Window : virtual public RenderWindow, public Module
 {
 public:
     Window() = default;

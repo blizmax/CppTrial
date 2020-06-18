@@ -3,9 +3,6 @@
 #include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/DescriptorSetLayout.h"
 
-namespace RenderCore
-{
-
 class VulkanDescriptorSetLayout : public DescriptorSetLayout
 {
 public:
@@ -20,5 +17,3 @@ public:
 private:    
     VkDescriptorSetLayout layout = VK_NULL_HANDLE;
 };
-
-}

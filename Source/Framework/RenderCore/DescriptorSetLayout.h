@@ -2,9 +2,6 @@
 
 #include "RenderCore/.Package.h"
 
-namespace RenderCore
-{
-
 struct DescriptorSetLayoutDesc
 {
     struct Element
@@ -54,5 +51,3 @@ public:
 protected:
     DescriptorSetLayoutDesc desc;
 };
-
-}

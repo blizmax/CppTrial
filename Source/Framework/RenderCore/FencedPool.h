@@ -3,9 +3,6 @@
 #include "RenderCore/GpuFence.h"
 #include "Core/List.h"
 
-namespace RenderCore
-{
-
 template <typename T>
 class FencedPool
 {
@@ -56,5 +53,3 @@ private:
     List<QueueData> queue;
     T activeObject;
 };
-
-}

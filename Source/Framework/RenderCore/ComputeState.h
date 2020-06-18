@@ -3,13 +3,8 @@
 #include "RenderCore/ComputeStateObject.h"
 #include "RenderCore/StateGraph.h"
 
-namespace RenderCore
-{
-
 class ComputeState
 {
-
+public:    
+    //TODO
 };
-
-
-}
