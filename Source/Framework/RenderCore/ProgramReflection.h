@@ -629,10 +629,16 @@ private:
 };
 
 
+struct ProgramReflectionBuildOptions
+{
+    bool printDebugInfo = true;
+};
+
 class ProgramReflectionBuilder
 {
 public:
-    ProgramReflectionBuilder()
+    ProgramReflectionBuilder(const ProgramReflectionBuildOptions &options = {})
+        : options(options)
     {
         auto globalStruct = ReflectionStructType::Create(CT_TEXT(""));
         auto blockReflection = ParameterBlockReflection::Create();
@@ -647,6 +653,11 @@ public:
         reflection->Finalize();
     }
 
+    const ProgramReflectionBuildOptions &GetOptions() const
+    {
+        return options;
+    }
+
     const SPtr<ProgramReflection> &GetReflection() const
     {
         return reflection;
@@ -654,6 +665,7 @@ public:
 
 private:
     SPtr<ProgramReflection> reflection;
+    ProgramReflectionBuildOptions options;
 };
 
 

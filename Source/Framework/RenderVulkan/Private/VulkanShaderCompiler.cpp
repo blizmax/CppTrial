@@ -1,5 +1,4 @@
 #define CT_RENDER_CORE_PROGRAM_REFLECTION_IMPLEMENT
-#define CT_DUMP_REFLECTION_ENABLED 0
 
 #include "RenderVulkan/Private/VulkanShaderCompiler.h"
 #include <glslang/public/ShaderLang.h>
@@ -468,10 +467,11 @@ static SPtr<ReflectionVar> ParseBlockVar(const String &name, const glslang::TObj
     {
         shaderResourceType = ShaderResourceType::StructuredBuffer;
         shaderAccess = ShaderAccess::ReadWrite;
+
+        // TODO shaderAccess = qualifier.isReadOnly() ? ShaderAccess::Read : ShaderAccess::ReadWrite;
     }
     else
     {
-        //CT_LOG(Debug, CT_TEXT("A uniform block, {0}:{1}"), name, String(ttype->getCompleteString().c_str()));
         shaderResourceType = ShaderResourceType::ConstantBuffer;
         shaderAccess = ShaderAccess::Read;
     }
@@ -560,9 +560,8 @@ static void ParseReflection(const glslang::TProgram &program, const ProgramRefle
 
     globalBlockReflection->Finalize();
 
-#if CT_DUMP_REFLECTION_ENABLED
-    CT_LOG(Debug, CT_TEXT("Parse result:{0}"), globalStruct->ToString());
-#endif
+    if (builder.GetOptions().printDebugInfo)
+        CT_LOG(Debug, CT_TEXT("Parse result:{0}"), globalStruct->ToString());
 }
 
 bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModuleFunc &func, const ProgramReflectionBuilder &builder)
@@ -607,14 +606,15 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
     //program.mapIO();
     program.buildReflection();
 
-#if CT_DUMP_REFLECTION_ENABLED
-    CT_LOG(Debug, CT_TEXT("=============================Reflection Begin========================"));
+    if (builder.GetOptions().printDebugInfo)
+        CT_LOG(Debug, CT_TEXT("==========================Reflection========================="));
+
     ParseReflection(program, builder);
-    CT_LOG(Debug, CT_TEXT("=============================Reflection End========================"));   
+
+    if (builder.GetOptions().printDebugInfo)
+        CT_LOG(Debug, CT_TEXT("==========================!Reflection========================="));
+
     //program.dumpReflection();
-#else
-    ParseReflection(program, builder);
-#endif
 
     glslang::SpvOptions spvOptions;
     spvOptions.generateDebugInfo = false;
