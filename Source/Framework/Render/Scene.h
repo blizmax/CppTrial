@@ -1,11 +1,15 @@
 #pragma once
 
+#include "Render/CameraController.h"
 #include "Render/Material.h"
 #include "Render/Light.h"
+#include "RenderCore/RenderAPI.h"
 
 class Scene
 {
 public:
+    void Render(RenderContext *ctx, GraphicsState *state, GraphicsVars *vars);
+
     int32 GetMaterialCount() const
     {
         return materials.Count();
@@ -39,6 +43,9 @@ public:
     static SPtr<Scene> Create();
 
 private:
+    SPtr<Camera> camera;
+    SPtr<CameraController> cameraController;
+
     Array<SPtr<Material>> materials;
     Array<SPtr<Light>> lights;
 };
