@@ -41,14 +41,23 @@ public:
     bool SetParameterBlock(const String &name, const SPtr<ParameterBlock> &block);
 
     template <typename T>
-    bool Set(const ShaderVarLocation &location, const T& val)
+    bool Set(const ShaderVarLocation &location, const T &val)
     {
         CT_CHECK(location.varType->IsData());
         //TODO Check val type
         uint8 *ptr = constBufferData.GetData() + location.byteOffset;
-        *(T*)ptr = val;
+        *(T *)ptr = val;
         MarkUniformDataDirty();
         return true;
+    }
+
+    bool SetBlob(const void *data, uint32 offset, uint32 size);
+    bool SetBlob(const ShaderVarLocation &location, const void *data, uint32 size);
+
+    template <typename T>
+    bool SetBlob(const ShaderVarLocation &location, const T &blob)
+    {
+        return SetBlob(location, &blob, sizeof(T));
     }
 
     const SPtr<ParameterBlockReflection> &GetReflection() const
@@ -143,9 +152,17 @@ public:
     bool SetParameterBlock(const SPtr<ParameterBlock> &block) const;
 
     template <typename T>
-    bool Set(const T& val) const
+    bool Set(const T &val) const
     {
         return block->Set(location, val);
+    }
+
+    bool SetBlob(const void *data, uint32 size) const;
+
+    template <typename T>
+    bool SetBlob(const T &val) const
+    {
+        return SetBlob(&val, sizeof(T));
     }
 
     bool IsValid() const

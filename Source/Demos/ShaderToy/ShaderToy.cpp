@@ -19,6 +19,14 @@
 class ShaderToy : public Logic
 {
 private:
+    struct ConstantBufferData
+    {
+        Matrix4 model;
+        Matrix4 view;
+        Matrix4 projection;
+        float time;
+    };
+
     SPtr<GraphicsState> state;
     SPtr<VertexArray> vao;
     SPtr<RasterizationState> rasterizationState;
@@ -234,15 +242,17 @@ public:
         //Matrix4 rotateMat = Matrix4::Rotate(0.0f, 0.0f, 30.0f * Math::DEG_TO_RAD);
         Matrix4 rotateMat = Matrix4();
         Matrix4 scaleMat = Matrix4::Scale(texture->GetWidth() * factor, texture->GetHeight() * factor, 1.0f);
-        auto ubuffer = vars->Root()[CT_TEXT("UB")];
-        ubuffer[CT_TEXT("Model")] = scaleMat * rotateMat;
-        ubuffer[CT_TEXT("View")] = camera->view;
-        ubuffer[CT_TEXT("Projection")] = camera->projection;
-
+             
         static float totalTime = 0.0f;
         totalTime += gApp->GetDeltaTime();
-        ubuffer[CT_TEXT("Time")] = totalTime;
 
+        ConstantBufferData cbuffer;
+        cbuffer.model = scaleMat * rotateMat;
+        cbuffer.view = camera->view;
+        cbuffer.projection = camera->projection;
+        cbuffer.time = totalTime;
+        vars->Root()[CT_TEXT("GBlock")].SetBlob(cbuffer);
+        
         auto ctx = gRenderManager->GetRenderContext();
         state->SetFrameBuffer(gRenderManager->GetTargetFrameBuffer());
         ctx->DrawIndexed(state.get(), vars.get(), 6, 0, 0);

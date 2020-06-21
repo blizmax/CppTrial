@@ -51,4 +51,7 @@ include_directories(${CT_EXTERNAL_DIR}/${CT_GLFW_VERSION}/include)
 add_subdirectory(${CT_EXTERNAL_DIR}/glslang)
 include_directories(${CT_EXTERNAL_DIR}/glslang)
 
+# assimp
+include_directories(${CT_EXTERNAL_DIR}/assimp/include)
+
 add_subdirectory(Source)

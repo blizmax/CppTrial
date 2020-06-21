@@ -19,6 +19,6 @@ public:
 
     virtual void OnShaderUpdate(SPtr<GraphicsVars> &vars) override
     {
-        vars->Root()[CT_TEXT("Progress")] = progress;
+        vars->Root()[CT_TEXT("UBlock")][CT_TEXT("Progress")] = progress;
     }
 };
