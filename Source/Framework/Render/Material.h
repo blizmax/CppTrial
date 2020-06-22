@@ -17,6 +17,12 @@ struct MaterialData
 class Material
 {
 public:
+    Material(const String &name);
+
+    const String &GetName() const
+    {
+        return name;
+    }
 
     const MaterialData &GetData() const
     {
@@ -28,9 +34,10 @@ public:
         return resources;
     }
 
-    static SPtr<Material> Create();
+    static SPtr<Material> Create(const String &name);
 
 private:
+    String name;
     MaterialData data;
     MaterialResources resources;
 

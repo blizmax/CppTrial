@@ -7,6 +7,8 @@ class SceneBuilder
 public:
     int32 AddLight(const SPtr<Light> &light);
 
+    SPtr<Scene> GetScene();
+
 private:
     
 
