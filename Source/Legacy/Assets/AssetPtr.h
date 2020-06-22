@@ -1,37 +1,82 @@
 #pragma once
 
 #include "Assets/.Package.h"
+#include "Assets/AssetObject.h"
 #include "Core/Thread.h"
+#include "Utils/UUID.h"
 
-template <typename T>
-class AssetPtr
+class AssetPtrBase
 {
 public:
     struct InnerData
     {
-        SPtr<T> ptr;
-
-        InnerData() = default;
-        InnerData(const SPtr<T> &ptr) : ptr(ptr)
-        {
-        }
-
-        static SPtr<InnerData> Create()
-        {
-            return Memory::MakeShared<InnerData>();
-        }
-
-        static SPtr<InnerData> Create(const SPtr<T> &ptr)
-        {
-            return Memory::MakeShared<InnerData>(ptr);
-        }
+        SPtr<AssetObject> ptr;
+        std::atomic<uint32> refCount{0};
+        UUID uuid;
+        bool done = false;
     };
 
-    AssetPtr() = default;
-    ~AssetPtr() = default;
+    AssetObject *Get() const
+    {
+        if (!data)
+            return nullptr;
+        return data->ptr.get();
+    }
 
+    bool IsPending() const
+    {
+        if (data && data->done)
+            return true;
+        return false;
+    }
+
+    bool IsValid() const
+    {
+        return Get() != nullptr;
+    }
+
+    void LoadSync();
+
+    void Release();
+
+protected:
+    void Destroy();
+
+    void IncRef()
+    {
+        if (data)
+        {
+            data->refCount.fetch_add(1, std::memory_order_relaxed);
+        }
+    }
+
+    void DecRef()
+    {
+        if (data)
+        {
+            uint32 c = data->refCount.fetch_sub(1, std::memory_order_release);
+            if (c == 1)
+            {
+                std::atomic_thread_fence(std::memory_order_acquire);
+                Destroy();
+            }
+        }
+    }
+
+protected:
+    SPtr<InnerData> data;
+};
+
+template <typename T>
+class AssetPtr : public AssetPtrBase
+{
+public:
+    friend class AssetPtr<AssetObject>;
+
+    AssetPtr() = default;
     AssetPtr(AssetPtr &&) noexcept = default;
     AssetPtr &operator=(AssetPtr &&) noexcept = default;
+
     AssetPtr(std::nullptr_t) {}
 
     AssetPtr(const AssetPtr &other)
@@ -49,16 +94,9 @@ public:
         return *this;
     }
 
-    T *Get() const
+    ~AssetPtr()
     {
-        if (!data)
-            return nullptr;
-        return data->ptr.get();
-    }
-
-    bool IsValid() const
-    {
-        return Get() != nullptr;
+        DecRef();
     }
 
     void Swap(AssetPtr &other) noexcept
@@ -70,8 +108,24 @@ public:
     {
         if (newData != data)
         {
+            DecRef();
             data = newData;
+            IncRef();
         }
+    }
+
+    T *Get() const
+    {
+        return reinterpret_cast<T *>(AssetPtr::Get());
+    }
+
+    template <typename U>
+    AssetPtr<U> Cast() const
+    {
+        AssetPtr<AssetObject> result;
+        result.SetData(data);
+
+        return result;
     }
 
     T *operator->() const
@@ -87,13 +141,6 @@ public:
     explicit operator bool() const
     {
         return IsValid();
-    }
-
-    operator SPtr<T>() const
-    {
-        if (!data)
-            return nullptr;
-        return data->ptr;
     }
 
     template <typename T1, typename T2>
@@ -117,9 +164,6 @@ public:
     {
         return rhs.IsValid();
     }
-
-private:
-    SPtr<InnerData> data;
 };
 
 template <typename T>

@@ -3,9 +3,13 @@
 #include "Assets/AssetImporter.h"
 #include "Render/SceneBuilder.h"
 
-class SceneImporter : public AssetImporter
+class SceneImportSettings : public ImportSettings
+{
+public:    
+};
+
+class SceneImporter : public AssetImporter<Scene>
 {
 public:
-    virtual bool IsExtensionSupported(const String &ext) const override;
-    virtual APtr<AssetObject> Import(const String &path, const SPtr<AssetImportSettings> &settings) override;
+    virtual APtr<Scene> Import(const String &path, const SPtr<ImportSettings> &settings) override;
 };

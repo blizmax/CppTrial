@@ -3,7 +3,7 @@
 #include "RenderCore/RenderAPI.h"
 #include "Application/Application.h"
 #include "Render/RenderManager.h"
-#include "Render/ImageLoader.h"
+#include "Render/Importers/TextureImporter.h"
 #include "Math/Color.h"
 
 class Renderer
@@ -98,11 +98,8 @@ public:
 
         {
             sampler = Sampler::Create(SamplerDesc());
-            int32 w, h, c;
-            void *data = ImageLoader::Load(CT_TEXT("Assets/Textures/test.png"), w, h, c);
-            CT_CHECK(data);
-            texture = Texture::Create2D(w, h, ResourceFormat::RGBA8Unorm, 1, 1, data);
-            ImageLoader::Free(data);
+            TextureImporter importer;
+            texture = importer.Import(CT_TEXT("Assets/Textures/test.png"), nullptr);
         }
 
         vars->Root()[CT_TEXT("UB")][CT_TEXT("tint")] = Color(0.9f, 0.3f, 0.0f);

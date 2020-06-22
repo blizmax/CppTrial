@@ -2,17 +2,16 @@
 
 #include "Assets/AssetPtr.h"
 
-class AssetImportSettings
+class ImportSettings
 {
 public:
-    virtual ~AssetImportSettings() {};
+    virtual ~ImportSettings() = default;
 };
 
+template <typename T>
 class AssetImporter
 {
 public:
-   virtual ~AssetImporter() {};
-
-   virtual bool IsExtensionSupported(const String &ext) const = 0;
-   virtual APtr<AssetObject> Import(const String &path, const SPtr<AssetImportSettings> &settings) = 0;
+    virtual ~AssetImporter() = default;
+    virtual APtr<T> Import(const String &path, const SPtr<ImportSettings> &settings) = 0;
 };

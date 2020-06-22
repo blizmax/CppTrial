@@ -60,14 +60,7 @@ private:
     //HashMap<>
 };
 
-
-bool SceneImporter::IsExtensionSupported(const String &ext) const
-{
-    //TODO
-    return true;
-}
-
-APtr<AssetObject> SceneImporter::Import(const String &path, const SPtr<AssetImportSettings> &settings)
+APtr<Scene> SceneImporter::Import(const String &path, const SPtr<ImportSettings> &settings)
 {
     uint32 assimpFlags = aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_FlipUVs;
     Assimp::Importer importer;
