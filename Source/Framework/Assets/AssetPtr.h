@@ -74,6 +74,11 @@ public:
         }
     }
 
+    const SPtr<InnerData> &GetData() const
+    {
+        return data;
+    }
+
     T *operator->() const
     {
         return Get();
@@ -96,31 +101,33 @@ public:
         return data->ptr;
     }
 
-    template <typename T1, typename T2>
-    friend bool operator==(const AssetPtr<T1> &lhs, const AssetPtr<T2> &rhs)
-    {
-        return lhs.data == rhs.data;
-    }
-
-    template <typename T1, typename T2>
-    friend bool operator!=(const AssetPtr<T1> &lhs, const AssetPtr<T2> &rhs)
-    {
-        return lhs.data != rhs.data;
-    }
-
-    friend bool operator!=(const AssetPtr<T> &lhs, std::nullptr_t)
-    {
-        return lhs.IsValid();
-    }
-
-    friend bool operator!=(std::nullptr_t, const AssetPtr<T> &rhs)
-    {
-        return rhs.IsValid();
-    }
-
 private:
     SPtr<InnerData> data;
 };
+
+template <typename T1, typename T2>
+CT_INLINE bool operator==(const AssetPtr<T1> &lhs, const AssetPtr<T2> &rhs)
+{
+    return lhs.GetData() == rhs.GetData();
+}
+
+template <typename T1, typename T2>
+CT_INLINE bool operator!=(const AssetPtr<T1> &lhs, const AssetPtr<T2> &rhs)
+{
+    return lhs.GetData() != rhs.GetData();
+}
+
+template <typename T>
+CT_INLINE bool operator!=(const AssetPtr<T> &lhs, std::nullptr_t)
+{
+    return lhs.IsValid();
+}
+
+template <typename T>
+CT_INLINE bool operator!=(std::nullptr_t, const AssetPtr<T> &rhs)
+{
+    return rhs.IsValid();
+}
 
 template <typename T>
 using APtr = AssetPtr<T>;

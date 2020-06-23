@@ -4,6 +4,7 @@
 #include "Application/Application.h"
 #include "Render/RenderManager.h"
 #include "Render/Importers/TextureImporter.h"
+#include "Render/Importers/SceneImporter.h"
 #include "Math/Color.h"
 
 class Renderer
@@ -123,6 +124,9 @@ private:
 public:
     virtual void Startup() override
     {
+        SceneImporter importer;
+        auto scene = importer.Import(CT_TEXT("Assets/Models/nanosuit_reflection/nanosuit.obj"), nullptr);
+
         renderer = Memory::MakeShared<Renderer>();
     }
 

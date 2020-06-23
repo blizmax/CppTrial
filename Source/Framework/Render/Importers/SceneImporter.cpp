@@ -76,4 +76,6 @@ APtr<Scene> SceneImporter::Import(const String &path, const SPtr<ImportSettings>
     ImporterImpl impl(scene);
     CT_CHECK(impl.CreateMaterials());
 
+    return nullptr;
+
 }
