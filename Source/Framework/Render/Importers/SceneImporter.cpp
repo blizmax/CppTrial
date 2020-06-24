@@ -43,7 +43,7 @@ public:
             auto mat = CreateMaterial(scene->mMaterials[i]);
             if (mat != nullptr)
             {
-                materialMap[i] = mat;
+                materialMap.Put(i, mat);
             }
             else
             {

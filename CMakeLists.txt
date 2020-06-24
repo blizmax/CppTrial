@@ -52,6 +52,7 @@ add_subdirectory(${CT_EXTERNAL_DIR}/glslang)
 include_directories(${CT_EXTERNAL_DIR}/glslang)
 
 # assimp
+find_package(ASSIMP REQUIRED) # msys2 installation: pacman -S mingw-w64-x86_64-assimp
 include_directories(${CT_EXTERNAL_DIR}/assimp/include)
 
 add_subdirectory(Source)
