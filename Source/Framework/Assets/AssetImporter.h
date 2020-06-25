@@ -6,6 +6,15 @@ class ImportSettings
 {
 public:
     virtual ~ImportSettings() = default;
+
+    template <typename T>
+    static SPtr<T> As(const SPtr<ImportSettings> &settings)
+    {
+        auto result = std::dynamic_pointer_cast<T>(settings);
+        if (!result)
+            result = T::Create();
+        return result;
+    }
 };
 
 template <typename T>

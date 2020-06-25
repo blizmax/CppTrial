@@ -4,33 +4,103 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+namespace
+{
+enum class TextureType
+{
+    BaseColor,
+    Specular,
+    Emissive,
+    Normal,
+    Occlusion,
+};
+
+struct TextureMapping
+{
+    aiTextureType aType;
+    TextureType textureType;
+};
+
+static const Array<TextureMapping> textureMappings = {
+    {aiTextureType_DIFFUSE, TextureType::BaseColor},
+    {aiTextureType_SPECULAR, TextureType::Specular},
+    {aiTextureType_EMISSIVE, TextureType::Emissive},
+    {aiTextureType_NORMALS, TextureType::Normal},
+    {aiTextureType_AMBIENT, TextureType::Occlusion},
+};
+
 class ImporterImpl
 {
 public:
-    enum class TextureType
+    SPtr<Scene> Import(const String &path, const SPtr<SceneImportSettings> &settings)
     {
-        Base,
-        Specular,
-        Emissive,
-        Normal,
-        Occlusion,
-    };
+        this->settings = settings;
+        directory = path.Substring(0, path.LastIndexOf(CT_TEXT("/")));
 
-    ImporterImpl(const aiScene *scene) : scene(scene)
-    {
+        uint32 assimpFlags = aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_FlipUVs;
+        assimpFlags &= ~aiProcess_RemoveRedundantMaterials;
+        Assimp::Importer aImporter;
+        auto u8str = StringEncode::UTF8::ToChars(path);
+        aScene = aImporter.ReadFile(u8str.GetData(), assimpFlags);
+        if (aScene == nullptr || aScene->mFlags == AI_SCENE_FLAGS_INCOMPLETE)
+        {
+            CT_LOG(Error, CT_TEXT("Load scene failed, path: {0}, error: {1}."), path, String(aImporter.GetErrorString()));
+            return nullptr;
+        }
+
+        CT_CHECK(CreateMaterials());
+
+        return nullptr;
     }
 
-    void LoadTextures(const aiMaterial *aiMat)
+    void LoadTextures(const SPtr<Material> &mat, const aiMaterial *aMat)
     {
-        //TODO
+        for(const auto &e : textureMappings)
+        {
+            if (aMat->GetTextureCount(e.aType) > 0)
+            {
+                aiString aPath;
+                aMat->GetTexture(e.aType, 0, &aPath);
+                
+                String texPath = String(aPath.data);
+                SPtr<Texture> texture;
+                auto texPtr = textureCache.TryGet(texPath);
+                if (texPtr)
+                {
+                    texture = *texPtr;
+                }
+                else
+                {
+                    String fullPath = directory + CT_TEXT("/") + texPath;
+                    //texture = 
+                }
+
+                CT_CHECK(texture);
+
+                //TODO Set Texture
+                switch (e.textureType)
+                {
+                case TextureType::BaseColor:
+                    break;
+                case TextureType::Specular:
+                    break;
+                case TextureType::Emissive:
+                    break;
+                case TextureType::Normal:
+                    break;
+                case TextureType::Occlusion:
+                    break;
+                }
+            }
+        }
     }
 
-    SPtr<Material> CreateMaterial(const aiMaterial *aiMat)
+    SPtr<Material> CreateMaterial(const aiMaterial *aMat)
     {
-        aiString name;
-        aiMat->Get(AI_MATKEY_NAME, name);
+        aiString aName;
+        aMat->Get(AI_MATKEY_NAME, aName);
 
-        auto mat = Material::Create(name.C_Str());
+        auto mat = Material::Create(aName.C_Str());
         //TODO
 
         return mat;
@@ -38,44 +108,34 @@ public:
 
     bool CreateMaterials()
     {
-        for (uint32 i = 0; i < scene->mNumMaterials; ++i)
+        for (uint32 i = 0; i < aScene->mNumMaterials; ++i)
         {
-            auto mat = CreateMaterial(scene->mMaterials[i]);
+            auto mat = CreateMaterial(aScene->mMaterials[i]);
             if (mat != nullptr)
-            {
                 materialMap.Put(i, mat);
-            }
             else
-            {
                 return false;
-            }
         }
         return true;
     }
 
 private:
-    const aiScene *scene;
+    const aiScene *aScene = nullptr;
+    String directory;
+    SPtr<SceneImportSettings> settings;
     //SceneBuilder &builder;
     HashMap<uint32, SPtr<Material>> materialMap;
-    //HashMap<>
+    HashMap<String, SPtr<Texture>> textureCache;
 };
+}
 
 APtr<Scene> SceneImporter::Import(const String &path, const SPtr<ImportSettings> &settings)
 {
-    uint32 assimpFlags = aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_FlipUVs;
-    Assimp::Importer importer;
-    auto u8str = StringEncode::UTF8::ToChars(path);
-    const auto scene = importer.ReadFile(u8str.GetData(), assimpFlags);
+    APtr<Scene> result;
 
-    if (scene == nullptr)
-    {
-        CT_LOG(Error, CT_TEXT("Load scene failed, path: {0}."), path);
-        return nullptr;
-    }
+    ImporterImpl impl;
+    auto scene = impl.Import(path, ImportSettings::As<SceneImportSettings>(settings));
 
-    ImporterImpl impl(scene);
-    CT_CHECK(impl.CreateMaterials());
-
-    return nullptr;
-
+    result.SetData(APtr<Scene>::InnerData::Create(scene));
+    return result;
 }

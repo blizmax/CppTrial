@@ -132,12 +132,12 @@ void VulkanBuffer::Unmap()
 
 void VulkanBuffer::SetBlob(const void *data, uint32 offset, uint32 dataSize)
 {
-    CT_CHECK(offset + dataSize >= size);
+    CT_CHECK(offset + dataSize <= size);
 
     if(cpuAccess == CpuAccess::Write)
     {
-        uint8 *dst = reinterpret_cast<uint8 *>(Map(BufferMapType::WriteDiscard)) + offset;
-        std::memcpy(dst, data, dataSize);
+        uint8 *dst = reinterpret_cast<uint8 *>(Map(BufferMapType::WriteDiscard));
+        std::memcpy(dst + offset, data, dataSize);
         Unmap();
     }
     else

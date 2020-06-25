@@ -3,8 +3,8 @@
 #include "Application/ImGuiLab.h"
 #include "IO/FileWatcher.h"
 #include "Core/Thread.h"
+#include "Render/Importers/TextureImporter.h"
 #include "Render/OrthographicCameraController.h"
-#include "Render/ImageLoader.h"
 #include "RenderCore/RenderAPI.h"
 #include "Render/RenderManager.h"
 #include "Demos/ShaderToy/Page1.h"
@@ -184,11 +184,8 @@ public:
 
         {
             sampler = Sampler::Create(SamplerDesc());
-            int32 w, h, c;
-            void *data = ImageLoader::Load(CT_TEXT("Assets/Textures/test.png"), w, h, c);
-            CT_CHECK(data);
-            texture = Texture::Create2D(w, h, ResourceFormat::RGBA8Unorm, 1, 1, data);
-            ImageLoader::Free(data);
+            TextureImporter importer;
+            texture = importer.Import(CT_TEXT("Assets/Textures/test.png"), nullptr);
         }
 
         watcher = Memory::MakeUnique<IO::FileWatcher>(

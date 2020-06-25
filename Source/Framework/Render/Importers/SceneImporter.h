@@ -5,7 +5,14 @@
 
 class SceneImportSettings : public ImportSettings
 {
-public:    
+public:
+    bool mergeMeshes = false;
+    bool assumeLinearSpaceTextures = false;  // By default all textures are assumed in srgb space.
+
+    static SPtr<SceneImportSettings> Create()
+    {
+        return Memory::MakeShared<SceneImportSettings>();
+    }
 };
 
 class SceneImporter : public AssetImporter<Scene>

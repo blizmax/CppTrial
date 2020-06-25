@@ -5,7 +5,13 @@
 
 class TextureImportSettings : public ImportSettings
 {
-public:    
+public:
+    bool flipY = false;
+
+    static SPtr<TextureImportSettings> Create()
+    {
+        return Memory::MakeShared<TextureImportSettings>();
+    }
 };
 
 class TextureImporter : public AssetImporter<Texture>
