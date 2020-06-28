@@ -28,8 +28,9 @@ struct CameraData
 class Camera
 {
 public:
-
+    virtual ~Camera() = default;
 
     static SPtr<Camera> Create();
 
+private:
 };

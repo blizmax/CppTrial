@@ -105,6 +105,7 @@ CT_DECL_FLAGS(ShaderVisibility)
 
 enum class Topology
 {
+    Undefined,
     PointList,
     LineList,
     LineStrip,
