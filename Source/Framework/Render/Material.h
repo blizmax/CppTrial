@@ -21,8 +21,7 @@ struct MaterialData
 
     float alphaThreshold = 0.5f;
     float ior = 1.5f;
-    float _pad = 0.0f;
-    float _pad1 = 0.0f;
+    Vector2 _pad;
 };
 
 class Material
@@ -117,6 +116,6 @@ public:
 
 private:
     String name;
-    MaterialData data;
-    MaterialResources resources;
+    MaterialData data{};
+    MaterialResources resources{};
 };

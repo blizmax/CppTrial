@@ -40,6 +40,11 @@ Vector2 ToVector2(const aiVector3D &aVec)
     return Vector2(aVec.x, aVec.y);
 }
 
+Color ToColor(const aiColor3D &aCol)
+{
+    return Color(aCol.r, aCol.g, aCol.b);
+}
+
 Matrix4 ToMatrix4(const aiMatrix4x4 &aMat)
 {
     //TODO
@@ -282,7 +287,7 @@ public:
 
         bool ret = true;
         for (uint32 i = 0; i < aNode->mNumChildren; ++i)
-            ret |= ParseNode(pCurrent->mChildren[i]);
+            ret |= ParseNode(aNode->mChildren[i]);
         return ret;
     }
 
@@ -369,16 +374,72 @@ public:
         }
 
         const auto aCamera = aScene->mCameras[0];
-        auto camera = Camera::Create();
+        camera = Camera::Create();
+        camera->SetPosition(ToVector3(aCamera->mPosition));
+        camera->SetUp(ToVector3(aCamera->mUp));
+        camera->SetTarget(ToVector3(aCamera->mLookAt) + ToVector3(aCamera->mPosition));
 
-        //TODO
+        if(aCamera->mAspect != 0.0f)
+            camera->SetAspectRatio(aCamera->mAspect);
+
+        camera->SetNearZ(aCamera->mClipPlaneNear);
+        camera->SetFarZ(aCamera->mClipPlaneFar);
+
+        //TODO fov, add node
 
         return true;
     }
 
+    bool AddLightCommon(const SPtr<Light> &light, const aiLight *aLight)
+    {
+        CT_CHECK(aLight->mColorDiffuse == aLight->mColorSpecular);
+        light->SetIntensity(ToColor(aLight->mColorSpecular));
+
+        //TODO add node
+
+        return true;
+    }
+
+    bool CreateDirLight(const aiLight *aLight)
+    {
+        auto light = DirectionalLight::Create();
+        light->SetDirection(ToVector3(aLight->mDirection));
+        
+        return AddLightCommon(light, aLight);
+    }
+
+    bool CreatePointLight(const aiLight *aLight)
+    {
+        auto light = PointLight::Create();
+        light->SetPosition(ToVector3(aLight->mPosition));
+        light->SetDirection(ToVector3(aLight->mDirection));
+        light->SetOpeningAngle(aLight->mAngleOuterCone);
+        light->SetPenumbraAngle(aLight->mAngleOuterCone - aLight->mAngleInnerCone);
+
+        return AddLightCommon(light, aLight);
+    }
+
     bool CreateLights()
     {
-        //TODO
+        for (uint32 i = 0; i < aScene->mNumLights; ++i)
+        {
+            const auto aLight = aScene->mLights[i];
+            switch (aLight->mType)
+            {
+            case aiLightSource_DIRECTIONAL:
+                if (!CreateDirLight(aLight))
+                    return false;
+                break;
+            case aiLightSource_POINT:
+            case aiLightSource_SPOT:
+                if (!CreatePointLight(aLight))
+                    return false;
+                break;
+            default:
+                CT_LOG(Warning, CT_TEXT("Loading scene includes unsupported light type, just ignore it."));
+                break;
+            }
+        }
         return true;
     }
 
@@ -391,6 +452,7 @@ private:
     Array<SPtr<Material>> materials;
     Array<Node> nodes;
     Array<Mesh> meshes;
+    SPtr<Camera> camera;
     HashMap<const aiNode*, int32> nodeIndexMap;
 };
 }

@@ -5,6 +5,8 @@
 #include "Core/Exception.h"
 #include "Core/Flags.h"
 #include "Math/Color.h"
+#include "Math/Vector2.h"
+#include "Math/Vector3.h"
 #include "Math/IntVector.h"
 
 enum class ResourceType
