@@ -54,21 +54,21 @@ public:
     int32 GetWidth(int32 mipLevel = 0) const
     {
         if(mipLevel == 0 || mipLevel < mipLevels)
-            return width >> mipLevel;
+            return Math::Max(1, width >> mipLevel);
         return 0; 
     }
 
     int32 GetHeight(int32 mipLevel = 0) const
     {
         if (mipLevel == 0 || mipLevel < mipLevels)
-            return height >> mipLevel;
+            return Math::Max(1, height >> mipLevel);
         return 0;
     }
 
     int32 GetDepth(int32 mipLevel = 0) const
     {
         if (mipLevel == 0 || mipLevel < mipLevels)
-            return depth >> mipLevel;
+            return Math::Max(1, depth >> mipLevel);
         return 0;
     }
 

@@ -7,6 +7,8 @@ class TextureImportSettings : public ImportSettings
 {
 public:
     bool flipY = false;
+    bool generateMips = false;
+    bool srgbFormat = false; // If use srgb format, input data will be gamma corrected.
 
     static SPtr<TextureImportSettings> Create()
     {

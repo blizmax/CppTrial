@@ -30,7 +30,9 @@ public:
             return nullptr;
         }
 
+        // NOTE Always convert 3-elements image to 4-elements.
         int32 reqComp = (channels == 3) ? STBI_rgb_alpha : STBI_default;
+
         bool bHDR = stbi_is_hdr_from_memory(bytes.GetData(), bytes.Count());
         bool b16bits = !bHDR && stbi_is_16_bit_from_memory(bytes.GetData(), bytes.Count());
         void *data = nullptr;
@@ -69,17 +71,21 @@ public:
         }
 
         CT_CHECK(format != ResourceFormat::Unknown);
+        if (settings->srgbFormat)
+        {
+            format = LinearToSrgbFormat(format);
+        }
+
         if (!data)
         {
             CT_LOG(Error, "Load image failed, {0}. Path: {1}.", String(stbi_failure_reason()), path);
             return nullptr;
         }
-        auto texture = Texture::Create2D(width, height, format, 1, 1, data);
+        auto texture = Texture::Create2D(width, height, format, 1, settings->generateMips ? -1 : 1, data);
         stbi_image_free(data);
         return texture;
     }
 };
-
 }
 
 APtr<Texture> TextureImporter::Import(const String &path, const SPtr<ImportSettings> &settings)

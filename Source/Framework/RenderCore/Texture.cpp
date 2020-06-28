@@ -45,10 +45,15 @@ Texture::Texture(int32 width, int32 height, int32 depth, int32 arrayLayers, int3
     : Resource(resourceType, flags, 0), width(width), height(height), depth(depth), arrayLayers(arrayLayers), mipLevels(mipLevels), sampleCount(sampleCount), format(format)
 {
     CT_CHECK(width > 0 && height > 0 && depth > 0);
-    CT_CHECK(arrayLayers > 0 && mipLevels > 0 && sampleCount > 0);
 
-    mipLevels = Math::Min(mipLevels, 1 + GetMaxMipLevel(width, height, depth));
+    auto totalMipLevels = 1 + GetMaxMipLevel(width, height, depth);
+    if (mipLevels == -1)
+        mipLevels = totalMipLevels;
+    else
+        mipLevels = Math::Min(mipLevels, totalMipLevels);
     this->mipLevels = mipLevels;
+
+    CT_CHECK(arrayLayers > 0 && mipLevels > 0 && sampleCount > 0);
 
     stateData.subStates.Add(stateData.state, arrayLayers * mipLevels); //resize and fill
 }
@@ -176,6 +181,8 @@ void Texture::CheckViewParams(int32 &mostDetailedMip, int32 &mipLevels, int32 &f
 
 void Texture::GenerateMips(RenderContext *ctx)
 {
+    SetSubresourceState(0, 0, GetGlobalState()); //NOTE Init sub state for subresource barrier
+
     for (int32 m = 0; m < mipLevels - 1; ++m)
     {
         for (int32 a = 0; a < arrayLayers; ++a)

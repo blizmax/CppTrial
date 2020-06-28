@@ -401,3 +401,6 @@ bool IsCompressedFormat(ResourceFormat format);
 bool IsDepthFormat(ResourceFormat format);
 bool IsStencilFormat(ResourceFormat format);
 bool IsDepthStencilFormat(ResourceFormat format);
+bool IsSrgbFormat(ResourceFormat format);
+ResourceFormat LinearToSrgbFormat(ResourceFormat format);
+ResourceFormat SrgbToLinearFormat(ResourceFormat format);

@@ -125,7 +125,7 @@ public:
     virtual void Startup() override
     {
         SceneImporter importer;
-        auto scene = importer.Import(CT_TEXT("Assets/Models/nanosuit_reflection/nanosuit.obj"), nullptr);
+        auto scene = importer.Import(CT_TEXT("Assets/Models/viking_room/viking_room.obj"), nullptr);
 
         renderer = Memory::MakeShared<Renderer>();
     }

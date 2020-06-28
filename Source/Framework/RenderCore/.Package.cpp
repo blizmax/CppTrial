@@ -129,3 +129,55 @@ bool IsDepthStencilFormat(ResourceFormat format)
     const auto &desc = GetResourceFormatDesc(format);
     return desc.isDepth || desc.isStencil;
 }
+
+bool IsSrgbFormat(ResourceFormat format)
+{
+    return GetResourceFormatDesc(format).componentType == ResourceComponentType::UnormSrgb;
+}
+
+ResourceFormat LinearToSrgbFormat(ResourceFormat format)
+{
+    switch (format)
+    {
+    case ResourceFormat::BC1Unorm:
+        return ResourceFormat::BC1UnormSrgb;
+    case ResourceFormat::BC2Unorm:
+        return ResourceFormat::BC2UnormSrgb;
+    case ResourceFormat::BC3Unorm:
+        return ResourceFormat::BC3UnormSrgb;
+    case ResourceFormat::BGRA8Unorm:
+        return ResourceFormat::BGRA8UnormSrgb;
+    case ResourceFormat::BGRX8Unorm:
+        return ResourceFormat::BGRX8UnormSrgb;
+    case ResourceFormat::RGBA8Unorm:
+        return ResourceFormat::RGBA8UnormSrgb;
+    case ResourceFormat::BC7Unorm:
+        return ResourceFormat::BC7UnormSrgb;
+    default:
+        return format;
+    }
+}
+
+ResourceFormat SrgbToLinearFormat(ResourceFormat format)
+{
+    switch (format)
+    {
+    case ResourceFormat::BC1UnormSrgb:
+        return ResourceFormat::BC1Unorm;
+    case ResourceFormat::BC2UnormSrgb:
+        return ResourceFormat::BC2Unorm;
+    case ResourceFormat::BC3UnormSrgb:
+        return ResourceFormat::BC3Unorm;
+    case ResourceFormat::BGRA8UnormSrgb:
+        return ResourceFormat::BGRA8Unorm;
+    case ResourceFormat::BGRX8UnormSrgb:
+        return ResourceFormat::BGRX8Unorm;
+    case ResourceFormat::RGBA8UnormSrgb:
+        return ResourceFormat::RGBA8Unorm;
+    case ResourceFormat::BC7UnormSrgb:
+        return ResourceFormat::BC7Unorm;
+    default:
+        CT_CHECK(!IsSrgbFormat(format));
+        return format;
+    }
+}

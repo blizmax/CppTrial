@@ -454,9 +454,9 @@ bool VulkanCopyContextImpl::SubresouceBarriers(const Texture *texture, ResourceS
     };
 
     bool entireTransitioned = true;
-    for(int32 a = 0; a < viewInfo->firstArraySlice + viewInfo->arrayLayers; ++a)
+    for(int32 a = viewInfo->firstArraySlice; a < viewInfo->firstArraySlice + viewInfo->arrayLayers; ++a)
     {
-        for(int32 m = 0; m < viewInfo->mostDetailedMip + viewInfo->mipLevels; ++m)
+        for(int32 m = viewInfo->mostDetailedMip; m < viewInfo->mostDetailedMip + viewInfo->mipLevels; ++m)
         {
             auto oldState = texture->GetSubresourceState(a, m);
             if(oldState != newState)
