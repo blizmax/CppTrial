@@ -25,11 +25,22 @@ public:
         SPtr<Material> material;
     };
 
+    struct BuffersData
+    {
+        Array<uint32> indices;
+        Array<StaticVertexData> staticData;
+    };
+
+    int32 AddMesh(const Mesh &mesh);
+    void SetCamera(const SPtr<Camera> &newCamera);
     int32 AddLight(const SPtr<Light> &light);
 
     SPtr<Scene> GetScene();
 
 private:
-    
+    SPtr<Camera> camera;
 
+    Array<SPtr<Light>> lights;
+
+    bool dirty = true;
 };
