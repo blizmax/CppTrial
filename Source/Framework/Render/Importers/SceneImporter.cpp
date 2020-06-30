@@ -30,6 +30,11 @@ static const Array<TextureMapping> textureMappings = {
     {aiTextureType_AMBIENT, TextureType::Occlusion},
 };
 
+String ToString(const aiString &aStr)
+{
+    return String(aStr.C_Str());
+}
+
 Vector3 ToVector3(const aiVector3D &aVec)
 {
     return Vector3(aVec.x, aVec.y, aVec.z);
@@ -92,6 +97,12 @@ public:
             return nullptr;
         }
 
+        if (CreateAnimations() == false)
+        {
+            CT_LOG(Error, CT_TEXT("Create scene animations failed."), path);
+            return nullptr;
+        }
+
         if (CreateCamera() == false)
         {
             CT_LOG(Error, CT_TEXT("Create scene camera failed."), path);
@@ -120,6 +131,37 @@ public:
         default:
             return false;
         }
+    }
+
+    bool IsBone(const String &name)
+    {
+        return boneMatrixMap.Contains(name);
+    }
+
+    bool IsBone(const aiString &name)
+    {
+        return boneMatrixMap.Contains(ToString(name));
+    }
+
+    int32 GetNodeID(const aiNode *aNode)
+    {
+        if (!aNode)
+            return -1;
+        auto ptr = nodePtrToID.TryGet(aNode);
+        if (!ptr)
+            return -1;
+        return *ptr;
+    }
+
+    int32 GetNodeID(const String &name, int32 index)
+    {
+        auto ptr = nodeNameToPtrs.TryGet(name);
+        if (!ptr)
+            return -1;
+        auto &nodes = *ptr;
+        if (index < 0 || index >= nodes.Count())
+            return -1;
+        return GetNodeID(nodes[index]);
     }
 
     void SetTexture(const SPtr<Material> &mat, const SPtr<Texture> &texture, TextureType textureType)
@@ -193,7 +235,7 @@ public:
         aiString aName;
         aMat->Get(AI_MATKEY_NAME, aName);
 
-        auto mat = Material::Create(aName.C_Str());
+        auto mat = Material::Create(ToString(aName));
 
         LoadTextures(mat, aMat);
 
@@ -264,26 +306,41 @@ public:
         return true;
     }
 
-    int32 GetNodeIndex(const aiNode *aNode)
+    void CreateBoneList()
     {
-        if (!aNode)
-            return -1;
-        auto ptr = nodeIndexMap.TryGet(aNode);
-        if (!ptr)
-            return -1;
-        return *ptr;
+        for (uint32 i = 0; i < aScene->mNumMeshes; ++i)
+        {
+            const auto aMesh = aScene->mMeshes[i];
+            if (!aMesh->HasBones())
+                continue;
+
+            for (uint32 b = 0; b < aMesh->mNumBones; ++b)
+            {
+                String name = ToString(aMesh->mBones[b]->mName);
+                boneMatrixMap[name] = ToMatrix4(aMesh->mBones[b]->mOffsetMatrix);
+            }
+        }
     }
 
     bool ParseNode(const aiNode *aNode)
     {
-        int32 newID = nodes.Count();
         Node node = {};
 
-        node.name = String(aNode->mName.C_Str());
+        String name = ToString(aNode->mName);
+        const bool boneNode = IsBone(name);
+        CT_CHECK(!boneNode || aNode->mNumMeshes == 0);
+
+        node.name = name;
         node.transform = ToMatrix4(aNode->mTransformation);
-        node.parent = GetNodeIndex(aNode->mParent);
-        nodes.Add(std::move(node));
-        nodeIndexMap.Put(aNode, newID);
+        node.parent = GetNodeID(aNode->mParent);
+        if (boneNode) node.localToBindPose = boneMatrixMap[name];
+
+        int32 nodeID = builder.AddNode(std::move(node));
+        nodePtrToID.Put(aNode, nodeID);
+        auto nodesPtr = nodeNameToPtrs.TryGet(name);
+        if (!nodesPtr)
+            nodeNameToPtrs.Put(name, {});
+        nodeNameToPtrs[name].Add(aNode);
 
         bool ret = true;
         for (uint32 i = 0; i < aNode->mNumChildren; ++i)
@@ -293,13 +350,58 @@ public:
 
     bool CreateSceneGraph()
     {
+        CreateBoneList();
         auto root = aScene->mRootNode;
-        return ParseNode(root);
+        CT_CHECK(!IsBone(root->mName));
+        bool ret = ParseNode(root);
+
+        //TODO Dump
+
+        return ret;
     }
 
-    bool CreateMesh(const aiMesh *aMesh)
+    void LoadBones(const aiMesh *aMesh, Mesh &mesh)
     {
-        int32 newID = meshes.Count();
+        const auto vertexCount = aMesh->mNumVertices;
+        mesh.boneIDs.SetCount(vertexCount);
+        mesh.boneWeights.SetCount(vertexCount);
+
+        for (uint32 b = 0; b < aMesh->mNumBones; ++b)
+        {
+            const auto aBone = aMesh->mBones[b];
+            String name = ToString(aBone->mName);
+            int32 boneID = GetNodeID(name, 0);
+            for (uint32 w = 0; w < aBone->mNumWeights; ++w)
+            {
+                const auto &aWeight = aBone->mWeights[w];
+                auto &vertexIDs = mesh.boneIDs[aWeight.mVertexId];
+                auto &vertexWeights = mesh.boneWeights[aWeight.mVertexId];
+                
+                bool found = false;
+                for (uint32 i = 0; i < 4; ++i)
+                {
+                    if (vertexWeights[i] == 0.0f)
+                    {
+                        vertexIDs[i] = boneID;
+                        vertexWeights[i] = aWeight.mWeight;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                    CT_LOG(Error, CT_TEXT("Create scene bones error, one vertex has more than 4 bones."));
+            }
+        }
+
+        for (auto &e : mesh.boneWeights)
+        {
+            float sum = e.x + e.y + e.z + e.w;
+            e /= sum;
+        }
+    }
+
+    bool CreateMesh(const aiMesh *aMesh, uint32 index)
+    {
         Mesh mesh = {};
 
         const uint32 perFaceIndexCount = aMesh->mFaces[0].mNumIndices;
@@ -314,7 +416,7 @@ public:
             }
         }
 
-        const uint32 vertexCount = aMesh->mNumVertices;
+        const auto vertexCount = aMesh->mNumVertices;
         mesh.positions.Reserve(vertexCount);
         mesh.normals.Reserve(vertexCount);
         mesh.bitangents.Reserve(vertexCount);
@@ -329,6 +431,11 @@ public:
                 mesh.uvs.Add(ToVector2(aMesh->mTextureCoords[0][i]));
             else
                 mesh.uvs.Add(Vector2());
+        }
+
+        if (aMesh->HasBones())
+        {
+            LoadBones(aMesh, mesh);
         }
 
         switch (aMesh->mFaces[0].mNumIndices)
@@ -347,15 +454,51 @@ public:
 
         mesh.material = materials[aMesh->mMaterialIndex];
 
-        meshes.Add(std::move(mesh));
+        int32 meshID = builder.AddMesh(std::move(mesh));
+        meshIndexToID.Put(index, meshID);
+
         return true;
+    }
+
+    void AddMeshes(const aiNode *aNode)
+    {
+        int32 nodeID = GetNodeID(aNode);
+        for (uint32 i = 0; i < aNode->mNumMeshes; ++i)
+        {
+            int32 meshID = meshIndexToID[aNode->mMeshes[i]];
+            builder.AddMeshInstance(nodeID, meshID);
+        }
+
+        for (uint32 i = 0; i < aNode->mNumChildren; ++i)
+        {
+            AddMeshes(aNode->mChildren[i]);
+        }
     }
 
     bool CreateMeshes()
     {
         for (uint32 i = 0; i < aScene->mNumMeshes; ++i)
         {
-            if (!CreateMesh(aScene->mMeshes[i]))
+            if (!CreateMesh(aScene->mMeshes[i], i))
+                return false;
+        }
+
+        AddMeshes(aScene->mRootNode);
+
+        return true;
+    }
+
+    bool CreateAnimation(const aiAnimation *aAnim)
+    {
+        //TODO
+        return true;
+    }
+
+    bool CreateAnimations()
+    {
+        for (uint32 i = 0; i < aScene->mNumAnimations; ++i)
+        {
+            if (!CreateAnimation(aScene->mAnimations[i]))
                 return false;
         }
         return true;
@@ -379,7 +522,7 @@ public:
         camera->SetUp(ToVector3(aCamera->mUp));
         camera->SetTarget(ToVector3(aCamera->mLookAt) + ToVector3(aCamera->mPosition));
 
-        if(aCamera->mAspect != 0.0f)
+        if (aCamera->mAspect != 0.0f)
             camera->SetAspectRatio(aCamera->mAspect);
 
         camera->SetNearZ(aCamera->mClipPlaneNear);
@@ -404,7 +547,7 @@ public:
     {
         auto light = DirectionalLight::Create();
         light->SetDirection(ToVector3(aLight->mDirection));
-        
+
         return AddLightCommon(light, aLight);
     }
 
@@ -444,16 +587,17 @@ public:
     }
 
 private:
-    const aiScene *aScene = nullptr;
-    String directory;
+    SceneBuilder builder;
     SPtr<SceneImportSettings> settings;
-    //SceneBuilder &builder;
+    String directory;
+    const aiScene *aScene = nullptr;
     HashMap<String, SPtr<Texture>> textureCache;
     Array<SPtr<Material>> materials;
-    Array<Node> nodes;
-    Array<Mesh> meshes;
     SPtr<Camera> camera;
-    HashMap<const aiNode*, int32> nodeIndexMap;
+    HashMap<const aiNode *, int32> nodePtrToID;
+    HashMap<String, Array<const aiNode *>> nodeNameToPtrs;
+    HashMap<String, Matrix4> boneMatrixMap;
+    HashMap<uint32, int32> meshIndexToID;
 };
 }
 

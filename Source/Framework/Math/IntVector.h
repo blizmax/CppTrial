@@ -20,6 +20,18 @@ public:
     IntVector2(T v) : x(v), y(v)
     {
     }
+
+    T operator[](int32 i) const
+    {
+        CT_CHECK(i >= 0 && i < 2);
+        return *(&x + i);
+    }
+
+    T &operator[](int32 i)
+    {
+        CT_CHECK(i >= 0 && i < 2);
+        return *(&x + i);
+    }
 };
 
 template <typename T>
@@ -40,6 +52,18 @@ public:
 
     IntVector3(T v) : x(v), y(v), z(v)
     {
+    }
+
+    T operator[](int32 i) const
+    {
+        CT_CHECK(i >= 0 && i < 3);
+        return *(&x + i);
+    }
+
+    T &operator[](int32 i)
+    {
+        CT_CHECK(i >= 0 && i < 3);
+        return *(&x + i);
     }
 };
 
@@ -63,6 +87,18 @@ public:
     IntVector4(T v) : x(v), y(v), z(v), w(v)
     {
     }
+
+    T operator[](int32 i) const
+    {
+        CT_CHECK(i >= 0 && i < 4);
+        return *(&x + i);
+    }
+
+    T &operator[](int32 i)
+    {
+        CT_CHECK(i >= 0 && i < 4);
+        return *(&x + i);
+    }
 };
 
 using Vector2I = IntVector2<int32>;
@@ -71,4 +107,3 @@ using Vector3I = IntVector3<int32>;
 using Vector3U = IntVector3<uint32>;
 using Vector4I = IntVector4<int32>;
 using Vector4U = IntVector4<uint32>;
-

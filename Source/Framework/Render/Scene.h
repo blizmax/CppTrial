@@ -3,6 +3,7 @@
 #include "Render/CameraController.h"
 #include "Render/Material.h"
 #include "Render/Light.h"
+#include "Render/Animation.h"
 #include "RenderCore/RenderAPI.h"
 
 class Scene

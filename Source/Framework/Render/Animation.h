@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Render/.Package.h"
+#include "Math/Matrix4.h"
 #include "Math/Quat.h"
 
 class Animation
@@ -32,8 +33,9 @@ public:
     Animation(AnimTimeType duration);
 
     int32 AddChannel(int32 matrixID);
-    void AddKeyframe(int32 channelID, const Keyframe &frame);
-    const Keyframe &GetKeyframe(int32 channelID, AnimTimeType time) const;
+    void AddKeyframe(int32 index, const Keyframe &keyframe);
+    const Keyframe &GetKeyframe(int32 index, AnimTimeType time) const;
+    bool TryGetKeyframe(int32 index, AnimTimeType time, Keyframe &out) const;
     void Animate(AnimTimeType totalTime, Array<Matrix4> &matrices);
 
     int32 GetChannelCount() const
