@@ -27,7 +27,7 @@ struct MaterialData
 class Material
 {
 public:
-    Material(const String &name);
+    Material() = default;
 
     void SetBaseTexture(const SPtr<Texture> &texture);
     void SetSpecularTexture(const SPtr<Texture> &texture);
@@ -97,11 +97,6 @@ public:
         return data.ior;
     }
 
-    const String &GetName() const
-    {
-        return name;
-    }
-
     const MaterialData &GetData() const
     {
         return data;
@@ -112,7 +107,17 @@ public:
         return resources;
     }
 
-    static SPtr<Material> Create(const String &name);
+    const String &GetName() const
+    {
+        return name;
+    }
+
+    void SetName(const String &newName)
+    {
+        name = newName;
+    }
+
+    static SPtr<Material> Create();
 
 private:
     String name;

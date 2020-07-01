@@ -45,6 +45,11 @@ Vector2 ToVector2(const aiVector3D &aVec)
     return Vector2(aVec.x, aVec.y);
 }
 
+Quat ToQuat(const aiQuaternion &aQuat)
+{
+    return Quat(aQuat.x, aQuat.y, aQuat.z, aQuat.w);
+}
+
 Color ToColor(const aiColor3D &aCol)
 {
     return Color(aCol.r, aCol.g, aCol.b);
@@ -63,13 +68,18 @@ public:
     using Node = SceneBuilder::Node;
     using Mesh = SceneBuilder::Mesh;
 
+    ImporterImpl() = default;
+
     SPtr<Scene> Import(const String &path, const SPtr<SceneImportSettings> &settings)
     {
         this->settings = settings;
         directory = path.Substring(0, path.LastIndexOf(CT_TEXT("/")));
 
         uint32 assimpFlags = aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_FlipUVs;
+        assimpFlags &= ~(aiProcess_FindDegenerates);
+        assimpFlags &= ~(aiProcess_OptimizeGraph);
         assimpFlags &= ~aiProcess_RemoveRedundantMaterials;
+
         Assimp::Importer aImporter;
         auto u8str = StringEncode::UTF8::ToChars(path);
         aScene = aImporter.ReadFile(u8str.GetData(), assimpFlags);
@@ -115,9 +125,7 @@ public:
             return nullptr;
         }
 
-        //TODO Add meshes to model
-
-        return nullptr;
+        return builder.GetScene();
     }
 
     bool IsSrgbRequired(TextureType textureType)
@@ -162,6 +170,15 @@ public:
         if (index < 0 || index >= nodes.Count())
             return -1;
         return GetNodeID(nodes[index]);
+    }
+
+    int32 GetNodeCount(const String &name)
+    {
+        auto ptr = nodeNameToPtrs.TryGet(name);
+        if (!ptr)
+            return 0;
+        auto &nodes = *ptr;
+        return nodes.Count();
     }
 
     void SetTexture(const SPtr<Material> &mat, const SPtr<Texture> &texture, TextureType textureType)
@@ -234,8 +251,10 @@ public:
     {
         aiString aName;
         aMat->Get(AI_MATKEY_NAME, aName);
+        String name = ToString(aName);
 
-        auto mat = Material::Create(ToString(aName));
+        auto mat = Material::Create();
+        mat->SetName(name);
 
         LoadTextures(mat, aMat);
 
@@ -333,7 +352,8 @@ public:
         node.name = name;
         node.transform = ToMatrix4(aNode->mTransformation);
         node.parent = GetNodeID(aNode->mParent);
-        if (boneNode) node.localToBindPose = boneMatrixMap[name];
+        if (boneNode)
+            node.localToBindPose = boneMatrixMap[name];
 
         int32 nodeID = builder.AddNode(std::move(node));
         nodePtrToID.Put(aNode, nodeID);
@@ -370,13 +390,14 @@ public:
         {
             const auto aBone = aMesh->mBones[b];
             String name = ToString(aBone->mName);
+            CT_CHECK(GetNodeCount(name) == 1);
             int32 boneID = GetNodeID(name, 0);
             for (uint32 w = 0; w < aBone->mNumWeights; ++w)
             {
                 const auto &aWeight = aBone->mWeights[w];
                 auto &vertexIDs = mesh.boneIDs[aWeight.mVertexId];
                 auto &vertexWeights = mesh.boneWeights[aWeight.mVertexId];
-                
+
                 bool found = false;
                 for (uint32 i = 0; i < 4; ++i)
                 {
@@ -488,9 +509,95 @@ public:
         return true;
     }
 
+    void ResetKeyframeTimes(aiNodeAnim *aNode)
+    {
+        auto ResetTime = [](auto keys, uint32 count) {
+            if (count > 1)
+                CT_CHECK(keys[1].mTime >= 0);
+
+            if (keys[0].mTime < 0)
+                keys[0].mTime = 0;
+        };
+
+        ResetTime(aNode->mPositionKeys, aNode->mNumPositionKeys);
+        ResetTime(aNode->mRotationKeys, aNode->mNumRotationKeys);
+        ResetTime(aNode->mScalingKeys, aNode->mNumScalingKeys);
+    }
+
+    template <typename AiKeyType, typename ValType, typename Cast>
+    bool ParseAnimationKey(const AiKeyType *aKeys, uint32 count, double time, uint32 &currentIndex, ValType &val, const Cast &cast)
+    {
+        if (currentIndex >= count)
+            return true;
+
+        if (aKeys[currentIndex].mTime == time)
+        {
+            val = cast(aKeys[currentIndex].mValue);
+            currentIndex++;
+        }
+        return currentIndex >= count;
+    }
+
     bool CreateAnimation(const aiAnimation *aAnim)
     {
-        //TODO
+        String name = ToString(aAnim->mName);
+        double durationInTicks = aAnim->mDuration;
+        double ticksPerSecond = aAnim->mTicksPerSecond ? aAnim->mTicksPerSecond : 25;
+        double durationInSeconds = durationInTicks / ticksPerSecond;
+
+        auto animation = Animation::Create(durationInSeconds);
+        animation->SetName(name);
+
+        auto ResetTime = [](auto keys, uint32 count) {
+            if (count > 1)
+                CT_CHECK(keys[1].mTime >= 0);
+
+            if (keys[0].mTime < 0)
+                keys[0].mTime = 0;
+        };
+
+        // Parse node animation
+        for (uint32 i = 0; i < aAnim->mNumChannels; ++i)
+        {
+            auto aNode = aAnim->mChannels[i];
+            String nodeName = ToString(aNode->mNodeName);
+            ResetKeyframeTimes(aNode);
+
+            Array<int32> channels;
+            for (int32 n = 0; n < GetNodeCount(nodeName); ++n)
+                channels.Add(animation->AddChannel(GetNodeID(nodeName, n)));
+
+            Animation::Keyframe keyframe = {};
+            bool done = false;
+            uint32 pos = 0, rot = 0, scl = 0;
+            auto NextKeyTime = [&]() {
+                double t = -1.0; //Assume key time always >= 0
+                if (pos < aNode->mNumPositionKeys)
+                    t = Math::Max(t, aNode->mPositionKeys[pos].mTime);
+                if (rot < aNode->mNumRotationKeys)
+                    t = Math::Max(t, aNode->mRotationKeys[rot].mTime);
+                if (scl < aNode->mNumScalingKeys)
+                    t = Math::Max(t, aNode->mScalingKeys[scl].mTime);
+                CT_CHECK(t >= 0.0);
+                return t;
+            };
+            while (!done)
+            {
+                auto time = NextKeyTime();
+                CT_CHECK(time == 0 || (time / ticksPerSecond) > keyframe.time);
+                keyframe.time = time / ticksPerSecond;
+
+                done = ParseAnimationKey(aNode->mPositionKeys, aNode->mNumPositionKeys, time, pos, keyframe.translation, ToVector3);
+                done = ParseAnimationKey(aNode->mRotationKeys, aNode->mNumRotationKeys, time, rot, keyframe.rotation, ToQuat) && done;
+                done = ParseAnimationKey(aNode->mScalingKeys, aNode->mNumScalingKeys, time, scl, keyframe.scaling, ToVector3) && done;
+
+                for (auto c : channels)
+                    animation->AddKeyframe(c, keyframe);
+            }
+        }
+
+        builder.AddAnimation(0, animation);
+
         return true;
     }
 
@@ -530,6 +637,8 @@ public:
 
         //TODO fov, add node
 
+        builder.SetCamera(camera);
+
         return true;
     }
 
@@ -539,6 +648,8 @@ public:
         light->SetIntensity(ToColor(aLight->mColorSpecular));
 
         //TODO add node
+
+        builder.AddLight(light);
 
         return true;
     }

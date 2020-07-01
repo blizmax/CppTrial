@@ -7,11 +7,11 @@
 class Animation
 {
 public:
-    using AnimTimeType = float;
+    using AnimTimeType = double;
 
     struct Keyframe
     {
-        AnimTimeType time = 0.0;
+        AnimTimeType time = 0;
         Vector3 translation;
         Vector3 scaling{1.0f, 1.0f, 1.0f};
         Quat rotation;

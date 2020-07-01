@@ -49,4 +49,9 @@ private:
 
     Array<SPtr<Material>> materials;
     Array<SPtr<Light>> lights;
+
+    SPtr<Buffer> meshesBuffer;
+    SPtr<Buffer> meshInstancesBuffer;
+    SPtr<Buffer> materialsBuffer;
+    SPtr<Buffer> lightsBuffer;
 };

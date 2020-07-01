@@ -1,12 +1,8 @@
 #include "Render/Material.h"
 
-SPtr<Material> Material::Create(const String &name)
+SPtr<Material> Material::Create()
 {
-    return Memory::MakeShared<Material>(name);
-}
-
-Material::Material(const String &name) : name(name)
-{   
+    return Memory::MakeShared<Material>();
 }
 
 void Material::SetBaseTexture(const SPtr<Texture> &texture)
