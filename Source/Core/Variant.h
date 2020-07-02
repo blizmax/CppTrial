@@ -159,7 +159,7 @@ struct VariantTypeTraits<String> : public TTrueType
 template <typename T>
 CT_INLINE void WriteBytes(Array<uint8> &bytes, const T &value)
 {
-    bytes.AppendUninitialized(sizeof(T));
+    bytes.AddUninitialized(sizeof(T));
     std::memcpy(bytes.GetData(), &value, sizeof(T));
 }
 
@@ -167,7 +167,7 @@ CT_INLINE void WriteBytes(Array<uint8> &bytes, const String &value)
 {
     const auto &strArr = value.GetCharArray();
     int32 byteNum = sizeof(CharType) * strArr.Count();
-    bytes.AppendUninitialized(byteNum);
+    bytes.AddUninitialized(byteNum);
     std::memcpy(bytes.GetData(), strArr.GetData(), byteNum);
 }
 
@@ -181,7 +181,7 @@ CT_INLINE void ReadBytes(const Array<uint8> &bytes, String &value)
 {
     int32 charNum = bytes.Count() / sizeof(CharType);
     Array<CharType> temp;
-    temp.AppendUninitialized(charNum);
+    temp.AddUninitialized(charNum);
     std::memcpy(temp.GetData(), bytes.GetData(), bytes.Count());
     value = temp.GetData();
 }

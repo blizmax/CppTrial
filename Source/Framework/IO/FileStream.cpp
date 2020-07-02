@@ -56,7 +56,7 @@ Array<uint8> IO::FileInputStream::ReadBytes()
 {
     Seek(0);
     Array<uint8> arr(size);
-    arr.AppendUninitialized(size);
+    arr.AddUninitialized(size);
     Read(arr.GetData(), size);
     return arr;
 }
@@ -65,7 +65,7 @@ String IO::FileInputStream::ReadString()
 {
     Seek(0);
     Array<char8> arr(size + 1);
-    arr.AppendUninitialized(size + 1);
+    arr.AddUninitialized(size + 1);
     Read(arr.GetData(), size);
     arr[size] = 0;
     return StringEncode::UTF8::FromChars(arr);

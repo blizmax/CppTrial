@@ -27,7 +27,7 @@ public:
             int32 len = CString::Length(src);
             if (len > 0)
             {
-                data.AppendUninitialized(len + 1);
+                data.AddUninitialized(len + 1);
                 CString::Copy(data.GetData(), src, len);
                 data.GetData()[len] = 0;
             }
@@ -42,7 +42,7 @@ public:
             len = len < num ? len : num;
             if (len > 0)
             {
-                data.AppendUninitialized(len + 1);
+                data.AddUninitialized(len + 1);
                 CString::Copy(data.GetData(), src, len);
                 data.GetData()[len] = 0;
             }
@@ -55,7 +55,7 @@ public:
         {
             if (num > 0)
             {
-                data.AppendUninitialized(num + 1);
+                data.AddUninitialized(num + 1);
                 Memory::UninitializedFill(data.GetData(), num, value);
                 data.GetData()[num] = 0;
             }
@@ -68,7 +68,7 @@ public:
         {
             int32 len = (src && *src) ? CString::Length(src) + 1 : 0;
             data.Clear();
-            data.AppendUninitialized(len);
+            data.AddUninitialized(len);
             if (len > 0)
             {
                 CString::Copy(data.GetData(), src, len);
@@ -823,7 +823,7 @@ public:
             if (len > 0)
             {
                 const auto curCount = data.Count();
-                data.AppendUninitialized(len + (curCount ? 0 : 1));
+                data.AddUninitialized(len + (curCount ? 0 : 1));
                 CharType *curPtr = data.GetData() + curCount - (curCount ? 1 : 0);
                 CString::Copy(curPtr, src, len);
                 *(curPtr + len) = 0;
@@ -837,7 +837,7 @@ public:
         if (value != 0)
         {
             const auto curCount = data.Count();
-            data.AppendUninitialized(1 + (curCount ? 0 : 1));
+            data.AddUninitialized(1 + (curCount ? 0 : 1));
             CharType *curPtr = data.GetData() + curCount - (curCount ? 1 : 0);
             *curPtr = value;
             *(curPtr + 1) = 0;
@@ -1111,7 +1111,7 @@ private:
             }
             else
             {
-                data.AppendUninitialized(otherNum - num);
+                data.AddUninitialized(otherNum - num);
                 auto ptr = data.GetData() + index;
                 CString::Move(ptr + otherNum, ptr + num, len - index - num + 1);
                 CString::Copy(ptr, otherSrc, otherNum);

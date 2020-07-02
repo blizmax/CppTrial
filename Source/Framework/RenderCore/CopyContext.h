@@ -14,7 +14,7 @@ public:
     {
         Array<uint8> result;
         fence->SyncCpu();
-        result.AppendUninitialized(size);
+        result.AddUninitialized(size);
         uint8 *ptr = reinterpret_cast<uint8 *>(buffer->Map(BufferMapType::Read));
         std::memcpy(result.GetData(), ptr, size);
         buffer->Unmap();

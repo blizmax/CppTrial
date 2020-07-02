@@ -107,7 +107,7 @@ void VulkanDevice::InitPhysicalDevice()
     uint32 deviceCount;
     if (vkEnumeratePhysicalDevices(gVulkanInstance, &deviceCount, nullptr) == VK_SUCCESS && deviceCount > 0)
     {
-        devices.AppendUninitialized(deviceCount);
+        devices.AddUninitialized(deviceCount);
         vkEnumeratePhysicalDevices(gVulkanInstance, &deviceCount, devices.GetData());
 
         int32 selected = 0;
@@ -139,7 +139,7 @@ void VulkanDevice::CreateLogicalDevice()
     uint32 queueFamilyCount;
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
     Array<VkQueueFamilyProperties> queueFamilies;
-    queueFamilies.AppendUninitialized(queueFamilyCount);
+    queueFamilies.AddUninitialized(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.GetData());
 
     Array<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -177,7 +177,7 @@ void VulkanDevice::CreateLogicalDevice()
     uint32 extensionCount;
     vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
     Array<VkExtensionProperties> availableExtensions;
-    availableExtensions.AppendUninitialized(extensionCount);
+    availableExtensions.AddUninitialized(extensionCount);
     vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.GetData());
     for (const auto &e : extensions)
     {
@@ -243,14 +243,14 @@ void VulkanDevice::CreateSwapChain()
     uint32 formatCount;
     if (vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Get surface formats failed.");
-    formats.AppendUninitialized(formatCount);
+    formats.AddUninitialized(formatCount);
     vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, formats.GetData());
 
     Array<VkPresentModeKHR> presentModes;
     uint32 presentModeCount;
     if (vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Get surface present modes failed.");
-    presentModes.AppendUninitialized(presentModeCount);
+    presentModes.AddUninitialized(presentModeCount);
     vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes.GetData());
 
     if (formatCount == 0 || presentModeCount == 0)
@@ -351,7 +351,7 @@ void VulkanDevice::CreateVmaAllocator()
 void VulkanDevice::UpdateBackBuffers(int32 width, int32 height, ResourceFormat colorFormat, ResourceFormat depthFormat)
 {
     Array<VkImage> images;
-    images.AppendUninitialized(backBufferCount);
+    images.AddUninitialized(backBufferCount);
     uint32 imageCount = backBufferCount;
     vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, images.GetData());
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Render/.Package.h"
-#include "Math/Matrix4.h"
 
 struct CameraData
 {
@@ -72,9 +71,20 @@ public:
         return data.farZ;
     }
 
+    const String &GetName() const
+    {
+        return name;
+    }
+
+    void SetName(const String &newName)
+    {
+        name = newName;
+    }
+
     static SPtr<Camera> Create();
 
 private:
+    String name;
     CameraData data{};
     bool dirty = true;
 };

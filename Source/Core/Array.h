@@ -176,7 +176,7 @@ public:
         }
     }
 
-    void AppendUninitialized(int32 num)
+    void AddUninitialized(int32 num)
     {
         CT_CHECK(num >= 0);
 

@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Render/.Package.h"
-#include "Math/Matrix4.h"
-#include "Math/Quat.h"
 
 class Animation
 {

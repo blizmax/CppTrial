@@ -44,12 +44,26 @@ public:
     static SPtr<Scene> Create();
 
 private:
+    void InitResources();
+    void Finalize();    
+
+private:
+    friend class SceneBuilder;
+
     SPtr<Camera> camera;
     SPtr<CameraController> cameraController;
 
     Array<SPtr<Material>> materials;
     Array<SPtr<Light>> lights;
 
+    Array<MeshDesc> meshDesces;
+    Array<MeshInstanceData> meshInstanceDatas;
+    Array<Array<int32>> meshGroups;
+    Array<SceneNode> nodes;
+
+    Array<bool> meshHasDynamicDatas;
+
+    SPtr<VertexArray> vao;
     SPtr<Buffer> meshesBuffer;
     SPtr<Buffer> meshInstancesBuffer;
     SPtr<Buffer> materialsBuffer;

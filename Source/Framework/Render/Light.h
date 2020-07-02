@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Render/.Package.h"
-#include "Math/Vector3.h"
-#include "Core/Math.h"
 
 enum class LightType
 {
@@ -40,7 +38,18 @@ public:
         return data;
     }
 
+    const String &GetName() const
+    {
+        return name;
+    }
+
+    void SetName(const String &newName)
+    {
+        name = newName;
+    }
+
 protected:
+    String name;
     LightData data{};
 };
 

@@ -1,6 +1,6 @@
 #include "Render/SceneBuilder.h"
 
-int32 SceneBuilder::AddNode(Node node)
+int32 SceneBuilder::AddNode(SceneNode node)
 {
     int32 nodeID = nodes.Count();
     if (node.parent != -1)
@@ -32,8 +32,8 @@ int32 SceneBuilder::AddMesh(Mesh mesh)
     auto &spec = meshes.Last();
 
     spec.indexOffset = buffersData.indices.Count();
-    spec.staticVertexOffset = buffersData.staticData.Count();
-    spec.dynamicVertexOffset = buffersData.dynamicData.Count();
+    spec.staticVertexOffset = buffersData.staticDatas.Count();
+    spec.dynamicVertexOffset = buffersData.dynamicDatas.Count();
     spec.indexCount = mesh.indices.Count();
     spec.vertexCount = mesh.positions.Count();
     spec.topology = mesh.topology;
@@ -44,9 +44,9 @@ int32 SceneBuilder::AddMesh(Mesh mesh)
     }
 
     {
-        buffersData.indices.AppendUninitialized(spec.indexCount);
-        buffersData.staticData.AppendUninitialized(spec.vertexCount);
-        buffersData.dynamicData.AppendUninitialized(spec.hasDynamicData ? spec.vertexCount : 0);
+        buffersData.indices.AddUninitialized(spec.indexCount);
+        buffersData.staticDatas.AddUninitialized(spec.vertexCount);
+        buffersData.dynamicDatas.AddUninitialized(spec.hasDynamicData ? spec.vertexCount : 0);
 
         for (auto e : mesh.indices)
             buffersData.indices.Add(e);
@@ -59,15 +59,15 @@ int32 SceneBuilder::AddMesh(Mesh mesh)
             s.uv = mesh.uvs[i];
             s.bitangent = mesh.bitangents[i];
 
-            buffersData.staticData.Add(std::move(s));
+            buffersData.staticDatas.Add(std::move(s));
 
             if (spec.hasDynamicData)
             {
                 DynamicVertexData d;
                 d.boneID = mesh.boneIDs[i];
                 d.boneWeight = mesh.boneWeights[i];
-                d.staticIndex = buffersData.staticData.Count() - 1;
-                buffersData.dynamicData.Add(std::move(d));
+                d.staticIndex = buffersData.staticDatas.Count() - 1;
+                buffersData.dynamicDatas.Add(std::move(d));
             }
         }
     }
@@ -103,6 +103,25 @@ int32 SceneBuilder::AddAnimation(int32 meshID, const SPtr<Animation> &anim)
     return meshes[meshID].animations.Count() - 1;
 }
 
+SPtr<VertexArray> SceneBuilder::CreateVao(int32 drawCount)
+{
+    const auto vertexCount = buffersData.staticDatas.Count();
+    const auto indexCount = buffersData.indices.Count();
+    uint64 ibSize = sizeof(uint32) * indexCount;
+    uint64 staticVbSize = sizeof(StaticVertexData) * vertexCount;
+    CT_CHECK(ibSize <= UINT32_MAX);
+    CT_CHECK(staticVbSize <= UINT32_MAX);
+
+    ResourceBindFlags ibBindFlags = ResourceBind::Index | ResourceBind::ShaderResource;
+    auto ibo = Buffer::Create((uint32)ibSize, ibBindFlags, CpuAccess::None, buffersData.indices.GetData());
+
+    ResourceBindFlags vbBindFlags = ResourceBind::Vertex | ResourceBind::UnorderedAccess | ResourceBind::ShaderResource;
+    auto staticVbo = Buffer::CreateStructured(sizeof(StaticVertexData), vertexCount, vbBindFlags, CpuAccess::None, nullptr, false);
+   
+    
+    //TODO
+}
+
 SPtr<Scene> SceneBuilder::GetScene()
 {
     if (!dirty)
@@ -111,6 +130,54 @@ SPtr<Scene> SceneBuilder::GetScene()
     CT_CHECK(!meshes.IsEmpty());
 
     scene = Scene::Create();
+
+    scene->camera = camera ? camera : Camera::Create();
+    scene->lights = lights;
+    scene->materials = materials;
+    scene->nodes = nodes; // Move it?
+
+    int32 drawCount = 0;
+    {   // Scene mesh data 
+        scene->meshDesces.AddUninitialized(meshes.Count());
+        scene->meshHasDynamicDatas.AddUninitialized(meshes.Count());
+        for (int32 i = 0; i < meshes.Count(); ++i)
+        {
+            scene->meshDesces.Add(MeshDesc());
+            auto &desc = scene->meshDesces.Last();
+
+            const auto &mesh = meshes[i];
+            desc.materialID = mesh.materialID;
+            desc.vertexOffset = mesh.staticVertexOffset;
+            desc.indexOffset = mesh.indexOffset;
+            desc.vertexCount = mesh.vertexCount;
+            desc.indexCount = mesh.indexCount;
+
+            drawCount += mesh.instances.Count();
+
+            for (const auto &instance : mesh.instances)
+            {
+                scene->meshInstanceDatas.Add(MeshInstanceData());
+                auto &d = scene->meshInstanceDatas.Last();
+                d.globalMatrixID = instance;
+                d.materialID = mesh.materialID;
+                d.meshID = i;
+                d.vertexOffset = mesh.staticVertexOffset;
+                d.indexOffset = mesh.indexOffset;
+            }
+
+            scene->meshHasDynamicDatas.Add(mesh.hasDynamicData);
+            if (mesh.hasDynamicData)
+            {
+                CT_CHECK(mesh.instances.Count() == 1);
+                for (int32 j = 0; j < mesh.vertexCount; ++j)
+                {
+                    buffersData.dynamicDatas[mesh.dynamicVertexOffset + j].globalMatrixID = mesh.instances[0];
+                }
+            }
+        }
+    }
+
+    scene->vao = CreateVao(drawCount);
 
     //TODO
 

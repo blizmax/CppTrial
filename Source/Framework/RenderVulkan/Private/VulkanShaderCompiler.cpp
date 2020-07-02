@@ -631,7 +631,7 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
 
         auto size = 4 * spv.size();
         Array<uchar8> codes;
-        codes.AppendUninitialized(size);
+        codes.AddUninitialized(size);
         std::memcpy(codes.GetData(), spv.data(), size);
 
         func(e.shaderType, codes);

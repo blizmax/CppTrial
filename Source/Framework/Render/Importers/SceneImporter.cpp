@@ -65,9 +65,6 @@ Matrix4 ToMatrix4(const aiMatrix4x4 &aMat)
 class ImporterImpl
 {
 public:
-    using Node = SceneBuilder::Node;
-    using Mesh = SceneBuilder::Mesh;
-
     ImporterImpl() = default;
 
     SPtr<Scene> Import(const String &path, const SPtr<SceneImportSettings> &settings)
@@ -343,7 +340,7 @@ public:
 
     bool ParseNode(const aiNode *aNode)
     {
-        Node node = {};
+        SceneNode node = {};
 
         String name = ToString(aNode->mName);
         const bool boneNode = IsBone(name);

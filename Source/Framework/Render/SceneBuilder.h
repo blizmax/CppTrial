@@ -5,30 +5,6 @@
 class SceneBuilder
 {
 public:
-    struct Node
-    {
-        String name;
-        Matrix4 transform;
-        Matrix4 localToBindPose;
-        int32 parent = - 1;
-        Array<int32> children;
-        Array<int32> meshes;
-    };
-
-    struct Mesh
-    {
-        String name;
-        Array<uint32> indices;
-        Array<Vector3> positions;
-        Array<Vector3> normals;
-        Array<Vector3> bitangents;
-        Array<Vector2> uvs;
-        Array<Vector4I> boneIDs;
-        Array<Vector4> boneWeights;
-        Topology topology = Topology::Undefined;
-        SPtr<Material> material;
-    };
-
     struct MeshSpec
     {
         Topology topology = Topology::Undefined;
@@ -46,12 +22,12 @@ public:
     struct BuffersData
     {
         Array<uint32> indices;
-        Array<StaticVertexData> staticData;
-        Array<DynamicVertexData> dynamicData;
+        Array<StaticVertexData> staticDatas;
+        Array<DynamicVertexData> dynamicDatas;
     };
 
 public:
-    int32 AddNode(Node node);
+    int32 AddNode(SceneNode node);
     int32 AddMesh(Mesh mesh);
     void AddMeshInstance(int32 nodeID, int32 meshID);
     void SetCamera(const SPtr<Camera> &newCamera);
@@ -62,9 +38,10 @@ public:
 
 private:
     int32 AddMaterial(const SPtr<Material> &material);
+    SPtr<VertexArray> CreateVao(int32 drawCount);
 
 private:
-    Array<Node> nodes;
+    Array<SceneNode> nodes;
     Array<MeshSpec> meshes;
     Array<SPtr<Material>> materials;
     Array<SPtr<Light>> lights;
