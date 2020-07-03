@@ -139,7 +139,7 @@ void ImGuiLab::BindRenderer()
     ImGuiIO &io = ImGui::GetIO();
     io.BackendRendererName = "WIP";
 
-    program = Program::Create(CT_TEXT("Assets/Shaders/Vulkan/ImGui.glsl"));
+    program = Program::Create(CT_TEXT("Assets/Shaders/ImGui.glsl"));
     programVars = GraphicsVars::Create(program);
     graphicsState = GraphicsState::Create();
     graphicsState->SetProgram(program);

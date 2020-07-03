@@ -87,6 +87,13 @@ public:
         return uavCounter;
     }
 
+    template <typename T>
+    void SetElement(int32 index, const T &val)
+    {
+        CT_CHECK(index >= 0);
+        SetBlob(&val, sizeof(T) * index, sizeof(T));
+    }
+
     static SPtr<Buffer> Create(uint32 size, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr);
     static SPtr<Buffer> CreateTyped(ResourceFormat format, int32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr);
     static SPtr<Buffer> CreateStructured(uint32 structSize, int32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr, bool createCounter = true);

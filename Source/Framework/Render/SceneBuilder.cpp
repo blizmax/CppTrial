@@ -120,6 +120,7 @@ SPtr<VertexArray> SceneBuilder::CreateVao(int32 drawCount)
    
     
     //TODO
+    return nullptr;
 }
 
 SPtr<Scene> SceneBuilder::GetScene()

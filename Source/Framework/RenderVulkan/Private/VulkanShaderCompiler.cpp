@@ -569,7 +569,7 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
 {
     glslang::TProgram program;
     DirStackFileIncluder includer;
-    includer.pushExternalLocalDirectory("Assets/Shaders/Vulkan/");
+    includer.pushExternalLocalDirectory("Assets/Shaders/");
 
     Array<UPtr<glslang::TShader>> shaders;
 

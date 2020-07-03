@@ -8,18 +8,6 @@ enum class LightType
     Directional,
 };
 
-struct LightData
-{
-    Vector3 pos{0.0f, 0.0f, 0.0f}; // world space position
-    int32 type = (int32)LightType::Point;
-    Vector3 dir{0.0f, -1.0f, 0.0f}; // world space direction
-    float openingAngle = Math::PI;
-    Vector3 intensity{1.0f, 1.0f, 1.0f};
-    float cosOpeningAngle = -1.0f;
-    float penumbraAngle = 0.0f;
-    Vector3 _pad;
-};
-
 class Light
 {
 public:

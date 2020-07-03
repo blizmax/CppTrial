@@ -9,6 +9,7 @@
 class Scene
 {
 public:
+    void BindSamplerToMaterials(const SPtr<Sampler> &sampler);
     void Render(RenderContext *ctx, GraphicsState *state, GraphicsVars *vars);
 
     int32 GetMaterialCount() const
@@ -45,6 +46,8 @@ public:
 
 private:
     void InitResources();
+    void UploadResources();
+    void UploadMaterial(int32 matID);
     void Finalize();    
 
 private:

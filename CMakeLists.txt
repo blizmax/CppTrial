@@ -37,6 +37,8 @@ include_directories(${CT_EXTERNAL_DIR}/stb)
 include_directories(${CT_EXTERNAL_DIR}/vulkan/include)
 include_directories(${CT_EXTERNAL_DIR}/VulkanMemoryAllocator)
 
+include_directories(${PROJECT_SOURCE_DIR}/Assets/Shaders)
+
 # Freetype
 set(CT_FREETYPE_VERSION freetype-2.10.1)
 add_subdirectory(${CT_EXTERNAL_DIR}/${CT_FREETYPE_VERSION})

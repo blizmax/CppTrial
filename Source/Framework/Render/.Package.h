@@ -4,6 +4,8 @@
 #include "Math/Matrix4.h"
 #include "Math/Quat.h"
 
+#include "Scene/SceneTypes.h"
+
 class Material;
 
 struct SceneNode
@@ -28,39 +30,4 @@ struct Mesh
     Array<Vector4> boneWeights;
     Topology topology = Topology::Undefined;
     SPtr<Material> material;
-};
-
-struct MeshDesc
-{
-    int32 vertexOffset;
-    int32 indexOffset;
-    int32 vertexCount;
-    int32 indexCount;
-    int32 materialID;
-};
-
-struct MeshInstanceData
-{
-    int32 globalMatrixID;
-    int32 materialID;
-    int32 meshID;
-    int32 flags;
-    int32 vertexOffset;
-    int32 indexOffset;
-};
-
-struct StaticVertexData
-{
-    Vector3 position;
-    Vector3 normal;
-    Vector3 bitangent;
-    Vector2 uv;
-};
-
-struct DynamicVertexData
-{
-    Vector4I boneID;
-    Vector4 boneWeight;
-    int32 staticIndex;
-    int32 globalMatrixID;
 };

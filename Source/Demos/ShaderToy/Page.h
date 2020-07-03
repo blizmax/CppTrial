@@ -17,7 +17,7 @@ public:
 
     static String GetShaderDirectory()
     {
-        return CT_TEXT("Assets/Shaders/Vulkan/ShaderToy/");
+        return CT_TEXT("Assets/Shaders/ShaderToy/");
     }
 };
 

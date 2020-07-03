@@ -13,17 +13,6 @@ struct MaterialResources
     SPtr<Sampler> samplerState;
 };
 
-struct MaterialData
-{
-    Color base{1.0f, 1.0f, 1.0f, 1.0f};     //RGB: Base color,     A: Transparency
-    Color specular{0.0f, 0.0f, 0.0f, 0.0f}; //RGB: Specular,       A: Gloss
-    Color emissive{0.0f, 0.0f, 0.0f, 1.0f}; //RGB: Emissive color, A: Factor
-
-    float alphaThreshold = 0.5f;
-    float ior = 1.5f;
-    Vector2 _pad;
-};
-
 class Material
 {
 public:
