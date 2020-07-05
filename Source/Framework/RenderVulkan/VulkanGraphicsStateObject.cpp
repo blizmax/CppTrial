@@ -91,7 +91,7 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
         rasterizationInfo.polygonMode = ToVkPolygonMode(rasterizationDesc.polygonMode);
         rasterizationInfo.lineWidth = 1.0f;
         rasterizationInfo.cullMode = ToVkCullMode(rasterizationDesc.cullMode);
-        rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+        rasterizationInfo.frontFace = rasterizationDesc.frontCCW ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
         rasterizationInfo.depthBiasEnable = rasterizationDesc.depthBiasEnabled;
         rasterizationInfo.depthBiasConstantFactor = rasterizationDesc.depthBias;
         rasterizationInfo.depthBiasSlopeFactor = rasterizationDesc.slopeScaledDepthBias;

@@ -31,7 +31,7 @@ private:
         // desc.shaderDescs.Add({ShaderType::Vertex, vertSrcFile.ReadString()});
         // desc.shaderDescs.Add({ShaderType::Pixel, fragSrcFile.ReadString()});
         // return Program::Create(desc);
-        return Program::Create(CT_TEXT("Assets/Shaders/LearnVK/shader.glsl"));
+        return Program::Create(CT_TEXT("Assets/Shaders/Experimental/LearnVK.glsl"));
     }
 
 public:
@@ -124,8 +124,8 @@ private:
 public:
     virtual void Startup() override
     {
-        SceneImporter importer;
-        auto scene = importer.Import(CT_TEXT("Assets/Models/viking_room/viking_room.obj"), nullptr);
+        // SceneImporter importer;
+        // auto scene = importer.Import(CT_TEXT("Assets/Models/viking_room/viking_room.obj"), nullptr);
 
         renderer = Memory::MakeShared<Renderer>();
     }

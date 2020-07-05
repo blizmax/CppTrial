@@ -4,6 +4,12 @@
 #include "Math/Matrix4.h"
 #include "Math/Quat.h"
 
+enum class LightType
+{
+    Point,
+    Directional,
+};
+
 #include "Scene/SceneTypes.h"
 
 class Material;

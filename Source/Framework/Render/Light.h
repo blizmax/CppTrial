@@ -2,12 +2,6 @@
 
 #include "Render/.Package.h"
 
-enum class LightType
-{
-    Point,
-    Directional,
-};
-
 class Light
 {
 public:

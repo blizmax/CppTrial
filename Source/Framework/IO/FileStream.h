@@ -89,6 +89,13 @@ public:
     Array<uint8> ReadBytes();
     String ReadString();
 
+    template <typename T>
+    FileInputStream &operator>>(T &val)
+    {
+        fstream >> val;
+        return *this;
+    }
+
 protected:
     std::ifstream fstream;
 };
@@ -113,4 +120,4 @@ protected:
 };
 
 
-} // namespace IO
+}

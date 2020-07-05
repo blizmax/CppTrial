@@ -6,6 +6,7 @@ struct RasterizationStateDesc
 {
     PolygonMode polygonMode = PolygonMode::Fill;
     CullMode cullMode = CullMode::Back;
+    bool frontCCW = false; // if true, front facing is counter-clockwise.
     bool scissorEnabled = true;
     bool depthClampEnabled = true;
     bool depthBiasEnabled = false;
