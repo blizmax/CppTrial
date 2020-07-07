@@ -1,48 +1,66 @@
 #include "Render/Camera.h"
 
+static float FocalLengthToFov(float focalLength, float frameHeight)
+{
+    return 2.0f * Math::Atan(0.5f * frameHeight / focalLength);
+}
+
+static float FovToFocalLength(float fov, float frameHeight)
+{
+    return frameHeight / (2.0f * tan(0.5f * fov));
+}
+
 SPtr<Camera> Camera::Create()
 {
     return Memory::MakeShared<Camera>();
 }
 
-void Camera::SetPosition(const Vector3 &pos)
+void Camera::CalculateParameters() const
 {
-    data.pos = pos;
-    dirty = true;
+    if (!dirty)
+        return;
+    
+    dirty = false;
+
+    const float fovY = data.focalLength == 0.0f ? 0.0f : FocalLengthToFov(data.focalLength, data.frameHeight);
+
+    data.viewMat = Matrix4::LookAt(data.pos, data.target, data.up);
+    if (fovY != 0.0f)
+    {
+        data.projMat = Matrix4::Projection(fovY, data.aspectRatio, data.nearZ, data.farZ);
+    }
+    else
+    {
+        const float h = (data.pos - data.target).Length() * 0.5f;
+        data.projMat = Matrix4::Ortho(-h, h, -h, h, data.nearZ, data.farZ);
+    }
+
+    data.viewProjMat = data.projMat * data.viewMat;
+    data.invViewProj = data.viewProjMat.Inverse();
+
+    //TODO jitter mat, frustum
 }
 
-void Camera::SetUp(const Vector3 &up)
+const Matrix4 &Camera::GetView() const
 {
-    data.up = up;
-    dirty = true;
+    CalculateParameters();
+    return data.viewMat;
 }
 
-void Camera::SetTarget(const Vector3 &target)
+const Matrix4 &Camera::GetProjection() const
 {
-    data.target = target;
-    dirty = true;
+    CalculateParameters();
+    return data.projMat;
 }
 
-void Camera::SetFocalLength(float value)
+const Matrix4 &Camera::GetViewProjection() const
 {
-    data.focalLength = value;
-    dirty = true;
+    CalculateParameters();
+    return data.viewProjMat;
 }
 
-void Camera::SetAspectRatio(float value)
+const Matrix4 &Camera::GetInvViewProjection() const
 {
-    data.aspectRatio = value;
-    dirty = true;
-}
-
-void Camera::SetNearZ(float value)
-{
-    data.nearZ = value;
-    dirty = true;
-}
-
-void Camera::SetFarZ(float value)
-{
-    data.farZ = value;
-    dirty = true;
+    CalculateParameters();
+    return data.invViewProj;
 }
