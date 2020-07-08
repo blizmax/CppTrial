@@ -32,14 +32,6 @@ private:
     void RenderDrawData(ImDrawData *drawData);
 
 private:
-    Input::KeyTypedEventDelegate::Handle KeyTypedHandle;
-    Input::KeyDownEventDelegate::Handle keyDownHandle;
-    Input::KeyUpEventDelegate::Handle keyUpHandle;
-    Input::TouchDownEventDelegate::Handle touchDownHandle;
-    Input::TouchUpEventDelegate::Handle touchUpHandle;
-    Input::MouseMovedEventDelegate::Handle mouseMovedHandle;
-    Input::MouseScrolledEventDelegate::Handle mouseScrolledHandle;
-
     SPtr<VertexLayout> vertexLayout;
     SPtr<VertexArray> vertexArray;
     SPtr<Texture> texture;

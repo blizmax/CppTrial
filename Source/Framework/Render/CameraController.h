@@ -45,6 +45,8 @@ public:
     {
     }
 
+    void SetModelParams(const Vector3 &center, float radius, float distance);
+
     virtual bool Update() override;
     virtual void OnTouchDown(TouchDownEvent &event) override;
     virtual void OnTouchUp(TouchUpEvent &event) override;
@@ -66,3 +68,43 @@ private:
 
     bool dirty = false;
 };
+
+template <bool b6DOF>
+class TFirstPersonCameraController : public CameraController
+{
+public:
+    TFirstPersonCameraController(const SPtr<Camera> &camera) : CameraController(camera)
+    {
+    }
+
+    virtual bool Update() override;
+    virtual void OnTouchDown(TouchDownEvent &event) override;
+    virtual void OnTouchUp(TouchUpEvent &event) override;
+    virtual void OnMouseMoved(MouseMovedEvent &event) override;
+    virtual void OnMouseScrolled(MouseScrolledEvent &event) override;
+    virtual void OnKeyDown(KeyDownEvent &event) override;
+    virtual void OnKeyUp(KeyUpEvent &event) override;
+
+    static SPtr<TFirstPersonCameraController> Create(const SPtr<Camera> &camera)
+    {
+        return Memory::MakeShared<TFirstPersonCameraController>(camera);
+    }
+
+protected:
+    static constexpr int32 DIR_FORWARD = 0;
+    static constexpr int32 DIR_BACKWARD = 1;
+    static constexpr int32 DIR_RIGHT = 2;
+    static constexpr int32 DIR_LEFT = 3;
+    static constexpr int32 DIR_UP = 4;
+    static constexpr int32 DIR_DOWN = 5;
+
+    bool keyPressed[6] = {0};
+    bool leftBtnDown = false;
+    bool rightBtnDown = false;
+    bool shouldRotate = false;
+    Vector2 lastPos;
+    Vector2 delta;
+};
+
+using FirstPersonCameraController = TFirstPersonCameraController<false>;
+using SixDOFCameraController = TFirstPersonCameraController<true>;

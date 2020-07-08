@@ -25,13 +25,13 @@ public:
         Callable callable;
         bool alive;
 
-        InnerData(Callable func) : alive(true)
+        InnerData(const Callable &func) : alive(true)
         {
             callable = func;
         }
 
         template <typename ObjectType>
-        InnerData(MemberFunc<ObjectType> func, ObjectType *obj) : alive(true)
+        InnerData(const MemberFunc<ObjectType> &func, ObjectType *obj) : alive(true)
         {
             using namespace std::placeholders;
 
@@ -125,7 +125,7 @@ public:
         chain.Clear();
     }
 
-    Handle On(Callable func)
+    Handle On(const Callable &func)
     {
         auto innerData = Memory::MakeShared<InnerData>(func);
 
@@ -135,7 +135,7 @@ public:
     }
 
     template <typename ObjectType>
-    Handle On(MemberFunc<ObjectType> func, ObjectType *obj)
+    Handle On(const MemberFunc<ObjectType> &func, ObjectType *obj)
     {
         auto innerData = Memory::MakeShared<InnerData>(func, obj);
 
@@ -146,9 +146,31 @@ public:
     }
 
     template <typename ObjectType>
-    Handle On(ConstMemberFunc<ObjectType> func, ObjectType *obj)
+    Handle On(const ConstMemberFunc<ObjectType> &func, ObjectType *obj)
     {
         return On((MemberFunc<ObjectType>)(func), obj);
+    }
+
+    template <typename... Pargs>
+    Delegate &operator+=(Pargs &&... args)
+    {
+        On(std::forward<Pargs>(args)...);
+        return *this;
+    }
+
+    Delegate &operator-=(Callable &func)
+    {
+        std::unique_lock<std::recursive_mutex> lock(mutex);
+
+        for (auto &e : chain)
+        {
+            if (e->callable == func)
+            {
+                e->alive = false;
+                break;
+            }
+        }
+        return *this;
     }
 
     void operator()(Args... args)

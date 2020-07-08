@@ -28,7 +28,7 @@ void Application::PreInit(const WindowDesc &desc)
     window = Window::Create(desc);
     window->Startup();
     CT_LOG(Info, CT_TEXT("Primary window created."));
-    
+
     Input::Init();
     Clipboard::Init();
 }
@@ -45,6 +45,42 @@ void Application::Init()
     CT_LOG(Info, CT_TEXT("ImGuiLab startup."));
 
     gLogic->Startup();
+    GetInput().keyTypedHandler += ([](auto &e) {
+        if (e.handled)
+            return;
+        gLogic->OnKeyTyped(e);
+    });
+    GetInput().keyDownHandler += ([](auto &e) {
+        if (e.handled)
+            return;
+        gLogic->OnKeyDown(e);
+    });
+    GetInput().keyUpHandler += ([](auto &e) {
+        if (e.handled)
+            return;
+        gLogic->OnKeyUp(e);
+    });
+    GetInput().touchDownHandler += ([](auto &e) {
+        if (e.handled)
+            return;
+        gLogic->OnTouchDown(e);
+    });
+    GetInput().touchUpHandler += ([](auto &e) {
+        if (e.handled)
+            return;
+        gLogic->OnTouchUp(e);
+    });
+    GetInput().mouseMovedHandler += ([](auto &e) {
+        if (e.handled)
+            return;
+        gLogic->OnMouseMoved(e);
+    });
+    GetInput().mouseScrolledHandler += ([](auto &e) {
+        if (e.handled)
+            return;
+        gLogic->OnMouseScrolled(e);
+    });
+
     CT_LOG(Info, CT_TEXT("Logic startup."));
 }
 
@@ -56,7 +92,7 @@ void Application::Run()
         auto delta = time - lastTime < 100 ? 100 : time - lastTime; //TODO Sleep?
         deltaTime = lastTime > 0 ? delta / 1000000000.0f : 0.0f;
         lastTime = time;
-        if(time - frameCountTime >= 1000000000)
+        if (time - frameCountTime >= 1000000000)
         {
             frameCountTime = time;
             fps = frames;
@@ -83,7 +119,7 @@ void Application::Run()
 
         gRenderManager->Present();
 
-        if(window->ShouldClose())
+        if (window->ShouldClose())
             RequestQuit();
     }
 }

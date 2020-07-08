@@ -71,9 +71,9 @@ void ImGuiLab::BindPlatform()
     io.KeyMap[ImGuiKey_Y] = CT_KEY_Y;
     io.KeyMap[ImGuiKey_Z] = CT_KEY_Z;
 
-// #if defined(_WIN32)
-//     io.ImeWindowHandle = gApp->GetWindow().GetNativeHandle();
-// #endif
+    // #if defined(_WIN32)
+    //     io.ImeWindowHandle = gApp->GetWindow().GetNativeHandle();
+    // #endif
 
     // TODO: Clipboard
 
@@ -81,12 +81,13 @@ void ImGuiLab::BindPlatform()
 
     // Input events
 
-    KeyTypedHandle = gApp->GetInput().keyTypedHandler.On([](auto &event) {
+    gApp->GetInput().keyTypedHandler += ([](auto &event) {
         ImGuiIO &io = ImGui::GetIO();
         io.AddInputCharacter(event.character);
+        event.handled = io.WantCaptureKeyboard;
     });
 
-    keyUpHandle = gApp->GetInput().keyUpHandler.On([](auto &event) {
+    gApp->GetInput().keyUpHandler += ([](auto &event) {
         ImGuiIO &io = ImGui::GetIO();
         io.KeysDown[event.key] = false;
         io.KeyCtrl = io.KeysDown[CT_KEY_LEFT_CONTROL] || io.KeysDown[CT_KEY_RIGHT_CONTROL];
@@ -97,9 +98,10 @@ void ImGuiLab::BindPlatform()
 #else
         io.KeySuper = io.KeysDown[CT_KEY_LEFT_SUPER] || io.KeysDown[CT_KEY_RIGHT_SUPER];
 #endif
+        event.handled = io.WantCaptureKeyboard;
     });
 
-    keyDownHandle = gApp->GetInput().keyDownHandler.On([](auto &event) {
+    gApp->GetInput().keyDownHandler += ([](auto &event) {
         ImGuiIO &io = ImGui::GetIO();
         io.KeysDown[event.key] = true;
         io.KeyCtrl = io.KeysDown[CT_KEY_LEFT_CONTROL] || io.KeysDown[CT_KEY_RIGHT_CONTROL];
@@ -110,27 +112,32 @@ void ImGuiLab::BindPlatform()
 #else
         io.KeySuper = io.KeysDown[CT_KEY_LEFT_SUPER] || io.KeysDown[CT_KEY_RIGHT_SUPER];
 #endif
+        event.handled = io.WantCaptureKeyboard;
     });
 
-    touchUpHandle = gApp->GetInput().touchUpHandler.On([](auto &event) {
+    gApp->GetInput().touchUpHandler += ([](auto &event) {
         ImGuiIO &io = ImGui::GetIO();
         io.MouseDown[event.button] = false;
+        event.handled = io.WantCaptureMouse;
     });
 
-    touchDownHandle = gApp->GetInput().touchDownHandler.On([](auto &event) {
+    gApp->GetInput().touchDownHandler += ([](auto &event) {
         ImGuiIO &io = ImGui::GetIO();
         io.MouseDown[event.button] = true;
+        event.handled = io.WantCaptureMouse;
     });
 
-    mouseMovedHandle = gApp->GetInput().mouseMovedHandler.On([](auto &event) {
+    gApp->GetInput().mouseMovedHandler += ([](auto &event) {
         ImGuiIO &io = ImGui::GetIO();
         io.MousePos = ImVec2((float)event.x, (float)event.y);
+        event.handled = io.WantCaptureMouse;
     });
 
-    mouseScrolledHandle = gApp->GetInput().mouseScrolledHandler.On([](auto &event) {
+    gApp->GetInput().mouseScrolledHandler += ([](auto &event) {
         ImGuiIO &io = ImGui::GetIO();
         io.MouseWheel += (float)event.amount;
         //io.MouseWheelH += (float)e.amount;
+        event.handled = io.WantCaptureMouse;
     });
 }
 
@@ -144,11 +151,9 @@ void ImGuiLab::BindRenderer()
     graphicsState = GraphicsState::Create();
     graphicsState->SetProgram(program);
 
-    auto vertexBufferLayout = VertexBufferLayout::Create({
-        {CT_TEXT("VertexPosition"), ResourceFormat::RG32Float},
-        {CT_TEXT("VertexUV"), ResourceFormat::RG32Float},
-        {CT_TEXT("VertexColor"), ResourceFormat::RGBA8Unorm}
-    });
+    auto vertexBufferLayout = VertexBufferLayout::Create({{CT_TEXT("VertexPosition"), ResourceFormat::RG32Float},
+                                                          {CT_TEXT("VertexUV"), ResourceFormat::RG32Float},
+                                                          {CT_TEXT("VertexColor"), ResourceFormat::RGBA8Unorm}});
     vertexLayout = VertexLayout::Create();
     vertexLayout->AddBufferLayout(vertexBufferLayout);
 
@@ -195,13 +200,6 @@ void ImGuiLab::BindRenderer()
 
 void ImGuiLab::UnbindPlatform()
 {
-    KeyTypedHandle.Off();
-    keyUpHandle.Off();
-    keyDownHandle.Off();
-    touchUpHandle.Off();
-    touchDownHandle.Off();
-    mouseMovedHandle.Off();
-    mouseScrolledHandle.Off();
 }
 
 void ImGuiLab::UnbindRenderer()
@@ -283,12 +281,6 @@ void ImGuiLab::SetupRenderState(ImDrawData *drawData, uint32 width, uint32 heigh
     float B = drawData->DisplayPos.y + drawData->DisplaySize.y;
 
     Matrix4 mvp = Matrix4::Ortho(L, R, B, T, -1.0f, 1.0f);
-    // mvp(1, 1) = -mvp(1, 1);
-    // // mvp(2, 0) = (mvp(2, 0) + mvp(3, 0)) / 2;
-    // // mvp(2, 1) = (mvp(2, 1) + mvp(3, 1)) / 2;
-    // // mvp(2, 2) = (mvp(2, 2) + mvp(3, 2)) / 2;
-    // // mvp(2, 3) = (mvp(2, 3) + mvp(3, 3)) / 2;
-
     programVars->Root()[CT_TEXT("UB")][CT_TEXT("mvp")] = mvp;
 }
 
@@ -301,15 +293,15 @@ void ImGuiLab::RenderDrawData(ImDrawData *drawData)
 
     if (drawData->CmdListsCount == 0)
         return;
-    
+
     auto ctx = gRenderManager->GetRenderContext();
     auto &fbo = gRenderManager->GetTargetFrameBuffer();
     graphicsState->SetFrameBuffer(fbo);
 
     CreateVertexArray(drawData);
     graphicsState->SetVertexArray(vertexArray);
-    auto vertexPtr = (ImDrawVert*)vertexArray->GetVertexBuffer(0)->Map(BufferMapType::WriteDiscard);
-    auto indexPtr = (ImDrawIdx*)vertexArray->GetIndexBuffer()->Map(BufferMapType::WriteDiscard);
+    auto vertexPtr = (ImDrawVert *)vertexArray->GetVertexBuffer(0)->Map(BufferMapType::WriteDiscard);
+    auto indexPtr = (ImDrawIdx *)vertexArray->GetIndexBuffer()->Map(BufferMapType::WriteDiscard);
     for (int32 n = 0; n < drawData->CmdListsCount; n++)
     {
         const ImDrawList *cmdList = drawData->CmdLists[n];

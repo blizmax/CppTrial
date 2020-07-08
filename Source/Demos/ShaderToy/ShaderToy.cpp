@@ -90,25 +90,6 @@ public:
         auto camera = OrthographicCamera::Create(width, height);
         cameraController.SetCamera(camera);
 
-        input.touchDownHandler.On([this](auto &event) {
-            cameraController.OnTouchDown(event);
-        });
-        input.touchUpHandler.On([this](auto &event) {
-            cameraController.OnTouchUp(event);
-        });
-        input.mouseMovedHandler.On([this](auto &event) {
-            cameraController.OnMouseMoved(event);
-        });
-        input.mouseScrolledHandler.On([this](auto &event) {
-            cameraController.OnMouseScrolled(event);
-        });
-        input.keyDownHandler.On([this](auto &event) {
-            cameraController.OnKeyDown(event);
-        });
-        input.keyUpHandler.On([this](auto &event) {
-            cameraController.OnKeyUp(event);
-        });
-
         window.windowResizedHandler.On([this](auto &event) {
             cameraController.OnWindowResized(event);
         });
@@ -253,6 +234,36 @@ public:
         auto ctx = gRenderManager->GetRenderContext();
         state->SetFrameBuffer(gRenderManager->GetTargetFrameBuffer());
         ctx->DrawIndexed(state.get(), vars.get(), 6, 0, 0);
+    }
+
+    virtual void OnKeyDown(KeyDownEvent &e) override
+    {
+        cameraController.OnKeyDown(e);
+    }
+
+    virtual void OnKeyUp(KeyUpEvent &e) override
+    {
+        cameraController.OnKeyUp(e);
+    }
+
+    virtual void OnTouchDown(TouchDownEvent &e) override
+    {
+        cameraController.OnTouchDown(e);
+    }
+
+    virtual void OnTouchUp(TouchUpEvent &e) override
+    {
+        cameraController.OnTouchUp(e);
+    }
+
+    virtual void OnMouseMoved(MouseMovedEvent &e) override
+    {
+        cameraController.OnMouseMoved(e);
+    }
+
+    virtual void OnMouseScrolled(MouseScrolledEvent &e) override
+    {
+        cameraController.OnMouseScrolled(e);
     }
 };
 

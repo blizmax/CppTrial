@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Application/.Package.h"
+#include "Utils/Event.h"
 
 #define CT_BUTTON_UNKNOWN -1
 #define CT_BUTTON_0 0
@@ -155,7 +156,7 @@ enum class InputEventType
     MouseScrolled,
 };
 
-class InputEvent
+class InputEvent : public Event
 {
 public:
     virtual InputEventType GetEventType() const = 0;
