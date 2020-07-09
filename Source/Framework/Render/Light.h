@@ -48,7 +48,7 @@ public:
 
     Vector3 GetDirection() const
     {
-        return data.dir;
+        return data.dirW;
     }
 
     static SPtr<DirectionalLight> Create();
@@ -72,12 +72,12 @@ public:
 
     Vector3 GetPosition() const
     {
-        return data.pos;
+        return data.posW;
     }
 
     Vector3 GetDirection() const
     {
-        return data.dir;
+        return data.dirW;
     }
 
     float GetOpeningAngle() const

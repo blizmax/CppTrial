@@ -1,4 +1,6 @@
-#include "Scene/SceneTypes.h"
+#pragma once
+
+#include "Scene/.Package.glsl"
 
 #ifndef MATERIAL_COUNT
 #error "MATERIAL_COUNT not defined!"
@@ -37,3 +39,43 @@ layout(set = 2, binding = 0) buffer LightBuffer
 {
     LightData lights[];
 };
+
+int GetMaterialCount()
+{
+    return MATERIAL_COUNT;
+}
+
+int GetMaterialID(int meshInstanceID)
+{
+    return meshInstances[meshInstanceID].materialID;
+}
+
+MaterialData GetMaterial(int materialID)
+{
+    return materials[materialID];
+}
+
+MeshInstanceData GetMeshInstance(int meshInstanceID)
+{
+    return meshInstances[meshInstanceID];
+}
+
+MeshDesc GetMeshDesc(int meshInstanceID)
+{
+    return meshes[meshInstances[meshInstanceID].meshID];
+}
+
+int GetLightCount()
+{
+    return lights.length();
+}
+
+LightData GetLight(int lightID)
+{
+    return lights[lightID];
+}
+
+StaticVertexData GetVertex(int index)
+{
+    return vertices[index];
+}

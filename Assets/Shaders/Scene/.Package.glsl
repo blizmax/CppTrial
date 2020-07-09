@@ -1,26 +1,27 @@
+#pragma once
 
 #ifndef __cplusplus
+
+#include "Utility.glsl"
 
 #define int32 int
 #define Vector2I ivec2
 #define Vector3I ivec3
 #define Vector4I ivec4
 #define Vector2I ivec2
-
 #define uint32 uint
 #define Vector2U uvec2
 #define Vector3U uvec3
 #define Vector4U uvec4
-
 #define Vector2 vec2
 #define Vector3 vec3
 #define Vector4 vec4
-
 #define Matrix4 mat4
-
 #define Color vec4
-
 #endif
+
+#define CT_LIGHT_TYPE_POINT       0
+#define CT_LIGHT_TYPE_DIRECTIONAL 1
 
 struct MeshInstanceData
 {
@@ -81,9 +82,9 @@ struct MaterialData
 
 struct LightData
 {
-    Vector3 pos; // world space position
+    Vector3 posW; // world space position
     int32 type;
-    Vector3 dir; // world space direction
+    Vector3 dirW; // world space direction
     float openingAngle;
     Vector3 intensity;
     float cosOpeningAngle;
@@ -92,9 +93,9 @@ struct LightData
 
 #ifdef __cplusplus
     LightData() : 
-        pos{0.0f, 0.0f, 0.0f},
+        posW{0.0f, 0.0f, 0.0f},
         type((int32)LightType::Point),
-        dir{0.0f, -1.0f, 0.0f},
+        dirW{0.0f, -1.0f, 0.0f},
         openingAngle(Math::PI),
         intensity{1.0f, 1.0f, 1.0f},
         cosOpeningAngle(-1.0f),

@@ -3,6 +3,8 @@
 #include "RenderCore/RootSignature.h"
 #include "RenderCore/ProgramReflection.h"
 
+using ProgramDefines = HashMap<String, String>;
+
 struct ShaderDesc
 {
     ShaderType shaderType;
@@ -15,6 +17,7 @@ struct ProgramDesc
     ProgramDesc(std::initializer_list<ShaderDesc> initList) : shaderDescs(initList) {}
 
     Array<ShaderDesc> shaderDescs;
+    ProgramDefines defines;
 };
 
 class ProgramKernel
@@ -74,7 +77,7 @@ public:
         return ptr;
     }
 
-    static SPtr<Program> Create(const String &path);
+    static SPtr<Program> Create(const String &path, const ProgramDefines &defines = {});
 
 private:
     SPtr<ProgramKernel> kernel;

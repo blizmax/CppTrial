@@ -19,22 +19,22 @@ void DirectionalLight::SetDirection(const Vector3 &dir)
 {
     if (dir.Length2() > Math::EPSILON)
     {
-        data.dir = dir;
-        data.dir.Normalize();
-        data.pos = center - data.dir * distance;
+        data.dirW = dir;
+        data.dirW.Normalize();
+        data.posW = center - data.dirW * distance;
     }
 }
 
 void DirectionalLight::SetCenter(const Vector3 &val)
 {
     center = val;
-    data.pos = center - data.dir * distance;
+    data.posW = center - data.dirW * distance;
 }
 
 void DirectionalLight::SetDistance(float val)
 {
     distance = val;
-    data.pos = center - data.dir * distance;
+    data.posW = center - data.dirW * distance;
 }
 
 float DirectionalLight::GetPower() const
@@ -55,15 +55,15 @@ PointLight::PointLight()
 
 void PointLight::SetPosition(const Vector3 &pos)
 {
-    data.pos = pos;
+    data.posW = pos;
 }
 
 void PointLight::SetDirection(const Vector3 &dir)
 {
     if (dir.Length2() > Math::EPSILON)
     {
-        data.dir = dir;
-        data.dir.Normalize();
+        data.dirW = dir;
+        data.dirW.Normalize();
     }
 }
 

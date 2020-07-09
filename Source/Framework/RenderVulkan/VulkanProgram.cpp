@@ -14,9 +14,10 @@ static ShaderType GetShaderType(const String &str)
     return ShaderType::Vertex;
 }
 
-SPtr<Program> Program::Create(const String &path)
+SPtr<Program> Program::Create(const String &path, const ProgramDefines &defines)
 {
     ProgramDesc desc;
+    desc.defines = defines;
 
     IO::FileHandle file(path);
     if (!file.IsFile())
@@ -72,7 +73,8 @@ SPtr<Program> Program::Create(const String &path)
         return !eof;
     };
 
-    while(AppendShaderDesc());
+    while (AppendShaderDesc())
+        ;
 
     return Program::Create(desc);
 }
@@ -84,8 +86,7 @@ SPtr<ProgramKernel> ProgramKernel::Create(const ProgramDesc &desc)
 
 VulkanProgramKernel::VulkanProgramKernel(const ProgramDesc &desc) : ProgramKernel(desc)
 {
-    auto CreateShaderModule = [this](ShaderType shaderType, const Array<uchar8>& code)
-    {
+    auto CreateShaderModule = [this](ShaderType shaderType, const Array<uchar8> &code) {
         VkShaderModuleCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = code.Count();
@@ -110,7 +111,7 @@ VulkanProgramKernel::~VulkanProgramKernel()
 {
     for (const auto &d : shaderDatas)
     {
-        if(gVulkanDevice)
+        if (gVulkanDevice)
         {
             gVulkanDevice->Release([module = d.module]() {
                 vkDestroyShaderModule(gVulkanDevice->GetLogicalDeviceHandle(), module, gVulkanAlloc);

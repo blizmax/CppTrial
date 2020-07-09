@@ -4,15 +4,15 @@
 #include "Math/Matrix4.h"
 #include "Math/Quat.h"
 
-enum class LightType
-{
-    Point,
-    Directional,
-};
-
-#include "Scene/SceneTypes.h"
+#include "Scene/.Package.glsl"
 
 class Material;
+
+enum class LightType
+{
+    Point = CT_LIGHT_TYPE_POINT,
+    Directional = CT_LIGHT_TYPE_DIRECTIONAL,
+};
 
 struct SceneNode
 {
