@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CT_SCENE_LIGHT__
+#define __CT_SCENE_LIGHT__
 
 #include "Scene/.Package.glsl"
 #include "Scene/ShadingData.glsl"
@@ -74,3 +75,5 @@ LightSample EvalLight(LightData light, ShadingData sd)
     CalcCommonLightProperties(sd, ls);
     return ls;
 }
+
+#endif

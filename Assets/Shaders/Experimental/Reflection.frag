@@ -1,5 +1,8 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
+#extension GL_GOOGLE_include_directive : enable
+
+#include "Scene/Raster.glsl"
 
 struct Textures
 {
@@ -53,7 +56,7 @@ layout (binding = 4) uniform ArrayBlock
     float arrayData[7];
 };
 
-layout(location = 0) in vec2 UV;
+layout(location = 0) in VertexOut vertexOut;
 
 layout(location = 0) out vec4 FragColor;
 
@@ -69,6 +72,6 @@ void main()
 
     v *= arrayData[1];
 
-    vec4 col = texture(sampler2D(textures[1], samplers[1]), UV);
-    FragColor = texture(sampler2D(textures[0], samplers[0]), UV) + col * v;
+    vec4 col = texture(sampler2D(textures[1], samplers[1]), vertexOut.uv);
+    FragColor = texture(sampler2D(textures[0], samplers[0]), vertexOut.uv) + col * v;
 }

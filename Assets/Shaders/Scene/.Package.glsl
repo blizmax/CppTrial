@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CT_SCENE_PACKAGE__
+#define __CT_SCENE_PACKAGE__
 
 #ifndef __cplusplus
 
@@ -94,7 +95,7 @@ struct LightData
 #ifdef __cplusplus
     LightData() : 
         posW{0.0f, 0.0f, 0.0f},
-        type((int32)LightType::Point),
+        type(CT_LIGHT_TYPE_POINT),
         dirW{0.0f, -1.0f, 0.0f},
         openingAngle(Math::PI),
         intensity{1.0f, 1.0f, 1.0f},
@@ -104,3 +105,6 @@ struct LightData
     }
 #endif
 };
+
+
+#endif

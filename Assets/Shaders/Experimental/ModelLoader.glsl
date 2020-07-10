@@ -2,18 +2,20 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
+#include "Scene/Raster.glsl"
+
+
 layout(binding = 0) uniform UB
 {
     mat4 mvp;
 };
 
-
 #type vertex
 
-layout(location = 0) in vec3 VertexPosition;
-layout(location = 1) in vec3 VertexNormal;
+// layout(location = 0) in vec3 VertexPosition;
+// layout(location = 1) in vec3 VertexNormal;
 
-layout(location = 0) out vec3 Normal;
+layout(location = 0) out VertexOut vertexOut;
 
 void main() 
 {

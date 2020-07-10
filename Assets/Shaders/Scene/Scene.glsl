@@ -1,9 +1,10 @@
-#pragma once
+#ifndef __CT_SCENE_SCENE__
+#define __CT_SCENE_SCENE__
 
 #include "Scene/.Package.glsl"
 
 #ifndef MATERIAL_COUNT
-#error "MATERIAL_COUNT not defined!"
+#error MATERIAL_COUNT not defined!
 #endif
 
 layout(binding = 0) buffer MeshInstanceBuffer
@@ -79,3 +80,5 @@ StaticVertexData GetVertex(int index)
 {
     return vertices[index];
 }
+
+#endif

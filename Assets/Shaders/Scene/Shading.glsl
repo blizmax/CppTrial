@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CT_SCENE_SHADING__
+#define __CT_SCENE_SHADING__
 
 #include "Scene/.Package.glsl"
 #include "Scene/ShadingData.glsl"
@@ -35,8 +36,19 @@ ShadingResult EvalMaterial(ShadingData sd, LightData light, float shadowFactor)
         return sr;
     sd.NdotV = saturate(sd.NdotV);
 
-    //TODO
+    sr.diffuseBrdf = EvalDiffuseBrdf(sd, ls);
+    sr.diffuse = ls.diffuse * sr.diffuseBrdf * ls.NdotL;
+    sr.color.rgb = sr.diffuse;
+    sr.color.a = sd.opacity;
 
+    sr.specularBrdf = EvalSpecularBrdf(sd, ls);
+    sr.specular = ls.specular * sr.specularBrdf * ls.NdotL;
+    sr.color.rgb += sr.specular;
+    
+    sr.color.rgb *= sr.shadowFactor;
 
     return sr;
 }
+
+
+#endif

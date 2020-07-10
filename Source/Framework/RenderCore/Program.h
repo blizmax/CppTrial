@@ -18,6 +18,9 @@ struct ProgramDesc
 
     Array<ShaderDesc> shaderDescs;
     ProgramDefines defines;
+
+    // compile options
+    bool printReflectionInfo = false;
 };
 
 class ProgramKernel

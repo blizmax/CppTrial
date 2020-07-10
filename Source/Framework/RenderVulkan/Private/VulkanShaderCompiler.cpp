@@ -495,7 +495,7 @@ static SPtr<ReflectionVar> ParseBlockVar(const String &name, const glslang::TObj
     return result;
 }
 
-static void ParseReflection(const glslang::TProgram &program, const ProgramReflectionBuilder &builder)
+static void ParseReflection(const glslang::TProgram &program, const ProgramReflectionBuilder &builder, bool printDebugInfo)
 {
     auto reflection = builder.GetReflection();
     auto globalBlockReflection = reflection->GetDefaultBlockReflection();
@@ -561,7 +561,7 @@ static void ParseReflection(const glslang::TProgram &program, const ProgramRefle
 
     globalBlockReflection->Finalize();
 
-    if (builder.GetOptions().printDebugInfo)
+    if (printDebugInfo)
         CT_LOG(Debug, CT_TEXT("Parse result:{0}"), globalStruct->ToString());
 }
 
@@ -612,12 +612,12 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
     //program.mapIO();
     program.buildReflection();
 
-    if (builder.GetOptions().printDebugInfo)
+    if (desc.printReflectionInfo)
         CT_LOG(Debug, CT_TEXT("==========================Reflection========================="));
 
-    ParseReflection(program, builder);
+    ParseReflection(program, builder, desc.printReflectionInfo);
 
-    if (builder.GetOptions().printDebugInfo)
+    if (desc.printReflectionInfo)
         CT_LOG(Debug, CT_TEXT("==========================!Reflection========================="));
 
     //program.dumpReflection();

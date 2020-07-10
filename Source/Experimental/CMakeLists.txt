@@ -1,4 +1,7 @@
 if(CT_BUILD_EXPERIMENTAL)
+    add_executable(ShaderReflection ShaderReflection.cpp)
+    target_link_libraries(ShaderReflection Application)
+
     add_executable(LearnVK LearnVK.cpp)
     target_link_libraries(LearnVK Application)
 
@@ -6,6 +9,7 @@ if(CT_BUILD_EXPERIMENTAL)
     target_link_libraries(ModelLoader Application)
 
     if (CT_USE_VULKAN)
+        target_link_libraries(ShaderReflection RenderVulkan)
         target_link_libraries(LearnVK RenderVulkan)
         target_link_libraries(ModelLoader RenderVulkan)
     endif()

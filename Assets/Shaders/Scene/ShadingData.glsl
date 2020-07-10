@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CT_SCENE_SHADING_DATA__
+#define __CT_SCENE_SHADING_DATA__
 
 struct ShadingData
 {
@@ -9,4 +10,17 @@ struct ShadingData
     vec3 B;
     vec2 uv;
     float NdotV;
+
+    int materialID;
+    vec3 diffuse;
+    float opacity;
+    vec3 specular;
+    float linearRoughness;
+    float ggxAlpha;
+    vec3 emissive;
+    vec4 occlusion;
+
 };
+
+
+#endif
