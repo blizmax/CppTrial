@@ -5,11 +5,13 @@
 #include "Render/RenderManager.h"
 #include "Render/Importers/TextureImporter.h"
 #include "Render/Importers/SceneImporter.h"
-#include "Math/Color.h"
+#include "Render/CameraController.h"
 
 class Renderer
 {
-private:
+public:
+    SPtr<CameraController> cameraController;
+
     SPtr<GraphicsState> state;
     SPtr<VertexArray> vao;
     SPtr<RasterizationState> rasterizationState;
@@ -19,7 +21,6 @@ private:
     SPtr<Program> program;
     SPtr<GraphicsVars> vars;
     SPtr<Program> reflectionProgram;
-
 
     struct Vertex
     {
@@ -77,6 +78,15 @@ public:
     {
         LoadModel();
 
+        auto &window = gApp->GetWindow();
+        float width = window.GetWidth();
+        float height = window.GetHeight();
+        auto camera = Camera::Create();
+        auto controller = OrbiterCameraController::Create(camera);
+        controller->SetModelParams(Vector3(), 10.0f, 15.0f);
+        controller->SetViewport(width, height);
+        cameraController = controller;
+
         program = CreateProgram();
         vars = GraphicsVars::Create(program);
 
@@ -126,20 +136,11 @@ public:
 
     void Render(RenderContext *ctx, const SPtr<FrameBuffer> &fbo)
     {
-        static float totalTime = 0.0f;
-        auto &window = gApp->GetWindow();
-        auto width = window.GetWidth();
-        auto height = window.GetHeight();
-        totalTime += gApp->GetDeltaTime();
+        cameraController->Update();
+        Matrix4 mvp = cameraController->GetCamera()->GetViewProjection();
 
-        const float radius = 15.0f;
-        Matrix4 view = Matrix4::LookAt(Vector3(Math::Cos(totalTime) * radius, 15.0f, Math::Sin(totalTime) * radius), Vector3(), Vector3::Y);
-        Matrix4 proj = Matrix4::Projection(45.0f, width / height, 0.1f, 100.0f);
-        Matrix4 mvp = proj * view;
         vars->Root()[CT_TEXT("UB")][CT_TEXT("mvp")] = mvp;
-
         state->SetFrameBuffer(fbo);
-
         ctx->DrawIndexed(state.get(), vars.get(), indices.Count(), 0, 0);
     }
 };
@@ -152,7 +153,6 @@ private:
 public:
     virtual void Startup() override
     {
-
         renderer = Memory::MakeShared<Renderer>();
     }
 
@@ -164,6 +164,41 @@ public:
     virtual void Tick() override
     {
         renderer->Render(gRenderManager->GetRenderContext(), gRenderManager->GetTargetFrameBuffer());
+    }
+
+    virtual void OnWindowResized(WindowResizedEvent &e) 
+    {
+        renderer->cameraController->SetViewport((float)e.width, (float)e.height);
+    }
+
+    virtual void OnKeyDown(KeyDownEvent &e)
+    {
+        renderer->cameraController->OnKeyDown(e);
+    }
+
+    virtual void OnKeyUp(KeyUpEvent &e)
+    {
+        renderer->cameraController->OnKeyUp(e);
+    }
+
+    virtual void OnTouchDown(TouchDownEvent &e)
+    {
+        renderer->cameraController->OnTouchDown(e);
+    }
+
+    virtual void OnTouchUp(TouchUpEvent &e)
+    {
+        renderer->cameraController->OnTouchUp(e);
+    }
+
+    virtual void OnMouseMoved(MouseMovedEvent &e)
+    {
+        renderer->cameraController->OnMouseMoved(e);
+    }
+
+    virtual void OnMouseScrolled(MouseScrolledEvent &e)
+    {
+        renderer->cameraController->OnMouseScrolled(e);
     }
 };
 

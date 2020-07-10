@@ -45,6 +45,13 @@ void Application::Init()
     CT_LOG(Info, CT_TEXT("ImGuiLab startup."));
 
     gLogic->Startup();
+
+    GetWindow().windowResizedHandler += ([](auto &e) {
+        if (e.handled)
+            return;
+        gLogic->OnWindowResized(e);
+    });
+
     GetInput().keyTypedHandler += ([](auto &e) {
         if (e.handled)
             return;

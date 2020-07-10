@@ -29,6 +29,13 @@ public:
     {
         viewportWidth = w;
         viewportHeight = h;
+        if (camera)
+            camera->SetAspectRatio(w / h);
+    }
+
+    const SPtr<Camera> &GetCamera() const
+    {
+        return camera;
     }
 
 protected:

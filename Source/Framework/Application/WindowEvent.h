@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Application/.Package.h"
+#include "Utils/Event.h"
 
 enum class WindowEventType
 {
@@ -12,7 +13,7 @@ enum class WindowEventType
     FilesDropped,
 };
 
-class WindowEvent
+class WindowEvent : public Event
 {
 public:
     virtual WindowEventType GetEventType() const = 0;

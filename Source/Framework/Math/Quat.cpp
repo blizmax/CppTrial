@@ -125,8 +125,8 @@ Quat &Quat::SetFromToRotation(const Vector3 &from, const Vector3 &to)
     }
 
     const float rad = Math::Acos(dot);
-
-    return FromAxisRad(from.Cross(to), rad);
+    Vector3 axis = from.Cross(to).Normalize();
+    return FromAxisRad(axis, rad);
 }
 
 Vector3 Quat::Rotate(const Vector3 &vec) const

@@ -91,19 +91,21 @@ void DesktopWindow::CreateNativeWindow(const WindowDesc &desc)
     glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int32 button, int32 action, int32 mods)
     {
         auto thisWindow = reinterpret_cast<DesktopWindow*>(glfwGetWindowUserPointer(window));
-        int32 x, y;
-        glfwGetWindowPos(window, &x, &y);
+        double x, y;
+        glfwGetCursorPos(window, &x, &y);
+        int32 sx = (int32)x;
+        int32 sy = (int32)y;
 
         switch (action)
         {
             case GLFW_PRESS:
             {
-                thisWindow->input.ProcessTouchDown(x, y, button);
+                thisWindow->input.ProcessTouchDown(sx, sy, button);
                 break;
             }
             case GLFW_RELEASE:
             {
-                thisWindow->input.ProcessTouchUp(x, y, button);
+                thisWindow->input.ProcessTouchUp(sx, sy, button);
                 break;
             }
         }
@@ -139,16 +141,16 @@ void DesktopWindow::Tick()
 
 int32 DesktopWindow::GetPositionX() const
 {
-    int32 x, y;
-    glfwGetWindowPos(window, &x, &y);
-    return x;
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+    return (int32)x;
 }
 
 int32 DesktopWindow::GetPositionY() const
 {
-    int32 x, y;
-    glfwGetWindowPos(window, &x, &y);
-    return y;
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+    return (int32)y;
 }
 
 int32 DesktopWindow::GetWidth() const

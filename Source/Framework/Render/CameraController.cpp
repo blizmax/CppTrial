@@ -16,7 +16,7 @@ static Vector3 Project2DToUnitSphere(Vector2 v)
     return Vector3(v.x, v.y, z);
 }
 
-static Vector2 ConvertScreenPosition(int32 x, int32 y, float viewportW, float viewportH)
+static Vector2 ConvertScreenPosition(float x, float y, float viewportW, float viewportH)
 {
     x /= viewportW;
     y /= viewportH;
@@ -76,6 +76,7 @@ void OrbiterCameraController::OnMouseMoved(MouseMovedEvent &event)
         return;
 
     Vector3 curVector = Project2DToUnitSphere(ConvertScreenPosition(event.x, event.y, viewportWidth, viewportHeight));
+
     Quat quat;
     quat.SetFromToRotation(lastVector, curVector);
     rotation = quat * rotation;
@@ -86,7 +87,7 @@ void OrbiterCameraController::OnMouseMoved(MouseMovedEvent &event)
 
 void OrbiterCameraController::OnMouseScrolled(MouseScrolledEvent &event)
 {
-    cameraDistance -= event.amount * 0.2f;
+    cameraDistance -= event.amount;
 
     dirty = true;
 }
