@@ -11,11 +11,11 @@ namespace CString
 template <typename Char>
 CT_INLINE int32 Length(const Char *str)
 {
-    if constexpr (TIsSame<Char, char8>::value)
+    if constexpr (std::is_same_v<Char, char8>)
     {
         return (int32)std::strlen(str);
     }
-    else if constexpr (TIsSame<Char, wchar>::value)
+    else if constexpr (std::is_same_v<Char, wchar>)
     {
         return (int32)std::wcslen(str);
     }
@@ -31,11 +31,11 @@ CT_INLINE int32 Length(const Char *str)
 template <typename Char>
 CT_INLINE int32 Compare(const Char *str1, const Char *str2, SizeType count)
 {
-    if constexpr (TIsSame<Char, char8>::value)
+    if constexpr (std::is_same_v<Char, char8>)
     {
         return std::memcmp(str1, str2, count);
     }
-    else if constexpr (TIsSame<Char, wchar>::value)
+    else if constexpr (std::is_same_v<Char, wchar>)
     {
         return std::wmemcmp(str1, str2, count);
     }
@@ -55,11 +55,11 @@ CT_INLINE int32 Compare(const Char *str1, const Char *str2, SizeType count)
 template <typename Char>
 CT_INLINE void Copy(Char *dst, const Char *src, SizeType count)
 {
-    if constexpr (TIsSame<Char, char8>::value)
+    if constexpr (std::is_same_v<Char, char8>)
     {
         std::memcpy(dst, src, count);
     }
-    else if constexpr (TIsSame<Char, wchar>::value)
+    else if constexpr (std::is_same_v<Char, wchar>)
     {
         std::wmemcpy(dst, src, count);
     }
@@ -72,11 +72,11 @@ CT_INLINE void Copy(Char *dst, const Char *src, SizeType count)
 template <typename Char>
 CT_INLINE void Move(Char *dst, const Char *src, SizeType count)
 {
-    if constexpr (TIsSame<Char, char8>::value)
+    if constexpr (std::is_same_v<Char, char8>)
     {
         std::memmove(dst, src, count);
     }
-    else if constexpr (TIsSame<Char, wchar>::value)
+    else if constexpr (std::is_same_v<Char, wchar>)
     {
         std::wmemmove(dst, src, count);
     }

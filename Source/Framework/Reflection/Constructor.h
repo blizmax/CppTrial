@@ -88,7 +88,7 @@ class ConstructorImpl : public Constructor
 public:
     ConstructorImpl() : Constructor(TypeOf<T>(), {GetQualifiedType<Args>()...})
     {
-        static_assert(TIsConstructible<T, Args...>::value, "Attempt to define an undeclared constructor.");
+        static_assert(std::is_constructible_v<T, Args...>, "Attempt to define an undeclared constructor.");
     }
 
     virtual Any Invoke(typename TAsType<Args, Any>::value... args) const override

@@ -71,17 +71,18 @@ public:
     }
 
     template <typename T>
-    Any(T *value) : data(Memory::New<AnyInternal::DynamicData<typename TDecay<T *>::type>>(value))
-    {
-    }
-
-    template <typename T, typename = typename TEnableIf<!TIsPointer<T>::value, T>::type>
-    Any(const T &value) : data(Memory::New<AnyInternal::DynamicData<typename TDecay<T>::type>>(value))
+    Any(T *value) : data(Memory::New<AnyInternal::DynamicData<std::decay_t<T *>>>(value))
     {
     }
 
     template <typename T>
-    Any(T &value) : data(Memory::New<AnyInternal::DynamicData<typename TDecay<T>::type>>(value))
+    requires (!std::is_pointer_v<T>)
+    Any(const T &value) : data(Memory::New<AnyInternal::DynamicData<std::decay_t<T>>>(value))
+    {
+    }
+
+    template <typename T>
+    Any(T &value) : data(Memory::New<AnyInternal::DynamicData<std::decay_t<T>>>(value))
     {
     }
 

@@ -51,8 +51,8 @@ public:
 
     constexpr TupleImpl() = default;
 
-    template <typename _T, typename... _Others,
-              typename = typename TEnableIf<sizeof...(Others) == sizeof...(_Others)>::type>
+    template <typename _T, typename... _Others>
+    requires sizeof...(Others) == sizeof...(_Others)
     constexpr TupleImpl(_T &&head, _Others &&... tail)
         : head(std::forward<_T>(head)), TailType(std::forward<_Others>(tail)...)
     {
@@ -99,8 +99,8 @@ public:
 
     constexpr TupleImpl() = default;
 
-    template <typename _T, typename... _Others,
-              typename = typename TEnableIf<sizeof...(Others) == sizeof...(_Others)>::type>
+    template <typename _T, typename... _Others>
+    requires sizeof...(Others) == sizeof...(_Others)
     constexpr TupleImpl(_T &&head, _Others &&... tail)
         : head(std::forward<_T>(head)), tail(std::forward<_Others>(tail)...)
     {
@@ -179,9 +179,9 @@ public:
 };
 
 template <typename... Args>
-constexpr Tuple<typename TDecay<Args>::type...> MakeTuple(Args &&... args)
+constexpr Tuple<std::decay_t<Args>...> MakeTuple(Args &&... args)
 {
-    return Tuple<typename TDecay<Args>::type...>(std::forward<Args>(args)...);
+    return Tuple<std::decay_t<Args>...>(std::forward<Args>(args)...);
 }
 
 namespace std

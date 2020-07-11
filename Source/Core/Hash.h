@@ -8,102 +8,49 @@ namespace Hash
 {
 
 template <typename T>
-concept Hashable = requires(T a) {
-    { a.HashCode() } -> std::same_as<uint32>;
-};
-
-CT_INLINE uint32 HashValue(bool value)
+requires std::integral<T>
+CT_INLINE HashType HashValue(T value)
 {
-    return static_cast<uint32>(value);
+    if constexpr (sizeof(T) <= sizeof(HashType))
+    {
+        return static_cast<HashType>(value);
+    }
+    else
+    {
+        return static_cast<HashType>(value ^ (value >> 32));
+    }
 }
 
-CT_INLINE uint32 HashValue(char8 value)
-{
-    return static_cast<uint32>(value);
-}
-
-CT_INLINE uint32 HashValue(char16 value)
-{
-    return static_cast<uint32>(value);
-}
-
-CT_INLINE uint32 HashValue(char32 value)
-{
-    return static_cast<uint32>(value);
-}
-
-CT_INLINE uint32 HashValue(wchar value)
-{
-    return static_cast<uint32>(value);
-}
-
-CT_INLINE uint32 HashValue(int8 value)
-{
-    return static_cast<uint32>(value);
-}
-
-CT_INLINE uint32 HashValue(int16 value)
-{
-    return static_cast<uint32>(value);
-}
-
-CT_INLINE uint32 HashValue(int32 value)
-{
-    return static_cast<uint32>(value);
-}
-
-CT_INLINE uint32 HashValue(int64 value)
-{
-    return static_cast<uint32>(value ^ (value >> 32));
-}
-
-CT_INLINE uint32 HashValue(uint8 value)
-{
-    return static_cast<uint32>(value);
-}
-
-CT_INLINE uint32 HashValue(uint16 value)
-{
-    return static_cast<uint32>(value);
-}
-
-CT_INLINE uint32 HashValue(uint32 value)
-{
-    return static_cast<uint32>(value);
-}
-
-CT_INLINE uint32 HashValue(uint64 value)
-{
-    return static_cast<uint32>(value ^ (value >> 32));
-}
-
-CT_INLINE uint32 HashValue(float value)
+CT_INLINE HashType HashValue(float value)
 {
     union
     {
         uint32 i;
         float f;
     } u;
+
     u.f = value;
     return u.i;
 }
 
-CT_INLINE uint32 HashValue(double value)
+CT_INLINE HashType HashValue(double value)
 {
     union
     {
         uint64 i;
         double d;
     } u;
+
     u.d = value;
     return HashValue(u.i);
 }
 
-template <typename CharT, typename = typename TEnableIf<TIsCharType<CharT>::value>::type>
-CT_INLINE uint32 HashValue(const CharT *ptr)
+template <typename T>
+requires std::same_as<T, char8> || std::same_as<T, char16> || std::same_as<T, char32> || std::same_as<T, wchar>
+CT_INLINE HashType HashValue(const T *ptr)
 {
-    uint32 seed = 131;
-    uint32 hash = 0;
+    HashType seed = 131;
+    HashType hash = 0;
     while (*ptr)
     {
         hash = hash * seed + (*ptr++);
@@ -111,25 +58,26 @@ CT_INLINE uint32 HashValue(const CharT *ptr)
     return (hash & 0x7FFFFFFF);
 }
 
-CT_INLINE uint32 HashValue(const std::type_index &value)
-{
-    return static_cast<uint32>(value.hash_code());
-}
-
 template <typename T>
-CT_INLINE uint32 HashValue(T *ptr)
+CT_INLINE HashType HashValue(T *ptr)
 {
     return HashValue(reinterpret_cast<SizeType>(ptr));
 }
 
-template <Hashable T>
-CT_INLINE uint32 HashValue(const T &value)
+template <typename T>
+requires requires(const T &a) { {a.HashCode()} -> std::same_as<HashType>;}
+CT_INLINE HashType HashValue(const T &value)
 {
     return value.HashCode();
 }
 
+CT_INLINE HashType HashValue(const std::type_index &value)
+{
+    return static_cast<HashType>(value.hash_code());
+}
+
 template <typename T>
-CT_INLINE void HashCombine(uint32 &hash, const T &value)
+CT_INLINE void HashCombine(HashType &hash, const T &value)
 {
     hash ^= HashValue(value) + 0x9E3779B9 + (hash << 6) + (hash >> 2);
 }
@@ -139,7 +87,7 @@ CT_INLINE void HashCombine(uint32 &hash, const T &value)
 template <typename T>
 struct HashFunc
 {
-    uint32 operator()(const T &value) const
+    HashType operator()(const T &value) const
     {
         return Hash::HashValue(value);
     }

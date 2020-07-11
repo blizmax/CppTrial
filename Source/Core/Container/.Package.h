@@ -107,7 +107,7 @@ struct tuple_element<Index, Container::MapEntry<K, V>>;
 template <typename K, typename V>
 struct tuple_element<0, Container::MapEntry<K, V>>
 {
-    using type = typename TAddConst<K>::type;
+    using type = std::add_const_t<K>;
 };
 
 template <typename K, typename V>

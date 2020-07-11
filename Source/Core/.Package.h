@@ -81,6 +81,7 @@ constexpr int32 INDEX_NONE = -1;
 
 typedef wchar CharType;
 typedef size_t SizeType;
+typedef uint32 HashType;
 
 template <typename T>
 CT_INLINE std::type_index TypeIndexOf()

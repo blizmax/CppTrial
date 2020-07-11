@@ -68,11 +68,8 @@ public:
     template <typename T>
     static CT_INLINE void Destroy(T *ptr)
     {
-        if constexpr (TIsTriviallyDestructible<T>::value)
-        {
-        }
-        else
-        {
+        if constexpr (!std::is_trivially_destructible_v<T>)
+        {   
             if (ptr != nullptr)
                 ptr->~T();
         }
@@ -133,7 +130,7 @@ public:
     template <typename T>
     static CT_INLINE void Copy(T *dst, const T *src, SizeType count)
     {
-        if constexpr (TIsTriviallyCopyAssignable<T>::value)
+        if constexpr (std::is_trivially_copy_assignable_v<T>)
         {
             if (count > 0)
             {
@@ -152,7 +149,7 @@ public:
     template <typename T>
     static CT_INLINE void CopyBackward(T *dst, const T *src, SizeType count)
     {
-        if constexpr (TIsTriviallyCopyAssignable<T>::value)
+        if constexpr (std::is_trivially_copy_assignable_v<T>)
         {
             if (count > 0)
             {
@@ -171,7 +168,7 @@ public:
     template <typename T>
     static CT_INLINE void Move(T *dst, T *src, SizeType count)
     {
-        if constexpr (TIsTriviallyMoveAssignable<T>::value)
+        if constexpr (std::is_trivially_move_assignable_v<T>)
         {
             if (count > 0)
             {
@@ -190,7 +187,7 @@ public:
     template <typename T>
     static CT_INLINE void MoveBackward(T *dst, T *src, SizeType count)
     {
-        if constexpr (TIsTriviallyMoveAssignable<T>::value)
+        if constexpr (std::is_trivially_move_assignable_v<T>)
         {
             if (count > 0)
             {
@@ -218,7 +215,7 @@ public:
     template <typename T>
     static CT_INLINE void UninitializedCopy(T *dst, const T *src, SizeType count)
     {
-        if constexpr (TIsTriviallyCopyAssignable<T>::value)
+        if constexpr (std::is_trivially_copy_assignable_v<T>)
         {
             if (count > 0)
             {
@@ -237,7 +234,7 @@ public:
     template <typename T>
     static CT_INLINE void UninitializedFill(T *dst, SizeType count, const T &value)
     {
-        if constexpr (TIsTriviallyCopyAssignable<T>::value)
+        if constexpr (std::is_trivially_copy_assignable_v<T>)
         {
             for (; count > 0; --count, ++dst)
             {
@@ -256,7 +253,7 @@ public:
     template <typename T>
     static CT_INLINE void UninitializedMove(T *dst, T *src, SizeType count)
     {
-        if constexpr (TIsTriviallyMoveAssignable<T>::value)
+        if constexpr (std::is_trivially_move_assignable_v<T>)
         {
             for (; count > 0; --count, ++dst, ++src)
             {
@@ -296,8 +293,9 @@ struct Deleter
 {
     Deleter() = default;
 
-    template <typename OtherType, typename = typename TEnableIf<TIsConvertible<OtherType *, T *>::value, OtherType>::type>
-    Deleter(const Deleter<OtherType> &other)
+    template <typename U>
+    requires std::convertible_to<U *, T *>
+    Deleter(const Deleter<U> &other)
     {
     }
 

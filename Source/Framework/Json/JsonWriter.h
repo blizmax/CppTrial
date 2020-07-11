@@ -27,7 +27,8 @@ public:
         return WriteValue(CT_TEXT("null"));
     }
 
-    template <typename T, typename = typename TEnableIf<TIsIntegral<T>::value || TIsFloatingPoint<T>::value, T>::type>
+    template <typename T>
+    requires std::integral<T> || std::floating_point<T>
     JsonWriter &Value(T value)
     {
         return WriteValue(StringConvert::ToString(value));

@@ -26,12 +26,12 @@ namespace VariantInternal
 {
 
 template <typename T>
-struct VariantTypeTraits : public TFalseType
+struct VariantTypeTraits
 {
 };
 
 template <>
-struct VariantTypeTraits<bool> : public TTrueType
+struct VariantTypeTraits<bool>
 {
     static VariantType GetType()
     {
@@ -40,7 +40,7 @@ struct VariantTypeTraits<bool> : public TTrueType
 };
 
 template <>
-struct VariantTypeTraits<int8> : public TTrueType
+struct VariantTypeTraits<int8>
 {
     static VariantType GetType()
     {
@@ -49,7 +49,7 @@ struct VariantTypeTraits<int8> : public TTrueType
 };
 
 template <>
-struct VariantTypeTraits<int16> : public TTrueType
+struct VariantTypeTraits<int16>
 {
     static VariantType GetType()
     {
@@ -58,7 +58,7 @@ struct VariantTypeTraits<int16> : public TTrueType
 };
 
 template <>
-struct VariantTypeTraits<int32> : public TTrueType
+struct VariantTypeTraits<int32>
 {
     static VariantType GetType()
     {
@@ -67,7 +67,7 @@ struct VariantTypeTraits<int32> : public TTrueType
 };
 
 template <>
-struct VariantTypeTraits<int64> : public TTrueType
+struct VariantTypeTraits<int64>
 {
     static VariantType GetType()
     {
@@ -76,7 +76,7 @@ struct VariantTypeTraits<int64> : public TTrueType
 };
 
 template <>
-struct VariantTypeTraits<uint8> : public TTrueType
+struct VariantTypeTraits<uint8>
 {
     static VariantType GetType()
     {
@@ -85,7 +85,7 @@ struct VariantTypeTraits<uint8> : public TTrueType
 };
 
 template <>
-struct VariantTypeTraits<uint16> : public TTrueType
+struct VariantTypeTraits<uint16>
 {
     static VariantType GetType()
     {
@@ -94,7 +94,7 @@ struct VariantTypeTraits<uint16> : public TTrueType
 };
 
 template <>
-struct VariantTypeTraits<uint32> : public TTrueType
+struct VariantTypeTraits<uint32>
 {
     static VariantType GetType()
     {
@@ -103,7 +103,7 @@ struct VariantTypeTraits<uint32> : public TTrueType
 };
 
 template <>
-struct VariantTypeTraits<uint64> : public TTrueType
+struct VariantTypeTraits<uint64>
 {
     static VariantType GetType()
     {
@@ -112,7 +112,7 @@ struct VariantTypeTraits<uint64> : public TTrueType
 };
 
 template <>
-struct VariantTypeTraits<char8> : public TTrueType
+struct VariantTypeTraits<char8>
 {
     static VariantType GetType()
     {
@@ -121,7 +121,7 @@ struct VariantTypeTraits<char8> : public TTrueType
 };
 
 template <>
-struct VariantTypeTraits<wchar> : public TTrueType
+struct VariantTypeTraits<wchar>
 {
     static VariantType GetType()
     {
@@ -130,7 +130,7 @@ struct VariantTypeTraits<wchar> : public TTrueType
 };
 
 template <>
-struct VariantTypeTraits<float> : public TTrueType
+struct VariantTypeTraits<float>
 {
     static VariantType GetType()
     {
@@ -139,7 +139,7 @@ struct VariantTypeTraits<float> : public TTrueType
 };
 
 template <>
-struct VariantTypeTraits<double> : public TTrueType
+struct VariantTypeTraits<double>
 {
     static VariantType GetType()
     {
@@ -148,7 +148,7 @@ struct VariantTypeTraits<double> : public TTrueType
 };
 
 template <>
-struct VariantTypeTraits<String> : public TTrueType
+struct VariantTypeTraits<String>
 {
     static VariantType GetType()
     {
@@ -189,8 +189,9 @@ CT_INLINE void ReadBytes(const Array<uint8> &bytes, String &value)
 } // namespace VariantInternal
 
 template <typename T>
-struct TIsVariantType : public TConditional<VariantInternal::VariantTypeTraits<T>::value, TTrueType, TFalseType>::type
+concept ConvertibleToVariant = requires
 {
+    VariantInternal::VariantTypeTraits<std::decay_t<T>>::GetType();
 };
 
 class Variant
@@ -217,15 +218,14 @@ public:
         return *this;
     }
 
-    template <typename T>
+    template <ConvertibleToVariant T>
     Variant(T &&value)
     {
-        using DecayType = typename TDecay<T>::type;
         VariantInternal::WriteBytes(data, std::forward<T>(value));
-        type = VariantInternal::VariantTypeTraits<DecayType>::GetType();
+        type = VariantInternal::VariantTypeTraits<std::decay_t<T>>::GetType();
     }
 
-    template <typename T>
+    template <ConvertibleToVariant T>
     Variant &operator=(T &&value)
     {
         Variant temp(std::forward<T>(value));
@@ -255,10 +255,10 @@ public:
         return type;
     }
 
-    template <typename T>
+    template <ConvertibleToVariant T>
     T GetValue() const
     {
-        CT_ASSERT(VariantInternal::VariantTypeTraits<T>::GetType() == type);
+        CT_CHECK(VariantInternal::VariantTypeTraits<T>::GetType() == type);
         T ret;
         VariantInternal::ReadBytes(data, ret);
         return ret;
