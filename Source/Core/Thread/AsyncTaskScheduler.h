@@ -83,7 +83,7 @@ public:
     {
         CT_CHECK(task->IsReady() && !task->canceled && task->worker != nullptr);
 
-        auto func = [=]() {
+        auto func = [=, this]() {
             SPtr<AsyncTask> runningTask = task;
 
             while (runningTask)

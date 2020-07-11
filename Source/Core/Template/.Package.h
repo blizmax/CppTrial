@@ -2,6 +2,7 @@
 
 #include "Core/.Package.h"
 #include <type_traits>
+#include <concepts>
 
 using TTrueType = std::true_type;
 using TFalseType = std::false_type;

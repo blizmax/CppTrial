@@ -7,6 +7,11 @@
 namespace Hash
 {
 
+template <typename T>
+concept Hashable = requires(T a) {
+    { a.HashCode() } -> std::same_as<uint32>;
+};
+
 CT_INLINE uint32 HashValue(bool value)
 {
     return static_cast<uint32>(value);
@@ -74,7 +79,8 @@ CT_INLINE uint32 HashValue(uint64 value)
 
 CT_INLINE uint32 HashValue(float value)
 {
-    union {
+    union
+    {
         uint32 i;
         float f;
     } u;
@@ -84,7 +90,8 @@ CT_INLINE uint32 HashValue(float value)
 
 CT_INLINE uint32 HashValue(double value)
 {
-    union {
+    union
+    {
         uint64 i;
         double d;
     } u;
@@ -115,7 +122,7 @@ CT_INLINE uint32 HashValue(T *ptr)
     return HashValue(reinterpret_cast<SizeType>(ptr));
 }
 
-template <typename T>
+template <Hashable T>
 CT_INLINE uint32 HashValue(const T &value)
 {
     return value.HashCode();
@@ -127,7 +134,7 @@ CT_INLINE void HashCombine(uint32 &hash, const T &value)
     hash ^= HashValue(value) + 0x9E3779B9 + (hash << 6) + (hash >> 2);
 }
 
-} // namespace Hash
+}
 
 template <typename T>
 struct HashFunc

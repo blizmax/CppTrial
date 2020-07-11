@@ -157,11 +157,16 @@ struct VarLocation
 
     VarLocation() = default;
 
+    VarLocation(int32 rangeIndex, int32 arrayIndex, uint32 byteOffset)
+        : rangeIndex(rangeIndex), arrayIndex(arrayIndex), byteOffset(byteOffset)
+    {
+    }
+
     VarLocation operator+(const VarLocation &other) const
     {
-        return {rangeIndex + other.rangeIndex,
+        return VarLocation(rangeIndex + other.rangeIndex,
             arrayIndex + other.arrayIndex,
-            byteOffset + other.byteOffset};
+            byteOffset + other.byteOffset);
     }
 };
 
