@@ -6,6 +6,7 @@
 #include "Render/Importers/TextureImporter.h"
 #include "Render/Importers/SceneImporter.h"
 #include "Render/CameraController.h"
+#include "Render/MeshGenerator.h"
 
 class Renderer
 {
@@ -36,7 +37,7 @@ public:
         return Program::Create(CT_TEXT("Assets/Shaders/Experimental/ModelLoader.glsl"));
     }
 
-    void LoadModel()
+    void LoadSkull()
     {
         CT_LOG(Debug, CT_TEXT("Load model begin."));
         int64 ts = Time::MilliTime();
@@ -71,6 +72,21 @@ public:
 
         float t = (Time::MilliTime() - ts) / 1000.0f; 
         CT_LOG(Debug, CT_TEXT("Load model end, total used time:{0}, vertexCount:{1}, triangleCount:{2}"), t, vertexCount, triangleCount);  
+    }
+
+    void LoadModel()
+    {
+        MeshGenerator gen;
+        //MeshData meshData = gen.CreateBox(1.0f, 1.0f, 1.0f, 1);
+        MeshData meshData = gen.CreateSphere(1.0f, 3);
+
+        vertices.SetCount(meshData.vertices.Count());
+        for (int32 i = 0; i < meshData.vertices.Count(); ++i)
+        {
+            vertices[i].position = meshData.vertices[i].position;
+            vertices[i].normal = meshData.vertices[i].normal;
+        }
+        indices = meshData.indices;
     }
 
 public:
