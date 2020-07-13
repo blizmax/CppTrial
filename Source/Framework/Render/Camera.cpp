@@ -24,14 +24,14 @@ void Camera::CalculateParameters() const
 
     const float fovY = data.focalLength == 0.0f ? 0.0f : FocalLengthToFov(data.focalLength, data.frameHeight);
 
-    data.viewMat = Matrix4::LookAt(data.pos, data.target, data.up);
+    data.viewMat = Matrix4::LookAt(data.posW, data.target, data.up);
     if (fovY != 0.0f)
     {
         data.projMat = Matrix4::Projection(fovY, data.aspectRatio, data.nearZ, data.farZ);
     }
     else
     {
-        const float h = (data.pos - data.target).Length() * 0.5f;
+        const float h = (data.posW - data.target).Length() * 0.5f;
         data.projMat = Matrix4::Ortho(-h, h, -h, h, data.nearZ, data.farZ);
     }
 

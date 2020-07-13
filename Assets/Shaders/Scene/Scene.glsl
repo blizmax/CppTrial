@@ -2,6 +2,7 @@
 #define __CT_SCENE_SCENE__
 
 #include "Scene/.Package.glsl"
+#include "Scene/Camera.glsl"
 
 #ifndef MATERIAL_COUNT
 #error MATERIAL_COUNT not defined!
@@ -17,9 +18,24 @@ layout(binding = 1) buffer MeshDescBuffer
     MeshDesc meshes[];
 };
 
-layout(binding = 2) buffer StaticVertexBuffer
+layout(binding = 2) buffer WorldMatrixBuffer
+{
+    mat4 worldMatrices[];
+};
+
+layout(binding = 3) buffer InverseTransposeWorldMatrixBuffer
+{
+    mat4 inverseTransposeWorldMatrices[];
+};
+
+layout(binding = 4) buffer StaticVertexBuffer
 {
     StaticVertexData vertices[];
+};
+
+layout(binding = 5) buffer IndexBuffer
+{
+    int indices[];
 };
 
 // Material
@@ -39,6 +55,24 @@ layout(set = 1, binding = 6) uniform sampler samplerStates[MATERIAL_COUNT];
 layout(set = 2, binding = 0) buffer LightBuffer
 {
     LightData lights[];
+};
+
+// Camera
+layout(set = 2, binding = 1) uniform CameraBuffer
+{
+    CameraData camera;
+};
+
+mat4 GetWorldMatrix(int meshInstanceID)
+{
+    int matrixID = meshInstances[meshInstanceID].globalMatrixID;
+    return worldMatrices[matrixID];
+}
+
+mat3 GetInverseTransposeWorldMatrix(int meshInstanceID)
+{
+    int matrixID = meshInstances[meshInstanceID].globalMatrixID;
+    return mat3(inverseTransposeWorldMatrices[matrixID]);
 };
 
 int GetMaterialCount()
@@ -79,6 +113,28 @@ LightData GetLight(int lightID)
 StaticVertexData GetVertex(int index)
 {
     return vertices[index];
+}
+
+ivec3 GetIndices(int meshInstanceID, int triangleIndex)
+{
+    ivec3 vtxIndices;
+    int baseIndex = meshInstances[meshInstanceID].indexOffset + triangleIndex * 3;
+    vtxIndices.x = indices[baseIndex];
+    vtxIndices.y = indices[baseIndex + 1];
+    vtxIndices.z = indices[baseIndex + 2];
+    vtxIndices += meshInstances[meshInstanceID].vertexOffset;
+    return vtxIndices;
+}
+
+vec3 GetFaceNormalW(int meshInstanceID, int triangleIndex)
+{
+    ivec3 vtxIndices = GetIndices(meshInstanceID, triangleIndex);
+    vec3 p0 = vertices[vtxIndices[0]].position;
+    vec3 p1 = vertices[vtxIndices[1]].position;
+    vec3 p2 = vertices[vtxIndices[2]].position;
+    vec3 N = cross(p1 - p0, p2 - p0);
+    mat3 worldInvTransposeMat = GetInverseTransposeWorldMatrix(meshInstanceID);
+    return normalize(worldInvTransposeMat * N);
 }
 
 #endif

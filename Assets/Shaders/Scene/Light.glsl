@@ -2,7 +2,6 @@
 #define __CT_SCENE_LIGHT__
 
 #include "Scene/.Package.glsl"
-#include "Scene/ShadingData.glsl"
 
 struct LightSample
 {

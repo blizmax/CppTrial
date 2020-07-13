@@ -2,7 +2,6 @@
 #define __CT_SCENE_PACKAGE__
 
 #ifndef __cplusplus
-
 #include "Utility.glsl"
 
 #define int32 int
@@ -19,6 +18,7 @@
 #define Vector4 vec4
 #define Matrix4 mat4
 #define Color vec4
+
 #endif
 
 #define CT_LIGHT_TYPE_POINT       0
@@ -59,6 +59,15 @@ struct DynamicVertexData
     int32 globalMatrixID;
 };
 
+struct VertexData
+{
+    Vector3 posW;
+    Vector3 normalW;
+    Vector3 bitangentW;
+    Vector2 uv;
+    Vector3 faceNormalW;
+};
+
 struct MaterialData
 {
     Color base;     //RGB: Base color,     A: Transparency
@@ -67,17 +76,11 @@ struct MaterialData
 
     float alphaThreshold;
     float ior;
-    float _pad[2];
+    int32 flags;
+    float _pad[1];
 
 #ifdef __cplusplus
-    MaterialData() : 
-        base{1.0f, 1.0f, 1.0f, 1.0f},
-        specular{0.0f, 0.0f, 0.0f, 0.0f},
-        emissive{0.0f, 0.0f, 0.0f, 1.0f},
-        alphaThreshold(0.5f),
-        ior(1.5f)
-    {
-    }
+    MaterialData();
 #endif
 };
 
@@ -93,18 +96,60 @@ struct LightData
     float _pad[3];
 
 #ifdef __cplusplus
-    LightData() : 
-        posW{0.0f, 0.0f, 0.0f},
-        type(CT_LIGHT_TYPE_POINT),
-        dirW{0.0f, -1.0f, 0.0f},
-        openingAngle(Math::PI),
-        intensity{1.0f, 1.0f, 1.0f},
-        cosOpeningAngle(-1.0f),
-        penumbraAngle(0.0f)
-    {
-    }
+    LightData();
 #endif
 };
 
+struct CameraData
+{
+    Matrix4 viewMat;
+    Matrix4 projMat;
+    Matrix4 viewProjMat;
+    Matrix4 invViewProj;
+
+    Vector3 posW; // world space position
+    float focalLength;
+    Vector3 up;
+    float aspectRatio; // default is 1.7777(16:9)
+    Vector3 target;
+    float nearZ;
+    Vector3 cameraU;
+    float farZ;
+    Vector3 cameraV;
+    float jitterX;
+    Vector3 cameraW;
+    float jitterY;
+
+    float frameHeight ;
+    float focalDistance;
+    float apertureRadius;
+    float shutterSpeed;
+
+#ifdef __cplusplus
+    CameraData();
+#endif
+};
+
+#ifndef __cplusplus
+struct ShadingData
+{
+    Vector3 posW;
+    Vector3 V;
+    Vector3 N;
+    Vector3 T;
+    Vector3 B;
+    Vector2 uv;
+    float NdotV;
+
+    int32 materialID;
+    Vector3 diffuse;
+    float opacity;
+    Vector3 specular;
+    float linearRoughness;
+    float ggxAlpha;
+    Vector3 emissive;
+    Vector4 occlusion;
+};
+#endif
 
 #endif

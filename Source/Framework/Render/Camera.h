@@ -2,32 +2,6 @@
 
 #include "Render/.Package.h"
 
-struct CameraData
-{
-    Matrix4 viewMat;
-    Matrix4 projMat;
-    Matrix4 viewProjMat;
-    Matrix4 invViewProj;
-
-    Vector3 pos; // world space position
-    float focalLength = 21.0f;
-    Vector3 up{0.0f, 1.0f, 0.0f};
-    float aspectRatio = 1.7777f; // 16:9
-    Vector3 target{0.0f, 0.0f, -1.0f};
-    float nearZ = 0.1f;
-    Vector3 cameraU{0.0f, 0.0f, 1.0f};
-    float farZ = 1000.0f;
-    Vector3 cameraV{0.0f, 1.0f, 0.0f};
-    float jitterX = 0.0f;
-    Vector3 cameraW{1.0f, 0.0f, 0.0f};
-    float jitterY = 0.0f;
-
-    float frameHeight = 24.0f;
-    float focalDistance = 10000.0f;
-    float apertureRadius = 0.0f;
-    float shutterSpeed = 0.004f;
-};
-
 class Camera
 {
 public:
@@ -40,13 +14,13 @@ public:
 
     void SetPosition(const Vector3 &pos)
     {
-        data.pos = pos;
+        data.posW = pos;
         dirty = true;
     }
 
     Vector3 GetPosition() const
     {
-        return data.pos;
+        return data.posW;
     }
 
     void SetUp(const Vector3 &up)

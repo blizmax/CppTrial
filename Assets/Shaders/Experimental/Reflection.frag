@@ -56,8 +56,6 @@ layout (binding = 4) uniform ArrayBlock
     float arrayData[7];
 };
 
-layout(location = 0) in VertexOut vertexOut;
-
 layout(location = 0) out vec4 FragColor;
 
 void main()
