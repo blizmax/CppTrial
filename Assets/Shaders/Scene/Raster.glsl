@@ -37,6 +37,8 @@ void main()
     vOut.posW = posW.xyz;
 
     gl_Position = GetViewProjection(camera) * posW;
+    gl_Position.y = -gl_Position.y;
+    gl_Position.z = (gl_Position.z + gl_Position.w) / 2.0;
 
     vOut.meshInstanceID = vIn.meshInstanceID;
     vOut.materialID = vIn.materialID;

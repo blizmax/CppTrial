@@ -36,12 +36,26 @@ ShadingResult EvalMaterial(ShadingData sd, LightData light, float shadowFactor)
         return sr;
     sd.NdotV = saturate(sd.NdotV);
 
-    sr.diffuseBrdf = EvalDiffuseBrdf(sd, ls);
+    float ggxAlpha = sd.ggxAlpha;
+
+    float D = DistributionGGX(ggxAlpha, ls.NdotH);  
+    float G = GeometrySmith(ggxAlpha, ls.NdotL, sd.NdotV);
+    float F = FresnelSchlick(sd.specular, vec3(1.0), saturate(ls.LdotH));
+
+    vec3 nominator = D * G * F; 
+    float denominator = 4 * sd.NdotV * ls.NdotL;
+    vec3 specular = nominator / max(denominator, 0.001);
+
+    vec3 ks = F;
+    vec3 kd = vec3(1.0) - ks;
+    kd *= 1.0 - sd.metallic;
+
+    sr.diffuseBrdf = kd * sd.diffuse.rgb / PI;
     sr.diffuse = ls.diffuse * sr.diffuseBrdf * ls.NdotL;
     sr.color.rgb = sr.diffuse;
     sr.color.a = sd.opacity;
 
-    sr.specularBrdf = EvalSpecularBrdf(sd, ls);
+    sr.specularBrdf = specular;
     sr.specular = ls.specular * sr.specularBrdf * ls.NdotL;
     sr.color.rgb += sr.specular;
     

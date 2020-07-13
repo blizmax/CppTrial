@@ -39,7 +39,7 @@ private:
 
 struct DeviceDesc
 {
-    ResourceFormat colorFormat = ResourceFormat::BGRA8UnormSrgb; //BGRAUnorm;
+    ResourceFormat colorFormat = ResourceFormat::BGRA8Unorm; //ResourceFormat::BGRA8UnormSrgb;
     ResourceFormat depthFormat = ResourceFormat::D32Float;
     bool vsync = true;
 };

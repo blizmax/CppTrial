@@ -71,7 +71,7 @@ struct VertexData
 struct MaterialData
 {
     Color base;     //RGB: Base color,     A: Transparency
-    Color specular; //RGB: Specular,       A: Gloss
+    Color specular; //RGB: Specular,       A: Gloss       | R: Occluse, G:Roughness, B:Metallic
     Color emissive; //RGB: Emissive color, A: Factor
 
     float alphaThreshold;
@@ -149,6 +149,8 @@ struct ShadingData
     float ggxAlpha;
     Vector3 emissive;
     Vector4 occlusion;
+    float IoR;
+    float metallic;
 };
 #endif
 

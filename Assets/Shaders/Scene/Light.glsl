@@ -42,7 +42,7 @@ LightSample EvalPointLight(LightData light, vec3 surfacePosW)
 
     float dist2 = dot(ls.L, ls.L);
     ls.distance = (dist2 > 0.0001) ? length(ls.L) : 0.0;
-    ls.L = (dist2 > 0.0001) ? normalize(ls.L) : 0.0;
+    ls.L = (dist2 > 0.0001) ? normalize(ls.L) : vec3(0.0);
 
     float falloff = 1.0 / (0.0001 + dist2);
     float cosTheta = -dot(ls.L, light.dirW);
@@ -56,7 +56,7 @@ LightSample EvalPointLight(LightData light, vec3 surfacePosW)
         falloff *= saturate((delta - light.penumbraAngle) / light.penumbraAngle); //linear attenuation
     }
     ls.diffuse = light.intensity * falloff;
-    ls.specular = ls.distance;
+    ls.specular = ls.diffuse;
     return ls;
 }
 
@@ -69,7 +69,7 @@ LightSample EvalLight(LightData light, ShadingData sd)
     }
     else if (light.type == CT_LIGHT_TYPE_DIRECTIONAL)
     {
-        ls = EvalDirectionalLight(light, sd.posw);
+        ls = EvalDirectionalLight(light, sd.posW);
     }
     CalcCommonLightProperties(sd, ls);
     return ls;
