@@ -6,6 +6,7 @@ MaterialData::MaterialData() :
     emissive{0.0f, 0.0f, 0.0f, 1.0f},
     alphaThreshold(0.5f),
     ior(1.5f),
+    specularTransmission(0.0f),
     flags(0)
 {
 }

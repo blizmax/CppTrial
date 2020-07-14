@@ -30,6 +30,7 @@ public:
     void SetEmissiveColor(const Color &color);
     void SetAlphaThreshold(float value);
     void SetIndexOfRefraction(float value);
+    void SetDoubleSided(bool value);
 
     const SPtr<Texture> &GetBaseColorTexture() const
     {
@@ -83,7 +84,17 @@ public:
 
     float GetIndexOfRefraction() const
     {
-        return data.ior;
+        return data.IoR;
+    }
+
+    bool IsDoubleSided() const
+    {
+        return (data.flags & CT_MAT_DOUBLE_SIDED) > 0;
+    }
+
+    int32 GetFlags() const
+    {
+        return data.flags;
     }
 
     const MaterialData &GetData() const
@@ -107,6 +118,9 @@ public:
     }
 
     static SPtr<Material> Create();
+
+private:
+    void SetFlags(int32 flags);
 
 private:
     String name;

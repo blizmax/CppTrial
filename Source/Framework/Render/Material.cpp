@@ -5,6 +5,14 @@ SPtr<Material> Material::Create()
     return Memory::MakeShared<Material>();
 }
 
+void Material::SetFlags(int32 flags)
+{
+    if (data.flags != flags)
+    {
+        data.flags = flags;
+    }
+}
+
 void Material::SetBaseTexture(const SPtr<Texture> &texture)
 {
     if (resources.baseTexture != texture)
@@ -87,8 +95,14 @@ void Material::SetAlphaThreshold(float value)
 
 void Material::SetIndexOfRefraction(float value)
 {
-    if (data.ior != value)
+    if (data.IoR != value)
     {
-        data.ior = value;
+        data.IoR = value;
     }
+}
+
+void Material::SetDoubleSided(bool value)
+{
+    int32 flags = data.flags | CT_MAT_DOUBLE_SIDED;
+    SetFlags(flags);
 }

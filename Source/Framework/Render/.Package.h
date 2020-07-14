@@ -3,8 +3,7 @@
 #include "RenderCore/.Package.h"
 #include "Math/Matrix4.h"
 #include "Math/Quat.h"
-
-#include "Scene/.Package.glsl"
+#include "Scene/Shared.glsl"
 
 class Material;
 
