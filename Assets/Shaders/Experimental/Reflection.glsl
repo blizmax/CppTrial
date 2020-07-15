@@ -56,6 +56,10 @@ layout (binding = 4) uniform ArrayBlock
     float arrayData[7];
 };
 
+#type pixel
+
+layout(location = 0) in CT_VERTEX_OUT vOut;
+
 layout(location = 0) out vec4 FragColor;
 
 void main()
@@ -70,6 +74,6 @@ void main()
 
     v *= arrayData[1];
 
-    vec4 col = texture(sampler2D(textures[1], samplers[1]), vertexOut.uv);
-    FragColor = texture(sampler2D(textures[0], samplers[0]), vertexOut.uv) + col * v;
+    vec4 col = texture(sampler2D(textures[1], samplers[1]), vOut.uv);
+    FragColor = texture(sampler2D(textures[0], samplers[0]), vOut.uv) + col * v;
 }

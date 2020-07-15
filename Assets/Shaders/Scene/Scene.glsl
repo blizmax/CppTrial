@@ -48,7 +48,7 @@ layout(set = 1, binding = 1) uniform texture2D baseTextures[MATERIAL_COUNT];
 layout(set = 1, binding = 2) uniform texture2D specularTextures[MATERIAL_COUNT];
 layout(set = 1, binding = 3) uniform texture2D emissiveTextures[MATERIAL_COUNT];
 layout(set = 1, binding = 4) uniform texture2D normalTextures[MATERIAL_COUNT];
-layout(set = 1, binding = 5) uniform texture2D occlusionTexture[MATERIAL_COUNT];
+layout(set = 1, binding = 5) uniform texture2D occlusionTextures[MATERIAL_COUNT];
 layout(set = 1, binding = 6) uniform sampler samplerStates[MATERIAL_COUNT];
 
 // Light
@@ -73,7 +73,7 @@ mat3 GetInverseTransposeWorldMatrix(int meshInstanceID)
 {
     int matrixID = meshInstances[meshInstanceID].globalMatrixID;
     return mat3(inverseTransposeWorldMatrices[matrixID]);
-};
+}
 
 int GetMaterialCount()
 {

@@ -11,6 +11,10 @@
 #define CT_MAT_SAMPLE_MODE_CONST    1
 #define CT_MAT_SAMPLE_MODE_TEXTURE  2
 
+#define CT_MAT_NORMAL_MODE_NONE     0
+#define CT_MAT_NORMAL_MODE_RGB      1
+#define CT_MAT_NORMAL_MODE_RG       2
+
 #define CT_MAT_DIFFUSE       (1 << 10)
 #define CT_MAT_SPECULAR      (1 << 12)
 #define CT_MAT_EMISSIVE      (1 << 14)
@@ -22,6 +26,11 @@ CT_INLINE int32 GetMaterialSampleMode(int32 flags, int32 mapType)
 {
     // each map has 2 bits
     return (flags >> mapType) & ((1 << 2) - 1);
+}
+
+CT_INLINE int32 GetMaterialNormalMode(int32 flags)
+{
+    return (flags >> CT_MAT_NORMAL) & ((1 << 2) - 1);
 }
 
 CT_INLINE int32 GetMaterialShadingModel(int32 flags)

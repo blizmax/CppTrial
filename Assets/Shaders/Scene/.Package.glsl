@@ -23,21 +23,21 @@
 
 struct VertexData
 {
-    Vector3 posW;
-    Vector3 normalW;
-    Vector3 bitangentW;
-    Vector2 uv;
-    Vector3 faceNormalW;
+    vec3 posW;
+    vec3 normalW;
+    vec3 bitangentW;
+    vec2 uv;
+    vec3 faceNormalW;
 };
 
 struct ShadingData
 {
-    Vector3 posW;
-    Vector3 V;
-    Vector3 N;
-    Vector3 T;
-    Vector3 B;
-    Vector2 uv;
+    vec3 posW;
+    vec3 V;
+    vec3 N;
+    vec3 T;
+    vec3 B;
+    vec2 uv;
     float NdotV;
 
     vec3 faceN;
@@ -45,17 +45,30 @@ struct ShadingData
     bool doubleSided;
 
     int32 materialID;
-    Vector3 diffuse;
+    vec3 diffuse;
     float opacity;
-    Vector3 specular;
+    vec3 specular;
     float linearRoughness;
     float ggxAlpha;
-    Vector3 emissive;
-    Vector4 occlusion;
+    vec3 emissive;
+    vec4 occlusion;
     float IoR;
     float metallic;
     float specularTransmission;
     float eta;
 };
+
+float GetMetallic(vec3 diffuse, vec3 spec)
+{
+    float d = Luminance(diffuse);
+    float s = Luminance(spec);
+    if (s == 0) return 0;
+    float a = 0.04;
+    float b = s + d - 0.08;
+    float c = 0.04 - s;
+    float root = sqrt(b * b - 0.16 * c);
+    float m = (root - b) * 12.5;
+    return m;
+}
 
 #endif

@@ -14,7 +14,9 @@ public:
     {
         ProgramCompileOptions options;
         options.printReflectionInfo = true;
-        program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/Reflection.glsl"), {}, options);
+        ProgramDefines defines;
+        defines.Put(CT_TEXT("MATERIAL_COUNT"), CT_TEXT("5"));
+        program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/Reflection.glsl"), defines, options);
     }
 
     virtual void Shutdown() override

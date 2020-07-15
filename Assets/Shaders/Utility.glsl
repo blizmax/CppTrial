@@ -16,6 +16,11 @@ float remap(float a, float b, float c, float d, float t)
     return saturate((t - a) / (b - a)) * (d - c) + c;
 }
 
+float Luminance(vec3 c)
+{
+    return 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
+}
+
 // https://stackoverflow.com/questions/15095909/from-rgb-to-hsv-in-opengl-glsl
 // All components are in the range [0…1], including hue.
 vec3 rgb2hsv(vec3 c)
