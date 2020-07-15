@@ -12,12 +12,9 @@ private:
 public:
     virtual void Startup() override
     {
-        ProgramDesc desc;
-        desc.printReflectionInfo = true;
-        desc.defines.Put(CT_TEXT("MATERIAL_COUNT"), CT_TEXT("5"));
-        IO::FileHandle fragSrcFile(CT_TEXT("Assets/Shaders/Experimental/reflection.frag"));
-        desc.shaderDescs.Add({ShaderType::Pixel, fragSrcFile.ReadString()});
-        program = Program::Create(desc);
+        ProgramCompileOptions options;
+        options.printReflectionInfo = true;
+        program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/Reflection.glsl"), {}, options);
     }
 
     virtual void Shutdown() override

@@ -11,16 +11,21 @@ struct ShaderDesc
     String source;
 };
 
+struct ProgramCompileOptions
+{
+    bool printReflectionInfo = false;
+
+    ProgramCompileOptions() = default;
+};
+
 struct ProgramDesc
 {
-    ProgramDesc() = default;
-    ProgramDesc(std::initializer_list<ShaderDesc> initList) : shaderDescs(initList) {}
-
     Array<ShaderDesc> shaderDescs;
     ProgramDefines defines;
+    ProgramCompileOptions options;
 
-    // compile options
-    bool printReflectionInfo = false;
+    ProgramDesc() = default;
+    ProgramDesc(std::initializer_list<ShaderDesc> initList) : shaderDescs(initList) {}
 };
 
 class ProgramKernel
@@ -80,7 +85,7 @@ public:
         return ptr;
     }
 
-    static SPtr<Program> Create(const String &path, const ProgramDefines &defines = {});
+    static SPtr<Program> Create(const String &path, const ProgramDefines &defines = {}, const ProgramCompileOptions &options = {});
 
 private:
     SPtr<ProgramKernel> kernel;

@@ -182,37 +182,37 @@ public:
         renderer->Render(gRenderManager->GetRenderContext(), gRenderManager->GetTargetFrameBuffer());
     }
 
-    virtual void OnWindowResized(WindowResizedEvent &e) 
+    virtual void OnWindowResized(WindowResizedEvent &e) override
     {
         renderer->cameraController->SetViewport((float)e.width, (float)e.height);
     }
 
-    virtual void OnKeyDown(KeyDownEvent &e)
+    virtual void OnKeyDown(KeyDownEvent &e) override
     {
         renderer->cameraController->OnKeyDown(e);
     }
 
-    virtual void OnKeyUp(KeyUpEvent &e)
+    virtual void OnKeyUp(KeyUpEvent &e) override
     {
         renderer->cameraController->OnKeyUp(e);
     }
 
-    virtual void OnTouchDown(TouchDownEvent &e)
+    virtual void OnTouchDown(TouchDownEvent &e) override
     {
         renderer->cameraController->OnTouchDown(e);
     }
 
-    virtual void OnTouchUp(TouchUpEvent &e)
+    virtual void OnTouchUp(TouchUpEvent &e) override
     {
         renderer->cameraController->OnTouchUp(e);
     }
 
-    virtual void OnMouseMoved(MouseMovedEvent &e)
+    virtual void OnMouseMoved(MouseMovedEvent &e) override
     {
         renderer->cameraController->OnMouseMoved(e);
     }
 
-    virtual void OnMouseScrolled(MouseScrolledEvent &e)
+    virtual void OnMouseScrolled(MouseScrolledEvent &e) override
     {
         renderer->cameraController->OnMouseScrolled(e);
     }

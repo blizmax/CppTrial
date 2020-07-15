@@ -25,10 +25,10 @@ VkImageLayout ToVkImageLayout(ResourceState state)
         return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     case ResourceState::Present:
         return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    default:
+        CT_EXCEPTION(RenderCore, "Unsupported resource state!");
+        return VK_IMAGE_LAYOUT_UNDEFINED;
     }
-
-    CT_EXCEPTION(RenderCore, "Unsupported resource state!");
-    return VK_IMAGE_LAYOUT_UNDEFINED;
 }
 
 VkAccessFlags ToVkAccess(ResourceState state)
@@ -62,10 +62,10 @@ VkAccessFlags ToVkAccess(ResourceState state)
     case ResourceState::ResolveSource:
     case ResourceState::CopySource:
         return VK_ACCESS_TRANSFER_READ_BIT;
+    default:
+        CT_EXCEPTION(RenderCore, "Unsupported resource state!");
+        return 0;
     }
-
-    CT_EXCEPTION(RenderCore, "Unsupported resource state!");
-    return 0;
 }
 
 VkPipelineStageFlags ToVkPipelineStage(ResourceState state, bool src)
@@ -97,10 +97,10 @@ VkPipelineStageFlags ToVkPipelineStage(ResourceState state, bool src)
         return VK_PIPELINE_STAGE_TRANSFER_BIT;
     case ResourceState::Present:
         return src ? (VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT | VK_PIPELINE_STAGE_ALL_COMMANDS_BIT) : VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    default:
+        CT_EXCEPTION(RenderCore, "Unsupported resource state!");
+        return 0;
     }
-
-    CT_EXCEPTION(RenderCore, "Unsupported resource state!");
-    return 0;
 }
 
 VkShaderStageFlagBits ToVkShaderStage(ShaderType shaderType)
@@ -119,10 +119,10 @@ VkShaderStageFlagBits ToVkShaderStage(ShaderType shaderType)
         return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
     case ShaderType::Compute:
         return VK_SHADER_STAGE_COMPUTE_BIT;
+    default:
+        CT_EXCEPTION(RenderCore, "Unsupported shader type!");
+        return VK_SHADER_STAGE_VERTEX_BIT;
     }
-
-    CT_EXCEPTION(RenderCore, "Unsupported shader type!");
-    return VK_SHADER_STAGE_VERTEX_BIT;
 }
 
 VkShaderStageFlags ToVkShaderVisibility(ShaderVisibilityFlags visibility)
@@ -169,10 +169,10 @@ VkDescriptorType ToVkDescriptorType(DescriptorType descType)
     case DescriptorType::Dsv:
     case DescriptorType::Rtv:
         return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    default:
+        CT_EXCEPTION(RenderCore, "Unsupported desc type!");
+        return VK_DESCRIPTOR_TYPE_MAX_ENUM;
     }
-
-    CT_EXCEPTION(RenderCore, "Unsupported desc type!");
-    return VK_DESCRIPTOR_TYPE_MAX_ENUM;
 }
 
 VkMemoryPropertyFlags ToVkMemoryProperty(MemoryUsage usage)
@@ -220,10 +220,10 @@ VkImageType ToVkImageType(ResourceType resourceType)
         return VK_IMAGE_TYPE_2D;
     case ResourceType::Texture3D:
         return VK_IMAGE_TYPE_3D;
+    default:
+        CT_EXCEPTION(RenderCore, "Unsupported image type.");
+        return VK_IMAGE_TYPE_2D;
     }
-
-    CT_EXCEPTION(RenderCore, "Unsupported image type.");
-    return VK_IMAGE_TYPE_2D;
 }
 
 VkImageUsageFlags ToVkImageUsage(ResourceBindFlags bind)
@@ -255,10 +255,10 @@ VkImageViewType ToVkImageViewType(ResourceType resourceType, bool array)
     case ResourceType::Texture3D:
         CT_CHECK(!array);
         return VK_IMAGE_VIEW_TYPE_3D;
+    default:
+        CT_EXCEPTION(RenderCore, "Unsupported image type.");
+        return array ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D;
     }
-
-    CT_EXCEPTION(RenderCore, "Unsupported image type.");
-    return array ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D;
 }
 
 VkImageAspectFlags ToVkImageAspect(ResourceFormat format, bool ignoreStencil)
@@ -288,10 +288,10 @@ VkPrimitiveTopology ToVkTopology(Topology topology)
         return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     case Topology::TriangleStrip:
         return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+    default:
+        CT_EXCEPTION(RenderCore, "Unsupported topology.");
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     }
-
-    CT_EXCEPTION(RenderCore, "Unsupported topology.");
-    return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 }
 
 VkPolygonMode ToVkPolygonMode(PolygonMode mode)
@@ -510,10 +510,10 @@ VkIndexType ToVkIndexType(ResourceFormat format)
         return VK_INDEX_TYPE_UINT16;
     case ResourceFormat::R32UInt:
         return VK_INDEX_TYPE_UINT32;
+    default:
+        CT_EXCEPTION(RenderCore, "Unsupported index buffer format.");
+        return VK_INDEX_TYPE_UINT32;
     }
-
-    CT_EXCEPTION(RenderCore, "Unsupported index buffer format.");
-    return VK_INDEX_TYPE_UINT32;
 }
 
 struct VulkanResourceFormatDesc

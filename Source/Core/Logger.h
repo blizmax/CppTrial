@@ -73,7 +73,7 @@ public:
     template <typename... Args>
     void Log(LogLevel lv, const String &msg, Args &&... args) const
     {
-        if (CompareLevel(level, lv) <= 0)
+        if (((int32)level - (int32)lv) <= 0)
         {
             Print(lv, msg, std::forward<Args>(args)...);
         }
@@ -85,12 +85,6 @@ public:
     }
 
 private:
-    auto CompareLevel(const LogLevel &lhs, const LogLevel &rhs) const
-    {
-        return static_cast<std::underlying_type<LogLevel>::type>(lhs) -
-               static_cast<std::underlying_type<LogLevel>::type>(rhs);
-    }
-
     template <typename... Args>
     void Print(const LogLevel &lv, const String &msg, Args &&... args) const
     {
@@ -112,6 +106,9 @@ private:
         case LogLevel::Fatal:
             prefix = CT_TEXT("F");
             break;
+        default:
+            //should not be here
+            return;
         }
 
         String fmtMsg = String::Format(msg, std::forward<Args>(args)...);

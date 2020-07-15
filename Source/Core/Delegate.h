@@ -201,5 +201,5 @@ public:
 
 private:
     Array<SPtr<InnerData>> chain;
-    std::recursive_mutex mutex;
+    mutable std::recursive_mutex mutex;
 };

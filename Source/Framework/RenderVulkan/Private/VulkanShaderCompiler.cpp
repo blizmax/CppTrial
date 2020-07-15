@@ -1,7 +1,7 @@
 #define CT_RENDER_CORE_PROGRAM_REFLECTION_IMPLEMENT
 
 #include "RenderVulkan/Private/VulkanShaderCompiler.h"
-#include <glslang/public/ShaderLang.h>
+#include <glslang/Public/ShaderLang.h>
 #include <SPIRV/GlslangToSpv.h>
 #include <StandAlone/DirStackFileIncluder.h>
 
@@ -156,9 +156,10 @@ static EShLanguage ToEShLanguage(ShaderType shaderType)
         return EShLangTessEvaluation;
     case ShaderType::Compute:
         return EShLangCompute;
+    default:
+        CT_EXCEPTION(RenderCore, "Unsupported shader type.");
+        return EShLangCount;
     }
-    CT_EXCEPTION(RenderCore, "Unsupported shader type.");
-    return EShLangCount;
 }
 
 static SPtr<ReflectionStructType> ParseStructType(const glslang::TType *blockType, const String &name, const glslang::TType *structType, int32 baseOffset);
@@ -227,6 +228,8 @@ static SPtr<ReflectionType> ParseDataType(const glslang::TType *blockType, const
                 break;
             }
             break;
+        default:
+            break; // error checked later
         }
     }
     else if (ttype->isMatrix())
@@ -280,6 +283,8 @@ static SPtr<ReflectionType> ParseDataType(const glslang::TType *blockType, const
                 break;
             }
             break;
+        default:
+            break; // error checked later
         }
     }
     else
@@ -298,6 +303,8 @@ static SPtr<ReflectionType> ParseDataType(const glslang::TType *blockType, const
         case glslang::EbtBool:
             shaderDataType = ShaderDataType::Bool;
             break;
+        default:
+            break; // error checked later
         }
     }
 
@@ -419,6 +426,8 @@ static SPtr<ReflectionVar> ParseSamplerVar(const String &name, const glslang::TO
         case glslang::EsdBuffer:
             //TODO
             break;
+        default:
+            break; // error checked later
         }
         shaderAccess = ShaderAccess::Read;
     }
@@ -612,16 +621,19 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
     //program.mapIO();
     program.buildReflection();
 
-    if (desc.printReflectionInfo)
+    if (desc.options.printReflectionInfo)
+    {
         CT_LOG(Debug, CT_TEXT("==========================Reflection========================="));
-
-    ParseReflection(program, builder, desc.printReflectionInfo);
-
-    if (desc.printReflectionInfo)
+        ParseReflection(program, builder, true);
         CT_LOG(Debug, CT_TEXT("==========================!Reflection========================="));
 
-    //program.dumpReflection();
-
+        //program.dumpReflection();
+    }
+    else
+    {
+        ParseReflection(program, builder, false);
+    }
+    
     glslang::SpvOptions spvOptions;
     spvOptions.generateDebugInfo = false;
     spvOptions.optimizeSize = false;

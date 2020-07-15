@@ -302,6 +302,9 @@ public:
             descriptorType =
                 shaderAccess == ShaderAccess::Read ? DescriptorType::TextureSrv : DescriptorType::TextureUav;
             break;
+        default:
+            CT_EXCEPTION(RenderCore, "Unsupported shader resource type.");
+            break;
         }
 
         BindingRange range;
@@ -398,7 +401,7 @@ public:
         return true; 
     }
 
-    virtual bool IsResourceArray() const 
+    virtual bool IsResourceArray() const override
     { 
         return elementType->IsResource();
     }
@@ -707,6 +710,9 @@ int32 ReflectionStructType::AddMember(const SPtr<ReflectionVar> &var)
         case DescriptorType::Sampler:
             range.baseIndex = samplerCount;
             samplerCount += e.count;
+            break;
+        default:
+            CT_EXCEPTION(RenderCore, "Why go to here.");
             break;
         }
 

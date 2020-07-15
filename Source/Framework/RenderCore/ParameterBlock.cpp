@@ -141,9 +141,10 @@ bool ParameterBlock::IsBufferVarValid(const ShaderVar &var, const Buffer *buffer
             return false;
         }
         return true;
+    default:
+        CT_EXCEPTION(RenderCore, "Shader var is not a buffer var.");
+        return false;
     }
-    CT_EXCEPTION(RenderCore, "Shader var is not a buffer var.");
-    return false;
 }
 
 bool ParameterBlock::IsTextureVarValid(const ShaderVar &var, const Texture *texture) const
@@ -164,9 +165,10 @@ bool ParameterBlock::IsTextureVarValid(const ShaderVar &var, const Texture *text
     case ShaderResourceType::TextureCubeArray:
     case ShaderResourceType::Texture2DMSArray:
         return true;
+    default:
+        CT_EXCEPTION(RenderCore, "Shader var is not a texture var.");
+        return false;
     }
-    CT_EXCEPTION(RenderCore, "Shader var is not a texture var.");
-    return false;
 }
 
 bool ParameterBlock::IsSamplerVarValid(const ShaderVar &var, const Sampler *sampler) const
@@ -595,6 +597,8 @@ bool ParameterBlock::BindIntoDescriptorSet(int32 setIndex, const SPtr<Descriptor
             case DescriptorType::StructuredBufferUav:
                 CT_CHECK(uavs[flatIndex]);
                 set->SetUav(bindingInfo.binding, i, uavs[flatIndex].get());
+                break;
+            default:
                 break;
             }
         }

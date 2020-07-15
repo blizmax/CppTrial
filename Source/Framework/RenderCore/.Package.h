@@ -336,7 +336,7 @@ CT_DECL_FLAGS(GraphicsStateBind)
 {
     None = 0,
     Vars = 1 << 0,
-    Topology = 1 << 1,
+    PrimitiveTopology = 1 << 1,
     Vao = 1 << 2,
     Fbo = 1 << 3,
     Viewports = 1 << 4,

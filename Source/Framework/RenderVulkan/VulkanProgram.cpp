@@ -14,10 +14,11 @@ static ShaderType GetShaderType(const String &str)
     return ShaderType::Vertex;
 }
 
-SPtr<Program> Program::Create(const String &path, const ProgramDefines &defines)
+SPtr<Program> Program::Create(const String &path, const ProgramDefines &defines, const ProgramCompileOptions &options)
 {
     ProgramDesc desc;
     desc.defines = defines;
+    desc.options = options;
 
     IO::FileHandle file(path);
     if (!file.IsFile())
