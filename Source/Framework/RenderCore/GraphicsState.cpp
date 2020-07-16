@@ -14,7 +14,7 @@ GraphicsState::GraphicsState()
     viewportStacks.SetCount(maxCount);
     scissorStacks.SetCount(maxCount);
 
-    for(int32 i = 0; i < maxCount; ++i)
+    for (int32 i = 0; i < maxCount; ++i)
     {
         SetViewport(i, viewports[i], true);
     }
@@ -24,7 +24,7 @@ void GraphicsState::SetViewport(int32 index, const Viewport &viewport, bool setS
 {
     viewports[index] = viewport;
 
-    if(setScissor)
+    if (setScissor)
     {
         Scissor scissor = {(int32)viewport.x, (int32)viewport.y, (uint32)viewport.width, (uint32)viewport.height};
         SetScissor(index, scissor);
@@ -44,7 +44,7 @@ void GraphicsState::PushViewport(int32 index, const Viewport &viewport, bool set
 
 void GraphicsState::PopViewport(int32 index, bool setScissor)
 {
-    if(viewportStacks[index].IsEmpty())
+    if (viewportStacks[index].IsEmpty())
     {
         CT_LOG(Error, CT_TEXT("Pop viewport failed, stack is empty."));
         return;
@@ -62,7 +62,7 @@ void GraphicsState::PushScissor(int32 index, const Scissor &scissor)
 
 void GraphicsState::PopScissor(int32 index)
 {
-    if(scissorStacks[index].IsEmpty())
+    if (scissorStacks[index].IsEmpty())
     {
         CT_LOG(Error, CT_TEXT("Pop scissor failed, stack is empty."));
         return;
@@ -76,7 +76,7 @@ void GraphicsState::SetFrameBuffer(const SPtr<FrameBuffer> &fbo, bool setVp0Sc0)
 {
     frameBuffer = fbo;
 
-    if(setVp0Sc0 && fbo)
+    if (setVp0Sc0 && fbo)
     {
         int32 w = fbo->GetWidth();
         int32 h = fbo->GetHeight();
@@ -93,7 +93,7 @@ void GraphicsState::PushFrameBuffer(const SPtr<FrameBuffer> &fbo, bool setVp0Sc0
 
 void GraphicsState::PopFrameBuffer(bool setVp0Sc0)
 {
-    if(frameBufferStack.IsEmpty())
+    if (frameBufferStack.IsEmpty())
     {
         CT_LOG(Error, CT_TEXT("Pop frame buffer failed, stack is empty."));
         return;
@@ -105,7 +105,7 @@ void GraphicsState::PopFrameBuffer(bool setVp0Sc0)
 
 void GraphicsState::SetVertexArray(const SPtr<VertexArray> &vao)
 {
-    if(vertexArray != vao)
+    if (vertexArray != vao)
     {
         vertexArray = vao;
         stateGraph.Walk(vao ? (void *)vao->GetVertexLayout().get() : nullptr);
@@ -114,7 +114,7 @@ void GraphicsState::SetVertexArray(const SPtr<VertexArray> &vao)
 
 void GraphicsState::SetRasterizationState(const SPtr<RasterizationState> &state)
 {
-    if(desc.rasterizationState != state)
+    if (desc.rasterizationState != state)
     {
         desc.rasterizationState = state;
         stateGraph.Walk((void *)state.get());
@@ -123,7 +123,7 @@ void GraphicsState::SetRasterizationState(const SPtr<RasterizationState> &state)
 
 void GraphicsState::SetDepthStencilState(const SPtr<DepthStencilState> &state)
 {
-    if(desc.depthStencilState != state)
+    if (desc.depthStencilState != state)
     {
         desc.depthStencilState = state;
         stateGraph.Walk((void *)state.get());
@@ -132,7 +132,7 @@ void GraphicsState::SetDepthStencilState(const SPtr<DepthStencilState> &state)
 
 void GraphicsState::SetBlendState(const SPtr<BlendState> &state)
 {
-    if(desc.blendState != state)
+    if (desc.blendState != state)
     {
         desc.blendState = state;
         stateGraph.Walk((void *)state.get());
@@ -141,7 +141,7 @@ void GraphicsState::SetBlendState(const SPtr<BlendState> &state)
 
 void GraphicsState::SetSampleMask(uint32 sampleMask)
 {
-    if(desc.sampleMask != sampleMask)
+    if (desc.sampleMask != sampleMask)
     {
         desc.sampleMask = sampleMask;
         stateGraph.Walk((void *)(uint64)sampleMask);
@@ -183,11 +183,10 @@ SPtr<GraphicsStateObject> GraphicsState::GetGso(const GraphicsVars *vars)
         desc.topology = vertexArray->GetTopology();
         desc.rootSignature = rootSignature;
 
-        auto cmpFunc = [this](const SPtr<GraphicsStateObject> &g)
-        {
+        auto Predicate = [this](const SPtr<GraphicsStateObject> &g) {
             return g && (g->GetDesc() == desc);
         };
-        if (stateGraph.ScanForMatching(cmpFunc))
+        if (stateGraph.MatchesByPredicate(Predicate))
         {
             gso = stateGraph.GetCurrentNodeData();
         }
@@ -196,6 +195,11 @@ SPtr<GraphicsStateObject> GraphicsState::GetGso(const GraphicsVars *vars)
             gso = GraphicsStateObject::Create(desc);
             stateGraph.SetCurrentNodeData(gso);
         }
+    }
+
+    if (gso)
+    {
+        stateGraph.MarkAsRecent();
     }
 
     return gso;
