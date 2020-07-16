@@ -15,11 +15,12 @@
 #define CT_MAT_NORMAL_MODE_RGB      1
 #define CT_MAT_NORMAL_MODE_RG       2
 
-#define CT_MAT_DIFFUSE       (1 << 10)
-#define CT_MAT_SPECULAR      (1 << 12)
-#define CT_MAT_EMISSIVE      (1 << 14)
-#define CT_MAT_NORMAL        (1 << 16)
-#define CT_MAT_OCCLUSION     (1 << 18)
+#define CT_MAT_DIFFUSE       10 // Offset bit
+#define CT_MAT_SPECULAR      12
+#define CT_MAT_EMISSIVE      14
+#define CT_MAT_NORMAL        16
+#define CT_MAT_OCCLUSION     18
+
 #define CT_MAT_DOUBLE_SIDED  (1 << 20)
 
 CT_INLINE int32 GetMaterialSampleMode(int32 flags, int32 mapType)

@@ -433,7 +433,6 @@ bool ParameterBlock::SetUav(const ShaderVarLocation &location, const SPtr<Resour
 
 bool ParameterBlock::SetSampler(const ShaderVarLocation &location, const SPtr<Sampler> &sampler)
 {
-    CT_CHECK(sampler);
     CheckResourceLocation(location);
     CheckDescriptorType(location, DescriptorType::Sampler);
 
@@ -576,28 +575,36 @@ bool ParameterBlock::BindIntoDescriptorSet(int32 setIndex, const SPtr<Descriptor
             switch (range.descriptorType)
             {
             case DescriptorType::Cbv:
+            {
                 CT_CHECK(range.count == 1);
                 CT_CHECK(parameterBlocks[flatIndex]);
                 parameterBlocks[flatIndex]->BindIntoDescriptorSet(setIndex, set);
-                break;
+            }
+            break;
             case DescriptorType::Sampler:
-                CT_CHECK(samplers[flatIndex]);
-                set->SetSampler(bindingInfo.binding, i, samplers[flatIndex].get());
-                break;
+            {
+                auto sampler = samplers[flatIndex] ? samplers[flatIndex].get() : Sampler::GetDefault().get();
+                set->SetSampler(bindingInfo.binding, i, sampler);
+            }
+            break;
             case DescriptorType::TextureSrv:
             case DescriptorType::RawBufferSrv:
             case DescriptorType::TypedBufferSrv:
             case DescriptorType::StructuredBufferSrv:
+            {
                 CT_CHECK(srvs[flatIndex]);
                 set->SetSrv(bindingInfo.binding, i, srvs[flatIndex].get());
-                break;
+            }
+            break;
             case DescriptorType::TextureUav:
             case DescriptorType::RawBufferUav:
             case DescriptorType::TypedBufferUav:
             case DescriptorType::StructuredBufferUav:
+            {
                 CT_CHECK(uavs[flatIndex]);
                 set->SetUav(bindingInfo.binding, i, uavs[flatIndex].get());
-                break;
+            }
+            break;
             default:
                 break;
             }

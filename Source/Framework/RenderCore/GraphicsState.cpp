@@ -155,24 +155,23 @@ SPtr<GraphicsStateObject> GraphicsState::GetGso(const GraphicsVars *vars)
     CT_CHECK(vertexArray != nullptr);
 
     auto programKernel = program->GetKernel();
-    if (programKernel.get() != cachedData.programKernel)
+    if (programKernel != cachedData.programKernel.lock())
     {
-        cachedData.programKernel = programKernel.get();
-        stateGraph.Walk((void *)cachedData.programKernel);
+        cachedData.programKernel = programKernel;
+        stateGraph.Walk((void *)programKernel.get());
     }
 
     auto rootSignature = programKernel->GetRootSignature();
-    if (rootSignature.get() != cachedData.rootSignature)
+    if (rootSignature != cachedData.rootSignature.lock())
     {
-        cachedData.rootSignature = rootSignature.get();
-        stateGraph.Walk((void *)cachedData.rootSignature);
+        cachedData.rootSignature = rootSignature;
+        stateGraph.Walk((void *)rootSignature.get());
     }
 
-    auto fbo = frameBuffer.get();
-    if (fbo != cachedData.frameBuffer)
+    if (frameBuffer != cachedData.frameBuffer.lock())
     {
-        cachedData.frameBuffer = fbo;
-        stateGraph.Walk((void *)fbo);
+        cachedData.frameBuffer = frameBuffer;
+        stateGraph.Walk((void *)frameBuffer.get());
     }
 
     auto gso = stateGraph.GetCurrentNodeData();

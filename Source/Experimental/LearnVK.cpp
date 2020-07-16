@@ -98,13 +98,13 @@ public:
         state->SetBlendState(blendState);
 
         {
-            sampler = Sampler::Create(SamplerDesc());
+            //sampler = Sampler::Create(SamplerDesc());
             TextureImporter importer;
             texture = importer.Import(CT_TEXT("Assets/Textures/test.png"), nullptr);
         }
 
-        vars->Root()[CT_TEXT("UB")][CT_TEXT("tint")] = Color(0.9f, 0.3f, 0.0f);
-        vars->Root()[CT_TEXT("mainSampler")] = sampler;
+        vars->Root()[CT_TEXT("UB")][CT_TEXT("tint")] = Color(0.7f, 0.3f, 0.0f);
+        //vars->Root()[CT_TEXT("mainSampler")] = sampler;
         vars->Root()[CT_TEXT("mainTexture")] = texture;
     }
 

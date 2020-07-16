@@ -3,8 +3,6 @@
 #include "RenderVulkan/Private/VulkanShaderCompiler.h"
 #include "Utils/DynamicLib.h"
 
-SPtr<Device> RenderAPI::device;
-
 VkAllocationCallbacks *gVulkanAlloc = nullptr;
 VulkanDevice *gVulkanDevice = nullptr;
 VkInstance gVulkanInstance = VK_NULL_HANDLE;
@@ -107,16 +105,4 @@ void RenderAPI::Destroy()
         DestroyDebugUtilsMessengerEXT(gVulkanInstance, debugMessenger, gVulkanAlloc);
 
     vkDestroyInstance(gVulkanInstance, gVulkanAlloc);
-}
-
-Device *RenderAPI::GetDevice()
-{
-    return device.get();
-}
-
-Device *RenderAPI::CreateDevice(RenderWindow *window, const DeviceDesc &desc)
-{
-    CT_CHECK(!device);
-    device = Device::Create(window, desc);
-    return device.get();
 }

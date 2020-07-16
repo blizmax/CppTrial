@@ -108,9 +108,9 @@ public:
 private:
     struct CachedData
     {
-        ProgramKernel *programKernel = nullptr;
-        RootSignature *rootSignature = nullptr;
-        FrameBuffer *frameBuffer = nullptr;
+        WPtr<ProgramKernel> programKernel;
+        WPtr<RootSignature> rootSignature;
+        WPtr<FrameBuffer> frameBuffer;
     };
 
     SPtr<VertexArray> vertexArray;
