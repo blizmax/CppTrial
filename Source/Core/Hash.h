@@ -45,8 +45,8 @@ CT_INLINE HashType HashValue(double value)
     return HashValue(u.i);
 }
 
-template <typename T>
-    requires std::same_as<T, char8> || std::same_as<T, char16> || std::same_as<T, char32> || std::same_as<T, wchar> CT_INLINE HashType HashValue(const T *ptr)
+template <OneKindOfChars T>
+CT_INLINE HashType HashValue(const T *ptr)
 {
     HashType seed = 131;
     HashType hash = 0;

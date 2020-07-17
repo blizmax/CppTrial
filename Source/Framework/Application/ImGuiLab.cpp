@@ -151,9 +151,10 @@ void ImGuiLab::BindRenderer()
     graphicsState = GraphicsState::Create();
     graphicsState->SetProgram(program);
 
-    auto vertexBufferLayout = VertexBufferLayout::Create({{CT_TEXT("VertexPosition"), ResourceFormat::RG32Float},
-                                                          {CT_TEXT("VertexUV"), ResourceFormat::RG32Float},
-                                                          {CT_TEXT("VertexColor"), ResourceFormat::RGBA8Unorm}});
+    auto vertexBufferLayout = VertexBufferLayout::Create(
+        { { CT_TEXT("VertexPosition"), ResourceFormat::RG32Float },
+          { CT_TEXT("VertexUV"), ResourceFormat::RG32Float },
+          { CT_TEXT("VertexColor"), ResourceFormat::RGBA8Unorm } });
     vertexLayout = VertexLayout::Create();
     vertexLayout->AddBufferLayout(vertexBufferLayout);
 

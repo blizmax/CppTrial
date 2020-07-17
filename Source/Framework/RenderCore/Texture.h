@@ -116,6 +116,8 @@ public:
 
     static SPtr<Texture> Create2D(int32 width, int32 height, ResourceFormat format, void *handle, ResourceBindFlags flags = ResourceBind::ShaderResource);
 
+    static SPtr<Texture> GetDefault2D();
+
 protected:
     virtual void InitData(const void *data, bool autoGenMips) = 0;
 
