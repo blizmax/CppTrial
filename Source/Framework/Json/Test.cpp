@@ -27,7 +27,7 @@ static void DumpJson()
     Json::JsonReader reader;
     auto json = reader.Parse(str);
 
-    for(auto child = json->child; child != nullptr; child = child->next)
+    for (auto child = json->child; child != nullptr; child = child->next)
     {
         CT_LOG(Info, CT_TEXT("name: {0}, type: {1}"), child->name, static_cast<int32>(child->type));
     }

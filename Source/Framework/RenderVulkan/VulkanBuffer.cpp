@@ -5,7 +5,7 @@ SPtr<Buffer> Buffer::Create(uint32 size, ResourceBindFlags bindFlags, CpuAccess 
 {
     auto ptr = Memory::MakeShared<VulkanBuffer>(size, bindFlags, access);
     ptr->weakThis = ptr;
-    if(data)
+    if (data)
         ptr->SetBlob(data, 0, size);
     return ptr;
 }
@@ -13,13 +13,13 @@ SPtr<Buffer> Buffer::Create(uint32 size, ResourceBindFlags bindFlags, CpuAccess 
 VulkanBuffer::VulkanBuffer(uint32 size, ResourceBindFlags bindFlags, CpuAccess access)
     : Buffer(size, bindFlags, access)
 {
-    if(access == CpuAccess::Write)
+    if (access == CpuAccess::Write)
     {
         bufferData = CreateBuffer(bindFlags, MemoryUsage::Upload);
     }
     else
     {
-        if(access == CpuAccess::Read && bindFlags == ResourceBind::None)
+        if (access == CpuAccess::Read && bindFlags == ResourceBind::None)
             bufferData = CreateBuffer(bindFlags, MemoryUsage::Download);
         else
             bufferData = CreateBuffer(bindFlags, MemoryUsage::Default);
@@ -47,7 +47,7 @@ VulkanBuffer::BufferData VulkanBuffer::CreateBuffer(ResourceBindFlags bindFlags,
     bufferInfo.usage = usageFlags;
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     bufferInfo.queueFamilyIndexCount = 0;
-	bufferInfo.pQueueFamilyIndices = nullptr;
+    bufferInfo.pQueueFamilyIndices = nullptr;
 
     VkMemoryPropertyFlags requiredFlags = ToVkMemoryProperty(memoryUsage);
 
@@ -56,16 +56,16 @@ VulkanBuffer::BufferData VulkanBuffer::CreateBuffer(ResourceBindFlags bindFlags,
     allocInfo.requiredFlags = requiredFlags;
 
     BufferData result;
-    if(vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &result.buffer, &result.allocation, nullptr) != VK_SUCCESS)
+    if (vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &result.buffer, &result.allocation, nullptr) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create buffer failed.");
     return result;
 }
 
 void VulkanBuffer::DestroyBuffer(BufferData &data)
 {
-    if(data.allocation != VK_NULL_HANDLE)
+    if (data.allocation != VK_NULL_HANDLE)
     {
-        if(gVulkanDevice)
+        if (gVulkanDevice)
         {
             gVulkanDevice->Release([buffer = data.buffer, allocation = data.allocation]() {
                 auto allocator = gVulkanDevice->GetVmaAllocator();
@@ -79,12 +79,12 @@ void VulkanBuffer::DestroyBuffer(BufferData &data)
 
 void *VulkanBuffer::Map(BufferMapType mapType)
 {
-    if(mapType == BufferMapType::Write || mapType == BufferMapType::WriteDiscard)
+    if (mapType == BufferMapType::Write || mapType == BufferMapType::WriteDiscard)
     {
         CT_CHECK(cpuAccess == CpuAccess::Write);
     }
 
-    if(mapType == BufferMapType::WriteDiscard)
+    if (mapType == BufferMapType::WriteDiscard)
     {
         ClearViews();
         DestroyBuffer(bufferData);
@@ -92,14 +92,14 @@ void *VulkanBuffer::Map(BufferMapType mapType)
     }
 
     bool useStaging = false;
-    if(mapType == BufferMapType::Read)
+    if (mapType == BufferMapType::Read)
     {
         if ((cpuAccess == CpuAccess::Read && bindFlags != ResourceBind::None) || cpuAccess == CpuAccess::None)
             useStaging = true;
     }
-    if(useStaging)
+    if (useStaging)
     {
-        if(!stagingBuffer)
+        if (!stagingBuffer)
         {
             stagingBuffer = Buffer::Create(size, ResourceBind::None, CpuAccess::Read, nullptr);
         }
@@ -119,7 +119,7 @@ void *VulkanBuffer::Map(BufferMapType mapType)
 
 void VulkanBuffer::Unmap()
 {
-    if(stagingBuffer)
+    if (stagingBuffer)
     {
         stagingBuffer->Unmap();
         stagingBuffer = nullptr;
@@ -134,7 +134,7 @@ void VulkanBuffer::SetBlob(const void *data, uint32 offset, uint32 dataSize)
 {
     CT_CHECK(offset + dataSize <= size);
 
-    if(cpuAccess == CpuAccess::Write)
+    if (cpuAccess == CpuAccess::Write)
     {
         uint8 *dst = reinterpret_cast<uint8 *>(Map(BufferMapType::WriteDiscard));
         std::memcpy(dst + offset, data, dataSize);

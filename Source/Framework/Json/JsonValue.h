@@ -16,7 +16,8 @@ public:
     SPtr<JsonValue> child;
     SizeType size = 0;
 
-    explicit JsonValue(JsonType type) : type(type)
+    explicit JsonValue(JsonType type)
+        : type(type)
     {
     }
 

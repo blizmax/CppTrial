@@ -1,8 +1,8 @@
 #pragma once
 
-#include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/Device.h"
 #include "RenderCore/GpuQueue.h"
+#include "RenderVulkan/VulkanMemory.h"
 #include "RenderVulkan/VulkanSync.h"
 
 class VulkanDevice : public Device
@@ -14,7 +14,8 @@ public:
         Array<SPtr<GpuQueue>> queues;
 
         QueueData() = default;
-        QueueData(int32 index) : familyIndex(index)
+        QueueData(int32 index)
+            : familyIndex(index)
         {
         }
     };

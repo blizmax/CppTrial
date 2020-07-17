@@ -1,15 +1,15 @@
 #include "Math/Test.h"
+#include "Core/Logger.h"
+#include "Math/Circle.h"
+#include "Math/Matrix3.h"
+#include "Math/Matrix4.h"
+#include "Math/Quat.h"
+#include "Math/Ray.h"
+#include "Math/Rect.h"
+#include "Math/Sphere.h"
 #include "Math/Vector2.h"
 #include "Math/Vector3.h"
 #include "Math/Vector4.h"
-#include "Math/Quat.h"
-#include "Math/Rect.h"
-#include "Math/Circle.h"
-#include "Math/Sphere.h"
-#include "Math/Ray.h"
-#include "Math/Matrix3.h"
-#include "Math/Matrix4.h"
-#include "Core/Logger.h"
 
 static void TestVector2()
 {
@@ -19,22 +19,18 @@ static void TestVector2()
 
 static void TestVector3()
 {
-    
 }
 
 static void TestVector4()
 {
-
 }
 
 static void TestRect()
 {
-    
 }
 
 static void TestCircle()
 {
-
 }
 
 static void TestSphere()
@@ -45,12 +41,10 @@ static void TestSphere()
 
 static void TestRay()
 {
-    
 }
 
 static void TestQuat()
 {
-    
 }
 
 static void TestMatrix3()
@@ -62,7 +56,6 @@ static void TestMatrix3()
 
 static void TestMatrix4()
 {
-    
 }
 
 void Test::TestMath()

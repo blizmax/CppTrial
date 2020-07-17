@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Render/CameraController.h"
-#include "Render/Material.h"
-#include "Render/Light.h"
 #include "Render/Animation.h"
+#include "Render/CameraController.h"
+#include "Render/Light.h"
+#include "Render/Material.h"
 #include "RenderCore/RenderAPI.h"
 
 class Scene
@@ -48,7 +48,7 @@ private:
     void InitResources();
     void UploadResources();
     void UploadMaterial(int32 matID);
-    void Finalize();    
+    void Finalize();
 
 private:
     friend class SceneBuilder;

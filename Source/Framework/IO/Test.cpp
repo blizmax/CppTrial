@@ -17,11 +17,11 @@ void IO::TestFileHandle()
     //auto children = fileHandle3.List(true);
 
     FileHandle fileHandle3 = FileHandle(CT_TEXT("E:/code"));
-    auto children = fileHandle3.List([](const String& path){
+    auto children = fileHandle3.List([](const String &path) {
         return path.EndsWith(CT_TEXT(".zip"));
     });
 
-    for(auto& child : children)
+    for (auto &child : children)
     {
         CT_LOG(Info, child.ToString());
     }

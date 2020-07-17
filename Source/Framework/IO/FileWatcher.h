@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Time.h"
 #include "Core/HashMap.h"
+#include "Core/Time.h"
 #include "IO/FileSystem.h"
 
 namespace IO

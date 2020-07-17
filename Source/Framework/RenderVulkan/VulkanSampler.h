@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/Sampler.h"
+#include "RenderVulkan/VulkanMemory.h"
 
 class VulkanSampler : public Sampler
 {
@@ -15,6 +15,5 @@ public:
     }
 
 private:
-    VkSampler sampler = VK_NULL_HANDLE;    
-
+    VkSampler sampler = VK_NULL_HANDLE;
 };

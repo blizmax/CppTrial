@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Core/Stack.h"
 #include "Json/.Package.h"
 #include "Json/JsonValue.h"
-#include "Core/Stack.h"
 
 namespace Json
 {
@@ -28,8 +28,8 @@ public:
     }
 
     template <typename T>
-    requires std::integral<T> || std::floating_point<T>
-    JsonWriter &Value(T value)
+        requires std::integral<T> || std::floating_point<T>
+                                         JsonWriter &Value(T value)
     {
         return WriteValue(StringConvert::ToString(value));
     }
@@ -43,7 +43,7 @@ private:
         bool first;
     };
 
-    JsonWriter &WriteValue(const String& value, bool quote = false);
+    JsonWriter &WriteValue(const String &value, bool quote = false);
 
     State &GetCurrentState();
     int32 GetIndentLevel() const;
@@ -58,4 +58,4 @@ private:
     Stack<State> stack;
     String buffer;
 };
-} // namespace Json
+}

@@ -20,7 +20,8 @@ public:
     Vector3(const Vector3 &) = default;
     Vector3 &operator=(const Vector3 &) = default;
 
-    Vector3(float x, float y, float z) : x(x), y(y), z(z)
+    Vector3(float x, float y, float z)
+        : x(x), y(y), z(z)
     {
     }
 

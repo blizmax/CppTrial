@@ -101,7 +101,7 @@ public:
     using FuncPtr = ReturnType (OwnerType::*)(Args...);
 
     MemberMethod(const Name &name, FuncPtr func)
-        : Method(name, TypeOf<OwnerType>(), GetQualifiedType<ReturnType>(), {GetQualifiedType<Args>()...}), funcPtr(func)
+        : Method(name, TypeOf<OwnerType>(), GetQualifiedType<ReturnType>(), { GetQualifiedType<Args>()... }), funcPtr(func)
     {
     }
 
@@ -121,7 +121,7 @@ public:
     using FuncPtr = void (OwnerType::*)(Args...);
 
     MemberMethod(const Name &name, FuncPtr func)
-        : Method(name, TypeOf<OwnerType>(), GetQualifiedType<void>(), {GetQualifiedType<Args>()...}), funcPtr(func)
+        : Method(name, TypeOf<OwnerType>(), GetQualifiedType<void>(), { GetQualifiedType<Args>()... }), funcPtr(func)
     {
     }
 
@@ -142,7 +142,7 @@ public:
     using FuncPtr = ReturnType (*)(Args...);
 
     StaticMethod(const Name &name, FuncPtr func)
-        : Method(name, nullptr, GetQualifiedType<ReturnType>(), {GetQualifiedType<Args>()...}, true), funcPtr(func)
+        : Method(name, nullptr, GetQualifiedType<ReturnType>(), { GetQualifiedType<Args>()... }, true), funcPtr(func)
     {
     }
 
@@ -162,7 +162,7 @@ public:
     using FuncPtr = void (*)(Args...);
 
     StaticMethod(const Name &name, FuncPtr func)
-        : Method(name, nullptr, GetQualifiedType<void>(), {GetQualifiedType<Args>()...}, true), funcPtr(func)
+        : Method(name, nullptr, GetQualifiedType<void>(), { GetQualifiedType<Args>()... }, true), funcPtr(func)
     {
     }
 
@@ -176,4 +176,4 @@ private:
     FuncPtr funcPtr;
 };
 
-} // namespace Reflection
+}

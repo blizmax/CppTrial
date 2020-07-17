@@ -4,17 +4,14 @@
 
 class VirtualInputEvent : public Event
 {
-
 };
 
 class AxisEvent : public VirtualInputEvent
 {
 public:
-    
 };
 
 class ActionEvent : public VirtualInputEvent
 {
 public:
-
 };

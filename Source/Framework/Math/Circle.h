@@ -13,11 +13,13 @@ public:
 public:
     Circle() = default;
 
-    Circle(float x, float y, float radius) : x(x), y(y), radius(radius)
+    Circle(float x, float y, float radius)
+        : x(x), y(y), radius(radius)
     {
     }
 
-    Circle(const Vector2 &pos, float radius) : x(pos.x), y(pos.y), radius(radius)
+    Circle(const Vector2 &pos, float radius)
+        : x(pos.x), y(pos.y), radius(radius)
     {
     }
 

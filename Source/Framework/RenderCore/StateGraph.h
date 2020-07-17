@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderCore/.Package.h"
 #include "Core/HashMap.h"
+#include "RenderCore/.Package.h"
 
 template <typename NodeType, typename EdgeType = void *>
 class StateGraph

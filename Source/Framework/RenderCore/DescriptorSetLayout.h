@@ -20,7 +20,8 @@ struct DescriptorSetLayoutDesc
 class DescriptorSetLayout
 {
 public:
-    DescriptorSetLayout(const DescriptorSetLayoutDesc &desc) : desc(desc)
+    DescriptorSetLayout(const DescriptorSetLayoutDesc &desc)
+        : desc(desc)
     {
     }
 

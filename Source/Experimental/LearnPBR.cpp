@@ -1,12 +1,12 @@
+#include "Application/Application.h"
 #include "Core/String.h"
 #include "IO/FileHandle.h"
-#include "RenderCore/RenderAPI.h"
-#include "Application/Application.h"
-#include "Render/RenderManager.h"
-#include "Render/Importers/TextureImporter.h"
-#include "Render/Importers/SceneImporter.h"
 #include "Render/CameraController.h"
+#include "Render/Importers/SceneImporter.h"
+#include "Render/Importers/TextureImporter.h"
 #include "Render/MeshGenerator.h"
+#include "Render/RenderManager.h"
+#include "RenderCore/RenderAPI.h"
 
 class Renderer
 {
@@ -60,22 +60,25 @@ public:
 
     void InitLights()
     {
-        lightPositions = {Vector3(-10.0f, 10.0f, 10.0f),
-                          Vector3(10.0f, 10.0f, 10.0f),
-                          Vector3(-10.0f, -10.0f, 10.0f),
-                          Vector3(10.0f, -10.0f, 10.0f)};
-        lightColors = {Vector3(300.0f, 300.0f, 300.0f),
-                       Vector3(300.0f, 300.0f, 300.0f),
-                       Vector3(300.0f, 300.0f, 300.0f),
-                       Vector3(300.0f, 300.0f, 300.0f)};
+        lightPositions = {
+            Vector3(-10.0f, 10.0f, 10.0f),
+            Vector3(10.0f, 10.0f, 10.0f),
+            Vector3(-10.0f, -10.0f, 10.0f),
+            Vector3(10.0f, -10.0f, 10.0f)
+        };
+        lightColors = {
+            Vector3(300.0f, 300.0f, 300.0f),
+            Vector3(300.0f, 300.0f, 300.0f),
+            Vector3(300.0f, 300.0f, 300.0f),
+            Vector3(300.0f, 300.0f, 300.0f)
+        };
     }
 
     void CreateObjectBuffer()
     {
-
     }
 
-public: 
+public:
     Renderer()
     {
         LoadModel();
@@ -96,9 +99,10 @@ public:
 
         state = GraphicsState::Create();
 
-        auto vertexBufferLayout = VertexBufferLayout::Create({{CT_TEXT("VertexPosition"), ResourceFormat::RGB32Float},
-                                                                {CT_TEXT("VertexNormal"), ResourceFormat::RGB32Float}});
-       
+        auto vertexBufferLayout = VertexBufferLayout::Create(
+            { { CT_TEXT("VertexPosition"), ResourceFormat::RGB32Float },
+              { CT_TEXT("VertexNormal"), ResourceFormat::RGB32Float } });
+
         auto vertexLayout = VertexLayout::Create();
         vertexLayout->AddBufferLayout(vertexBufferLayout);
 

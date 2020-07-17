@@ -1,12 +1,7 @@
 #include "Application/Application.h"
-#include "Application/ThreadManager.h"
 #include "Application/ImGuiLab.h"
-#include "IO/FileWatcher.h"
+#include "Application/ThreadManager.h"
 #include "Core/Thread.h"
-#include "Render/Importers/TextureImporter.h"
-#include "Render/OrthographicCameraController.h"
-#include "RenderCore/RenderAPI.h"
-#include "Render/RenderManager.h"
 #include "Demos/ShaderToy/Page1.h"
 #include "Demos/ShaderToy/Page2.h"
 #include "Demos/ShaderToy/Page3.h"
@@ -15,6 +10,11 @@
 #include "Demos/ShaderToy/Page6.h"
 #include "Demos/ShaderToy/Page7.h"
 #include "Demos/ShaderToy/Page8.h"
+#include "IO/FileWatcher.h"
+#include "Render/Importers/TextureImporter.h"
+#include "Render/OrthographicCameraController.h"
+#include "Render/RenderManager.h"
+#include "RenderCore/RenderAPI.h"
 
 class ShaderToy : public Logic
 {
@@ -56,7 +56,8 @@ private:
             []() { return Page5::Create(); },
             []() { return Page6::Create(); },
             []() { return Page7::Create(); },
-            []() { return Page8::Create(); }};
+            []() { return Page8::Create(); }
+        };
 
         if (index < 0 || index >= creators.Count())
         {
@@ -120,8 +121,9 @@ public:
 
         state = GraphicsState::Create();
 
-        auto vertexBufferLayout = VertexBufferLayout::Create({{CT_TEXT("VertexPosition"), ResourceFormat::RGB32Float},
-                                                              {CT_TEXT("VertexUV"), ResourceFormat::RG32Float}});
+        auto vertexBufferLayout = VertexBufferLayout::Create(
+            { { CT_TEXT("VertexPosition"), ResourceFormat::RGB32Float },
+              { CT_TEXT("VertexUV"), ResourceFormat::RG32Float } });
         auto vertexLayout = VertexLayout::Create();
         vertexLayout->AddBufferLayout(vertexBufferLayout);
 
@@ -129,11 +131,13 @@ public:
             -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
             0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
             0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
-            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f};
+            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f
+        };
         auto vbo = Buffer::Create(sizeof(vertices), ResourceBind::Vertex, CpuAccess::None, vertices);
 
         uint32 indices[] = {
-            0, 1, 2, 2, 3, 0};
+            0, 1, 2, 2, 3, 0
+        };
         auto ibo = Buffer::Create(sizeof(indices), ResourceBind::Index, CpuAccess::None, indices);
 
         vao = VertexArray::Create();
@@ -178,14 +182,13 @@ public:
                 }
             });
 
-        gThreadManager->RunThread(CT_TEXT("ShaderToy watcher"), [this]() 
-        {
+        gThreadManager->RunThread(CT_TEXT("ShaderToy watcher"), [this]() {
             watcher->Start();
         });
 
-        for(int32 i = 0; i < 1000; ++i)
+        for (int32 i = 0; i < 1000; ++i)
         {
-            gThreadManager->RunAsync([i](){
+            gThreadManager->RunAsync([i]() {
                 //String str = String::Format(CT_TEXT("Thread id: {0}, i:{1}"), Thread::GetCurrentThreadID(), i);
                 CT_LOG(Debug, CT_TEXT("Thread id: {0}, i:{1}"), Thread::GetCurrentThreadID(), i);
             });
@@ -220,7 +223,7 @@ public:
         //Matrix4 rotateMat = Matrix4::Rotate(0.0f, 0.0f, 30.0f * Math::DEG_TO_RAD);
         Matrix4 rotateMat = Matrix4();
         Matrix4 scaleMat = Matrix4::Scale(texture->GetWidth() * factor, texture->GetHeight() * factor, 1.0f);
-             
+
         static float totalTime = 0.0f;
         totalTime += gApp->GetDeltaTime();
 
@@ -230,7 +233,7 @@ public:
         cbuffer.projection = camera->projection;
         cbuffer.time = totalTime;
         vars->Root()[CT_TEXT("GBlock")].SetBlob(cbuffer);
-        
+
         auto ctx = gRenderManager->GetRenderContext();
         state->SetFrameBuffer(gRenderManager->GetTargetFrameBuffer());
         ctx->DrawIndexed(state.get(), vars.get(), 6, 0, 0);

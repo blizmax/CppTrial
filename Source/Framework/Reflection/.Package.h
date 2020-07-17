@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Core/String.h"
-#include "Core/Array.h"
-#include "Core/HashMap.h"
-#include "Core/Template.h"
 #include "Core/Any.h"
+#include "Core/Array.h"
 #include "Core/Exception.h"
+#include "Core/HashMap.h"
+#include "Core/String.h"
+#include "Core/Template.h"
 #include "Utils/Name.h"
 
 namespace Reflection
@@ -24,7 +24,8 @@ class MetaBase
 protected:
     MetaBase() = default;
 
-    MetaBase(const Name &name) : name(name)
+    MetaBase(const Name &name)
+        : name(name)
     {
     }
 
@@ -70,4 +71,4 @@ CT_INLINE Type *TypeOf()
     return Reflection::TypeTraits<T>::GetType();
 }
 
-} // namespace Reflection
+}

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core/.Package.h"
-#include "Core/Functional.h"
 #include "Core/Algo/BinaryHeap.h"
+#include "Core/Functional.h"
 
 namespace AlgoInternal
 {
@@ -117,7 +117,7 @@ void IntroSort(T *ptr, SizeType count, Compare compare)
         return depth;
     };
 
-    InnerStack sortStacks[64] = {{ptr, ptr + count - 1, CalcMaxDepth(count)}};
+    InnerStack sortStacks[64] = { { ptr, ptr + count - 1, CalcMaxDepth(count) } };
     InnerStack current;
     for (InnerStack *top = sortStacks; top >= sortStacks; --top)
     {

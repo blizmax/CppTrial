@@ -18,7 +18,8 @@ struct RasterizationStateDesc
 class RasterizationState
 {
 public:
-    RasterizationState(const RasterizationStateDesc &desc) : desc(desc)
+    RasterizationState(const RasterizationStateDesc &desc)
+        : desc(desc)
     {
     }
 

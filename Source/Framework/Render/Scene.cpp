@@ -20,7 +20,6 @@ void Scene::InitResources()
 
 void Scene::UploadResources()
 {
-
 }
 
 void Scene::UploadMaterial(int32 matID)

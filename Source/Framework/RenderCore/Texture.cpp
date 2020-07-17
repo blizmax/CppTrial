@@ -1,10 +1,10 @@
 #include "RenderCore/Texture.h"
-#include "RenderCore/RenderContext.h"
 #include "Core/Math.h"
+#include "RenderCore/RenderContext.h"
 
 ResourceBindFlags UpdateBindFlags(ResourceBindFlags flags, bool hasInitData, int32 mipLevels, ResourceFormat format)
 {
-    if(hasInitData && mipLevels == -1)
+    if (hasInitData && mipLevels == -1)
     {
         flags |= ResourceBind::RenderTarget;
     }

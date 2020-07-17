@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/Texture.h"
+#include "RenderVulkan/VulkanMemory.h"
 
 class VulkanTexture : public Texture
 {

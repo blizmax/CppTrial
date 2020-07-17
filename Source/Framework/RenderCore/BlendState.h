@@ -18,13 +18,14 @@ struct BlendStateDesc
 
     Array<AttachmentDesc> attachments;
     bool alphaToCoverageEnabled = false;
-    float blendFactor[4] = {0.0f};
+    float blendFactor[4] = { 0.0f };
 };
 
 class BlendState
 {
 public:
-    BlendState(const BlendStateDesc &desc) : desc(desc)
+    BlendState(const BlendStateDesc &desc)
+        : desc(desc)
     {
     }
 

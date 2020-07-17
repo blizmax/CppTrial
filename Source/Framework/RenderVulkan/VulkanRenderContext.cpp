@@ -1,8 +1,8 @@
 #include "RenderVulkan/VulkanRenderContext.h"
 #include "RenderVulkan/VulkanBuffer.h"
-#include "RenderVulkan/VulkanTexture.h"
-#include "RenderVulkan/VulkanGraphicsStateObject.h"
 #include "RenderVulkan/VulkanFrameBuffer.h"
+#include "RenderVulkan/VulkanGraphicsStateObject.h"
+#include "RenderVulkan/VulkanTexture.h"
 
 SPtr<RenderContext> RenderContext::Create(const SPtr<GpuQueue> &queue)
 {
@@ -12,7 +12,6 @@ SPtr<RenderContext> RenderContext::Create(const SPtr<GpuQueue> &queue)
 VulkanRenderContextImpl::VulkanRenderContextImpl(const SPtr<GpuQueue> &queue, RenderContext *ctx)
     : VulkanComputeContextImpl(queue, ctx), renderContext(ctx)
 {
-
 }
 
 VulkanRenderContextImpl::~VulkanRenderContextImpl()
@@ -55,7 +54,7 @@ void VulkanRenderContextImpl::ClearDsv(const ResourceView *dsv, float depth, uin
     dsVal.stencil = stencil;
 
     VkImageSubresourceRange range = {};
-    const auto& viewInfo = dsv->GetViewInfo();
+    const auto &viewInfo = dsv->GetViewInfo();
     range.baseArrayLayer = viewInfo.firstArraySlice;
     range.baseMipLevel = viewInfo.mostDetailedMip;
     range.layerCount = viewInfo.arrayLayers;
@@ -64,7 +63,7 @@ void VulkanRenderContextImpl::ClearDsv(const ResourceView *dsv, float depth, uin
     range.aspectMask |= clearStencil ? VK_IMAGE_ASPECT_STENCIL_BIT : 0;
 
     vkCmdClearDepthStencilImage(contextData->GetCommandBufferHandle(), vkTexture->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &dsVal, 1, &range);
-    
+
     commandsPending = true;
 }
 
@@ -81,15 +80,15 @@ void VulkanRenderContextImpl::ClearTexture(Texture *texture, const Color &color)
     }
 
     auto bindFlags = texture->GetBindFlags();
-    if(bindFlags & ResourceBind::RenderTarget)
+    if (bindFlags & ResourceBind::RenderTarget)
     {
         ClearRtv(texture->GetRtv().get(), color);
     }
-    else if(bindFlags & ResourceBind::DepthStencil)
+    else if (bindFlags & ResourceBind::DepthStencil)
     {
         ClearDsv(texture->GetDsv().get(), color.r, 0, true, true);
     }
-    else if(bindFlags & ResourceBind::UnorderedAccess)
+    else if (bindFlags & ResourceBind::UnorderedAccess)
     {
         ClearColorImage(texture->GetUav().get(), color.r, color.g, color.b, color.a);
     }
@@ -108,9 +107,9 @@ void VulkanRenderContextImpl::DrawInstanced(GraphicsState *state, GraphicsVars *
 {
     CT_CHECK(vertexCount >= 0 && instanceCount >= 0 && firstVertex >= 0 && firstInstance >= 0);
 
-    if(PrepareForDraw(state, vars) == false)
+    if (PrepareForDraw(state, vars) == false)
         return;
-    
+
     vkCmdDraw(contextData->GetCommandBufferHandle(), vertexCount, instanceCount, firstVertex, firstInstance);
     vkCmdEndRenderPass(contextData->GetCommandBufferHandle());
 }
@@ -124,9 +123,9 @@ void VulkanRenderContextImpl::DrawIndexedInstanced(GraphicsState *state, Graphic
 {
     CT_CHECK(indexCount >= 0 && instanceCount >= 0 && firstIndex >= 0 && firstInstance >= 0);
 
-    if(PrepareForDraw(state, vars) == false)
+    if (PrepareForDraw(state, vars) == false)
         return;
-    
+
     vkCmdDrawIndexed(contextData->GetCommandBufferHandle(), indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
     vkCmdEndRenderPass(contextData->GetCommandBufferHandle());
 }
@@ -228,7 +227,7 @@ void VulkanRenderContextImpl::SetVao(const VertexArray *vao)
 {
     auto commandBuffer = contextData->GetCommandBufferHandle();
     const auto &buffers = vao->GetVertexBuffers();
-    for(int32 i = 0; i < buffers.Count(); ++i)
+    for (int32 i = 0; i < buffers.Count(); ++i)
     {
         auto vkBuffer = static_cast<VulkanBuffer *>(buffers[i].get());
         VkDeviceSize offset = vkBuffer->GetOffset();
@@ -236,7 +235,7 @@ void VulkanRenderContextImpl::SetVao(const VertexArray *vao)
         vkCmdBindVertexBuffers(commandBuffer, i, 1, &handle, &offset);
         ResourceBarrier(vkBuffer, ResourceState::VertexBuffer, nullptr);
     }
-    if(vao->GetIndexBuffer())
+    if (vao->GetIndexBuffer())
     {
         auto vkBuffer = static_cast<VulkanBuffer *>(vao->GetIndexBuffer().get());
         VkDeviceSize offset = vkBuffer->GetOffset();
@@ -248,12 +247,12 @@ void VulkanRenderContextImpl::SetVao(const VertexArray *vao)
 
 void VulkanRenderContextImpl::SetFbo(const FrameBuffer *fbo)
 {
-    for(int i = 0; i < fbo->GetColorTextureCount(); ++i)
+    for (int i = 0; i < fbo->GetColorTextureCount(); ++i)
     {
         const auto &texture = fbo->GetColorTexture(i);
         ResourceBarrier(texture.get(), ResourceState::RenderTarget, nullptr);
     }
-    if(fbo->GetDepthStencilTexture())
+    if (fbo->GetDepthStencilTexture())
     {
         ResourceBarrier(fbo->GetDepthStencilTexture().get(), ResourceState::DepthStencil, nullptr);
     }
@@ -264,7 +263,7 @@ void VulkanRenderContextImpl::SetViewports(const Array<Viewport> &viewports)
     auto commandBuffer = contextData->GetCommandBufferHandle();
 
     VkViewport vkViewports[VIEWPORT_MAX_NUM];
-    for(int32 i = 0; i < viewports.Count(); ++i)
+    for (int32 i = 0; i < viewports.Count(); ++i)
     {
         vkViewports[i].x = viewports[i].x;
         vkViewports[i].y = viewports[i].y;
@@ -295,24 +294,24 @@ bool VulkanRenderContextImpl::PrepareForDraw(GraphicsState *state, GraphicsVars 
 {
     auto gso = state->GetGso(vars);
 
-    if(bindFlags & GraphicsStateBind::Vars)
+    if (bindFlags & GraphicsStateBind::Vars)
     {
-        if(vars)
+        if (vars)
         {
-            if(!ApplyGraphicsVars(vars, gso->GetDesc().rootSignature.get()))
+            if (!ApplyGraphicsVars(vars, gso->GetDesc().rootSignature.get()))
                 return false;
         }
     }
 
-    if(bindFlags & GraphicsStateBind::PipelineState)
+    if (bindFlags & GraphicsStateBind::PipelineState)
         SetPipelineState(gso.get());
-    if(bindFlags & GraphicsStateBind::Vao)
+    if (bindFlags & GraphicsStateBind::Vao)
         SetVao(state->GetVertexArray().get());
-    if(bindFlags & GraphicsStateBind::Fbo)
+    if (bindFlags & GraphicsStateBind::Fbo)
         SetFbo(state->GetFrameBuffer().get());
-    if(bindFlags & GraphicsStateBind::Viewports)
+    if (bindFlags & GraphicsStateBind::Viewports)
         SetViewports(state->GetViewports());
-    if(bindFlags & GraphicsStateBind::Scissors)
+    if (bindFlags & GraphicsStateBind::Scissors)
         SetScissors(state->GetScissors());
 
     auto vkFbo = static_cast<VulkanFrameBuffer *>(state->GetFrameBuffer().get());
@@ -320,8 +319,8 @@ bool VulkanRenderContextImpl::PrepareForDraw(GraphicsState *state, GraphicsVars 
     beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     beginInfo.renderPass = vkFbo->GetRenderPassHandle();
     beginInfo.framebuffer = vkFbo->GetHandle();
-    beginInfo.renderArea.offset = {0, 0};
-    beginInfo.renderArea.extent = {(uint32)vkFbo->GetWidth(), (uint32)vkFbo->GetHeight()};
+    beginInfo.renderArea.offset = { 0, 0 };
+    beginInfo.renderArea.extent = { (uint32)vkFbo->GetWidth(), (uint32)vkFbo->GetHeight() };
     // Only needed if attachments use VK_ATTACHMENT_LOAD_OP_CLEAR
     beginInfo.clearValueCount = 0;
     beginInfo.pClearValues = nullptr;

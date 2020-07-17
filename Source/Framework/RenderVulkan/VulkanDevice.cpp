@@ -1,7 +1,7 @@
 #include "RenderVulkan/VulkanDevice.h"
+#include "RenderVulkan/VulkanRenderContext.h"
 #include "RenderVulkan/VulkanRenderWindow.h"
 #include "RenderVulkan/VulkanSync.h"
-#include "RenderVulkan/VulkanRenderContext.h"
 
 SPtr<Device> Device::Create(RenderWindow *window, const DeviceDesc &desc)
 {
@@ -86,7 +86,7 @@ void VulkanDevice::Present()
     curBackBufferIndex = GetCurrentBackBufferIndex();
 
     frameFence->GpuSignal(contextData->GetQueue());
-    if(frameFence->GetCpuValue() >= backBufferCount)
+    if (frameFence->GetCpuValue() >= backBufferCount)
         frameFence->SyncCpu(frameFence->GetCpuValue() - backBufferCount);
 
     ExecuteDeferredRelease();
@@ -259,7 +259,7 @@ void VulkanDevice::CreateSwapChain()
     VkSurfaceFormatKHR surfaceFormat;
     {
         bool found = false;
-        VkSurfaceFormatKHR desired = {ToVkResourceFormat(desc.colorFormat), VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
+        VkSurfaceFormatKHR desired = { ToVkResourceFormat(desc.colorFormat), VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
         for (const auto &e : formats)
         {
             if (e.format == desired.format && e.colorSpace == desired.colorSpace)
@@ -355,13 +355,13 @@ void VulkanDevice::UpdateBackBuffers(int32 width, int32 height, ResourceFormat c
     uint32 imageCount = backBufferCount;
     vkGetSwapchainImagesKHR(logicalDevice, swapChain, &imageCount, images.GetData());
 
-    for(int32 i = 0; i < backBufferCount; ++i)
+    for (int32 i = 0; i < backBufferCount; ++i)
     {
         SPtr<Texture> colorTexture = Texture::Create2D(width, height, colorFormat, images[i], ResourceBind::RenderTarget);
         SPtr<Texture> depthStencilTexture = nullptr;
-        if(depthFormat != ResourceFormat::Unknown)
+        if (depthFormat != ResourceFormat::Unknown)
             depthStencilTexture = Texture::Create2D(width, height, depthFormat, 1, 1, nullptr, ResourceBind::DepthStencil);
-        swapChainFrameBuffers.Add(FrameBuffer::Create({colorTexture}, depthStencilTexture));
+        swapChainFrameBuffers.Add(FrameBuffer::Create({ colorTexture }, depthStencilTexture));
     }
 }
 

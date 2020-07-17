@@ -1,13 +1,14 @@
 #include "Utils/UUID.h"
-#include "Core/Thread.h"
 #include "Core/Hash.h"
-#include "Core/Time.h"
 #include "Core/Math.h"
+#include "Core/Thread.h"
+#include "Core/Time.h"
 
-constexpr const CharType HEX_TO_CHAR[16] =
-    {CT_TEXT('0'), CT_TEXT('1'), CT_TEXT('2'), CT_TEXT('3'), CT_TEXT('4'),
-     CT_TEXT('5'), CT_TEXT('6'), CT_TEXT('7'), CT_TEXT('8'), CT_TEXT('9'),
-     CT_TEXT('a'), CT_TEXT('b'), CT_TEXT('c'), CT_TEXT('d'), CT_TEXT('e'), CT_TEXT('f')};
+constexpr const CharType HEX_TO_CHAR[16] = {
+    CT_TEXT('0'), CT_TEXT('1'), CT_TEXT('2'), CT_TEXT('3'), CT_TEXT('4'),
+    CT_TEXT('5'), CT_TEXT('6'), CT_TEXT('7'), CT_TEXT('8'), CT_TEXT('9'),
+    CT_TEXT('a'), CT_TEXT('b'), CT_TEXT('c'), CT_TEXT('d'), CT_TEXT('e'), CT_TEXT('f')
+};
 
 static uint32 NextRuntimeID()
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderCore/RootSignature.h"
 #include "RenderCore/ProgramReflection.h"
+#include "RenderCore/RootSignature.h"
 
 using ProgramDefines = HashMap<String, String>;
 
@@ -25,13 +25,17 @@ struct ProgramDesc
     ProgramCompileOptions options;
 
     ProgramDesc() = default;
-    ProgramDesc(std::initializer_list<ShaderDesc> initList) : shaderDescs(initList) {}
+    ProgramDesc(std::initializer_list<ShaderDesc> initList)
+        : shaderDescs(initList)
+    {
+    }
 };
 
 class ProgramKernel
 {
 public:
-    ProgramKernel(const ProgramDesc &desc) : desc(desc)
+    ProgramKernel(const ProgramDesc &desc)
+        : desc(desc)
     {
     }
 

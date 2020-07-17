@@ -1,6 +1,6 @@
 #include "Reflection/QualifiedType.h"
-#include "Reflection/Type.h"
 #include "Reflection/Registry.h"
+#include "Reflection/Type.h"
 
 namespace Reflection
 {
@@ -64,4 +64,4 @@ bool QualifiedType::IsFloat() const
     return type == TypeOf<float>() || type == TypeOf<double>();
 }
 
-} // namespace Reflection
+}

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "RenderVulkan/.Package.h"
 #include "RenderCore/Program.h"
+#include "RenderVulkan/.Package.h"
 
 class VulkanShaderCompiler
 {
 public:
-    using ShaderModuleFunc = std::function<void(ShaderType, const Array<uchar8>&)>;
+    using ShaderModuleFunc = std::function<void(ShaderType, const Array<uchar8> &)>;
 
     ~VulkanShaderCompiler() = default;
 

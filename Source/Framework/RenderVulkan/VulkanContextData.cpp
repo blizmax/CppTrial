@@ -17,7 +17,7 @@ VulkanContextData::VulkanContextData(const SPtr<GpuQueue> &gpuQueue)
     poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     poolInfo.queueFamilyIndex = gVulkanDevice->GetQueueFamilyIndex(queue->GetQueueType());
 
-    if(vkCreateCommandPool(gVulkanDevice->GetLogicalDeviceHandle(), &poolInfo, gVulkanAlloc, &pool) != VK_SUCCESS)
+    if (vkCreateCommandPool(gVulkanDevice->GetLogicalDeviceHandle(), &poolInfo, gVulkanAlloc, &pool) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create command pool failed.");
 
     commandPool = FencedPool<VkCommandBuffer>::Create(fence, [this]() {
@@ -27,7 +27,7 @@ VulkanContextData::VulkanContextData(const SPtr<GpuQueue> &gpuQueue)
         info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         info.commandBufferCount = 1;
         VkCommandBuffer buf;
-        if(vkAllocateCommandBuffers(gVulkanDevice->GetLogicalDeviceHandle(), &info, &buf) != VK_SUCCESS)
+        if (vkAllocateCommandBuffers(gVulkanDevice->GetLogicalDeviceHandle(), &info, &buf) != VK_SUCCESS)
             CT_EXCEPTION(RenderCore, "Create command buffer failed.");
         return buf;
     });
@@ -38,9 +38,9 @@ VulkanContextData::VulkanContextData(const SPtr<GpuQueue> &gpuQueue)
 
 VulkanContextData::~VulkanContextData()
 {
-    if(pool != VK_NULL_HANDLE)
+    if (pool != VK_NULL_HANDLE)
     {
-        if(gVulkanDevice)
+        if (gVulkanDevice)
         {
             gVulkanDevice->Release([pool = pool]() {
                 vkDestroyCommandPool(gVulkanDevice->GetLogicalDeviceHandle(), pool, gVulkanAlloc);

@@ -17,7 +17,7 @@ VulkanSemaphore::VulkanSemaphore()
 
 void VulkanSemaphore::Destroy()
 {
-    if(semaphore != VK_NULL_HANDLE)
+    if (semaphore != VK_NULL_HANDLE)
     {
         if (gVulkanDevice)
         {
@@ -41,13 +41,13 @@ VulkanFence::VulkanFence(bool signaled)
     if (signaled)
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    if(vkCreateFence(gVulkanDevice->GetLogicalDeviceHandle(), &fenceInfo, gVulkanAlloc, &fence) != VK_SUCCESS)
+    if (vkCreateFence(gVulkanDevice->GetLogicalDeviceHandle(), &fenceInfo, gVulkanAlloc, &fence) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create fence failed.");
 }
 
 void VulkanFence::Destroy()
 {
-    if(fence != VK_NULL_HANDLE)
+    if (fence != VK_NULL_HANDLE)
     {
         if (gVulkanDevice)
         {

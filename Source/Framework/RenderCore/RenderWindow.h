@@ -2,7 +2,7 @@
 
 #include "RenderCore/.Package.h"
 
-/** Represents the render relevant part of the window. */    
+/** Represents the render relevant part of the window. */
 class RenderWindow
 {
 public:

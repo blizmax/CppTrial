@@ -116,7 +116,7 @@ public:
 
     const CharType *CStr() const
     {
-        constexpr static CharType EMPTY[] = {0, 0};
+        constexpr static CharType EMPTY[] = { 0, 0 };
         return data.Count() ? data.GetData() : EMPTY;
     }
 
@@ -1141,8 +1141,8 @@ private:
 };
 
 #include "Core/String/StringConvert.h"
-#include "Core/String/StringFormat.h"
 #include "Core/String/StringEncode.h"
+#include "Core/String/StringFormat.h"
 
 CT_INLINE String::String(const char8 *src)
 {
@@ -1157,7 +1157,7 @@ CT_INLINE String String::Format(const String &fmt, Args &&... args)
 }
 
 namespace std
-{ 
+{
 inline void swap(String &lhs, String &rhs)
 {
     lhs.Swap(rhs);

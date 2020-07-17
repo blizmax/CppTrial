@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core/.Package.h"
-#include "Core/Hash.h"
 #include "Core/Container/HashTable.h"
+#include "Core/Hash.h"
 
 template <typename Key,
           typename Hasher = HashFunc<Key>,
@@ -18,7 +18,8 @@ public:
     HashSet &operator=(HashSet &&) noexcept = default;
     ~HashSet() = default;
 
-    explicit HashSet(int32 initCapacity) : hashTable(HashTableType(initCapacity))
+    explicit HashSet(int32 initCapacity)
+        : hashTable(HashTableType(initCapacity))
     {
     }
 

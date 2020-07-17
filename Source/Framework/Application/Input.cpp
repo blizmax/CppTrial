@@ -77,17 +77,17 @@ void Input::RelasePressed()
 {
     //TODO should emit event?
 
-    for(int32 key = 0; key <= CT_KEY_LAST; ++key)
+    for (int32 key = 0; key <= CT_KEY_LAST; ++key)
     {
-        if(pressedKeys[key])
+        if (pressedKeys[key])
         {
             pressedKeys[key] = false;
         }
     }
 
-    for(int32 button = 0; button <= CT_BUTTON_LAST; ++button)
+    for (int32 button = 0; button <= CT_BUTTON_LAST; ++button)
     {
-        if(pressedButtons[button])
+        if (pressedButtons[button])
         {
             pressedButtons[button] = false;
         }

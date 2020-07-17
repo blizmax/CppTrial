@@ -5,5 +5,5 @@
 
 namespace Json
 {
-    void Test();
+void Test();
 }

@@ -1,7 +1,7 @@
 #include "RenderVulkan/VulkanGraphicsStateObject.h"
 #include "RenderVulkan/VulkanDevice.h"
-#include "RenderVulkan/VulkanRootSignature.h"
 #include "RenderVulkan/VulkanProgram.h"
+#include "RenderVulkan/VulkanRootSignature.h"
 
 SPtr<GraphicsStateObject> GraphicsStateObject::Create(const GraphicsStateObjectDesc &desc)
 {
@@ -13,11 +13,11 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
 {
     auto vkProgramKernel = static_cast<VulkanProgramKernel *>(desc.programKernel.get());
     Array<VkPipelineShaderStageCreateInfo> shaderInfos;
-    for(int32 i = 0; i < (int32)ShaderType::Count; ++i)
+    for (int32 i = 0; i < (int32)ShaderType::Count; ++i)
     {
         ShaderType shaderType = (ShaderType)i;
         auto handle = vkProgramKernel->GetShaderModuleHandle(shaderType);
-        if(handle)
+        if (handle)
         {
             VkPipelineShaderStageCreateInfo stageInfo = {};
             stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -29,7 +29,7 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
             shaderInfos.Add(stageInfo);
         }
     }
-  
+
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     Array<VkVertexInputBindingDescription> vertexInputBindingDescs;
     Array<VkVertexInputAttributeDescription> vertexInputAttributeDescs;
@@ -51,7 +51,7 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
                 attrib.format = ToVkResourceFormat(e.format);
                 attrib.offset = e.offset;
                 attrib.binding = i;
-                for(uint32 i = 0; i < e.arrayLength; ++i)
+                for (uint32 i = 0; i < e.arrayLength; ++i)
                 {
                     vertexInputAttributeDescs.Add(attrib);
                     attrib.offset += GetResourceFormatBytes(e.format);
@@ -79,7 +79,7 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
         viewportInfo.viewportCount = VIEWPORT_MAX_NUM;
         viewportInfo.pViewports = nullptr; //Dynamic
         viewportInfo.scissorCount = VIEWPORT_MAX_NUM;
-        viewportInfo.pScissors = nullptr;  //Dynamic
+        viewportInfo.pScissors = nullptr; //Dynamic
     }
 
     VkPipelineRasterizationStateCreateInfo rasterizationInfo = {};
@@ -177,7 +177,8 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
         static auto dynamicStates = {
             VK_DYNAMIC_STATE_VIEWPORT,
             VK_DYNAMIC_STATE_SCISSOR,
-            VK_DYNAMIC_STATE_STENCIL_REFERENCE};
+            VK_DYNAMIC_STATE_STENCIL_REFERENCE
+        };
         dynamicInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
         dynamicInfo.dynamicStateCount = dynamicStates.size();
         dynamicInfo.pDynamicStates = dynamicStates.begin();
@@ -209,7 +210,7 @@ VulkanGraphicsStateObject::~VulkanGraphicsStateObject()
 {
     if (pipeline != VK_NULL_HANDLE)
     {
-        if(gVulkanDevice)
+        if (gVulkanDevice)
         {
             gVulkanDevice->Release([pipeline = pipeline]() {
                 vkDestroyPipeline(gVulkanDevice->GetLogicalDeviceHandle(), pipeline, gVulkanAlloc);

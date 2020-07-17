@@ -1,9 +1,9 @@
 #pragma once
 
-#include "RenderVulkan/VulkanMemory.h"
-#include "RenderVulkan/VulkanGpuQueue.h"
-#include "RenderCore/GpuFence.h"
 #include "RenderCore/FencedPool.h"
+#include "RenderCore/GpuFence.h"
+#include "RenderVulkan/VulkanGpuQueue.h"
+#include "RenderVulkan/VulkanMemory.h"
 
 class VulkanContextData
 {
@@ -18,7 +18,7 @@ public:
         return buffer;
     }
 
-    VulkanGpuQueue* GetQueue() const
+    VulkanGpuQueue *GetQueue() const
     {
         return queue;
     }

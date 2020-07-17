@@ -1,12 +1,12 @@
 #pragma once
 
+#include "RenderCore/BlendState.h"
+#include "RenderCore/DepthStencilState.h"
+#include "RenderCore/FrameBuffer.h"
 #include "RenderCore/Program.h"
 #include "RenderCore/RasterizationState.h"
-#include "RenderCore/DepthStencilState.h"
-#include "RenderCore/BlendState.h"
-#include "RenderCore/VertexArray.h"
 #include "RenderCore/RootSignature.h"
-#include "RenderCore/FrameBuffer.h"
+#include "RenderCore/VertexArray.h"
 
 struct GraphicsStateObjectDesc
 {
@@ -23,24 +23,24 @@ struct GraphicsStateObjectDesc
 
     bool operator==(const GraphicsStateObjectDesc &other) const
     {
-        if(programKernel != other.programKernel)
+        if (programKernel != other.programKernel)
             return false;
-        if(vertexLayout != other.vertexLayout)
+        if (vertexLayout != other.vertexLayout)
             return false;
-        if(rasterizationState != other.rasterizationState)
+        if (rasterizationState != other.rasterizationState)
             return false;
-        if(depthStencilState != other.depthStencilState)
+        if (depthStencilState != other.depthStencilState)
             return false;
-        if(blendState != other.blendState)
+        if (blendState != other.blendState)
             return false;
-        if(rootSignature != other.rootSignature)
+        if (rootSignature != other.rootSignature)
             return false;
-        
-        if(topology != other.topology)
+
+        if (topology != other.topology)
             return false;
-        if(sampleMask != other.sampleMask)
+        if (sampleMask != other.sampleMask)
             return false;
-        if(frameBufferDesc != other.frameBufferDesc)
+        if (frameBufferDesc != other.frameBufferDesc)
             return false;
         return true;
     }
@@ -64,7 +64,8 @@ public:
     static SPtr<GraphicsStateObject> Create(const GraphicsStateObjectDesc &desc);
 
 protected:
-    GraphicsStateObject(const GraphicsStateObjectDesc &desc) : desc(desc)
+    GraphicsStateObject(const GraphicsStateObjectDesc &desc)
+        : desc(desc)
     {
     }
 

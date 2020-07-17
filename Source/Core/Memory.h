@@ -3,8 +3,8 @@
 #include "Core/.Package.h"
 #include "Core/Template.h"
 #include <cstring>
-#include <new>
 #include <memory>
+#include <new>
 
 template <typename T>
 struct Deleter;
@@ -69,7 +69,7 @@ public:
     static CT_INLINE void Destroy(T *ptr)
     {
         if constexpr (!std::is_trivially_destructible_v<T>)
-        {   
+        {
             if (ptr != nullptr)
                 ptr->~T();
         }

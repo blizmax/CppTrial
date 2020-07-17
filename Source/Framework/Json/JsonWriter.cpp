@@ -1,8 +1,9 @@
 #include "Json/JsonWriter.h"
 
-Json::JsonWriter::JsonWriter(bool pretty) : pretty(pretty)
+Json::JsonWriter::JsonWriter(bool pretty)
+    : pretty(pretty)
 {
-    stack.Push({false, true});
+    stack.Push({ false, true });
     buffer += CT_TEXT('{');
 }
 
@@ -12,7 +13,7 @@ Json::JsonWriter &Json::JsonWriter::Reset()
     buffer.Clear();
     stack.Clear();
 
-    stack.Push({false, true});
+    stack.Push({ false, true });
     buffer += CT_TEXT('{');
 
     return *this;
@@ -47,7 +48,7 @@ Json::JsonWriter &Json::JsonWriter::PushObject()
 {
     if (CheckCanWriteValue())
     {
-        stack.Push({false, true});
+        stack.Push({ false, true });
         buffer += CT_TEXT('{');
     }
 
@@ -58,7 +59,7 @@ Json::JsonWriter &Json::JsonWriter::PushArray()
 {
     if (CheckCanWriteValue())
     {
-        stack.Push({true, true});
+        stack.Push({ true, true });
         buffer += CT_TEXT('[');
     }
     return *this;

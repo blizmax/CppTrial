@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core/.Package.h"
-#include "Core/Allocator.h"
 #include "Core/Algo/Sort.h"
+#include "Core/Allocator.h"
 
 template <typename Element, typename Alloc = Allocator<Element>>
 class Array
@@ -33,7 +33,8 @@ public:
         count = other.count;
     }
 
-    Array(Array &&other) noexcept : count(other.count), capacity(other.capacity), data(other.data)
+    Array(Array &&other) noexcept
+        : count(other.count), capacity(other.capacity), data(other.data)
     {
         other.count = 0;
         other.capacity = 0;
@@ -309,8 +310,8 @@ public:
     void Add(const Element &value, int32 num)
     {
         CT_CHECK(num >= 0);
-    
-        if(num > 0)
+
+        if (num > 0)
         {
             InsertPrivate(count, value, num);
         }

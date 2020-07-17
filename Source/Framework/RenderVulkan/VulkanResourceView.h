@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/ResourceView.h"
+#include "RenderVulkan/VulkanMemory.h"
 
 class VulkanBufferView : public ResourceView
 {
@@ -29,6 +29,6 @@ public:
         return imageView;
     }
 
-private:    
+private:
     VkImageView imageView = VK_NULL_HANDLE;
 };

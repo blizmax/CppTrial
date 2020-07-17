@@ -1,12 +1,12 @@
 #pragma once
 
-#include "RenderCore/RootSignature.h"
-#include "RenderCore/DescriptorSet.h"
-#include "RenderCore/Texture.h"
-#include "RenderCore/Buffer.h"
-#include "RenderCore/Sampler.h"
-#include "RenderCore/Program.h"
 #include "Core/HashMap.h"
+#include "RenderCore/Buffer.h"
+#include "RenderCore/DescriptorSet.h"
+#include "RenderCore/Program.h"
+#include "RenderCore/RootSignature.h"
+#include "RenderCore/Sampler.h"
+#include "RenderCore/Texture.h"
 
 class ParameterBlock
 {
@@ -125,13 +125,15 @@ class ShaderVar
 public:
     ShaderVar() = default;
 
-    explicit ShaderVar(ParameterBlock *block) : block(block)
+    explicit ShaderVar(ParameterBlock *block)
+        : block(block)
     {
         if (block)
             location = ShaderVarLocation(block->GetElementType(), VarLocation());
     }
 
-    ShaderVar(ParameterBlock *block, const ShaderVarLocation &location) : block(block), location(location)
+    ShaderVar(ParameterBlock *block, const ShaderVarLocation &location)
+        : block(block), location(location)
     {
     }
 

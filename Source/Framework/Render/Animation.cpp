@@ -5,7 +5,8 @@ SPtr<Animation> Animation::Create(AnimTimeType duration)
     return Memory::MakeShared<Animation>(duration);
 }
 
-Animation::Animation(AnimTimeType duration) : duration(duration)
+Animation::Animation(AnimTimeType duration)
+    : duration(duration)
 {
 }
 

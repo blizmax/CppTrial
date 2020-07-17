@@ -7,7 +7,7 @@ class SceneImportSettings : public ImportSettings
 {
 public:
     bool mergeMeshes = false;
-    bool assumeLinearSpaceTextures = false;  // By default all textures are assumed in srgb space.
+    bool assumeLinearSpaceTextures = false; // By default all textures are assumed in srgb space.
 
     static SPtr<SceneImportSettings> Create()
     {

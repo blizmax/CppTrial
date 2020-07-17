@@ -25,7 +25,7 @@ void DebugManager::Startup()
         case LogLevel::Debug:
             color = FOREGROUND_RED | FOREGROUND_GREEN;
             break;
-        case LogLevel::Info: 
+        case LogLevel::Info:
             color = FOREGROUND_GREEN;
             break;
         case LogLevel::Warning:
@@ -57,12 +57,10 @@ void DebugManager::Startup()
 
 void DebugManager::Shutdown()
 {
-
 }
 
 void DebugManager::Tick()
 {
-
 }
 
 #endif

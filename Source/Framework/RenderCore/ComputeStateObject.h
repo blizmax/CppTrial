@@ -20,11 +20,11 @@ public:
     static SPtr<ComputeStateObject> Create(const ComputeStateObjectDesc &desc);
 
 protected:
-    ComputeStateObject(const ComputeStateObjectDesc &desc) : desc(desc)
+    ComputeStateObject(const ComputeStateObjectDesc &desc)
+        : desc(desc)
     {
-
     }
 
-protected:    
+protected:
     ComputeStateObjectDesc desc;
 };

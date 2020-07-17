@@ -30,11 +30,11 @@ SPtr<FrameBuffer> FrameBuffer::Create(const Array<SPtr<Texture>> &colors, const 
 {
     auto ptr = FrameBuffer::Create();
 
-    for(const auto &e : colors)
+    for (const auto &e : colors)
     {
         ptr->AddColorAttachment(e);
     }
-    if(depthStencil)
+    if (depthStencil)
     {
         ptr->SetDepthStencilAttachment(depthStencil);
     }
@@ -50,17 +50,17 @@ SPtr<FrameBuffer> FrameBuffer::Create2D(int32 width, int32 height, const FrameBu
     CT_CHECK(arrayLayers > 0);
     CT_CHECK(mipLevels > 0);
     CT_CHECK(desc.sampleCount >= 0);
-    if(desc.sampleCount > 1)
+    if (desc.sampleCount > 1)
         CT_CHECK(mipLevels == 1);
 
     auto ptr = FrameBuffer::Create();
-    for(const auto &e : desc.colors)
+    for (const auto &e : desc.colors)
     {
         ResourceBindFlags flags = GetBindFlags(false, e.allowUav);
         auto texture = CreateTexture2D(width, height, e.format, desc.sampleCount, arrayLayers, mipLevels, flags);
         ptr->AddColorAttachment(texture);
     }
-    if(desc.hasDepthStencil)
+    if (desc.hasDepthStencil)
     {
         ResourceBindFlags flags = GetBindFlags(true, desc.depthStencil.allowUav);
         auto texture = CreateTexture2D(width, height, desc.depthStencil.format, desc.sampleCount, arrayLayers, mipLevels, flags);
@@ -71,7 +71,7 @@ SPtr<FrameBuffer> FrameBuffer::Create2D(int32 width, int32 height, const FrameBu
     return ptr;
 }
 
-SPtr<FrameBuffer> FrameBuffer::CreateCubemap(int32 width, int32 height, const FrameBufferDesc& desc, int32 arrayLayers, int32 mipLevels)
+SPtr<FrameBuffer> FrameBuffer::CreateCubemap(int32 width, int32 height, const FrameBufferDesc &desc, int32 arrayLayers, int32 mipLevels)
 {
     CT_CHECK(width > 0);
     CT_CHECK(height > 0);
@@ -80,13 +80,13 @@ SPtr<FrameBuffer> FrameBuffer::CreateCubemap(int32 width, int32 height, const Fr
     CT_CHECK(desc.sampleCount == 1);
 
     auto ptr = FrameBuffer::Create();
-    for(const auto &e : desc.colors)
+    for (const auto &e : desc.colors)
     {
         ResourceBindFlags flags = GetBindFlags(false, e.allowUav);
         auto texture = Texture::CreateCube(width, height, e.format, arrayLayers, mipLevels, nullptr, flags);
         ptr->AddColorAttachment(texture);
     }
-    if(desc.hasDepthStencil)
+    if (desc.hasDepthStencil)
     {
         ResourceBindFlags flags = GetBindFlags(true, desc.depthStencil.allowUav);
         auto texture = Texture::CreateCube(width, height, desc.depthStencil.format, arrayLayers, mipLevels, nullptr, flags);
@@ -99,7 +99,7 @@ SPtr<FrameBuffer> FrameBuffer::CreateCubemap(int32 width, int32 height, const Fr
 
 void FrameBuffer::AddColorAttachment(const SPtr<Texture> &texture, int32 mipLevel, int32 firstArraySlice, int32 arrayLayers)
 {
-    if(colorAttachments.Count() >= COLOR_ATTCHMENT_MAX_NUM)
+    if (colorAttachments.Count() >= COLOR_ATTCHMENT_MAX_NUM)
     {
         CT_LOG(Error, CT_TEXT("Add color attachment failed, index out of bound, max count is {0}."), COLOR_ATTCHMENT_MAX_NUM);
         return;
@@ -143,30 +143,29 @@ void FrameBuffer::Apply()
     height = colorAttachments[0].texture->GetHeight(colorAttachments[0].mipLevel);
     depth = colorAttachments[0].texture->GetDepth(colorAttachments[0].mipLevel);
 
-    auto VerifyAttchment = [this](Attachment &a)
-    {
-        if(desc.sampleCount != a.texture->GetSampleCount())
+    auto VerifyAttchment = [this](Attachment &a) {
+        if (desc.sampleCount != a.texture->GetSampleCount())
             return false;
-        if(layered != (a.arrayLayers > 1))
+        if (layered != (a.arrayLayers > 1))
             return false;
-        if(width != a.texture->GetWidth(a.mipLevel))
+        if (width != a.texture->GetWidth(a.mipLevel))
             return false;
-        if(height != a.texture->GetHeight(a.mipLevel))
+        if (height != a.texture->GetHeight(a.mipLevel))
             return false;
-        if(depth != a.texture->GetDepth(a.mipLevel))
+        if (depth != a.texture->GetDepth(a.mipLevel))
             return false;
         return true;
     };
 
-    for(int32 i = 1; i < colorAttachments.Count(); ++i)
+    for (int32 i = 1; i < colorAttachments.Count(); ++i)
     {
-        if(!VerifyAttchment(colorAttachments[i]))
+        if (!VerifyAttchment(colorAttachments[i]))
         {
             CT_EXCEPTION(RenderCore, "Color attachment is valid.");
         }
     }
 
-    if(desc.hasDepthStencil && !VerifyAttchment(depthStencilAttachment))
+    if (desc.hasDepthStencil && !VerifyAttchment(depthStencilAttachment))
     {
         CT_EXCEPTION(RenderCore, "Depthstencil attachment is valid.");
     }

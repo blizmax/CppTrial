@@ -35,9 +35,9 @@ VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(const DescriptorSetLayoutDe
 
 VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout()
 {
-    if(layout != VK_NULL_HANDLE)
+    if (layout != VK_NULL_HANDLE)
     {
-        if(gVulkanDevice)
+        if (gVulkanDevice)
         {
             gVulkanDevice->Release([layout = layout]() {
                 vkDestroyDescriptorSetLayout(gVulkanDevice->GetLogicalDeviceHandle(), layout, gVulkanAlloc);

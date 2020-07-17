@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Utils/.Package.h"
-#include "Core/Time.h"
 #include "Core/Delegate.h"
 #include "Core/Thread.h"
+#include "Core/Time.h"
+#include "Utils/.Package.h"
 
 class Profiler
 {
@@ -23,7 +23,8 @@ public:
     class Scope
     {
     public:
-        Scope(const String &name, Profiler &profiler) : profiler(profiler)
+        Scope(const String &name, Profiler &profiler)
+            : profiler(profiler)
         {
             scopeData.name = name;
             scopeData.startTime = Time::NanoTime();

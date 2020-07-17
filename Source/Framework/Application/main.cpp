@@ -5,7 +5,7 @@ Application *gApp = &app;
 
 int main(int argc, char **argv)
 {
-    app.PreInit({CT_TEXT("Hello World"), 1280, 720});
+    app.PreInit({ CT_TEXT("Hello World"), 1280, 720 });
 
     app.Init();
 

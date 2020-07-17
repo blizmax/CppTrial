@@ -117,8 +117,8 @@ SPtr<VertexArray> SceneBuilder::CreateVao(int32 drawCount)
 
     ResourceBindFlags vbBindFlags = ResourceBind::Vertex | ResourceBind::UnorderedAccess | ResourceBind::ShaderResource;
     auto staticVbo = Buffer::CreateStructured(sizeof(StaticVertexData), vertexCount, vbBindFlags, CpuAccess::None, nullptr, false);
-   
-    
+
+
     //TODO
     return nullptr;
 }
@@ -138,7 +138,7 @@ SPtr<Scene> SceneBuilder::GetScene()
     scene->nodes = nodes; // Move it?
 
     int32 drawCount = 0;
-    {   // Scene mesh data 
+    { // Scene mesh data
         scene->meshDesces.AddUninitialized(meshes.Count());
         scene->meshHasDynamicDatas.AddUninitialized(meshes.Count());
         for (int32 i = 0; i < meshes.Count(); ++i)

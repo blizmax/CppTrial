@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Math/.Package.h"
-#include "Math/Vector3.h"
 #include "Math/Matrix4.h"
+#include "Math/Vector3.h"
 
 //The direction must be normalized.
 class Ray
@@ -13,7 +13,8 @@ public:
 
     Ray() = default;
 
-    Ray(const Vector3 &origin, const Vector3 &direction) : origin(origin), direction(direction)
+    Ray(const Vector3 &origin, const Vector3 &direction)
+        : origin(origin), direction(direction)
     {
     }
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderCore/GpuFence.h"
 #include "Core/List.h"
+#include "RenderCore/GpuFence.h"
 
 template <typename T>
 class FencedPool
@@ -23,7 +23,7 @@ public:
         queue.Add(data);
 
         data = queue.First();
-        if(data.val <= fence->GetGpuValue())
+        if (data.val <= fence->GetGpuValue())
         {
             queue.RemoveFirst();
         }

@@ -1,0 +1,14 @@
+BasedOnStyle: Microsoft
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterUnion: true
+  #BeforeLambdaBody: true
+AccessModifierOffset: -4
+AlwaysBreakTemplateDeclarations: Yes
+AlignEscapedNewlines: Left
+ColumnLimit: 0
+Cpp11BracedListStyle: false
+FixNamespaceComments: false
+MaxEmptyLinesToKeep: 2
+#SortIncludes: true
+UseTab:	Never

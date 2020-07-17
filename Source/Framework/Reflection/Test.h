@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Reflection/QualifiedType.h"
 #include "Reflection/Constructor.h"
-#include "Reflection/Property.h"
 #include "Reflection/Method.h"
-#include "Reflection/Type.h"
+#include "Reflection/Property.h"
+#include "Reflection/QualifiedType.h"
 #include "Reflection/Registry.h"
+#include "Reflection/Type.h"
 
 enum TestEnum1
 {
@@ -39,15 +39,18 @@ private:
 public:
     TestClass1() = default;
 
-    TestClass1(const String &name) : name(name)
+    TestClass1(const String &name)
+        : name(name)
     {
     }
 
-    TestClass1(const String &name, int32 num) : name(name), num(num)
+    TestClass1(const String &name, int32 num)
+        : name(name), num(num)
     {
     }
 
-    TestClass1(const String &name, int32 num, int32 *numPtr) : name(name), num(num), numPtr(numPtr)
+    TestClass1(const String &name, int32 num, int32 *numPtr)
+        : name(name), num(num), numPtr(numPtr)
     {
     }
 
@@ -75,4 +78,4 @@ void TestTypeMacro();
 
 void Test();
 
-} // namespace Reflection
+}

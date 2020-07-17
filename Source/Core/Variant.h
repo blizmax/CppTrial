@@ -202,7 +202,8 @@ public:
     Variant &operator=(const Variant &) = default;
     ~Variant() = default;
 
-    Variant(Variant &&other) : type(other.type), data(std::move(other.data))
+    Variant(Variant &&other)
+        : type(other.type), data(std::move(other.data))
     {
         other.type = VariantType::Empty;
     }

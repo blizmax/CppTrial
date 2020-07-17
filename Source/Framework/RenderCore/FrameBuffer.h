@@ -10,7 +10,8 @@ struct FrameBufferDesc
         bool allowUav = false;
 
         AttachmentDesc() = default;
-        AttachmentDesc(ResourceFormat format, bool allowUav = false) : format(format), allowUav(allowUav)
+        AttachmentDesc(ResourceFormat format, bool allowUav = false)
+            : format(format), allowUav(allowUav)
         {
         }
 
@@ -33,22 +34,22 @@ struct FrameBufferDesc
 
     bool operator==(const FrameBufferDesc &other) const
     {
-        if(sampleCount != other.sampleCount)
+        if (sampleCount != other.sampleCount)
             return false;
-        if(renderPass != other.renderPass)
+        if (renderPass != other.renderPass)
             return false;
-        if(hasDepthStencil != other.hasDepthStencil)
+        if (hasDepthStencil != other.hasDepthStencil)
             return false;
-        if(hasDepthStencil && (depthStencil != other.depthStencil))
+        if (hasDepthStencil && (depthStencil != other.depthStencil))
             return false;
-        if(colors != other.colors)
+        if (colors != other.colors)
             return false;
         return true;
     }
 
     bool operator!=(const FrameBufferDesc &other) const
     {
-        return !(*this == other); 
+        return !(*this == other);
     }
 };
 
@@ -134,7 +135,7 @@ public:
     static SPtr<FrameBuffer> Create();
     static SPtr<FrameBuffer> Create(const Array<SPtr<Texture>> &colors, const SPtr<Texture> &depthStencil = nullptr);
     static SPtr<FrameBuffer> Create2D(int32 width, int32 height, const FrameBufferDesc &desc, int32 arrayLayers = 1, int32 mipLevels = 1);
-    static SPtr<FrameBuffer> CreateCubemap(int32 width, int32 height, const FrameBufferDesc& desc, int32 arrayLayers = 1, int32 mipLevels = 1);
+    static SPtr<FrameBuffer> CreateCubemap(int32 width, int32 height, const FrameBufferDesc &desc, int32 arrayLayers = 1, int32 mipLevels = 1);
 
 protected:
     int32 width;

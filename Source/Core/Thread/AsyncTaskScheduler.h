@@ -1,12 +1,13 @@
 #pragma once
 
-#include "Core/Thread/ThreadPool.h"
 #include "Core/Queue.h"
+#include "Core/Thread/ThreadPool.h"
 
 class AsyncTask
 {
 public:
-    AsyncTask(const String &name, const ThreadFunc &func) : name(name), worker(func)
+    AsyncTask(const String &name, const ThreadFunc &func)
+        : name(name), worker(func)
     {
     }
 
@@ -63,14 +64,15 @@ private:
 
     String name;
     ThreadFunc worker;
-    std::atomic_uint32_t state{READY};
+    std::atomic_uint32_t state{ READY };
     bool canceled = false;
 };
 
 class AsyncTaskScheduler
 {
 public:
-    AsyncTaskScheduler(int32 initCapacity) : pool(initCapacity)
+    AsyncTaskScheduler(int32 initCapacity)
+        : pool(initCapacity)
     {
     }
 

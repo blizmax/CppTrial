@@ -1,11 +1,11 @@
+#include "Application/Application.h"
 #include "Core/String.h"
 #include "IO/FileHandle.h"
-#include "RenderCore/RenderAPI.h"
-#include "Application/Application.h"
-#include "Render/RenderManager.h"
-#include "Render/Importers/TextureImporter.h"
-#include "Render/Importers/SceneImporter.h"
 #include "Math/Color.h"
+#include "Render/Importers/SceneImporter.h"
+#include "Render/Importers/TextureImporter.h"
+#include "Render/RenderManager.h"
+#include "RenderCore/RenderAPI.h"
 
 class Renderer
 {
@@ -49,10 +49,9 @@ public:
 
         state = GraphicsState::Create();
 
-        auto vertexBufferLayout = VertexBufferLayout::Create({
-            {CT_TEXT("VertexPosition"), ResourceFormat::RGB32Float},
-            {CT_TEXT("VertexUV"), ResourceFormat::RG32Float}
-        });
+        auto vertexBufferLayout = VertexBufferLayout::Create(
+            { { CT_TEXT("VertexPosition"), ResourceFormat::RGB32Float },
+              { CT_TEXT("VertexUV"), ResourceFormat::RG32Float } });
         auto vertexLayout = VertexLayout::Create();
         vertexLayout->AddBufferLayout(vertexBufferLayout);
 
@@ -64,9 +63,7 @@ public:
         };
         auto vbo = Buffer::Create(sizeof(vertices), ResourceBind::Vertex, CpuAccess::None, vertices);
 
-        uint32 indices[] = {
-            0, 1, 2, 2, 3, 0
-        };
+        uint32 indices[] = { 0, 1, 2, 2, 3, 0 };
         auto ibo = Buffer::Create(sizeof(indices), ResourceBind::Index, CpuAccess::None, indices);
 
         vao = VertexArray::Create();

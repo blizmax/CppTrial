@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/DescriptorSetLayout.h"
+#include "RenderVulkan/VulkanMemory.h"
 
 class VulkanDescriptorSetLayout : public DescriptorSetLayout
 {
@@ -14,6 +14,6 @@ public:
         return layout;
     }
 
-private:    
+private:
     VkDescriptorSetLayout layout = VK_NULL_HANDLE;
 };

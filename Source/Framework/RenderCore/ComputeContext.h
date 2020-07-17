@@ -1,9 +1,9 @@
 #pragma once
 
-#include "RenderCore/CopyContext.h"
-#include "RenderCore/ComputeState.h"
-#include "RenderCore/ProgramVars.h"
 #include "Math/Vector4.h"
+#include "RenderCore/ComputeState.h"
+#include "RenderCore/CopyContext.h"
+#include "RenderCore/ProgramVars.h"
 
 class ComputeContext : virtual public CopyContext
 {

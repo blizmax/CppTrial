@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core/.Package.h"
-#include "Core/Memory.h"
 #include "Core/Exception.h"
+#include "Core/Memory.h"
 
 namespace AnyInternal
 {
@@ -19,11 +19,13 @@ class DynamicData : public IDynamicData
 public:
     T value;
 
-    DynamicData(const T &val) : value(val)
+    DynamicData(const T &val)
+        : value(val)
     {
     }
 
-    DynamicData(T &&val) : value(std::move(val))
+    DynamicData(T &&val)
+        : value(std::move(val))
     {
     }
 
@@ -45,7 +47,8 @@ public:
             data = other.data->Clone();
     }
 
-    Any(Any &&other) : data(other.data)
+    Any(Any &&other)
+        : data(other.data)
     {
         other.data = nullptr;
     }
@@ -71,18 +74,21 @@ public:
     }
 
     template <typename T>
-    Any(T *value) : data(Memory::New<AnyInternal::DynamicData<std::decay_t<T *>>>(value))
+    Any(T *value)
+        : data(Memory::New<AnyInternal::DynamicData<std::decay_t<T *>>>(value))
     {
     }
 
     template <typename T>
-    requires (!std::is_pointer_v<T>)
-    Any(const T &value) : data(Memory::New<AnyInternal::DynamicData<std::decay_t<T>>>(value))
+    requires(!std::is_pointer_v<T>)
+        Any(const T &value)
+        : data(Memory::New<AnyInternal::DynamicData<std::decay_t<T>>>(value))
     {
     }
 
     template <typename T>
-    Any(T &value) : data(Memory::New<AnyInternal::DynamicData<std::decay_t<T>>>(value))
+    Any(T &value)
+        : data(Memory::New<AnyInternal::DynamicData<std::decay_t<T>>>(value))
     {
     }
 

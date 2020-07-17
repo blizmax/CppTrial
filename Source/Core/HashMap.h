@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core/.Package.h"
-#include "Core/Hash.h"
 #include "Core/Container/HashTable.h"
+#include "Core/Hash.h"
 
 template <typename Key,
           typename Value,
@@ -21,7 +21,8 @@ public:
     HashMap &operator=(HashMap &&) noexcept = default;
     ~HashMap() = default;
 
-    explicit HashMap(int32 initCapacity) : hashTable(HashTableType(initCapacity))
+    explicit HashMap(int32 initCapacity)
+        : hashTable(HashTableType(initCapacity))
     {
     }
 

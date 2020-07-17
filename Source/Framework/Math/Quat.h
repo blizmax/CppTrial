@@ -13,7 +13,8 @@ public:
 
     Quat() = default;
 
-    Quat(float x, float y, float z, float w) : x(x), y(y), z(z), w(w)
+    Quat(float x, float y, float z, float w)
+        : x(x), y(y), z(z), w(w)
     {
     }
 

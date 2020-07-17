@@ -77,4 +77,4 @@ void Enum::CheckRange(int32 index) const
 {
     CT_CHECK(IsValidIndex(index));
 }
-} // namespace Reflection
+}

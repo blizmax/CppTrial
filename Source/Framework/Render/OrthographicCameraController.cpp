@@ -2,7 +2,7 @@
 
 void OrthographicCameraController::Update()
 {
-    if(camera)
+    if (camera)
     {
         camera->Update();
     }
@@ -10,7 +10,7 @@ void OrthographicCameraController::Update()
 
 void OrthographicCameraController::OnTouchDown(TouchDownEvent &event)
 {
-    if(!dragging && event.button == CT_BUTTON_MIDDLE)
+    if (!dragging && event.button == CT_BUTTON_MIDDLE)
     {
         dragging = true;
         button = event.button;
@@ -21,7 +21,7 @@ void OrthographicCameraController::OnTouchDown(TouchDownEvent &event)
 
 void OrthographicCameraController::OnTouchUp(TouchUpEvent &event)
 {
-    if(event.button == CT_BUTTON_MIDDLE)
+    if (event.button == CT_BUTTON_MIDDLE)
     {
         dragging = false;
     }
@@ -29,7 +29,7 @@ void OrthographicCameraController::OnTouchUp(TouchUpEvent &event)
 
 void OrthographicCameraController::OnMouseMoved(MouseMovedEvent &event)
 {
-    if(dragging)
+    if (dragging)
     {
         int32 deltaX = event.x - startX;
         int32 deltaY = event.y - startY;
@@ -47,21 +47,20 @@ void OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent &event)
 
 void OrthographicCameraController::OnKeyDown(KeyDownEvent &event)
 {
-
 }
 
 void OrthographicCameraController::OnKeyUp(KeyUpEvent &event)
 {
-    if(event.key == CT_KEY_R)
+    if (event.key == CT_KEY_R)
     {
         camera->zoom = 1.0f;
-        camera->position = {0.0f, 0.0f, 0.0f};
+        camera->position = { 0.0f, 0.0f, 0.0f };
     }
 }
 
 void OrthographicCameraController::OnWindowResized(WindowResizedEvent &event)
 {
-    if(camera)
+    if (camera)
     {
         camera->viewportWidth = (float)event.width;
         camera->viewportHeight = (float)event.height;
@@ -70,7 +69,7 @@ void OrthographicCameraController::OnWindowResized(WindowResizedEvent &event)
 
 void OrthographicCameraController::ProcessDrag(int32 x, int32 y, int32 button)
 {
-    if(!camera)
+    if (!camera)
         return;
 
     camera->position.x -= x * camera->zoom;
@@ -79,7 +78,7 @@ void OrthographicCameraController::ProcessDrag(int32 x, int32 y, int32 button)
 
 void OrthographicCameraController::ProcessZoom(int32 amount)
 {
-    if(!camera)
+    if (!camera)
         return;
 
     const float zoomFactor = -0.1f;

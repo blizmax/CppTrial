@@ -23,9 +23,9 @@ private:
     void End();
 
     void BindPlatform();
-    void BindRenderer();   
+    void BindRenderer();
     void UnbindPlatform();
-    void UnbindRenderer(); 
+    void UnbindRenderer();
 
     void CreateVertexArray(ImDrawData *drawData);
     void SetupRenderState(ImDrawData *drawData, uint32 width, uint32 height);

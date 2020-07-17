@@ -1,6 +1,6 @@
 #define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 #include "RenderVulkan/Desktop/VulkanDesktopWindow.h"
+#include <GLFW/glfw3.h>
 
 Window *Window::Create(const WindowDesc &desc)
 {

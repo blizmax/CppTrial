@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderVulkan/.Package.h"
 #include "RenderCore/RenderWindow.h"
+#include "RenderVulkan/.Package.h"
 
 class VulkanRenderWindow : virtual public RenderWindow
 {

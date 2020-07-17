@@ -86,7 +86,8 @@ template <typename T, typename... Args>
 class ConstructorImpl : public Constructor
 {
 public:
-    ConstructorImpl() : Constructor(TypeOf<T>(), {GetQualifiedType<Args>()...})
+    ConstructorImpl()
+        : Constructor(TypeOf<T>(), { GetQualifiedType<Args>()... })
     {
         static_assert(std::is_constructible_v<T, Args...>, "Attempt to define an undeclared constructor.");
     }
@@ -97,4 +98,4 @@ public:
     }
 };
 
-} // namespace Reflection
+}

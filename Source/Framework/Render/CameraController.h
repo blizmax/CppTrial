@@ -1,24 +1,43 @@
 #pragma once
 
-#include "Render/Camera.h"
 #include "Application/InputEvent.h"
+#include "Render/Camera.h"
 
 class CameraController
 {
 public:
-    CameraController(const SPtr<Camera> &camera) : camera(camera)
+    CameraController(const SPtr<Camera> &camera)
+        : camera(camera)
     {
     }
 
     virtual ~CameraController() = default;
 
     virtual bool Update() = 0;
-    virtual void OnTouchDown(TouchDownEvent &event) {}
-    virtual void OnTouchUp(TouchUpEvent &event) {}
-    virtual void OnMouseMoved(MouseMovedEvent &event) {}
-    virtual void OnMouseScrolled(MouseScrolledEvent &event) {}
-    virtual void OnKeyDown(KeyDownEvent &event) {}
-    virtual void OnKeyUp(KeyUpEvent &event) {}
+
+    virtual void OnTouchDown(TouchDownEvent &event)
+    {
+    }
+
+    virtual void OnTouchUp(TouchUpEvent &event)
+    {
+    }
+
+    virtual void OnMouseMoved(MouseMovedEvent &event)
+    {
+    }
+
+    virtual void OnMouseScrolled(MouseScrolledEvent &event)
+    {
+    }
+
+    virtual void OnKeyDown(KeyDownEvent &event)
+    {
+    }
+
+    virtual void OnKeyUp(KeyUpEvent &event)
+    {
+    }
 
     void SetCameraSpeed(float newSpeed)
     {
@@ -48,7 +67,8 @@ protected:
 class OrbiterCameraController : public CameraController
 {
 public:
-    OrbiterCameraController(const SPtr<Camera> &camera) : CameraController(camera)
+    OrbiterCameraController(const SPtr<Camera> &camera)
+        : CameraController(camera)
     {
     }
 
@@ -80,7 +100,8 @@ template <bool b6DOF>
 class TFirstPersonCameraController : public CameraController
 {
 public:
-    TFirstPersonCameraController(const SPtr<Camera> &camera) : CameraController(camera)
+    TFirstPersonCameraController(const SPtr<Camera> &camera)
+        : CameraController(camera)
     {
     }
 
@@ -105,7 +126,7 @@ protected:
     static constexpr int32 DIR_UP = 4;
     static constexpr int32 DIR_DOWN = 5;
 
-    bool keyPressed[6] = {0};
+    bool keyPressed[6] = { 0 };
     bool leftBtnDown = false;
     bool rightBtnDown = false;
     bool shouldRotate = false;

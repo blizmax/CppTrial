@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Render/.Package.h"
 #include "Math/Color.h"
+#include "Render/.Package.h"
 
 class Pixmap
 {

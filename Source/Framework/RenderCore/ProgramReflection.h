@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderCore/RootSignature.h"
 #include "Core/HashMap.h"
+#include "RenderCore/RootSignature.h"
 
 enum class ShaderDataType
 {
@@ -72,7 +72,7 @@ struct BindingRange
     String ToString() const
     {
         return String::Format(CT_TEXT("descriptorType:{0},count:{1},baseIndex:{2}"),
-            (int32)descriptorType, count, baseIndex);
+                              (int32)descriptorType, count, baseIndex);
     }
 };
 
@@ -90,7 +90,8 @@ struct SetInfo
     SPtr<DescriptorSetLayout> layout;
 
     SetInfo() = default;
-    SetInfo(int32 set) : set(set)
+    SetInfo(int32 set)
+        : set(set)
     {
     }
 };
@@ -107,13 +108,34 @@ class ReflectionType
 public:
     virtual ~ReflectionType() = default;
 
-    virtual bool IsArray() const { return false; }
-    virtual bool IsStruct() const { return false; }
-    virtual bool IsData() const { return false; }
-    virtual bool IsResource() const { return false; }
-    virtual bool IsResourceArray() const { return false; }
-    virtual uint32 GetSize() const { return size; }
-    virtual void SetSize(uint32 newSize) { size = newSize; }
+    virtual bool IsArray() const
+    {
+        return false;
+    }
+    virtual bool IsStruct() const
+    {
+        return false;
+    }
+    virtual bool IsData() const
+    {
+        return false;
+    }
+    virtual bool IsResource() const
+    {
+        return false;
+    }
+    virtual bool IsResourceArray() const
+    {
+        return false;
+    }
+    virtual uint32 GetSize() const
+    {
+        return size;
+    }
+    virtual void SetSize(uint32 newSize)
+    {
+        size = newSize;
+    }
     virtual String Dump(int32 depth = 0) const = 0;
 
     const ReflectionDataType *AsData() const;
@@ -165,8 +187,8 @@ struct VarLocation
     VarLocation operator+(const VarLocation &other) const
     {
         return VarLocation(rangeIndex + other.rangeIndex,
-            arrayIndex + other.arrayIndex,
-            byteOffset + other.byteOffset);
+                           arrayIndex + other.arrayIndex,
+                           byteOffset + other.byteOffset);
     }
 };
 
@@ -234,13 +256,14 @@ private:
 class ReflectionDataType : public ReflectionType
 {
 public:
-    ReflectionDataType(ShaderDataType dataType) : dataType(dataType)
+    ReflectionDataType(ShaderDataType dataType)
+        : dataType(dataType)
     {
     }
 
-    virtual bool IsData() const override 
-    { 
-        return true; 
+    virtual bool IsData() const override
+    {
+        return true;
     }
 
     ShaderDataType GetShaderDataType() const
@@ -321,7 +344,7 @@ public:
 
     virtual uint32 GetSize() const override
     {
-        if(structType)
+        if (structType)
             return structType->GetSize();
         return 0;
     }
@@ -329,7 +352,7 @@ public:
     virtual String Dump(int32 depth) const override
     {
         String ret = CT_TEXT("<Resource>");
-        if(structType)
+        if (structType)
         {
             ret += String::Format(CT_TEXT(", inner {0}"), structType->Dump(depth + 1));
         }
@@ -367,7 +390,7 @@ public:
     }
 
     template <typename... Args>
-    static SPtr<ReflectionResourceType> Create(Args&&... args)
+    static SPtr<ReflectionResourceType> Create(Args &&... args)
     {
         return Memory::MakeShared<ReflectionResourceType>(std::forward<Args>(args)...);
     }
@@ -397,12 +420,12 @@ public:
     }
 
     virtual bool IsArray() const override
-    { 
-        return true; 
+    {
+        return true;
     }
 
     virtual bool IsResourceArray() const override
-    { 
+    {
         return elementType->IsResource();
     }
 
@@ -427,7 +450,7 @@ public:
     }
 
     template <typename... Args>
-    static SPtr<ReflectionArrayType> Create(Args&&... args)
+    static SPtr<ReflectionArrayType> Create(Args &&... args)
     {
         return Memory::MakeShared<ReflectionArrayType>(std::forward<Args>(args)...);
     }
@@ -441,7 +464,8 @@ private:
 class ReflectionStructType : public ReflectionType
 {
 public:
-    ReflectionStructType(const String &name) : name(name)
+    ReflectionStructType(const String &name)
+        : name(name)
     {
     }
 
@@ -455,13 +479,13 @@ public:
         const CharType *PADDING = CT_TEXT("  ");
 
         String ret = CT_TEXT("<Struct>, {\n");
-        for(const auto &m : members)
+        for (const auto &m : members)
         {
-            for(int32 i = 0; i < depth + 1; ++i)
+            for (int32 i = 0; i < depth + 1; ++i)
                 ret += PADDING;
-  
+
             String debugInfo;
-            if(m->GetReflectionType()->IsResource() || m->GetReflectionType()->IsResourceArray())
+            if (m->GetReflectionType()->IsResource() || m->GetReflectionType()->IsResourceArray())
             {
                 auto &range = GetBindingRange(m->GetLocation().rangeIndex);
                 debugInfo = String::Format(CT_TEXT("BindingRange({0}),"), range);
@@ -475,7 +499,7 @@ public:
             ret += String::Format(CT_TEXT("{0}: {1}{2}"), m->GetName(), debugInfo, m->GetReflectionType()->Dump(depth + 1));
             ret += CT_TEXT("\n");
         }
-        for(int32 i = 0; i < depth; ++i)
+        for (int32 i = 0; i < depth; ++i)
             ret += PADDING;
         ret += CT_TEXT("}");
 
@@ -502,7 +526,7 @@ public:
     {
         return Memory::MakeShared<ReflectionStructType>(name);
     }
-    
+
 private:
     friend class ParameterBlock;
 
@@ -595,7 +619,7 @@ public:
 
 private:
     friend class ProgramReflection;
-   
+
     SPtr<ReflectionType> elementType;
     Array<BindingInfo> bindingInfos;
     Array<SetInfo> setInfos;
@@ -730,25 +754,26 @@ void ParameterBlockReflection::Finalize()
     CT_CHECK(bindingInfos.Count() == bindingRanges.Count());
 
     HashMap<int32, SetInfo> setInfoMap;
-    for(int32 i = 0; i < bindingInfos.Count(); ++i)
+    for (int32 i = 0; i < bindingInfos.Count(); ++i)
     {
         const auto &info = bindingInfos[i];
         int32 set = info.set;
-        if (maxSetIndex < set) maxSetIndex = set;
+        if (maxSetIndex < set)
+            maxSetIndex = set;
         if (!setInfoMap.Contains(set))
-            setInfoMap.Put(set, {set});
+            setInfoMap.Put(set, { set });
         setInfoMap[set].bindingIndices.Add(i);
     }
 
-    for(int32 s = 0; s <= maxSetIndex; ++s)
+    for (int32 s = 0; s <= maxSetIndex; ++s)
     {
-        setInfos.Add({s});
+        setInfos.Add({ s });
     }
-    if(setInfos.Count() < setInfoMap.Count())
+    if (setInfos.Count() < setInfoMap.Count())
     {
         CT_LOG(Warning, CT_TEXT("ParameterBlockReflection setInfos has hole."));
     }
-    for(auto &[set, info] : setInfoMap)
+    for (auto &[set, info] : setInfoMap)
     {
         setInfos[set] = std::move(info);
     }

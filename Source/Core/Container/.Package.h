@@ -19,19 +19,23 @@ public:
     MapEntry &operator=(MapEntry &&) = default;
     ~MapEntry() = default;
 
-    MapEntry(const K &k, const V &v) : key(k), value(v)
+    MapEntry(const K &k, const V &v)
+        : key(k), value(v)
     {
     }
 
-    MapEntry(const K &k, V &&v) : key(k), value(std::move(v))
+    MapEntry(const K &k, V &&v)
+        : key(k), value(std::move(v))
     {
     }
 
-    MapEntry(K &&k, const V &v) : key(std::move(k)), value(v)
+    MapEntry(K &&k, const V &v)
+        : key(std::move(k)), value(v)
     {
     }
 
-    MapEntry(K &&k, V &&v) : key(std::move(k)), value(std::move(v))
+    MapEntry(K &&k, V &&v)
+        : key(std::move(k)), value(std::move(v))
     {
     }
 

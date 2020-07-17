@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Container/.Package.h"
 #include "Core/Allocator.h"
+#include "Core/Container/.Package.h"
 #include "Core/Stack.h"
 
 namespace AVLTreeInternal
@@ -16,11 +16,13 @@ public:
     int32 rightHeight = 0;
     Element element;
 
-    Node(const Element &element) : element(element)
+    Node(const Element &element)
+        : element(element)
     {
     }
 
-    Node(Element &&element) : element(std::move(element))
+    Node(Element &&element)
+        : element(std::move(element))
     {
     }
 
@@ -41,12 +43,14 @@ public:
 public:
     AVLTree() = default;
 
-    AVLTree(const AVLTree &other) : count(other.count)
+    AVLTree(const AVLTree &other)
+        : count(other.count)
     {
         root = CopyFrom(other.root);
     }
 
-    AVLTree(AVLTree &&other) noexcept : count(other.count), root(other.root)
+    AVLTree(AVLTree &&other) noexcept
+        : count(other.count), root(other.root)
     {
         other.count = 0;
         other.root = nullptr;

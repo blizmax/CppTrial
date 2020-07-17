@@ -1,9 +1,9 @@
 #pragma once
 
-#include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/DescriptorSet.h"
 #include "RenderVulkan/VulkanDescriptorPool.h"
 #include "RenderVulkan/VulkanDescriptorSetLayout.h"
+#include "RenderVulkan/VulkanMemory.h"
 #include "RenderVulkan/VulkanResourceView.h"
 
 class VulkanDescriptorSet : public DescriptorSet

@@ -14,7 +14,7 @@ VulkanDescriptorPool::VulkanDescriptorPool(const DescriptorPoolDesc &desc, const
 
     for (int32 i = 0; i < (int32)DescriptorType::Count; ++i)
     {
-        if(desc.descCount[i])
+        if (desc.descCount[i])
         {
             VkDescriptorPoolSize s = {};
             s.type = ToVkDescriptorType((DescriptorType)i);
@@ -37,9 +37,9 @@ VulkanDescriptorPool::VulkanDescriptorPool(const DescriptorPoolDesc &desc, const
 
 VulkanDescriptorPool::~VulkanDescriptorPool()
 {
-    if(pool != VK_NULL_HANDLE)
+    if (pool != VK_NULL_HANDLE)
     {
-        if(gVulkanDevice)
+        if (gVulkanDevice)
         {
             gVulkanDevice->Release([pool = pool]() {
                 vkDestroyDescriptorPool(gVulkanDevice->GetLogicalDeviceHandle(), pool, gVulkanAlloc);

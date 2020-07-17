@@ -1,15 +1,17 @@
 #include "Name.h"
-#include "Core/Memory.h"
 #include "Core/HashMap.h"
+#include "Core/Memory.h"
 #include "Core/Thread.h"
 
 static std::mutex mutex;
 
-Name::Name(const Name &other) : data(other.data)
+Name::Name(const Name &other)
+    : data(other.data)
 {
 }
 
-Name::Name(Name &&other) : data(other.data)
+Name::Name(Name &&other)
+    : data(other.data)
 {
     other.data = nullptr;
 }
@@ -44,7 +46,7 @@ Name::Name(const CharType *value)
     Construct(String(value));
 }
 
-static HashMap<String, Name::Data *>& NameMap()
+static HashMap<String, Name::Data *> &NameMap()
 {
     static HashMap<String, Name::Data *> nameMap(2048);
     return nameMap;

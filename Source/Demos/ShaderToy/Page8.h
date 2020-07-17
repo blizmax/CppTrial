@@ -6,9 +6,9 @@
 class Page8 : public TPage<Page8>
 {
 public:
-    Color skyColor{0.0f, 0.0f, 0.35f};
-    Color moonColor{1.0f, 1.0f, 0.8f};
-    Color cloudColor{0.3f, 0.3f, 0.6f, 0.2f};
+    Color skyColor{ 0.0f, 0.0f, 0.35f };
+    Color moonColor{ 1.0f, 1.0f, 0.8f };
+    Color cloudColor{ 0.3f, 0.3f, 0.6f, 0.2f };
 
     virtual String GetName() override
     {

@@ -1,6 +1,6 @@
 #include "RenderVulkan/VulkanTexture.h"
-#include "RenderVulkan/VulkanDevice.h"
 #include "Core/Math.h"
+#include "RenderVulkan/VulkanDevice.h"
 
 SPtr<Texture> Texture::Create(int32 width, int32 height, int32 depth, ResourceFormat format, ResourceType resourceType, int32 arrayLayers, int32 mipLevels, int32 sampleCount, const void *data, ResourceBindFlags flags)
 {
@@ -22,7 +22,6 @@ SPtr<Texture> Texture::Create2D(int32 width, int32 height, ResourceFormat format
 VulkanTexture::VulkanTexture(int32 width, int32 height, int32 depth, int32 arrayLayers, int32 mipLevels, int32 sampleCount, ResourceFormat format, ResourceType resourceType, ResourceBindFlags flags)
     : Texture(width, height, depth, arrayLayers, mipLevels, sampleCount, format, resourceType, flags)
 {
-
 }
 
 VulkanTexture::~VulkanTexture()
@@ -72,7 +71,7 @@ static VkImageTiling GetFormatImageTiling(VkFormat format, VkImageUsageFlags usa
         return VK_IMAGE_TILING_OPTIMAL;
     if ((p.linearTilingFeatures & featureBits) == featureBits)
         return VK_IMAGE_TILING_LINEAR;
-    
+
     CT_EXCEPTION(RenderCore, "Get imagee tiling failed");
     return VK_IMAGE_TILING_OPTIMAL;
 }
@@ -85,7 +84,8 @@ void VulkanTexture::InitData(const void *data, bool autoGenMips)
     VkImageCreateInfo imageInfo = {};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageInfo.extent.width = CT_ALIGN(GetResourceFormatWidthCompressionRatio(format), width);
-    imageInfo.extent.height = CT_ALIGN(GetResourceFormatHeightCompressionRatio(format), height);;
+    imageInfo.extent.height = CT_ALIGN(GetResourceFormatHeightCompressionRatio(format), height);
+    ;
     imageInfo.extent.depth = depth;
     imageInfo.format = ToVkResourceFormat(format);
     imageInfo.imageType = ToVkImageType(resourceType);
@@ -108,20 +108,20 @@ void VulkanTexture::InitData(const void *data, bool autoGenMips)
 
     VmaAllocationCreateInfo allocInfo = {};
     allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-    if(vmaCreateImage(gVulkanDevice->GetVmaAllocator(), &imageInfo, &allocInfo, &textureData.image, &textureData.allocation, nullptr) != VK_SUCCESS)
+    if (vmaCreateImage(gVulkanDevice->GetVmaAllocator(), &imageInfo, &allocInfo, &textureData.image, &textureData.allocation, nullptr) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create image failed.");
 
-    if(data)
+    if (data)
     {
         auto context = gVulkanDevice->GetRenderContext();
-        if(autoGenMips)
+        if (autoGenMips)
         {
             int32 sliceSize = width * height * GetResourceFormatBytes(format);
             const uint8 *src = reinterpret_cast<const uint8 *>(data);
             int32 count = arrayLayers;
-            if(resourceType == ResourceType::TextureCube)
+            if (resourceType == ResourceType::TextureCube)
                 count *= 6;
-            
+
             for (int32 i = 0; i < count; i++)
             {
                 int32 subresource = GetSubresourceIndex(i, 0);
@@ -129,7 +129,7 @@ void VulkanTexture::InitData(const void *data, bool autoGenMips)
                 int32 w = GetWidth(mipLevel);
                 int32 h = GetHeight(mipLevel);
                 int32 d = GetDepth(mipLevel);
-                context->UpdateSubresource(this, subresource, src, {0, 0, 0}, {w, h, d});
+                context->UpdateSubresource(this, subresource, src, { 0, 0, 0 }, { w, h, d });
                 src += sliceSize;
             }
         }
@@ -138,7 +138,7 @@ void VulkanTexture::InitData(const void *data, bool autoGenMips)
             context->UpdateTexture(this, data);
         }
 
-        if(autoGenMips)
+        if (autoGenMips)
         {
             GenerateMips(context);
             ClearViews();

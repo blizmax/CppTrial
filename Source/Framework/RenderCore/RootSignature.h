@@ -10,7 +10,8 @@ struct RootSignatureDesc
 class RootSignature
 {
 public:
-    RootSignature(const RootSignatureDesc &desc) : desc(desc)
+    RootSignature(const RootSignatureDesc &desc)
+        : desc(desc)
     {
     }
 

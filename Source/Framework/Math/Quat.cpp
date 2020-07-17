@@ -4,17 +4,17 @@
 
 Quat &Quat::FromMatrix(const Matrix3 &mat)
 {
-    Vector3 xAxis = {mat(0, 0), mat(0, 1), mat(0, 2)};
-    Vector3 yAxis = {mat(1, 0), mat(1, 1), mat(1, 2)};
-    Vector3 zAxis = {mat(2, 0), mat(2, 1), mat(2, 2)};
+    Vector3 xAxis = { mat(0, 0), mat(0, 1), mat(0, 2) };
+    Vector3 yAxis = { mat(1, 0), mat(1, 1), mat(1, 2) };
+    Vector3 zAxis = { mat(2, 0), mat(2, 1), mat(2, 2) };
     return FromAxes(xAxis, yAxis, zAxis);
 }
 
 Quat &Quat::FromMatrix(const Matrix4 &mat)
 {
-    Vector3 xAxis = {mat(0, 0), mat(0, 1), mat(0, 2)};
-    Vector3 yAxis = {mat(1, 0), mat(1, 1), mat(1, 2)};
-    Vector3 zAxis = {mat(2, 0), mat(2, 1), mat(2, 2)};
+    Vector3 xAxis = { mat(0, 0), mat(0, 1), mat(0, 2) };
+    Vector3 yAxis = { mat(1, 0), mat(1, 1), mat(1, 2) };
+    Vector3 zAxis = { mat(2, 0), mat(2, 1), mat(2, 2) };
     return FromAxes(xAxis, yAxis, zAxis);
 }
 
@@ -133,7 +133,7 @@ Vector3 Quat::Rotate(const Vector3 &vec) const
 {
     Quat conj = Conjugate();
     Quat temp = *this * Quat(vec.x, vec.y, vec.z, 0.0f) * conj;
-	return Vector3(temp.x, temp.y, temp.z);
+    return Vector3(temp.x, temp.y, temp.z);
 }
 
 Matrix3 Quat::ToMatrix3() const
@@ -157,7 +157,8 @@ Matrix3 Quat::ToMatrix3() const
         2.0f * (yz - xw),
         2.0f * (xz - yw),
         2.0f * (yz + xw),
-        1.0f - 2.0f * (xx + yy)};
+        1.0f - 2.0f * (xx + yy)
+    };
 }
 
 Matrix4 Quat::ToMatrix4() const
@@ -188,5 +189,6 @@ Matrix4 Quat::ToMatrix4() const
         0.0f,
         0.0f,
         0.0f,
-        1.0f};
+        1.0f
+    };
 }

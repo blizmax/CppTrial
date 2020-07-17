@@ -16,9 +16,9 @@ public:
 
     virtual void SetSubresourceState(int32 arraySlice, int32 mipLevel, ResourceState newState) const override
     {
-        if(IsStateGlobal())
+        if (IsStateGlobal())
         {
-            for(auto &e : stateData.subStates)
+            for (auto &e : stateData.subStates)
             {
                 e = stateData.state;
             }
@@ -53,9 +53,9 @@ public:
 
     int32 GetWidth(int32 mipLevel = 0) const
     {
-        if(mipLevel == 0 || mipLevel < mipLevels)
+        if (mipLevel == 0 || mipLevel < mipLevels)
             return Math::Max(1, width >> mipLevel);
-        return 0; 
+        return 0;
     }
 
     int32 GetHeight(int32 mipLevel = 0) const
@@ -122,7 +122,7 @@ protected:
     int32 GetMaxMipLevel(int32 width, int32 height, int32 depth) const;
     void CheckViewParams(int32 &mostDetailedMip, int32 &mipLevels, int32 &firstArraySlice, int32 &arrayLayers) const;
 
-protected: 
+protected:
     int32 width = 1;
     int32 height = 1;
     int32 depth = 1;

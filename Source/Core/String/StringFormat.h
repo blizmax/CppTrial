@@ -10,7 +10,8 @@ struct FormatParam
 {
     String stringValue;
 
-    FormatParam(String &&str) : stringValue(std::move(str))
+    FormatParam(String &&str)
+        : stringValue(std::move(str))
     {
     }
 

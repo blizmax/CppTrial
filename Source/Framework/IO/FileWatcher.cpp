@@ -8,9 +8,11 @@ void FileWatcher::Start()
     pathMap.Clear();
     running = true;
 
-    FileSystem::Iterate(watchPath, [this](const String &path) {
-        pathMap.Put(path, FileSystem::GetLastModifiedTime(path));
-    }, recursive);
+    FileSystem::Iterate(
+        watchPath, [this](const String &path) {
+            pathMap.Put(path, FileSystem::GetLastModifiedTime(path));
+        },
+        recursive);
 
     while (running)
     {
@@ -31,24 +33,26 @@ void FileWatcher::Start()
             pathMap.Remove(path);
         }
 
-        FileSystem::Iterate(watchPath, [this](const String &path) {
-            auto time = FileSystem::GetLastModifiedTime(path);
-            if (!pathMap.Contains(path))
-            {
-                pathMap.Put(path, time);
-
-                handler(path, FileStatus::Created);
-            }
-            else
-            {
-                if (pathMap.Get(path) != time)
+        FileSystem::Iterate(
+            watchPath, [this](const String &path) {
+                auto time = FileSystem::GetLastModifiedTime(path);
+                if (!pathMap.Contains(path))
                 {
                     pathMap.Put(path, time);
 
-                    handler(path, FileStatus::Changed);
+                    handler(path, FileStatus::Created);
                 }
-            }
-        }, recursive);
+                else
+                {
+                    if (pathMap.Get(path) != time)
+                    {
+                        pathMap.Put(path, time);
+
+                        handler(path, FileStatus::Changed);
+                    }
+                }
+            },
+            recursive);
     }
 }
 

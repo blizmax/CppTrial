@@ -1,8 +1,8 @@
 #pragma once
 
-#include "RenderCore/.Package.h"
 #include "Math/Matrix4.h"
 #include "Math/Quat.h"
+#include "RenderCore/.Package.h"
 #include "Scene/Shared.glsl"
 
 class Material;
@@ -18,7 +18,7 @@ struct SceneNode
     String name;
     Matrix4 transform;
     Matrix4 localToBindPose;
-    int32 parent = - 1;
+    int32 parent = -1;
     Array<int32> children;
     Array<int32> meshes;
 };

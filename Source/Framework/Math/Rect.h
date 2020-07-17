@@ -14,7 +14,8 @@ public:
 public:
     Rect() = default;
 
-    Rect(float x, float y, float w, float h) : x(x), y(y), width(w), height(h)
+    Rect(float x, float y, float w, float h)
+        : x(x), y(y), width(w), height(h)
     {
     }
 

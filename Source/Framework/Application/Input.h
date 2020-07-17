@@ -78,8 +78,8 @@ protected:
 protected:
     static int32 keycodeTable[512];
 
-    bool pressedKeys[512] = {0};
-    bool pressedButtons[8] = {0};
+    bool pressedKeys[512] = { 0 };
+    bool pressedButtons[8] = { 0 };
     int32 mouseX = 0;
     int32 mouseY = 0;
     int32 deltaX = 0;

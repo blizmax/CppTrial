@@ -10,7 +10,8 @@
 #include <dlfcn.h>
 #endif
 
-DynamicLib::DynamicLib(const String &name) : name(name)
+DynamicLib::DynamicLib(const String &name)
+    : name(name)
 {
     Load();
 }
@@ -20,9 +21,9 @@ void DynamicLib::Load()
     if (handle)
         return;
 
-    if(name.IsEmpty())
+    if (name.IsEmpty())
         return;
-    
+
     String path = String::Format(CT_TEXT("{0}{1}.{2}"), PREFIX ? PREFIX : "", name, EXTENSION);
     handle = (DYNLIB_HANDLE)DYNLIB_LOAD(path.CStr());
 
@@ -76,7 +77,7 @@ String DynamicLib::GetError() const
         (LPTSTR)&lpMsgBuf,
         0,
         NULL);
-    String result((CharType*)lpMsgBuf);
+    String result((CharType *)lpMsgBuf);
     LocalFree(lpMsgBuf);
     return result;
 #elif CT_PLATFORM_OSX || CT_PLATFORM_LINUX

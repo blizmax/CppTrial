@@ -1,10 +1,10 @@
 #include "RenderVulkan/VulkanDescriptorSet.h"
-#include "RenderVulkan/VulkanDevice.h"
 #include "RenderVulkan/VulkanBuffer.h"
-#include "RenderVulkan/VulkanSampler.h"
-#include "RenderVulkan/VulkanResourceView.h"
 #include "RenderVulkan/VulkanCopyContext.h"
+#include "RenderVulkan/VulkanDevice.h"
+#include "RenderVulkan/VulkanResourceView.h"
 #include "RenderVulkan/VulkanRootSignature.h"
+#include "RenderVulkan/VulkanSampler.h"
 
 SPtr<DescriptorSet> DescriptorSet::Create(const SPtr<DescriptorPool> &pool, const SPtr<DescriptorSetLayout> &layout)
 {
@@ -22,15 +22,15 @@ VulkanDescriptorSet::VulkanDescriptorSet(const SPtr<DescriptorPool> &pool, const
     setInfo.descriptorPool = this->pool->GetHandle();
     setInfo.descriptorSetCount = 1;
     setInfo.pSetLayouts = &vkLayout;
-    if(vkAllocateDescriptorSets(gVulkanDevice->GetLogicalDeviceHandle(), &setInfo, &descriptorSet) != VK_SUCCESS)
+    if (vkAllocateDescriptorSets(gVulkanDevice->GetLogicalDeviceHandle(), &setInfo, &descriptorSet) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Alloc descriptor set failed.");
 }
 
 VulkanDescriptorSet::~VulkanDescriptorSet()
 {
-    if(descriptorSet != VK_NULL_HANDLE)
+    if (descriptorSet != VK_NULL_HANDLE)
     {
-        if(gVulkanDevice)
+        if (gVulkanDevice)
         {
             gVulkanDevice->Release([pool = pool, descriptorSet = descriptorSet]() {
                 vkFreeDescriptorSets(gVulkanDevice->GetLogicalDeviceHandle(), pool->GetHandle(), 1, &descriptorSet);
@@ -45,7 +45,7 @@ void VulkanDescriptorSet::SetSrv(int32 binding, int32 index, const ResourceView 
     CT_CHECK(srv);
 
     const VulkanBufferView *bufferView = dynamic_cast<const VulkanBufferView *>(srv);
-    if(bufferView)
+    if (bufferView)
     {
         SetBufferView(binding, index, bufferView);
     }
@@ -61,7 +61,7 @@ void VulkanDescriptorSet::SetUav(int32 binding, int32 index, const ResourceView 
     CT_CHECK(uav);
 
     const VulkanBufferView *bufferView = dynamic_cast<const VulkanBufferView *>(uav);
-    if(bufferView)
+    if (bufferView)
     {
         SetBufferView(binding, index, bufferView);
     }
@@ -129,8 +129,8 @@ void VulkanDescriptorSet::SetBufferView(int32 binding, int32 index, const Vulkan
     write.dstArrayElement = index;
     write.descriptorType = ToVkDescriptorType(layout->GetElement(binding).descriptorType);
     write.descriptorCount = 1;
-    
-    if(buffer->IsTyped())
+
+    if (buffer->IsTyped())
     {
         auto uav = static_cast<VulkanBufferView *>(view->GetResource()->GetUav().get())->GetHandle();
         write.pTexelBufferView = &uav;

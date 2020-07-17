@@ -25,7 +25,8 @@ struct DepthStencilStateDesc
 class DepthStencilState
 {
 public:
-    DepthStencilState(const DepthStencilStateDesc &desc) : desc(desc)
+    DepthStencilState(const DepthStencilStateDesc &desc)
+        : desc(desc)
     {
     }
 

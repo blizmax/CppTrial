@@ -3,7 +3,6 @@
 
 void Window::Init()
 {
-
 }
 
 void WindowsWindow::CreateNativeWindow(const WindowDesc &desc)
@@ -28,17 +27,17 @@ void WindowsWindow::CreateNativeWindow(const WindowDesc &desc)
 
     hwnd = CreateWindowEx(
         0,
-        wc.lpszClassName,              // name of the window class
+        wc.lpszClassName,            // name of the window class
         desc.title.CStr(),           // title of the window
-        WS_OVERLAPPEDWINDOW,           // window style
-        CW_USEDEFAULT,                 // x-position of the window
-        CW_USEDEFAULT,                 // y-position of the window
+        WS_OVERLAPPEDWINDOW,         // window style
+        CW_USEDEFAULT,               // x-position of the window
+        CW_USEDEFAULT,               // y-position of the window
         desc.width + width_adjust,   // width of the window
         desc.height + height_adjust, // height of the window
-        NULL,                          // we have no parent window, NULL
-        NULL,                          // we aren't using menus, NULL
-        hInstance,                     // application handle
-        this);                         // pass pointer to current object
+        NULL,                        // we have no parent window, NULL
+        NULL,                        // we aren't using menus, NULL
+        hInstance,                   // application handle
+        this);                       // pass pointer to current object
 
     hdc = GetDC(hwnd);
 
@@ -270,14 +269,14 @@ void WindowsWindow::ProcessFilesDropped(Array<String> &&paths)
 
 int32 WindowsWindow::GetPositionX() const
 {
-    POINT pos = {0, 0};
+    POINT pos = { 0, 0 };
     ClientToScreen(hwnd, &pos);
     return pos.x;
 }
 
 int32 WindowsWindow::GetPositionY() const
 {
-    POINT pos = {0, 0};
+    POINT pos = { 0, 0 };
     ClientToScreen(hwnd, &pos);
     return pos.y;
 }

@@ -1,9 +1,9 @@
 #define CT_RENDER_CORE_PROGRAM_REFLECTION_IMPLEMENT
 
 #include "RenderVulkan/Private/VulkanShaderCompiler.h"
-#include <glslang/Public/ShaderLang.h>
 #include <SPIRV/GlslangToSpv.h>
 #include <StandAlone/DirStackFileIncluder.h>
+#include <glslang/Public/ShaderLang.h>
 
 /*
 layout (std140) uniform ExampleBlock
@@ -128,7 +128,8 @@ const TBuiltInResource DefaultTBuiltInResource = {
         /* .generalSamplerIndexing = */ 1,
         /* .generalVariableIndexing = */ 1,
         /* .generalConstantMatrixVectorIndexing = */ 1,
-    }};
+    }
+};
 
 void VulkanShaderCompilerImpl::Init()
 {
@@ -633,7 +634,7 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
     {
         ParseReflection(program, builder, false);
     }
-    
+
     glslang::SpvOptions spvOptions;
     spvOptions.generateDebugInfo = false;
     spvOptions.optimizeSize = false;

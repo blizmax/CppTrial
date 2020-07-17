@@ -1,6 +1,6 @@
 #include "RenderVulkan/VulkanFrameBuffer.h"
-#include "RenderVulkan/VulkanResourceView.h"
 #include "RenderVulkan/VulkanDevice.h"
+#include "RenderVulkan/VulkanResourceView.h"
 
 SPtr<FrameBuffer> FrameBuffer::Create()
 {
@@ -9,7 +9,7 @@ SPtr<FrameBuffer> FrameBuffer::Create()
 
 VulkanFrameBuffer::~VulkanFrameBuffer()
 {
-    if(renderPass != VK_NULL_HANDLE)
+    if (renderPass != VK_NULL_HANDLE)
     {
         if (gVulkanDevice)
         {
@@ -36,11 +36,11 @@ void VulkanFrameBuffer::Apply()
     FrameBuffer::Apply();
 
     CreateRenderPass();
-    desc.renderPass = (void*)renderPass;
+    desc.renderPass = (void *)renderPass;
 
     Array<VkImageView> imageViews;
     int32 arrayLayers = -1;
-    for(int32 i = 0; i < colorAttachments.Count(); ++i)
+    for (int32 i = 0; i < colorAttachments.Count(); ++i)
     {
         auto rtv = GetRtv(i);
         const auto &viewInfo = rtv->GetViewInfo();
@@ -49,7 +49,7 @@ void VulkanFrameBuffer::Apply()
         imageViews.Add(std::static_pointer_cast<VulkanImageView>(rtv)->GetHandle());
     }
 
-    if(desc.hasDepthStencil)
+    if (desc.hasDepthStencil)
     {
         auto dsv = GetDsv();
         const auto &viewInfo = dsv->GetViewInfo();
@@ -80,7 +80,7 @@ void VulkanFrameBuffer::CreateRenderPass()
     Array<VkSubpassDescription> subpassDescs;
     Array<VkSubpassDependency> subpassDeps;
 
-    for(int32 i = 0; i < desc.colors.Count(); ++i)
+    for (int32 i = 0; i < desc.colors.Count(); ++i)
     {
         auto &attach = desc.colors[i];
         VkAttachmentDescription attachDesc = {};
@@ -101,7 +101,7 @@ void VulkanFrameBuffer::CreateRenderPass()
         colorAttachmentRefs.Add(attachRef);
     }
 
-    if(hasDepth)
+    if (hasDepth)
     {
         auto &attach = desc.depthStencil;
         VkAttachmentDescription attachDesc = {};

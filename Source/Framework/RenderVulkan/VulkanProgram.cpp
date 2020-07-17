@@ -1,7 +1,7 @@
 #include "RenderVulkan/VulkanProgram.h"
-#include "RenderVulkan/VulkanDevice.h"
-#include "RenderVulkan/Private/VulkanShaderCompiler.h"
 #include "IO/FileHandle.h"
+#include "RenderVulkan/Private/VulkanShaderCompiler.h"
+#include "RenderVulkan/VulkanDevice.h"
 
 static ShaderType GetShaderType(const String &str)
 {
@@ -70,7 +70,7 @@ SPtr<Program> Program::Create(const String &path, const ProgramDefines &defines,
                 break;
             }
         }
-        desc.shaderDescs.Add({shaderType, shaderSrc});
+        desc.shaderDescs.Add({ shaderType, shaderSrc });
         return !eof;
     };
 
@@ -85,7 +85,8 @@ SPtr<ProgramKernel> ProgramKernel::Create(const ProgramDesc &desc)
     return Memory::MakeShared<VulkanProgramKernel>(desc);
 }
 
-VulkanProgramKernel::VulkanProgramKernel(const ProgramDesc &desc) : ProgramKernel(desc)
+VulkanProgramKernel::VulkanProgramKernel(const ProgramDesc &desc)
+    : ProgramKernel(desc)
 {
     auto CreateShaderModule = [this](ShaderType shaderType, const Array<uchar8> &code) {
         VkShaderModuleCreateInfo createInfo = {};
@@ -97,7 +98,7 @@ VulkanProgramKernel::VulkanProgramKernel(const ProgramDesc &desc) : ProgramKerne
         if (vkCreateShaderModule(gVulkanDevice->GetLogicalDeviceHandle(), &createInfo, gVulkanAlloc, &shaderModule) != VK_SUCCESS)
             CT_EXCEPTION(RenderCore, "Create shader module failed.");
 
-        this->shaderDatas.Add({shaderType, shaderModule});
+        this->shaderDatas.Add({ shaderType, shaderModule });
     };
 
     ProgramReflectionBuilder builder;

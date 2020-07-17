@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Application/Window.h"
 #include "Application/Desktop/DesktopInput.h"
+#include "Application/Window.h"
 #include <GLFW/glfw3.h>
 
 class DesktopWindow : public Window

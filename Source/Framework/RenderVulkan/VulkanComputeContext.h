@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderVulkan/VulkanCopyContext.h"
 #include "RenderCore/ComputeContext.h"
+#include "RenderVulkan/VulkanCopyContext.h"
 
 class VulkanComputeContextImpl : public VulkanCopyContextImpl
 {
@@ -12,7 +12,7 @@ public:
     void Dispatch(ComputeState *state, ComputeVars *vars, const Vector3U &size);
     void DispatchIndirect(ComputeState *state, ComputeVars *vars, const Buffer *argBuffer, uint32 argBufferOffset);
     void ClearUav(const ResourceView *uav, const Vector4 &value);
-    void ClearUav(const ResourceView *uav, const Vector4U &value) ;
+    void ClearUav(const ResourceView *uav, const Vector4U &value);
     void ClearUavCounter(const Buffer *buffer, uint32 value);
 
 protected:
@@ -27,7 +27,8 @@ protected:
 class VulkanComputeContext : public ComputeContext
 {
 public:
-    VulkanComputeContext(const SPtr<GpuQueue> &queue) : impl(queue, this)
+    VulkanComputeContext(const SPtr<GpuQueue> &queue)
+        : impl(queue, this)
     {
     }
 
@@ -105,7 +106,7 @@ public:
     {
         impl.DispatchIndirect(state, vars, argBuffer, argBufferOffset);
     }
-    
+
     virtual void ClearUav(const ResourceView *uav, const Vector4 &value) override
     {
         impl.ClearUav(uav, value);

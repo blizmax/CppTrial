@@ -52,9 +52,9 @@ public:
     constexpr TupleImpl() = default;
 
     template <typename _T, typename... _Others>
-    requires sizeof...(Others) == sizeof...(_Others)
-    constexpr TupleImpl(_T &&head, _Others &&... tail)
-        : head(std::forward<_T>(head)), TailType(std::forward<_Others>(tail)...)
+        requires sizeof...(Others) == sizeof...(_Others) constexpr TupleImpl(_T &&head, _Others &&... tail)
+        : head(std::forward<_T>(head)),
+    TailType(std::forward<_Others>(tail)...)
     {
     }
 
@@ -100,9 +100,9 @@ public:
     constexpr TupleImpl() = default;
 
     template <typename _T, typename... _Others>
-    requires sizeof...(Others) == sizeof...(_Others)
-    constexpr TupleImpl(_T &&head, _Others &&... tail)
-        : head(std::forward<_T>(head)), tail(std::forward<_Others>(tail)...)
+        requires sizeof...(Others) == sizeof...(_Others) constexpr TupleImpl(_T &&head, _Others &&... tail)
+        : head(std::forward<_T>(head)),
+    tail(std::forward<_Others>(tail)...)
     {
     }
 
@@ -156,7 +156,7 @@ constexpr decltype(auto) Get(TupleInternal::TupleImpl<_Index, _T, _Others...> &t
 template <typename... Types>
 class Tuple : public TupleInternal::TupleImpl<0, Types...>
 {
-public:    
+public:
     constexpr Tuple() = default;
 
     template <typename... Args>
@@ -166,13 +166,13 @@ public:
     }
 
     template <SizeType Index>
-    constexpr typename std::tuple_element<Index, Tuple<Types...>>::type& get()
+    constexpr typename std::tuple_element<Index, Tuple<Types...>>::type &get()
     {
         return TupleInternal::Get<Index, 0, Types...>(*this);
     }
 
     template <SizeType Index>
-    constexpr const typename std::tuple_element<Index, Tuple<Types...>>::type& get() const
+    constexpr const typename std::tuple_element<Index, Tuple<Types...>>::type &get() const
     {
         return TupleInternal::Get<Index, 0, Types...>(*this);
     }

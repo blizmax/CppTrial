@@ -75,35 +75,35 @@ MeshData MeshGenerator::CreateBox(float width, float height, float depth, int32 
     float d2 = 0.5f * depth;
 
     // Front
-    v[0] = {-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-    v[1] = {-w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-    v[2] = {+w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f};
-    v[3] = {+w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f};
+    v[0] = { -w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f };
+    v[1] = { -w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+    v[2] = { +w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f };
+    v[3] = { +w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f };
     // Back
-    v[4] = {-w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f};
-    v[5] = {+w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-    v[6] = {+w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-    v[7] = {-w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f};
+    v[4] = { -w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f };
+    v[5] = { +w2, -h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f };
+    v[6] = { +w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+    v[7] = { -w2, +h2, +d2, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f };
     // Top
-    v[8] = {-w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-    v[9] = {-w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-    v[10] = {+w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f};
-    v[11] = {+w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f};
+    v[8] = { -w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f };
+    v[9] = { -w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+    v[10] = { +w2, +h2, +d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f };
+    v[11] = { +w2, +h2, -d2, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f };
     // Bottom
-    v[12] = {-w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f};
-    v[13] = {+w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-    v[14] = {+w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-    v[15] = {-w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f};
+    v[12] = { -w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f };
+    v[13] = { +w2, -h2, -d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f };
+    v[14] = { +w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+    v[15] = { -w2, -h2, +d2, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f };
     // Left
-    v[16] = {-w2, -h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f};
-    v[17] = {-w2, +h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f};
-    v[18] = {-w2, +h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f};
-    v[19] = {-w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f};
+    v[16] = { -w2, -h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f };
+    v[17] = { -w2, +h2, +d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f };
+    v[18] = { -w2, +h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f };
+    v[19] = { -w2, -h2, -d2, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f };
     // Right
-    v[20] = {+w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f};
-    v[21] = {+w2, +h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f};
-    v[22] = {+w2, +h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f};
-    v[23] = {+w2, -h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f};
+    v[20] = { +w2, -h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f };
+    v[21] = { +w2, +h2, -d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f };
+    v[22] = { +w2, +h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f };
+    v[23] = { +w2, -h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f };
 
     // Front
     i[0] = 0;
@@ -163,24 +163,26 @@ MeshData MeshGenerator::CreateSphere(float radius, int32 subdivisions)
     const float Z = 0.850651f;
 
     Vector3 pos[12] = {
-        {-X, 0.0f, Z},
-        {X, 0.0f, Z},
-        {-X, 0.0f, -Z},
-        {X, 0.0f, -Z},
-        {0.0f, Z, X},
-        {0.0f, Z, -X},
-        {0.0f, -Z, X},
-        {0.0f, -Z, -X},
-        {Z, X, 0.0f},
-        {-Z, X, 0.0f},
-        {Z, -X, 0.0f},
-        {-Z, -X, 0.0f}};
+        { -X, 0.0f, Z },
+        { X, 0.0f, Z },
+        { -X, 0.0f, -Z },
+        { X, 0.0f, -Z },
+        { 0.0f, Z, X },
+        { 0.0f, Z, -X },
+        { 0.0f, -Z, X },
+        { 0.0f, -Z, -X },
+        { Z, X, 0.0f },
+        { -Z, X, 0.0f },
+        { Z, -X, 0.0f },
+        { -Z, -X, 0.0f }
+    };
 
     uint32 k[60] = {
         1, 4, 0, 4, 9, 0, 4, 5, 9, 8, 5, 4, 1, 8, 4,
         1, 10, 8, 10, 3, 8, 8, 3, 5, 3, 2, 5, 3, 7, 2,
         3, 10, 7, 10, 6, 7, 6, 11, 7, 6, 0, 11, 6, 1, 0,
-        10, 1, 6, 11, 0, 9, 2, 11, 9, 5, 2, 9, 11, 2, 7};
+        10, 1, 6, 11, 0, 9, 2, 11, 9, 5, 2, 9, 11, 2, 7
+    };
 
     meshData.vertices.SetCount(12);
     meshData.indices.SetCount(60);
@@ -193,7 +195,7 @@ MeshData MeshGenerator::CreateSphere(float radius, int32 subdivisions)
     subdivisions = subdivisions > 6 ? 6 : subdivisions;
     for (int32 s = 0; s < subdivisions; ++s)
         Subdivide(meshData);
-    
+
     for (int32 i = 0; i < meshData.vertices.Count(); ++i)
     {
         Vector3 n = Vector3(meshData.vertices[i].position).Normalize();
@@ -203,7 +205,8 @@ MeshData MeshGenerator::CreateSphere(float radius, int32 subdivisions)
         meshData.vertices[i].normal = n;
 
         float theta = Math::Atan2(meshData.vertices[i].position.z, meshData.vertices[i].position.x);
-        if (theta < 0.0f) theta += Math::TWO_PI;
+        if (theta < 0.0f)
+            theta += Math::TWO_PI;
         float phi = Math::Acos(meshData.vertices[i].normal.y);
 
         meshData.vertices[i].uv.x = theta / Math::TWO_PI;

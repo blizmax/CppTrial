@@ -28,7 +28,8 @@ public:
     int32 width;
     int32 height;
 
-    WindowResizedEvent(int32 width, int32 height) : width(width), height(height)
+    WindowResizedEvent(int32 width, int32 height)
+        : width(width), height(height)
     {
     }
 
@@ -104,11 +105,13 @@ public:
     static constexpr WindowEventType eventType = WindowEventType::FilesDropped;
     Array<String> paths;
 
-    FilesDroppedEvent(const Array<String> &paths) : paths(paths)
+    FilesDroppedEvent(const Array<String> &paths)
+        : paths(paths)
     {
     }
 
-    FilesDroppedEvent(Array<String> &&paths) : paths(std::move(paths))
+    FilesDroppedEvent(Array<String> &&paths)
+        : paths(std::move(paths))
     {
     }
 

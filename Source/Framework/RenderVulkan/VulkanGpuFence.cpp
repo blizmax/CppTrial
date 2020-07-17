@@ -1,7 +1,7 @@
 #include "RenderVulkan/VulkanGpuFence.h"
-#include "RenderVulkan/VulkanGpuQueue.h"
-#include "RenderVulkan/VulkanDevice.h"
 #include "Core/Math.h"
+#include "RenderVulkan/VulkanDevice.h"
+#include "RenderVulkan/VulkanGpuQueue.h"
 
 SPtr<GpuFence> GpuFence::Create()
 {
@@ -26,7 +26,8 @@ uint64 VulkanGpuFence::GpuSignal(const GpuQueue *queue)
         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+    };
 
     cpuValue++;
     auto &fence = GetVulkanFence();
@@ -76,7 +77,7 @@ void VulkanGpuFence::SyncGpu(const GpuQueue *queue)
 void VulkanGpuFence::SyncCpu(uint64 val)
 {
     val = val > cpuValue - 1 ? cpuValue - 1 : val;
-    if(GetGpuValue() >= val)
+    if (GetGpuValue() >= val)
         return;
 
     if (activeFences.IsEmpty())

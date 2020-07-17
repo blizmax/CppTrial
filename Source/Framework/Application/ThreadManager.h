@@ -27,7 +27,7 @@ public:
     }
 
 private:
-    AsyncTaskScheduler taskScheduler{static_cast<int32>(Thread::HardwareConcurrency())};
+    AsyncTaskScheduler taskScheduler{ static_cast<int32>(Thread::HardwareConcurrency()) };
 };
 
 extern ThreadManager *gThreadManager;

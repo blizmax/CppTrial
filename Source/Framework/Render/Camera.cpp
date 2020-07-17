@@ -19,7 +19,7 @@ void Camera::CalculateParameters() const
 {
     if (!dirty)
         return;
-    
+
     dirty = false;
 
     const float fovY = data.focalLength == 0.0f ? 0.0f : FocalLengthToFov(data.focalLength, data.frameHeight);

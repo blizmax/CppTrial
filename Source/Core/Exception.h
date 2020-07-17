@@ -1,17 +1,19 @@
 #pragma once
 
 #include "Core/.Package.h"
-#include "Core/String.h"
 #include "Core/Logger.h"
+#include "Core/String.h"
 
 class Exception
 {
 public:
-    Exception(const String &tag, const String &msg) : tag(tag), what(msg)
+    Exception(const String &tag, const String &msg)
+        : tag(tag), what(msg)
     {
     }
 
-    Exception(const String &tag, const String &msg, const CharType *file, int32 line) : tag(tag), what(msg)
+    Exception(const String &tag, const String &msg, const CharType *file, int32 line)
+        : tag(tag), what(msg)
     {
         where = String(file) + CT_TEXT(":") + StringConvert::ToString(line);
     }
@@ -40,9 +42,9 @@ protected:
 
 #define __CT_EXCEPTION_INNER(file) CT_TEXT(file)
 
-#define CT_EXCEPTION(tag, msg)                                                            \
-    {                                                                                \
+#define CT_EXCEPTION(tag, msg)                                            \
+    {                                                                     \
         Exception e(#tag, msg, __CT_EXCEPTION_INNER(__FILE__), __LINE__); \
-        CT_LOG(Fatal, e.ToString());                                                 \
-        CT_DEBUG_BREAK();                                                            \
+        CT_LOG(Fatal, e.ToString());                                      \
+        CT_DEBUG_BREAK();                                                 \
     }

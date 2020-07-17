@@ -10,11 +10,13 @@ class QualifiedType
 public:
     QualifiedType() = default;
 
-    QualifiedType(const Type *type) : type(type)
+    QualifiedType(const Type *type)
+        : type(type)
     {
     }
 
-    QualifiedType(const QualifiedType &other, bool isPointer, bool isConst, bool isVolatile, bool isLVRef, bool isRVRef) : type(other.type), mask(other.mask), pointerCount(other.pointerCount)
+    QualifiedType(const QualifiedType &other, bool isPointer, bool isConst, bool isVolatile, bool isLVRef, bool isRVRef)
+        : type(other.type), mask(other.mask), pointerCount(other.pointerCount)
     {
         if (isPointer)
             ++pointerCount;
@@ -277,4 +279,4 @@ CT_INLINE QualifiedType GetQualifiedType()
     return QualifiedTypeTraits<T>::GetType();
 }
 
-} // namespace Reflection
+}

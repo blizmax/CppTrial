@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Reflection/.Package.h"
-#include "Reflection/ParamInfo.h"
 #include "Reflection/Constructor.h"
-#include "Reflection/Property.h"
-#include "Reflection/Method.h"
 #include "Reflection/Enum.h"
+#include "Reflection/Method.h"
+#include "Reflection/ParamInfo.h"
+#include "Reflection/Property.h"
 
 namespace Reflection
 {
@@ -17,8 +17,9 @@ class Enum;
 
 class Type : public MetaBase
 {
-    template<typename T>
+    template <typename T>
     friend class TypeRegistrar;
+
 public:
     Type(const Name &name, Type *baseType, SizeType size)
         : MetaBase(name), baseType(baseType), size(size)
@@ -30,7 +31,7 @@ public:
     {
     }
 
-    explicit Type(Enum* e);
+    explicit Type(Enum *e);
 
     bool IsEnum() const
     {
@@ -106,7 +107,7 @@ public:
     Method *GetMethod(const Name &name, const Array<QualifiedType> &typeList) const;
     Enum *GetEnum() const;
 
-    template<typename T>
+    template <typename T>
     static Type *GetType()
     {
         return TypeOf<T>();
@@ -132,4 +133,4 @@ protected:
     Enum *innerEnum = nullptr;
 };
 
-} // namespace Reflection
+}

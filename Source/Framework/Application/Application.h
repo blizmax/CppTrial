@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Application/.Package.h"
-#include "Application/Window.h"
-#include "Application/Logic.h"
-#include "Application/Input.h"
 #include "Application/Clipboard.h"
+#include "Application/Input.h"
+#include "Application/Logic.h"
+#include "Application/Window.h"
 
 class Application
 {
@@ -38,7 +38,7 @@ public:
     float GetDeltaTime() const
     {
         return deltaTime;
-    }  
+    }
 
     Window &GetWindow()
     {

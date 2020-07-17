@@ -36,9 +36,9 @@ void Registry::UnregisterType(Type *type)
     typeMap.Remove(type->GetName());
 }
 
-Type *Registry::GetTypeByName(const Name& name)
+Type *Registry::GetTypeByName(const Name &name)
 {
-    if(typeMap.Contains(name))
+    if (typeMap.Contains(name))
     {
         return typeMap[name];
     }
@@ -56,7 +56,7 @@ void Registry::PopulateType(Type *type)
 void Registry::PopulateAllTypes()
 {
 #if !(CT_REFLECTION_AUTO_POPULATE)
-    for (auto& e : populatorMap)
+    for (auto &e : populatorMap)
     {
         e.Value()->Populate();
     }
@@ -73,4 +73,4 @@ bool Registry::RegisterPopulator(const Name &name, ITypePopulator *populator)
     return false;
 }
 
-} // namespace Reflection
+}

@@ -80,5 +80,4 @@ public:
 
 private:
     Array<SPtr<VertexBufferLayout>> bufferLayouts;
-
 };

@@ -9,7 +9,7 @@ namespace Hash
 
 template <typename T>
 requires std::integral<T>
-CT_INLINE HashType HashValue(T value)
+    CT_INLINE HashType HashValue(T value)
 {
     if constexpr (sizeof(T) <= sizeof(HashType))
     {
@@ -46,8 +46,7 @@ CT_INLINE HashType HashValue(double value)
 }
 
 template <typename T>
-requires std::same_as<T, char8> || std::same_as<T, char16> || std::same_as<T, char32> || std::same_as<T, wchar>
-CT_INLINE HashType HashValue(const T *ptr)
+    requires std::same_as<T, char8> || std::same_as<T, char16> || std::same_as<T, char32> || std::same_as<T, wchar> CT_INLINE HashType HashValue(const T *ptr)
 {
     HashType seed = 131;
     HashType hash = 0;
@@ -65,7 +64,13 @@ CT_INLINE HashType HashValue(T *ptr)
 }
 
 template <typename T>
-requires requires(const T &a) { {a.HashCode()} -> std::same_as<HashType>;}
+requires requires(const T &a)
+{
+    {
+        a.HashCode()
+    }
+    ->std::same_as<HashType>;
+}
 CT_INLINE HashType HashValue(const T &value)
 {
     return value.HashCode();

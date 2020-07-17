@@ -2,5 +2,5 @@
 
 namespace Test
 {
-    void TestMath();
+void TestMath();
 }

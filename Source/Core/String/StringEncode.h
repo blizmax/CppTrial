@@ -40,7 +40,7 @@ CT_INLINE int32 UTF8ToUTF32(const char8 *start, const char8 *end, char32 *output
     if (start + byteNum > end)
         return 0;
 
-    constexpr uint32 OFFSETS[6] = {0x00000000, 0x00003080, 0x000E2080, 0x03C82080, 0xFA082080, 0x82082080};
+    constexpr uint32 OFFSETS[6] = { 0x00000000, 0x00003080, 0x000E2080, 0x03C82080, 0xFA082080, 0x82082080 };
     char32 temp = 0;
     int32 pos = 0;
 
@@ -64,7 +64,7 @@ CT_INLINE int32 UTF32ToUTF8(const char32 *start, char8 *output)
     if (input >= 0xD800 && input <= 0xDBFF)
         return 0;
 
-    constexpr uint8 HEADERS[7] = {0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC};
+    constexpr uint8 HEADERS[7] = { 0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
     int32 byteNum = 0;
 
     if (input < 0x80)
@@ -170,7 +170,7 @@ CT_INLINE int32 UTF32ToWide(const char32 *start, wchar *output)
         return 1;
     }
 
-    char16 buffer[2] = {0};
+    char16 buffer[2] = { 0 };
     int32 count = UTF32ToUTF16(start, buffer);
     if (count > 0)
         output[0] = (wchar)buffer[0];
@@ -188,7 +188,7 @@ public:
         int32 pos = 0;
         int32 count;
         char32 charUTF32;
-        wchar buffer[2] = {0};
+        wchar buffer[2] = { 0 };
         String str;
 
         while (true)
@@ -225,7 +225,7 @@ public:
         int32 count;
         const CharType *cstr = value.CStr();
         char32 charUTF32;
-        char8 buffer[6] = {0};
+        char8 buffer[6] = { 0 };
 
         while (true)
         {

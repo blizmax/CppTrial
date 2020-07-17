@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Core/String.h"
-#include "Core/Logger.h"
 #include "Core/Exception.h"
 #include "Core/Flags.h"
+#include "Core/Logger.h"
+#include "Core/String.h"
 #include "Math/Color.h"
+#include "Math/IntVector.h"
 #include "Math/Vector2.h"
 #include "Math/Vector3.h"
 #include "Math/Vector4.h"
-#include "Math/IntVector.h"
 
 enum class ResourceType
 {
@@ -45,8 +45,7 @@ enum class ResourceState
     NonPixelShader,
 };
 
-CT_DECL_FLAGS(ResourceBind)
-{
+CT_DECL_FLAGS(ResourceBind){
     None = 0,
     Vertex = 1 << 0,
     Index = 1 << 1,
@@ -93,8 +92,7 @@ enum class ShaderType
     Count,
 };
 
-CT_DECL_FLAGS(ShaderVisibility)
-{
+CT_DECL_FLAGS(ShaderVisibility){
     None = 0,
     Vertex = (1 << (int32)ShaderType::Vertex),
     Pixel = (1 << (int32)ShaderType::Pixel),
@@ -281,7 +279,7 @@ enum class ResourceFormat
 
     BGRA8Unorm,
     BGRA8UnormSrgb,
-    
+
     BGRX8Unorm,
     BGRX8UnormSrgb,
     Alpha8Unorm,
@@ -296,7 +294,7 @@ enum class ResourceFormat
 
     // Compressed
     BC1Unorm,
-    BC1UnormSrgb, 
+    BC1UnormSrgb,
     BC2Unorm,
     BC2UnormSrgb,
     BC3Unorm,
@@ -332,8 +330,7 @@ struct Scissor
     uint32 height;
 };
 
-CT_DECL_FLAGS(GraphicsStateBind)
-{
+CT_DECL_FLAGS(GraphicsStateBind){
     None = 0,
     Vars = 1 << 0,
     PrimitiveTopology = 1 << 1,
@@ -372,7 +369,7 @@ struct ResourceFormatDesc
         bool isStencil;
         bool isCompressed;
     };
-    struct 
+    struct
     {
         uint32 width;
         uint32 height;

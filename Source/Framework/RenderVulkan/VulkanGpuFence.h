@@ -1,8 +1,8 @@
 #pragma once
 
-#include "RenderVulkan/VulkanSync.h"
-#include "RenderCore/GpuFence.h"
 #include "Core/List.h"
+#include "RenderCore/GpuFence.h"
+#include "RenderVulkan/VulkanSync.h"
 
 class VulkanGpuFence : public GpuFence
 {

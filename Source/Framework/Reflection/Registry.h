@@ -14,11 +14,13 @@ struct MetaData
 {
     Name name;
     String value;
-    MetaData(const Name &name, const String &value) : name(name), value(value)
+    MetaData(const Name &name, const String &value)
+        : name(name), value(value)
     {
     }
 
-    MetaData(const Name &name, String &&value) : name(name), value(std::move(value))
+    MetaData(const Name &name, String &&value)
+        : name(name), value(std::move(value))
     {
     }
 
@@ -34,15 +36,18 @@ struct Parameter
     Name name;
     Any value;
 
-    Parameter(uint32 index, const Name &name) : index(index), name(name)
+    Parameter(uint32 index, const Name &name)
+        : index(index), name(name)
     {
     }
 
-    Parameter(uint32 index, const Name &name, const Any &value) : index(index), name(name), value(value)
+    Parameter(uint32 index, const Name &name, const Any &value)
+        : index(index), name(name), value(value)
     {
     }
 
-    Parameter(uint32 index, const Name &name, Any &&value) : index(index), name(name), value(std::move(value))
+    Parameter(uint32 index, const Name &name, Any &&value)
+        : index(index), name(name), value(std::move(value))
     {
     }
 
@@ -74,7 +79,8 @@ struct EnumValue
     Enum::Element element;
 
     template <typename T>
-    EnumValue(const Name &name, T value) : element(name, static_cast<int64>(value))
+    EnumValue(const Name &name, T value)
+        : element(name, static_cast<int64>(value))
     {
     }
 };
@@ -226,8 +232,9 @@ public:
     bool RegisterType(Type *type);
     bool RegisterPopulator(const Name &name, ITypePopulator *populator);
     void PopulateAllTypes();
+
 private:
-    void UnregisterType(Type *type);    
+    void UnregisterType(Type *type);
     void PopulateType(Type *type);
 
 private:
@@ -339,4 +346,4 @@ private:
 
 #define CT_ENUM_DEFINE(ENUM_) CT_TYPE_DEFINE(ENUM_)
 
-} // namespace Reflection
+}

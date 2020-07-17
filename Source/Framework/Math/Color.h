@@ -21,7 +21,8 @@ public:
     Color(const Color &) = default;
     Color &operator=(const Color &) = default;
 
-    Color(float r, float g, float b, float a = 1.0f) : r(r), g(g), b(b), a(a)
+    Color(float r, float g, float b, float a = 1.0f)
+        : r(r), g(g), b(b), a(a)
     {
     }
 

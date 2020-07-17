@@ -25,13 +25,15 @@ public:
         Callable callable;
         bool alive;
 
-        InnerData(const Callable &func) : alive(true)
+        InnerData(const Callable &func)
+            : alive(true)
         {
             callable = func;
         }
 
         template <typename ObjectType>
-        InnerData(const MemberFunc<ObjectType> &func, ObjectType *obj) : alive(true)
+        InnerData(const MemberFunc<ObjectType> &func, ObjectType *obj)
+            : alive(true)
         {
             using namespace std::placeholders;
 
@@ -75,7 +77,8 @@ public:
         Handle &operator=(Handle &&) = default;
         ~Handle() = default;
 
-        Handle(const SPtr<InnerData> &data) : data(data)
+        Handle(const SPtr<InnerData> &data)
+            : data(data)
         {
         }
 

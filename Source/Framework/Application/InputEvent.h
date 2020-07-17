@@ -170,7 +170,8 @@ public:
     static constexpr InputEventType eventType = InputEventType::KeyTyped;
     wchar character;
 
-    KeyTypedEvent(wchar character) : character(character)
+    KeyTypedEvent(wchar character)
+        : character(character)
     {
     }
 
@@ -197,7 +198,8 @@ public:
     int32 key;
     bool repeat;
 
-    KeyDownEvent(int32 key, bool repeat) : key(key), repeat(repeat)
+    KeyDownEvent(int32 key, bool repeat)
+        : key(key), repeat(repeat)
     {
     }
 
@@ -223,7 +225,8 @@ public:
     static constexpr InputEventType eventType = InputEventType::KeyUp;
     int32 key;
 
-    KeyUpEvent(int32 key) : key(key)
+    KeyUpEvent(int32 key)
+        : key(key)
     {
     }
 
@@ -251,7 +254,8 @@ public:
     int32 y;
     int32 button;
 
-    TouchDownEvent(int32 x, int32 y, int32 button) : x(x), y(y), button(button)
+    TouchDownEvent(int32 x, int32 y, int32 button)
+        : x(x), y(y), button(button)
     {
     }
 
@@ -279,7 +283,8 @@ public:
     int32 y;
     int32 button;
 
-    TouchUpEvent(int32 x, int32 y, int32 button) : x(x), y(y), button(button)
+    TouchUpEvent(int32 x, int32 y, int32 button)
+        : x(x), y(y), button(button)
     {
     }
 
@@ -306,7 +311,8 @@ public:
     int32 x;
     int32 y;
 
-    MouseMovedEvent(int32 x, int32 y) : x(x), y(y)
+    MouseMovedEvent(int32 x, int32 y)
+        : x(x), y(y)
     {
     }
 
@@ -332,7 +338,8 @@ public:
     static constexpr InputEventType eventType = InputEventType::MouseScrolled;
     int32 amount;
 
-    MouseScrolledEvent(int32 amount) : amount(amount)
+    MouseScrolledEvent(int32 amount)
+        : amount(amount)
     {
     }
 

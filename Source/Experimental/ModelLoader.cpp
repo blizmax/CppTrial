@@ -1,12 +1,12 @@
+#include "Application/Application.h"
 #include "Core/String.h"
 #include "IO/FileHandle.h"
-#include "RenderCore/RenderAPI.h"
-#include "Application/Application.h"
-#include "Render/RenderManager.h"
-#include "Render/Importers/TextureImporter.h"
-#include "Render/Importers/SceneImporter.h"
 #include "Render/CameraController.h"
+#include "Render/Importers/SceneImporter.h"
+#include "Render/Importers/TextureImporter.h"
 #include "Render/MeshGenerator.h"
+#include "Render/RenderManager.h"
+#include "RenderCore/RenderAPI.h"
 
 class Renderer
 {
@@ -70,8 +70,8 @@ public:
             ifs >> indices[i * 3] >> indices[i * 3 + 1] >> indices[i * 3 + 2];
         }
 
-        float t = (Time::MilliTime() - ts) / 1000.0f; 
-        CT_LOG(Debug, CT_TEXT("Load model end, total used time:{0}, vertexCount:{1}, triangleCount:{2}"), t, vertexCount, triangleCount);  
+        float t = (Time::MilliTime() - ts) / 1000.0f;
+        CT_LOG(Debug, CT_TEXT("Load model end, total used time:{0}, vertexCount:{1}, triangleCount:{2}"), t, vertexCount, triangleCount);
     }
 
     void LoadModel()
@@ -108,10 +108,9 @@ public:
 
         state = GraphicsState::Create();
 
-        auto vertexBufferLayout = VertexBufferLayout::Create({
-            {CT_TEXT("VertexPosition"), ResourceFormat::RGB32Float},
-            {CT_TEXT("VertexNormal"), ResourceFormat::RGB32Float}
-        });
+        auto vertexBufferLayout = VertexBufferLayout::Create(
+            { { CT_TEXT("VertexPosition"), ResourceFormat::RGB32Float },
+              { CT_TEXT("VertexNormal"), ResourceFormat::RGB32Float } });
         auto vertexLayout = VertexLayout::Create();
         vertexLayout->AddBufferLayout(vertexBufferLayout);
 
@@ -147,7 +146,6 @@ public:
         state->SetRasterizationState(rasterizationState);
         state->SetDepthStencilState(depthStencilState);
         state->SetBlendState(blendState);
-
     }
 
     void Render(RenderContext *ctx, const SPtr<FrameBuffer> &fbo)

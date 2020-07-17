@@ -4,7 +4,7 @@
 
 class FontGenerator::Impl
 {
-public:    
+public:
     FT_Library library;
     FT_Face face;
 
@@ -31,7 +31,7 @@ public:
     void SetPixelSizes(uint32 width, uint32 height)
     {
         FT_Error err = FT_Set_Pixel_Sizes(face, width, height);
-        if(err)
+        if (err)
         {
             CT_EXCEPTION(Render, "Set pixel size failed.");
         }
@@ -46,16 +46,16 @@ public:
         FT_Int32 loadFlags; //TODO set flags
         FT_Render_Mode renderMode = FT_LOAD_TARGET_MODE(loadFlags);
 
-        for(CharType c : options.characters)
+        for (CharType c : options.characters)
         {
             err = FT_Load_Char(face, (FT_ULong)c, loadFlags);
-            if(err)
+            if (err)
             {
                 CT_EXCEPTION(Render, "Load char failed");
             }
 
             FT_Render_Glyph(face->glyph, renderMode);
-            if(err)
+            if (err)
             {
                 CT_EXCEPTION(Render, "Render glyph failed");
             }

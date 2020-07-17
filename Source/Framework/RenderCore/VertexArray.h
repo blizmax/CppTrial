@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderCore/VertexLayout.h"
 #include "RenderCore/Buffer.h"
+#include "RenderCore/VertexLayout.h"
 
 class VertexArray
 {

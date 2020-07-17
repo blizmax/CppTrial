@@ -4,7 +4,8 @@
 namespace Reflection
 {
 
-Type::Type(Enum* e) : MetaBase(e->GetName()), innerEnum(e)
+Type::Type(Enum *e)
+    : MetaBase(e->GetName()), innerEnum(e)
 {
 }
 
@@ -130,4 +131,4 @@ Type *Type::GetType(const Name &name)
     return Registry::GetInstance()->GetTypeByName(name);
 }
 
-} // namespace Reflection
+}

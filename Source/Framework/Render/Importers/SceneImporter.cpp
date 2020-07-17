@@ -1,9 +1,9 @@
 #include "Render/Importers/SceneImporter.h"
-#include "Render/Importers/TextureImporter.h"
 #include "Core/HashMap.h"
+#include "Render/Importers/TextureImporter.h"
 #include <assimp/Importer.hpp>
-#include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/scene.h>
 
 namespace
 {
@@ -23,11 +23,11 @@ struct TextureMapping
 };
 
 static const Array<TextureMapping> textureMappings = {
-    {aiTextureType_DIFFUSE, TextureType::BaseColor},
-    {aiTextureType_SPECULAR, TextureType::Specular},
-    {aiTextureType_EMISSIVE, TextureType::Emissive},
-    {aiTextureType_NORMALS, TextureType::Normal},
-    {aiTextureType_AMBIENT, TextureType::Occlusion},
+    { aiTextureType_DIFFUSE, TextureType::BaseColor },
+    { aiTextureType_SPECULAR, TextureType::Specular },
+    { aiTextureType_EMISSIVE, TextureType::Emissive },
+    { aiTextureType_NORMALS, TextureType::Normal },
+    { aiTextureType_AMBIENT, TextureType::Occlusion },
 };
 
 String ToString(const aiString &aStr)

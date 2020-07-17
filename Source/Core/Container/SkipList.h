@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Container/.Package.h"
 #include "Core/Allocator.h"
+#include "Core/Container/.Package.h"
 #include "Core/Math.h"
 
 namespace SkipListInternal
@@ -16,17 +16,20 @@ public:
     Node **forward;
     int32 level = 0;
 
-    Node(int32 level) : level(level)
+    Node(int32 level)
+        : level(level)
     {
         Init();
     }
 
-    Node(const Element &element, int32 level) : element(element), level(level)
+    Node(const Element &element, int32 level)
+        : element(element), level(level)
     {
         Init();
     }
 
-    Node(Element &&element, int32 level) : element(std::move(element)), level(level)
+    Node(Element &&element, int32 level)
+        : element(std::move(element)), level(level)
     {
         Init();
     }
@@ -79,7 +82,8 @@ public:
         }
     }
 
-    SkipList(SkipList &&other) noexcept : count(other.count), level(other.level), head(other.head)
+    SkipList(SkipList &&other) noexcept
+        : count(other.count), level(other.level), head(other.head)
     {
         other.count = 0;
         other.level = 0;
@@ -312,11 +316,13 @@ public:
         NodeType *node;
 
     public:
-        Iterator(NodeType *node) : node(node)
+        Iterator(NodeType *node)
+            : node(node)
         {
         }
 
-        Iterator(const Iterator &other) : node(other.node)
+        Iterator(const Iterator &other)
+            : node(other.node)
         {
         }
 
@@ -360,11 +366,13 @@ public:
         NodeType *node;
 
     public:
-        ConstIterator(NodeType *node) : node(node)
+        ConstIterator(NodeType *node)
+            : node(node)
         {
         }
 
-        ConstIterator(const ConstIterator &other) : node(other.node)
+        ConstIterator(const ConstIterator &other)
+            : node(other.node)
         {
         }
 

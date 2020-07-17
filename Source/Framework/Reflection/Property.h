@@ -121,4 +121,4 @@ private:
     PropertyType *property;
 };
 
-} // namespace Reflection
+}

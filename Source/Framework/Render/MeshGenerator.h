@@ -27,7 +27,7 @@ class MeshGenerator
 public:
     MeshData CreateBox(float width, float height, float depth, int32 subdivisions);
     MeshData CreateSphere(float radius, int32 subdivisions);
-   
+
 private:
     void Subdivide(MeshData &meshData);
 };

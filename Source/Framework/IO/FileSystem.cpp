@@ -145,8 +145,10 @@ bool IO::FileSystem::Iterate(const String &path, std::function<void(const String
 Array<String> IO::FileSystem::List(const String &path, bool recursive)
 {
     Array<String> ret;
-    Iterate(path, [&ret](const String &p) {
-        ret.Add(p);
-    }, recursive);
+    Iterate(
+        path, [&ret](const String &p) {
+            ret.Add(p);
+        },
+        recursive);
     return ret;
 }

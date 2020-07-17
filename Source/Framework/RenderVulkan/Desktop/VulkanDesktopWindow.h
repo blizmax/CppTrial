@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderVulkan/VulkanRenderWindow.h"
 #include "Application/Desktop/DesktopWindow.h"
+#include "RenderVulkan/VulkanRenderWindow.h"
 
 class VulkanDesktopWindow : public DesktopWindow, public VulkanRenderWindow
 {

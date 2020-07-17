@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/Program.h"
+#include "RenderVulkan/VulkanMemory.h"
 
 class VulkanProgramKernel : public ProgramKernel
 {
@@ -17,9 +17,9 @@ public:
 
     VkShaderModule GetShaderModuleHandle(ShaderType shaderType) const
     {
-        for(const auto &e : shaderDatas)
+        for (const auto &e : shaderDatas)
         {
-            if(e.shaderType == shaderType)
+            if (e.shaderType == shaderType)
                 return e.module;
         }
         return VK_NULL_HANDLE;

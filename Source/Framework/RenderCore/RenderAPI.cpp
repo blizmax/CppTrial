@@ -22,7 +22,7 @@ namespace
 
 struct InternalCache
 {
-    SPtr<Sampler> defaultSampler;    
+    SPtr<Sampler> defaultSampler;
 };
 
 InternalCache cache;

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Render/.Package.h"
 #include "Application/.Package.h"
-#include "Utils/Module.h"
+#include "Render/.Package.h"
 #include "RenderCore/RenderAPI.h"
+#include "Utils/Module.h"
 
 class RenderManager : public Module
 {
@@ -14,7 +14,7 @@ public:
     virtual void Startup() override;
     virtual void Shutdown() override;
     virtual void Tick() override;
-    
+
     void Present();
     RenderContext *GetRenderContext() const;
 

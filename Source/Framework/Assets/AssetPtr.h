@@ -12,7 +12,8 @@ public:
         SPtr<T> ptr;
 
         InnerData() = default;
-        InnerData(const SPtr<T> &ptr) : ptr(ptr)
+        InnerData(const SPtr<T> &ptr)
+            : ptr(ptr)
         {
         }
 
@@ -32,7 +33,9 @@ public:
 
     AssetPtr(AssetPtr &&) noexcept = default;
     AssetPtr &operator=(AssetPtr &&) noexcept = default;
-    AssetPtr(std::nullptr_t) {}
+    AssetPtr(std::nullptr_t)
+    {
+    }
 
     AssetPtr(const AssetPtr &other)
     {

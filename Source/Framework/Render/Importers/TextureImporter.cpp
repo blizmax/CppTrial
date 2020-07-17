@@ -2,7 +2,11 @@
 #include "IO/FileHandle.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#define STBI_ASSERT(x) do {CT_CHECK(x)} while(0)
+#define STBI_ASSERT(x) \
+    do                 \
+    {                  \
+        CT_CHECK(x)    \
+    } while (0)
 #include <stb_image.h>
 
 namespace

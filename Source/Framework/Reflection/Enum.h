@@ -60,4 +60,4 @@ protected:
     Array<Element> elements;
 };
 
-} // namespace Reflection
+}

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Container/.Package.h"
 #include "Core/Allocator.h"
+#include "Core/Container/.Package.h"
 #include "Core/Math.h"
 
 template <typename Element, typename Hasher, typename KeyEqual, typename KeyTraits, template <typename> class Alloc>
@@ -37,7 +37,8 @@ public:
         }
     }
 
-    HashTable(const HashTable &other) : count(other.count), capacity(other.capacity), mask(other.mask)
+    HashTable(const HashTable &other)
+        : count(other.count), capacity(other.capacity), mask(other.mask)
     {
         if (capacity > 0)
         {
@@ -49,7 +50,8 @@ public:
         }
     }
 
-    HashTable(HashTable &&other) noexcept : count(other.count), capacity(other.capacity), mask(other.mask), data(other.data), indexData(other.indexData)
+    HashTable(HashTable &&other) noexcept
+        : count(other.count), capacity(other.capacity), mask(other.mask), data(other.data), indexData(other.indexData)
     {
         other.count = 0;
         other.capacity = 0;
@@ -340,15 +342,17 @@ public:
         }
 
     public:
-        Iterator(HashTable &table, int32 index) : table(table), index(index)
+        Iterator(HashTable &table, int32 index)
+            : table(table), index(index)
         {
-            if(index != INDEX_NONE)
+            if (index != INDEX_NONE)
             {
                 Step();
             }
         }
 
-        Iterator(const Iterator &other) : table(other.table), index(other.index)
+        Iterator(const Iterator &other)
+            : table(other.table), index(other.index)
         {
         }
 
@@ -416,15 +420,17 @@ public:
         }
 
     public:
-        ConstIterator(const HashTable &table, int32 index) : table(table), index(index)
+        ConstIterator(const HashTable &table, int32 index)
+            : table(table), index(index)
         {
-            if(index != INDEX_NONE)
+            if (index != INDEX_NONE)
             {
                 Step();
             }
         }
 
-        ConstIterator(const ConstIterator &other) : table(other.table), index(other.index)
+        ConstIterator(const ConstIterator &other)
+            : table(other.table), index(other.index)
         {
         }
 

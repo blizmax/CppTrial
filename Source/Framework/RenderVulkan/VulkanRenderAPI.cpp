@@ -1,6 +1,6 @@
 #include "RenderCore/RenderAPI.h"
-#include "RenderVulkan/VulkanDevice.h"
 #include "RenderVulkan/Private/VulkanShaderCompiler.h"
+#include "RenderVulkan/VulkanDevice.h"
 #include "Utils/DynamicLib.h"
 
 VkAllocationCallbacks *gVulkanAlloc = nullptr;
@@ -84,7 +84,7 @@ void RenderAPI::Init()
         if (CreateDebugUtilsMessengerEXT(gVulkanInstance, &messengerInfo, gVulkanAlloc, &debugMessenger) != VK_SUCCESS)
             CT_EXCEPTION(RenderCore, "Create debugger failed.");
     }
-    
+
     shaderCompilerLib.Load();
     auto CreateShaderCompiler = (CreateVulkanShaderCompilerFunc)shaderCompilerLib.GetSymbol(CT_TEXT("CreateVulkanShaderCompiler"));
     gVulkanShaderCompiler = CreateShaderCompiler();

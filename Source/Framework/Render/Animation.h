@@ -11,13 +11,14 @@ public:
     {
         AnimTimeType time = 0;
         Vector3 translation;
-        Vector3 scaling{1.0f, 1.0f, 1.0f};
+        Vector3 scaling{ 1.0f, 1.0f, 1.0f };
         Quat rotation;
     };
 
     struct Channel
     {
-        Channel(int32 matrixID) : matrixID(matrixID)
+        Channel(int32 matrixID)
+            : matrixID(matrixID)
         {
         }
 

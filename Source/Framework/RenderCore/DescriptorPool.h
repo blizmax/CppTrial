@@ -4,7 +4,7 @@
 
 struct DescriptorPoolDesc
 {
-    int32 descCount[(int32)DescriptorType::Count] = {0};
+    int32 descCount[(int32)DescriptorType::Count] = { 0 };
 };
 
 class DescriptorPool

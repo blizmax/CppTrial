@@ -1,6 +1,6 @@
 #include "RenderVulkan/VulkanCopyContext.h"
-#include "RenderVulkan/VulkanTexture.h"
 #include "RenderVulkan/VulkanBuffer.h"
+#include "RenderVulkan/VulkanTexture.h"
 
 static uint32 GetMipLevelPackedDataSize(const Texture *texture, int32 w, int32 h, int32 d, ResourceFormat format)
 {
@@ -30,8 +30,8 @@ SPtr<ReadTextureTask> ReadTextureTask::Create(CopyContext *ctx, const Texture *t
     copy.imageSubresource.baseArrayLayer = texture->GetSubresourceArraySlice(subresource);
     copy.imageSubresource.layerCount = 1;
     copy.imageSubresource.mipLevel = mipLevel;
-    copy.imageOffset = {0, 0, 0};
-    copy.imageExtent = {(uint32)w, (uint32)h, (uint32)d};
+    copy.imageOffset = { 0, 0, 0 };
+    copy.imageExtent = { (uint32)w, (uint32)h, (uint32)d };
     auto downloadBuffer = Buffer::Create(dataSize, ResourceBind::None, CpuAccess::Read, nullptr);
     copy.bufferOffset = downloadBuffer->GetOffset();
 
@@ -70,7 +70,7 @@ VulkanCopyContextImpl::~VulkanCopyContextImpl()
 
 void VulkanCopyContextImpl::Flush(bool wait)
 {
-    if(commandsPending)
+    if (commandsPending)
     {
         contextData->Flush();
         commandsPending = false;
@@ -80,7 +80,7 @@ void VulkanCopyContextImpl::Flush(bool wait)
         contextData->GetFence()->GpuSignal(contextData->GetQueue());
     }
 
-    if(wait)
+    if (wait)
     {
         contextData->GetFence()->SyncCpu();
     }
@@ -89,19 +89,17 @@ void VulkanCopyContextImpl::Flush(bool wait)
 bool VulkanCopyContextImpl::ResourceBarrier(const Resource *resource, ResourceState newState, const ResourceViewInfo *viewInfo)
 {
     const Texture *texture = dynamic_cast<const Texture *>(resource);
-    if(texture)
+    if (texture)
     {
         bool global = texture->IsStateGlobal();
-        if(!global && viewInfo)
+        if (!global && viewInfo)
         {
-            if(viewInfo->firstArraySlice == 0 && viewInfo->mostDetailedMip == 0
-                && viewInfo->arrayLayers == texture->GetArrayLayers()
-                && viewInfo->mipLevels == texture->GetMipLevels())
+            if (viewInfo->firstArraySlice == 0 && viewInfo->mostDetailedMip == 0 && viewInfo->arrayLayers == texture->GetArrayLayers() && viewInfo->mipLevels == texture->GetMipLevels())
             {
                 global = true;
             }
         }
-        if(global)
+        if (global)
         {
             return TextureBarrier(texture, newState);
         }
@@ -124,18 +122,18 @@ void VulkanCopyContextImpl::UavBarrier(const Resource *resource)
 
 void VulkanCopyContextImpl::CopyResource(const Resource *dst, const Resource *src)
 {
-    const Buffer* dstBuffer = dynamic_cast<const Buffer *>(dst);
+    const Buffer *dstBuffer = dynamic_cast<const Buffer *>(dst);
     if (dstBuffer)
     {
-        const Buffer* srcBuffer = dynamic_cast<const Buffer *>(src);
+        const Buffer *srcBuffer = dynamic_cast<const Buffer *>(src);
         CT_CHECK(srcBuffer);
         CT_CHECK(srcBuffer->GetSize() == dstBuffer->GetSize());
         CopyBufferRegion(dstBuffer, 0, srcBuffer, 0, srcBuffer->GetSize());
     }
     else
     {
-        const Texture* srcTex = dynamic_cast<const Texture*>(src);
-        const Texture* dstTex = dynamic_cast<const Texture*>(dst);
+        const Texture *srcTex = dynamic_cast<const Texture *>(src);
+        const Texture *dstTex = dynamic_cast<const Texture *>(dst);
         CT_CHECK(srcTex && dstTex);
         CT_CHECK(srcTex->GetArrayLayers() == dstTex->GetArrayLayers() && srcTex->GetMipLevels() == dstTex->GetMipLevels());
 
@@ -165,8 +163,8 @@ void VulkanCopyContextImpl::CopyResource(const Resource *dst, const Resource *sr
         auto srcHandle = static_cast<const VulkanTexture *>(src)->GetHandle();
         auto dstHandle = static_cast<const VulkanTexture *>(dst)->GetHandle();
         vkCmdCopyImage(contextData->GetCommandBufferHandle(),
-            srcHandle, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstHandle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, copies.Count(), copies.GetData());
-    
+                       srcHandle, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstHandle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, copies.Count(), copies.GetData());
+
         commandsPending = true;
     }
 }
@@ -215,7 +213,7 @@ void VulkanCopyContextImpl::CopySubresource(const Texture *dst, int32 dstSub, co
     auto srcHandle = static_cast<const VulkanTexture *>(src)->GetHandle();
     auto dstHandle = static_cast<const VulkanTexture *>(dst)->GetHandle();
     vkCmdCopyImage(contextData->GetCommandBufferHandle(),
-        srcHandle, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstHandle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+                   srcHandle, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstHandle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
 
     commandsPending = true;
 }
@@ -238,8 +236,8 @@ void VulkanCopyContextImpl::CopySubresourceRegion(const Texture *dst, int32 dstS
     copy.dstSubresource.aspectMask = dstAspect;
 
     int32 mipLevel = copy.srcSubresource.mipLevel;
-    copy.dstOffset = {dstOffset.x, dstOffset.y, dstOffset.z};
-    copy.srcOffset = {srcOffset.x, srcOffset.y, srcOffset.z};
+    copy.dstOffset = { dstOffset.x, dstOffset.y, dstOffset.z };
+    copy.srcOffset = { srcOffset.x, srcOffset.y, srcOffset.z };
     copy.extent.width = (size.x == -1) ? src->GetWidth(mipLevel) - srcOffset.x : size.x;
     copy.extent.height = (size.y == -1) ? src->GetHeight(mipLevel) - srcOffset.y : size.y;
     copy.extent.depth = (size.z == -1) ? src->GetDepth(mipLevel) - srcOffset.z : size.z;
@@ -248,7 +246,7 @@ void VulkanCopyContextImpl::CopySubresourceRegion(const Texture *dst, int32 dstS
     auto srcHandle = static_cast<const VulkanTexture *>(src)->GetHandle();
     auto dstHandle = static_cast<const VulkanTexture *>(dst)->GetHandle();
     vkCmdCopyImage(contextData->GetCommandBufferHandle(),
-        srcHandle, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstHandle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+                   srcHandle, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstHandle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
 
     commandsPending = true;
 }
@@ -258,9 +256,9 @@ void VulkanCopyContextImpl::UpdateBuffer(const Buffer *buffer, const void *data,
     uint32 bufferSize = buffer->GetSize();
     CT_CHECK(offset >= 0 && offset < bufferSize);
 
-    if(offset + size > bufferSize)
+    if (offset + size > bufferSize)
         size = bufferSize - offset;
-    if(size == 0)
+    if (size == 0)
         return;
 
     auto uploadBuffer = Buffer::Create(size, ResourceBind::None, CpuAccess::Write, data);
@@ -270,7 +268,7 @@ void VulkanCopyContextImpl::UpdateBuffer(const Buffer *buffer, const void *data,
 void VulkanCopyContextImpl::UpdateTexture(const Texture *texture, const void *data)
 {
     int32 subCount = texture->GetArrayLayers() * texture->GetMipLevels();
-    if(texture->GetResourceType() == ResourceType::TextureCube)
+    if (texture->GetResourceType() == ResourceType::TextureCube)
     {
         subCount *= 6;
     }
@@ -294,13 +292,13 @@ void VulkanCopyContextImpl::UpdateSubresource(const Texture *texture, int32 subr
     copy.imageSubresource.baseArrayLayer = texture->GetSubresourceArraySlice(subresource);
     copy.imageSubresource.layerCount = 1;
     copy.imageSubresource.mipLevel = mipLevel;
-    copy.imageOffset = {offset.x, offset.y, offset.z};
+    copy.imageOffset = { offset.x, offset.y, offset.z };
 
     copy.imageExtent.width = (size.x == -1) ? texture->GetWidth(mipLevel) - offset.x : size.x;
     copy.imageExtent.height = (size.y == -1) ? texture->GetHeight(mipLevel) - offset.y : size.y;
     copy.imageExtent.depth = (size.z == -1) ? texture->GetDepth(mipLevel) - offset.z : size.z;
     CT_CHECK(copy.imageExtent.width >= 0 && copy.imageExtent.height >= 0 && copy.imageExtent.depth >= 0);
-    
+
 
     auto uploadBuffer = Buffer::Create(dataSize, ResourceBind::None, CpuAccess::Write, data);
     copy.bufferOffset = uploadBuffer->GetOffset();
@@ -319,7 +317,7 @@ void VulkanCopyContextImpl::UpdateSubresources(const Texture *texture, int32 fir
 {
     CT_CHECK(!IsDepthStencilFormat(texture->GetResourceFormat()));
 
-    const uint8* dataSrc = static_cast<const uint8*>(data);
+    const uint8 *dataSrc = static_cast<const uint8 *>(data);
     for (int32 i = 0; i < subCount; ++i)
     {
         int32 subresource = i + firstSub;
@@ -336,7 +334,7 @@ void VulkanCopyContextImpl::UpdateSubresources(const Texture *texture, int32 fir
         copy.imageSubresource.baseArrayLayer = texture->GetSubresourceArraySlice(subresource);
         copy.imageSubresource.layerCount = 1;
         copy.imageSubresource.mipLevel = mipLevel;
-        copy.imageOffset = {0, 0, 0};
+        copy.imageOffset = { 0, 0, 0 };
         copy.imageExtent.width = w;
         copy.imageExtent.height = h;
         copy.imageExtent.depth = d;
@@ -349,7 +347,7 @@ void VulkanCopyContextImpl::UpdateSubresources(const Texture *texture, int32 fir
         auto srcHandle = static_cast<VulkanBuffer *>(uploadBuffer.get())->GetHandle();
         auto dstHandle = static_cast<const VulkanTexture *>(texture)->GetHandle();
         vkCmdCopyBufferToImage(contextData->GetCommandBufferHandle(), srcHandle, dstHandle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
-      
+
         dataSrc += dataSize;
     }
 
@@ -426,7 +424,7 @@ bool VulkanCopyContextImpl::SubresouceBarriers(const Texture *texture, ResourceS
 {
     ResourceViewInfo tempViewInfo;
     bool setGlobal = false;
-    if(viewInfo == nullptr)
+    if (viewInfo == nullptr)
     {
         tempViewInfo.arrayLayers = texture->GetArrayLayers();
         tempViewInfo.firstArraySlice = 0;
@@ -436,8 +434,7 @@ bool VulkanCopyContextImpl::SubresouceBarriers(const Texture *texture, ResourceS
         setGlobal = true;
     }
 
-    auto Barrier = [this](const Texture *texture, ResourceState newState, ResourceState oldState, int32 arraySlice, int32 mipLevel)
-    {
+    auto Barrier = [this](const Texture *texture, ResourceState newState, ResourceState oldState, int32 arraySlice, int32 mipLevel) {
         VkImageMemoryBarrier barrier = {};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
         barrier.newLayout = ToVkImageLayout(newState);
@@ -454,15 +451,15 @@ bool VulkanCopyContextImpl::SubresouceBarriers(const Texture *texture, ResourceS
     };
 
     bool entireTransitioned = true;
-    for(int32 a = viewInfo->firstArraySlice; a < viewInfo->firstArraySlice + viewInfo->arrayLayers; ++a)
+    for (int32 a = viewInfo->firstArraySlice; a < viewInfo->firstArraySlice + viewInfo->arrayLayers; ++a)
     {
-        for(int32 m = viewInfo->mostDetailedMip; m < viewInfo->mostDetailedMip + viewInfo->mipLevels; ++m)
+        for (int32 m = viewInfo->mostDetailedMip; m < viewInfo->mostDetailedMip + viewInfo->mipLevels; ++m)
         {
             auto oldState = texture->GetSubresourceState(a, m);
-            if(oldState != newState)
+            if (oldState != newState)
             {
                 Barrier(texture, newState, oldState, a, m);
-                if(!setGlobal)
+                if (!setGlobal)
                 {
                     texture->SetSubresourceState(a, m, newState);
                 }
@@ -475,7 +472,7 @@ bool VulkanCopyContextImpl::SubresouceBarriers(const Texture *texture, ResourceS
         }
     }
 
-    if(setGlobal)
+    if (setGlobal)
     {
         texture->SetGlobalState(newState);
     }

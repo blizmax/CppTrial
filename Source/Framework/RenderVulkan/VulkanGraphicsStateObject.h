@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/GraphicsStateObject.h"
+#include "RenderVulkan/VulkanMemory.h"
 
 class VulkanGraphicsStateObject : public GraphicsStateObject
 {

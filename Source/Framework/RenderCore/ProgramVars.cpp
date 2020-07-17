@@ -20,7 +20,7 @@ bool GraphicsVars::Apply(RenderContext *ctx, RootSignature *rootSignature)
 {
     if (!parameterBlock.PrepareDescriptorSets(ctx))
         return false;
-    
+
     auto &sets = parameterBlock.GetDescriptorSets();
     for (int32 i = 0; i < sets.Count(); ++i)
     {

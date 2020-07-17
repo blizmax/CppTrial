@@ -26,7 +26,7 @@ void GraphicsState::SetViewport(int32 index, const Viewport &viewport, bool setS
 
     if (setScissor)
     {
-        Scissor scissor = {(int32)viewport.x, (int32)viewport.y, (uint32)viewport.width, (uint32)viewport.height};
+        Scissor scissor = { (int32)viewport.x, (int32)viewport.y, (uint32)viewport.width, (uint32)viewport.height };
         SetScissor(index, scissor);
     }
 }
@@ -80,7 +80,7 @@ void GraphicsState::SetFrameBuffer(const SPtr<FrameBuffer> &fbo, bool setVp0Sc0)
     {
         int32 w = fbo->GetWidth();
         int32 h = fbo->GetHeight();
-        Viewport viewport = {0.0f, 0.0f, (float)w, (float)h, 0.0f, 1.0f};
+        Viewport viewport = { 0.0f, 0.0f, (float)w, (float)h, 0.0f, 1.0f };
         SetViewport(0, viewport, true);
     }
 }

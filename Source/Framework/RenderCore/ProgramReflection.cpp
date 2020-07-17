@@ -52,7 +52,7 @@ SPtr<ReflectionVar> ReflectionType::FindMember(const String &name) const
 
 SPtr<ReflectionVar> ReflectionStructType::GetMember(int32 index) const
 {
-    if(index >= 0 && index < members.Count())
+    if (index >= 0 && index < members.Count())
         return members[index];
     return nullptr;
 }
@@ -77,9 +77,9 @@ void ProgramReflection::Finalize()
     auto &bindingInfos = defaultBlockReflection->GetBindingInfos();
     auto &bindingRanges = defaultBlockReflection->GetElementType()->GetBindingRanges();
 
-    for(auto &setInfo : defaultBlockReflection->setInfos)
+    for (auto &setInfo : defaultBlockReflection->setInfos)
     {
-        if(setInfo.bindingIndices.Count() == 0)
+        if (setInfo.bindingIndices.Count() == 0)
             continue;
 
         DescriptorSetLayoutDesc desc;
@@ -98,7 +98,7 @@ void ProgramReflection::Finalize()
         {
             auto &info = bindingInfos[i];
             auto &range = bindingRanges[i];
-            desc.elements[info.binding] = {info.name, range.descriptorType, info.binding, range.count};
+            desc.elements[info.binding] = { info.name, range.descriptorType, info.binding, range.count };
         }
 
         auto layout = DescriptorSetLayout::Create(desc);

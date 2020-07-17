@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderVulkan/VulkanComputeContext.h"
 #include "RenderCore/RenderContext.h"
+#include "RenderVulkan/VulkanComputeContext.h"
 
 class VulkanRenderContextImpl : public VulkanComputeContextImpl
 {
@@ -49,7 +49,8 @@ protected:
 class VulkanRenderContext : public RenderContext
 {
 public:
-    VulkanRenderContext(const SPtr<GpuQueue> &queue) : impl(queue, this)
+    VulkanRenderContext(const SPtr<GpuQueue> &queue)
+        : impl(queue, this)
     {
     }
 
@@ -172,7 +173,7 @@ public:
     {
         impl.DrawInstanced(state, vars, vertexCount, instanceCount, firstVertex, firstInstance);
     }
-    
+
     virtual void DrawIndexed(GraphicsState *state, GraphicsVars *vars, int32 indexCount, int32 firstIndex, int32 vertexOffset) override
     {
         impl.DrawIndexed(state, vars, indexCount, firstIndex, vertexOffset);

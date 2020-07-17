@@ -9,8 +9,10 @@ namespace Reflection
 class ParamInfo : public MetaBase
 {
     friend struct Parameter;
+
 public:
-    ParamInfo(const QualifiedType &type, uint32 index) : type(type), index(index)
+    ParamInfo(const QualifiedType &type, uint32 index)
+        : type(type), index(index)
     {
     }
 
@@ -40,4 +42,4 @@ protected:
     Any defaultValue;
 };
 
-} // namespace Reflection
+}

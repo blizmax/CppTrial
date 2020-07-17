@@ -1,12 +1,13 @@
 #include "IO/FileStream.h"
 #include <filesystem>
 
-IO::FileStream::FileStream(const String &path, AccessMode accessMode, FileMode fileMode) : pathStr(path), accessMode(accessMode), fileMode(fileMode)
+IO::FileStream::FileStream(const String &path, AccessMode accessMode, FileMode fileMode)
+    : pathStr(path), accessMode(accessMode), fileMode(fileMode)
 {
 }
 
 //===============================================================================
-IO::FileInputStream::FileInputStream(const String &path) 
+IO::FileInputStream::FileInputStream(const String &path)
     : FileStream(path, AccessMode::Read, FileMode::None)
 {
     std::ios::openmode mode = std::ios::binary | std::ios::in;
@@ -46,9 +47,9 @@ void IO::FileInputStream::Close()
     fstream.close();
 }
 
-SizeType IO::FileInputStream::Read(void* buf, SizeType count)
+SizeType IO::FileInputStream::Read(void *buf, SizeType count)
 {
-    fstream.read(static_cast<char8*>(buf), static_cast<std::streamsize>(count));
+    fstream.read(static_cast<char8 *>(buf), static_cast<std::streamsize>(count));
     return static_cast<SizeType>(fstream.gcount());
 }
 
@@ -73,11 +74,11 @@ String IO::FileInputStream::ReadString()
 
 //===============================================================================
 
-IO::FileOutputStream::FileOutputStream(const String &path, FileMode fileMode) 
+IO::FileOutputStream::FileOutputStream(const String &path, FileMode fileMode)
     : FileStream(path, AccessMode::Write, fileMode)
 {
     std::ios::openmode mode = std::ios::binary | std::ios::out;
-    if(fileMode == FileMode::Append)
+    if (fileMode == FileMode::Append)
     {
         mode |= std::ios::app;
     }
@@ -121,18 +122,18 @@ void IO::FileOutputStream::Close()
     fstream.close();
 }
 
-SizeType IO::FileOutputStream::Write(const void* buf, SizeType count)
+SizeType IO::FileOutputStream::Write(const void *buf, SizeType count)
 {
-    fstream.write(static_cast<const char8*>(buf), static_cast<std::streamsize>(count));
+    fstream.write(static_cast<const char8 *>(buf), static_cast<std::streamsize>(count));
     return count;
 }
 
-void IO::FileOutputStream::WriteBytes(const Array<uint8>& bytes)
+void IO::FileOutputStream::WriteBytes(const Array<uint8> &bytes)
 {
     Write(bytes.GetData(), bytes.Count());
 }
 
-void IO::FileOutputStream::WriteString(const String& str)
+void IO::FileOutputStream::WriteString(const String &str)
 {
     auto arr = StringEncode::UTF8::ToBytes(str);
     Write(arr.GetData(), arr.Count());

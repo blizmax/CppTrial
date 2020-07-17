@@ -1,12 +1,12 @@
 #pragma once
 
-#include "RenderCore/Resource.h"
-#include "RenderCore/RenderWindow.h"
+#include "Core/List.h"
+#include "RenderCore/DescriptorPool.h"
+#include "RenderCore/FrameBuffer.h"
 #include "RenderCore/GpuFence.h"
 #include "RenderCore/RenderContext.h"
-#include "RenderCore/FrameBuffer.h"
-#include "RenderCore/DescriptorPool.h"
-#include "Core/List.h"
+#include "RenderCore/RenderWindow.h"
+#include "RenderCore/Resource.h"
 
 using ReleaseFunc = std::function<void(void)>;
 
@@ -21,12 +21,12 @@ public:
 
     void AddReleaseData(const ReleaseFunc &func, uint64 fenceValue)
     {
-        releaseDatas.Add({fenceValue, func});
+        releaseDatas.Add({ fenceValue, func });
     }
 
     void Release(uint64 fenceValue)
     {
-        while(releaseDatas.Count() && releaseDatas.First().fenceValue <= fenceValue)
+        while (releaseDatas.Count() && releaseDatas.First().fenceValue <= fenceValue)
         {
             releaseDatas.First().releaseFunc();
             releaseDatas.RemoveFirst();

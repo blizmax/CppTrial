@@ -11,7 +11,8 @@ public:
 
     Sphere() = default;
 
-    Sphere(const Vector3 &center, float radius) : center(center), radius(radius)
+    Sphere(const Vector3 &center, float radius)
+        : center(center), radius(radius)
     {
     }
 

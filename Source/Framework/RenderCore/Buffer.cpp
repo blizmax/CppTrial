@@ -17,7 +17,7 @@ SPtr<Buffer> Buffer::CreateStructured(uint32 structSize, int32 count, ResourceBi
     buffer->structSize = structSize;
 
     const uint32 zeroVal = 0;
-    if(createCounter)
+    if (createCounter)
     {
         buffer->uavCounter = Create(sizeof(uint32), ResourceBind::UnorderedAccess, CpuAccess::None, &zeroVal);
     }

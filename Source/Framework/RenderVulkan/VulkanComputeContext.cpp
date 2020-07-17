@@ -10,7 +10,6 @@ SPtr<ComputeContext> ComputeContext::Create(const SPtr<GpuQueue> &queue)
 VulkanComputeContextImpl::VulkanComputeContextImpl(const SPtr<GpuQueue> &queue, ComputeContext *ctx)
     : VulkanCopyContextImpl(queue, ctx), computeContext(ctx)
 {
-
 }
 
 VulkanComputeContextImpl::~VulkanComputeContextImpl()
@@ -19,15 +18,15 @@ VulkanComputeContextImpl::~VulkanComputeContextImpl()
 
 void VulkanComputeContextImpl::Dispatch(ComputeState *state, ComputeVars *vars, const Vector3U &size)
 {
-    if(PrepareForDispatch(state, vars) == false)
+    if (PrepareForDispatch(state, vars) == false)
         return;
-    
+
     vkCmdDispatch(contextData->GetCommandBufferHandle(), size.x, size.y, size.z);
 }
 
 void VulkanComputeContextImpl::DispatchIndirect(ComputeState *state, ComputeVars *vars, const Buffer *argBuffer, uint32 argBufferOffset)
 {
-    if(PrepareForDispatch(state, vars) == false)
+    if (PrepareForDispatch(state, vars) == false)
         return;
 
     ResourceBarrier(argBuffer, ResourceState::IndirectArg, nullptr);
@@ -44,7 +43,7 @@ void VulkanComputeContextImpl::ClearUav(const ResourceView *uav, const Vector4 &
 void VulkanComputeContextImpl::ClearUav(const ResourceView *uav, const Vector4U &value)
 {
     auto vkBuffer = dynamic_cast<const VulkanBuffer *>(uav->GetResource());
-    if(vkBuffer)
+    if (vkBuffer)
     {
         vkCmdFillBuffer(contextData->GetCommandBufferHandle(), vkBuffer->GetHandle(), vkBuffer->GetOffset(), vkBuffer->GetSize(), value.x);
     }
@@ -59,9 +58,9 @@ void VulkanComputeContextImpl::ClearUav(const ResourceView *uav, const Vector4U 
 void VulkanComputeContextImpl::ClearUavCounter(const Buffer *buffer, uint32 value)
 {
     auto uavCounter = buffer->GetUavCounter();
-    if(uavCounter)
+    if (uavCounter)
     {
-        Vector4U uvec{value, 0, 0, 0};
+        Vector4U uvec{ value, 0, 0, 0 };
         ClearUav(uavCounter->GetUav().get(), uvec);
     }
 }
@@ -79,7 +78,7 @@ void VulkanComputeContextImpl::ClearColorImage(const ResourceView *view, float v
     colVal.float32[3] = v3;
 
     VkImageSubresourceRange range = {};
-    const auto& viewInfo = view->GetViewInfo();
+    const auto &viewInfo = view->GetViewInfo();
     range.baseArrayLayer = viewInfo.firstArraySlice;
     range.baseMipLevel = viewInfo.mostDetailedMip;
     range.layerCount = viewInfo.arrayLayers;
@@ -102,7 +101,7 @@ void VulkanComputeContextImpl::ClearColorImage(const ResourceView *view, uint32 
     colVal.uint32[3] = v3;
 
     VkImageSubresourceRange range = {};
-    const auto& viewInfo = view->GetViewInfo();
+    const auto &viewInfo = view->GetViewInfo();
     range.baseArrayLayer = viewInfo.firstArraySlice;
     range.baseMipLevel = viewInfo.mostDetailedMip;
     range.layerCount = viewInfo.arrayLayers;

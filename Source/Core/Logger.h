@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Core/.Package.h"
+#include "Core/Delegate.h"
 #include "Core/String.h"
 #include "Core/Time.h"
-#include "Core/Delegate.h"
 #include <iostream>
 
 enum class LogLevel

@@ -13,11 +13,13 @@ public:
     IntVector2(const IntVector2 &) = default;
     IntVector2 &operator=(const IntVector2 &) = default;
 
-    IntVector2(T x, T y) : x(x), y(y)
+    IntVector2(T x, T y)
+        : x(x), y(y)
     {
     }
 
-    IntVector2(T v) : x(v), y(v)
+    IntVector2(T v)
+        : x(v), y(v)
     {
     }
 
@@ -46,11 +48,13 @@ public:
     IntVector3(const IntVector3 &) = default;
     IntVector3 &operator=(const IntVector3 &) = default;
 
-    IntVector3(T x, T y, T z) : x(x), y(y), z(z)
+    IntVector3(T x, T y, T z)
+        : x(x), y(y), z(z)
     {
     }
 
-    IntVector3(T v) : x(v), y(v), z(v)
+    IntVector3(T v)
+        : x(v), y(v), z(v)
     {
     }
 
@@ -80,11 +84,13 @@ public:
     IntVector4(const IntVector4 &) = default;
     IntVector4 &operator=(const IntVector4 &) = default;
 
-    IntVector4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w)
+    IntVector4(T x, T y, T z, T w)
+        : x(x), y(y), z(z), w(w)
     {
     }
 
-    IntVector4(T v) : x(v), y(v), z(v), w(v)
+    IntVector4(T v)
+        : x(v), y(v), z(v), w(v)
     {
     }
 

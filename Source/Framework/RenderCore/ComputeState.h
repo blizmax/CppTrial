@@ -5,6 +5,6 @@
 
 class ComputeState
 {
-public:    
+public:
     //TODO
 };

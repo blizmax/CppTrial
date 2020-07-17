@@ -9,7 +9,8 @@ template <typename T>
 class Node
 {
 public:
-    Node(const T &val) : value(val), prev(nullptr), next(nullptr)
+    Node(const T &val)
+        : value(val), prev(nullptr), next(nullptr)
     {
     }
 
@@ -453,7 +454,8 @@ public:
         }
 
     public:
-        Iterator(NodeType *node) : current(node)
+        Iterator(NodeType *node)
+            : current(node)
         {
         }
 
@@ -507,7 +509,8 @@ public:
         }
 
     public:
-        ConstIterator(NodeType *node) : current(node)
+        ConstIterator(NodeType *node)
+            : current(node)
         {
         }
 

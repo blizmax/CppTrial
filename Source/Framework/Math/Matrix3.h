@@ -13,12 +13,12 @@ public:
     Matrix3 &operator=(const Matrix3 &) = default;
 
     Matrix3()
-        : v{{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}
+        : v{ { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
     {
     }
 
     Matrix3(float n00, float n01, float n02, float n10, float n11, float n12, float n20, float n21, float n22)
-        : v{{n00, n10, n20}, {n01, n11, n21}, {n02, n12, n22}}
+        : v{ { n00, n10, n20 }, { n01, n11, n21 }, { n02, n12, n22 } }
     {
     }
 

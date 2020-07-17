@@ -26,12 +26,7 @@ struct ResourceViewInfo
 
     bool operator==(const ResourceViewInfo &other) const
     {
-        return firstElement == other.firstElement
-            && elementCount == other.elementCount
-            && mostDetailedMip == other.mostDetailedMip
-            && mipLevels == other.mipLevels
-            && firstArraySlice == other.firstArraySlice
-            && arrayLayers == other.arrayLayers;
+        return firstElement == other.firstElement && elementCount == other.elementCount && mostDetailedMip == other.mostDetailedMip && mipLevels == other.mipLevels && firstArraySlice == other.firstArraySlice && arrayLayers == other.arrayLayers;
     }
 };
 
@@ -39,7 +34,7 @@ class ResourceView
 {
 public:
     ResourceView(const WPtr<Resource> &resource, int32 firstElement, int32 elementCount)
-        :resource(resource), viewInfo(firstElement, elementCount)
+        : resource(resource), viewInfo(firstElement, elementCount)
     {
     }
 

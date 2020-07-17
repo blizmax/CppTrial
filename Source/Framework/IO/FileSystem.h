@@ -26,11 +26,11 @@ public:
 
     static bool Copy(const String &from, const String &to, bool overwriteExisting = false);
 
-    static bool Rename(const String &oldPath, const String& newPath);
+    static bool Rename(const String &oldPath, const String &newPath);
 
     static uint64 GetFileSize(const String &path);
 
-    static int64 GetLastModifiedTime(const String& path);
+    static int64 GetLastModifiedTime(const String &path);
 
     static String GetCurrentPath();
 
@@ -45,4 +45,4 @@ public:
     static bool Iterate(const String &path, std::function<void(const String &path)> callback, bool recursive = true);
 };
 
-} // namespace IO
+}

@@ -1,8 +1,8 @@
+#include "Application/Application.h"
 #include "Core/String.h"
 #include "IO/FileHandle.h"
-#include "RenderCore/RenderAPI.h"
-#include "Application/Application.h"
 #include "Render/RenderManager.h"
+#include "RenderCore/RenderAPI.h"
 
 class ShaderReflection : public Logic
 {

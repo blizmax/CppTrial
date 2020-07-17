@@ -21,9 +21,9 @@ struct SamplerDesc
 class Sampler
 {
 public:
-    Sampler(const SamplerDesc &desc) : desc(desc)
+    Sampler(const SamplerDesc &desc)
+        : desc(desc)
     {
-
     }
 
     virtual ~Sampler() = default;
@@ -37,5 +37,5 @@ public:
     static SPtr<Sampler> GetDefault();
 
 protected:
-    SamplerDesc desc;    
+    SamplerDesc desc;
 };

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Core/.Package.h"
-#include "Core/String.h"
 #include "Core/Hash.h"
 #include "Core/Math.h"
+#include "Core/String.h"
 
 class Vector2;
 class Vector3;

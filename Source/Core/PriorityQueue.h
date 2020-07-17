@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Core/Container/.Package.h"
-#include "Core/Array.h"
 #include "Core/Algorithm.h"
+#include "Core/Array.h"
+#include "Core/Container/.Package.h"
 
 template <typename Element, typename InnerContainer = Array<Element>, typename Compare = Less<Element>>
 class PriorityQueue

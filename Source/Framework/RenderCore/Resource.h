@@ -72,5 +72,4 @@ protected:
     ResourceBindFlags bindFlags = 0;
     mutable StateData stateData;
     uint32 size = 0;
-
 };

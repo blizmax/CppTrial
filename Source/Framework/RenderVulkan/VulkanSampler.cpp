@@ -27,15 +27,15 @@ VulkanSampler::VulkanSampler(const SamplerDesc &desc)
     samplerInfo.borderColor = ToVkBorderColor(desc.borderColor);
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
 
-    if(vkCreateSampler(gVulkanDevice->GetLogicalDeviceHandle(), &samplerInfo, gVulkanAlloc, &sampler) != VK_SUCCESS)
+    if (vkCreateSampler(gVulkanDevice->GetLogicalDeviceHandle(), &samplerInfo, gVulkanAlloc, &sampler) != VK_SUCCESS)
         CT_EXCEPTION(RenderCore, "Create sampler failed.");
 }
 
 VulkanSampler::~VulkanSampler()
 {
-    if(sampler != VK_NULL_HANDLE)
+    if (sampler != VK_NULL_HANDLE)
     {
-        if(gVulkanDevice)
+        if (gVulkanDevice)
         {
             gVulkanDevice->Release([sampler = sampler]() {
                 vkDestroySampler(gVulkanDevice->GetLogicalDeviceHandle(), sampler, gVulkanAlloc);

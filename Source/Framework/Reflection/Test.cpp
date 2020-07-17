@@ -27,14 +27,14 @@ CT_TYPE_DEFINE(TestClass1)
         .AddConstructor<>()
         .AddConstructor<const String &>()(
             MetaData(CT_TEXT("Default Constructor"), CT_TEXT("")),
-            Parameter(0, {CT_TEXT("name")}))
+            Parameter(0, { CT_TEXT("name") }))
         .AddConstructor<const String &, int32>()
         .AddConstructor<const String &, int32, int32 *>()
         .AddProperty<String>(CT_TEXT("name"), &TestClass1::name)
         .AddProperty<int32>(CT_TEXT("num"), &TestClass1::num)
         .AddMethod<void>(CT_TEXT("Print"), &TestClass1::Print)
         .AddMethod<void, int32>(CT_TEXT("IncNum"), &TestClass1::IncNum)(
-            Parameter(0, {CT_TEXT("inc")}))
+            Parameter(0, { CT_TEXT("inc") }))
         .AddMethod<const String &>(CT_TEXT("GetName"), &TestClass1::GetName)
         .Apply();
 }

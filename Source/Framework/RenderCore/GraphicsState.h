@@ -1,10 +1,10 @@
 #pragma once
 
-#include "RenderCore/GraphicsStateObject.h"
 #include "RenderCore/FrameBuffer.h"
-#include "RenderCore/StateGraph.h"
+#include "RenderCore/GraphicsStateObject.h"
 #include "RenderCore/Program.h"
 #include "RenderCore/ProgramVars.h"
+#include "RenderCore/StateGraph.h"
 
 class GraphicsState
 {

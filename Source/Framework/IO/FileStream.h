@@ -22,20 +22,19 @@ public:
     };
 
 public:
-    FileStream(const FileStream&) = delete;
-    FileStream(FileStream&&) = delete;
-    FileStream& operator=(const FileStream&) = delete;
-    FileStream& operator=(FileStream&&) = delete;
+    FileStream(const FileStream &) = delete;
+    FileStream(FileStream &&) = delete;
+    FileStream &operator=(const FileStream &) = delete;
+    FileStream &operator=(FileStream &&) = delete;
 
     virtual ~FileStream() = default;
 
 protected:
     FileStream() = default;
 
-    explicit FileStream(const String& path, AccessMode accessMode, FileMode fileMode);
+    explicit FileStream(const String &path, AccessMode accessMode, FileMode fileMode);
 
 public:
-
     AccessMode GetAccessMode() const
     {
         return accessMode;
@@ -77,15 +76,15 @@ protected:
 class FileInputStream : public FileStream
 {
 public:
-    explicit FileInputStream(const String& path);
-    
+    explicit FileInputStream(const String &path);
+
     bool IsOpen() const override;
     bool IsEnd() const override;
     SizeType Tell() override;
     void Seek(SizeType pos) override;
     void Close() override;
 
-    SizeType Read(void* buf, SizeType count);
+    SizeType Read(void *buf, SizeType count);
     Array<uint8> ReadBytes();
     String ReadString();
 
@@ -103,17 +102,17 @@ protected:
 class FileOutputStream : public FileStream
 {
 public:
-    explicit FileOutputStream(const String& path, FileMode fileMode = FileMode::Truncate);
-    
+    explicit FileOutputStream(const String &path, FileMode fileMode = FileMode::Truncate);
+
     bool IsOpen() const override;
     bool IsEnd() const override;
     SizeType Tell() override;
     void Seek(SizeType pos) override;
     void Close() override;
 
-    SizeType Write(const void* buf, SizeType count);
-    void WriteBytes(const Array<uint8>& bytes);
-    void WriteString(const String& str);
+    SizeType Write(const void *buf, SizeType count);
+    void WriteBytes(const Array<uint8> &bytes);
+    void WriteString(const String &str);
 
 protected:
     std::ofstream fstream;

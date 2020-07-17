@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderVulkan/VulkanMemory.h"
 #include "RenderCore/Buffer.h"
+#include "RenderVulkan/VulkanMemory.h"
 
 class VulkanBuffer : public Buffer
 {
