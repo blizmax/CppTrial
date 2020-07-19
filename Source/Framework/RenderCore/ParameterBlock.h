@@ -84,10 +84,10 @@ public:
 
 protected:
     int32 GetFlatIndex(const ShaderVarLocation &location) const;
-    void CheckResourceLocation(const ShaderVarLocation &location) const;
-    void CheckDescriptorType(const ShaderVarLocation &location, DescriptorType descriptorType) const;
-    void CheckDescriptorSrv(const ShaderVarLocation &location, const ResourceView *view) const;
-    void CheckDescriptorUav(const ShaderVarLocation &location, const ResourceView *view) const;
+    bool CheckResourceLocation(const ShaderVarLocation &location) const;
+    bool CheckDescriptorType(const ShaderVarLocation &location, DescriptorType descriptorType) const;
+    bool CheckDescriptorSrv(const ShaderVarLocation &location, const ResourceView *view) const;
+    bool CheckDescriptorUav(const ShaderVarLocation &location, const ResourceView *view) const;
     bool IsBufferVarValid(const ShaderVar &var, const Buffer *buffer) const;
     bool IsTextureVarValid(const ShaderVar &var, const Texture *texture) const;
     bool IsSamplerVarValid(const ShaderVar &var, const Sampler *sampler) const;
@@ -96,8 +96,8 @@ protected:
     void MarkDescriptorSetDirty(int32 setIndex);
     void MarkUniformDataDirty();
 
-    Resource *GetResourceSrvUavCommon(const ShaderVarLocation &location) const;
-    bool SetResourceSrvUavCommon(const ShaderVarLocation &location, const SPtr<Resource> &resource);
+    Resource *GetResourceSrvUavCommon(const ShaderVarLocation &location, bool isTexture) const;
+    bool SetResourceSrvUavCommon(const ShaderVarLocation &location, const SPtr<Resource> &resource, bool isTexture);
 
     void CreateParameterBlocks(const ShaderVar &var);
     void UpdateConstantBuffer();

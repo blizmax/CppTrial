@@ -1,6 +1,9 @@
 #include "RenderCore/ParameterBlock.h"
 #include "RenderCore/RenderAPI.h"
 
+#define LOG_WRN_RESOURCE_LOCATION(f, t) CT_LOG(Warning, CT_TEXT("ParameterBlock {0} {1} out of index."), CT_TEXT(#f), CT_TEXT(#t))
+#define LOG_WRN_DESCRIPTOR_TYPE(f, t) CT_LOG(Warning, CT_TEXT("ParameterBlock {0} {1} mismatch descriptor type."), CT_TEXT(#f), CT_TEXT(#t))
+
 SPtr<ParameterBlock> ParameterBlock::Create(const SPtr<ParameterBlockReflection> &reflection)
 {
     return Memory::MakeShared<ParameterBlock>(reflection);
@@ -49,37 +52,48 @@ int32 ParameterBlock::GetFlatIndex(const ShaderVarLocation &location) const
     return range.baseIndex + location.arrayIndex;
 }
 
-void ParameterBlock::CheckResourceLocation(const ShaderVarLocation &location) const
+bool ParameterBlock::CheckResourceLocation(const ShaderVarLocation &location) const
 {
+    if (!location.IsValid())
+        return false;
     auto &elementType = GetElementType();
-    CT_CHECK(location.rangeIndex < elementType->GetBindingRangeCount());
+    if (location.rangeIndex >= elementType->GetBindingRangeCount())
+        return false;
     auto &range = elementType->GetBindingRange(location.rangeIndex);
-    CT_CHECK(location.arrayIndex < range.count);
+    if (location.arrayIndex >= range.count)
+        return false;
+    return true;
 }
 
-void ParameterBlock::CheckDescriptorType(const ShaderVarLocation &location, DescriptorType descriptorType) const
+bool ParameterBlock::CheckDescriptorType(const ShaderVarLocation &location, DescriptorType descriptorType) const
 {
     auto &elementType = GetElementType();
     auto &range = elementType->GetBindingRange(location.rangeIndex);
-    CT_CHECK(range.descriptorType == descriptorType);
+    if (range.descriptorType == descriptorType)
+        return true;
+    return false;
 }
 
-void ParameterBlock::CheckDescriptorSrv(const ShaderVarLocation &location, const ResourceView *view) const
+bool ParameterBlock::CheckDescriptorSrv(const ShaderVarLocation &location, const ResourceView *view) const
 {
     auto &elementType = GetElementType();
     auto &range = elementType->GetBindingRange(location.rangeIndex);
     auto descriptorType = range.descriptorType;
 
-    CT_CHECK(descriptorType == DescriptorType::TextureSrv || descriptorType == DescriptorType::RawBufferSrv || descriptorType == DescriptorType::TypedBufferSrv || descriptorType == DescriptorType::StructuredBufferSrv);
+    if (descriptorType == DescriptorType::TextureSrv || descriptorType == DescriptorType::RawBufferSrv || descriptorType == DescriptorType::TypedBufferSrv || descriptorType == DescriptorType::StructuredBufferSrv)
+        return true;
+    return false;
 }
 
-void ParameterBlock::CheckDescriptorUav(const ShaderVarLocation &location, const ResourceView *view) const
+bool ParameterBlock::CheckDescriptorUav(const ShaderVarLocation &location, const ResourceView *view) const
 {
     auto &elementType = GetElementType();
     auto &range = elementType->GetBindingRange(location.rangeIndex);
     auto descriptorType = range.descriptorType;
 
-    CT_CHECK(descriptorType == DescriptorType::TextureUav || descriptorType == DescriptorType::RawBufferUav || descriptorType == DescriptorType::TypedBufferUav || descriptorType == DescriptorType::StructuredBufferUav);
+    if (descriptorType == DescriptorType::TextureUav || descriptorType == DescriptorType::RawBufferUav || descriptorType == DescriptorType::TypedBufferUav || descriptorType == DescriptorType::StructuredBufferUav)
+        return true;
+    return false;
 }
 
 static const ReflectionResourceType *GetResourceType(const ShaderVar &var, const Resource *resource)
@@ -221,71 +235,113 @@ void ParameterBlock::MarkUniformDataDirty()
     MarkDescriptorSetDirty(reflection->GetConstantBufferBindingInfo().set);
 }
 
-static bool IsUav(const ReflectionResourceType *resourceType)
+static bool IsUavOrSrv(const ReflectionResourceType *resourceType, bool &isUav)
 {
-    CT_CHECK(resourceType);
-
-    CT_CHECK(resourceType->GetShaderResourceType() != ShaderResourceType::Sampler &&
-             resourceType->GetShaderResourceType() != ShaderResourceType::ConstantBuffer);
+    if (!resourceType)
+        return false;
+    if (resourceType->GetShaderResourceType() == ShaderResourceType::Sampler ||
+        resourceType->GetShaderResourceType() == ShaderResourceType::ConstantBuffer)
+        return false;
 
     CT_CHECK(resourceType->GetShaderAccess() != ShaderAccess::Undefined);
-    return resourceType->GetShaderAccess() == ShaderAccess::ReadWrite;
+    isUav = (resourceType->GetShaderAccess() == ShaderAccess::ReadWrite);
+    return true;
 }
 
-Resource *ParameterBlock::GetResourceSrvUavCommon(const ShaderVarLocation &location) const
+Resource *ParameterBlock::GetResourceSrvUavCommon(const ShaderVarLocation &location, bool isTexture) const
 {
-    CheckResourceLocation(location);
+    if (!CheckResourceLocation(location))
+    {
+        if (isTexture)
+            LOG_WRN_RESOURCE_LOCATION(get, texture);
+        else
+            LOG_WRN_RESOURCE_LOCATION(get, buffer);
+        return nullptr;
+    }
 
     auto resourceType = location.varType->UnwrapArray()->AsResource();
-    bool isUav = IsUav(resourceType);
-    auto flatIndex = GetFlatIndex(location);
+    bool isUav;
+    if (IsUavOrSrv(resourceType, isUav))
+    {
+        auto flatIndex = GetFlatIndex(location);
+        if (isUav)
+        {
+            if (CheckDescriptorUav(location, nullptr))
+            {
+                return uavs[flatIndex] ? uavs[flatIndex]->GetResource() : nullptr;
+            }
+        }
+        else
+        {
+            if (CheckDescriptorSrv(location, nullptr))
+            {
+                return srvs[flatIndex] ? srvs[flatIndex]->GetResource() : nullptr;
+            }
+        }
+    }
 
-    if (isUav)
-    {
-        CheckDescriptorUav(location, nullptr);
-        if (uavs[flatIndex])
-            return uavs[flatIndex]->GetResource();
-    }
+    if (isTexture)
+        LOG_WRN_DESCRIPTOR_TYPE(get, texture);
     else
-    {
-        CheckDescriptorSrv(location, nullptr);
-        if (srvs[flatIndex])
-            return srvs[flatIndex]->GetResource();
-    }
+        LOG_WRN_DESCRIPTOR_TYPE(get, buffer);
     return nullptr;
 }
 
-bool ParameterBlock::SetResourceSrvUavCommon(const ShaderVarLocation &location, const SPtr<Resource> &resource)
+bool ParameterBlock::SetResourceSrvUavCommon(const ShaderVarLocation &location, const SPtr<Resource> &resource, bool isTexture)
 {
-    CT_CHECK(resource);
-    CheckResourceLocation(location);
+    if (!CheckResourceLocation(location))
+    {
+        if (isTexture)
+            LOG_WRN_RESOURCE_LOCATION(set, texture);
+        else
+            LOG_WRN_RESOURCE_LOCATION(set, buffer);
+        return false;
+    }
 
     auto resourceType = location.varType->UnwrapArray()->AsResource();
-    bool isUav = IsUav(resourceType);
-    auto flatIndex = GetFlatIndex(location);
-    if (isUav)
+    bool isUav;
+    if (IsUavOrSrv(resourceType, isUav))
     {
-        auto uav = resource->GetUav();
-        if (!uav)
-            return false;
-        CheckDescriptorUav(location, uav.get());
-        if (uavs[flatIndex] == uav)
-            return true;
-        uavs[flatIndex] = uav;
-    }
-    else
-    {
-        auto srv = resource->GetSrv();
-        if (!srv)
-            return false;
-        CheckDescriptorSrv(location, srv.get());
-        if (srvs[flatIndex] == srv)
-            return true;
-        srvs[flatIndex] = srv;
+        auto flatIndex = GetFlatIndex(location);
+        if (isUav)
+        {
+            auto uav = resource->GetUav();
+            if (!uav)
+                return false;
+
+            if (CheckDescriptorUav(location, uav.get()))
+            {
+                if (uavs[flatIndex] != uav)
+                {
+                    uavs[flatIndex] = uav;
+                    MarkDescriptorSetDirty(location);
+                }
+                return true;
+            }
+        }
+        else
+        {
+            auto srv = resource->GetSrv();
+            if (!srv)
+                return false;
+
+            if (CheckDescriptorSrv(location, srv.get()))
+            {
+                if (srvs[flatIndex] != srv)
+                {
+                    srvs[flatIndex] = srv;
+                    MarkDescriptorSetDirty(location);
+                }
+                return true;
+            }
+        }
     }
 
-    MarkDescriptorSetDirty(location);
-    return true;
+    if (isTexture)
+        LOG_WRN_DESCRIPTOR_TYPE(set, texture);
+    else
+        LOG_WRN_DESCRIPTOR_TYPE(set, buffer);
+    return false;
 }
 
 ShaderVar ParameterBlock::GetRootVar() const
@@ -305,7 +361,7 @@ SPtr<Buffer> ParameterBlock::GetUnderlyingConstantBuffer() const
 
 SPtr<Buffer> ParameterBlock::GetBuffer(const ShaderVarLocation &location) const
 {
-    return GetResourceSrvUavCommon(location)->AsBuffer();
+    return GetResourceSrvUavCommon(location, false)->AsBuffer();
 }
 
 SPtr<Buffer> ParameterBlock::GetBuffer(const String &name) const
@@ -318,7 +374,7 @@ SPtr<Buffer> ParameterBlock::GetBuffer(const String &name) const
 
 SPtr<Texture> ParameterBlock::GetTexture(const ShaderVarLocation &location) const
 {
-    return GetResourceSrvUavCommon(location)->AsTexture();
+    return GetResourceSrvUavCommon(location, true)->AsTexture();
 }
 
 SPtr<Texture> ParameterBlock::GetTexture(const String &name) const
@@ -331,24 +387,54 @@ SPtr<Texture> ParameterBlock::GetTexture(const String &name) const
 
 SPtr<ResourceView> ParameterBlock::GetSrv(const ShaderVarLocation &location) const
 {
-    CheckResourceLocation(location);
-    CheckDescriptorSrv(location, nullptr);
+    if (!CheckResourceLocation(location))
+    {
+        LOG_WRN_RESOURCE_LOCATION(get, srv);
+        return nullptr;
+    }
+
+    if (!CheckDescriptorSrv(location, nullptr))
+    {
+        LOG_WRN_DESCRIPTOR_TYPE(get, srv);
+        return nullptr;
+    }
+
     auto flatIndex = GetFlatIndex(location);
     return srvs[flatIndex];
 }
 
 SPtr<ResourceView> ParameterBlock::GetUav(const ShaderVarLocation &location) const
 {
-    CheckResourceLocation(location);
-    CheckDescriptorSrv(location, nullptr);
+    if (!CheckResourceLocation(location))
+    {
+        LOG_WRN_RESOURCE_LOCATION(get, uav);
+        return nullptr;
+    }
+
+    if (!CheckDescriptorUav(location, nullptr))
+    {
+        LOG_WRN_DESCRIPTOR_TYPE(get, uav);
+        return nullptr;
+    }
+
     auto flatIndex = GetFlatIndex(location);
     return uavs[flatIndex];
 }
 
 SPtr<Sampler> ParameterBlock::GetSampler(const ShaderVarLocation &location) const
 {
-    CheckResourceLocation(location);
-    CheckDescriptorType(location, DescriptorType::Sampler);
+    if (!CheckResourceLocation(location))
+    {
+        LOG_WRN_RESOURCE_LOCATION(get, sampler);
+        return nullptr;
+    }
+
+    if (!CheckDescriptorType(location, DescriptorType::Sampler))
+    {
+        LOG_WRN_DESCRIPTOR_TYPE(get, sampler);
+        return nullptr;
+    }
+
     auto flatIndex = GetFlatIndex(location);
     return samplers[flatIndex];
 }
@@ -363,8 +449,18 @@ SPtr<Sampler> ParameterBlock::GetSampler(const String &name) const
 
 SPtr<ParameterBlock> ParameterBlock::GetParameterBlock(const ShaderVarLocation &location) const
 {
-    CheckResourceLocation(location);
-    CheckDescriptorType(location, DescriptorType::Cbv);
+    if (!CheckResourceLocation(location))
+    {
+        LOG_WRN_RESOURCE_LOCATION(get, parameter block);
+        return nullptr;
+    }
+
+    if (!CheckDescriptorType(location, DescriptorType::Cbv))
+    {
+        LOG_WRN_DESCRIPTOR_TYPE(get, parameter block);
+        return nullptr;
+    }
+
     auto flatIndex = GetFlatIndex(location);
     return parameterBlocks[flatIndex];
 }
@@ -379,7 +475,7 @@ SPtr<ParameterBlock> ParameterBlock::GetParameterBlock(const String &name) const
 
 bool ParameterBlock::SetBuffer(const ShaderVarLocation &location, const SPtr<Buffer> &buffer)
 {
-    return SetResourceSrvUavCommon(location, buffer);
+    return SetResourceSrvUavCommon(location, buffer, false);
 }
 
 bool ParameterBlock::SetBuffer(const String &name, const SPtr<Buffer> &buffer)
@@ -392,7 +488,7 @@ bool ParameterBlock::SetBuffer(const String &name, const SPtr<Buffer> &buffer)
 
 bool ParameterBlock::SetTexture(const ShaderVarLocation &location, const SPtr<Texture> &texture)
 {
-    return SetResourceSrvUavCommon(location, texture);
+    return SetResourceSrvUavCommon(location, texture, true);
 }
 
 bool ParameterBlock::SetTexture(const String &name, const SPtr<Texture> &texture)
@@ -405,9 +501,17 @@ bool ParameterBlock::SetTexture(const String &name, const SPtr<Texture> &texture
 
 bool ParameterBlock::SetSrv(const ShaderVarLocation &location, const SPtr<ResourceView> &srv)
 {
-    CT_CHECK(srv);
-    CheckResourceLocation(location);
-    CheckDescriptorSrv(location, srv.get());
+    if (!CheckResourceLocation(location))
+    {
+        LOG_WRN_RESOURCE_LOCATION(set, srv);
+        return false;
+    }
+
+    if (!CheckDescriptorSrv(location, srv.get()))
+    {
+        LOG_WRN_DESCRIPTOR_TYPE(set, srv);
+        return false;
+    }
 
     auto flatIndex = GetFlatIndex(location);
     if (srvs[flatIndex] == srv)
@@ -419,9 +523,17 @@ bool ParameterBlock::SetSrv(const ShaderVarLocation &location, const SPtr<Resour
 
 bool ParameterBlock::SetUav(const ShaderVarLocation &location, const SPtr<ResourceView> &uav)
 {
-    CT_CHECK(uav);
-    CheckResourceLocation(location);
-    CheckDescriptorUav(location, uav.get());
+    if (!CheckResourceLocation(location))
+    {
+        LOG_WRN_RESOURCE_LOCATION(set, uav);
+        return false;
+    }
+
+    if (!CheckDescriptorUav(location, uav.get()))
+    {
+        LOG_WRN_DESCRIPTOR_TYPE(set, uav);
+        return false;
+    }
 
     auto flatIndex = GetFlatIndex(location);
     if (uavs[flatIndex] == uav)
@@ -433,8 +545,17 @@ bool ParameterBlock::SetUav(const ShaderVarLocation &location, const SPtr<Resour
 
 bool ParameterBlock::SetSampler(const ShaderVarLocation &location, const SPtr<Sampler> &sampler)
 {
-    CheckResourceLocation(location);
-    CheckDescriptorType(location, DescriptorType::Sampler);
+    if (!CheckResourceLocation(location))
+    {
+        LOG_WRN_RESOURCE_LOCATION(set, sampler);
+        return false;
+    }
+
+    if (!CheckDescriptorType(location, DescriptorType::Sampler))
+    {
+        LOG_WRN_DESCRIPTOR_TYPE(set, sampler);
+        return false;
+    }
 
     auto flatIndex = GetFlatIndex(location);
     if (samplers[flatIndex] == sampler)
@@ -455,8 +576,18 @@ bool ParameterBlock::SetSampler(const String &name, const SPtr<Sampler> &sampler
 bool ParameterBlock::SetParameterBlock(const ShaderVarLocation &location, const SPtr<ParameterBlock> &block)
 {
     CT_CHECK(block);
-    CheckResourceLocation(location);
-    CheckDescriptorType(location, DescriptorType::Cbv);
+
+    if (!CheckResourceLocation(location))
+    {
+        LOG_WRN_RESOURCE_LOCATION(set, parameter block);
+        return false;
+    }
+
+    if (!CheckDescriptorType(location, DescriptorType::Cbv))
+    {
+        LOG_WRN_DESCRIPTOR_TYPE(set, parameter block);
+        return false;
+    }
 
     auto flatIndex = GetFlatIndex(location);
     if (parameterBlocks[flatIndex] == block)
@@ -530,18 +661,28 @@ bool ParameterBlock::PrepareResources(CopyContext *ctx)
 {
     for (auto &srv : srvs)
     {
-        auto resource = srv->GetResource();
-        PrepareResource(ctx, resource, false);
-    }
-    for (auto &uav : uavs)
-    {
-        auto resource = uav->GetResource();
-        PrepareResource(ctx, resource, true);
+        if (srv)
+        {
+            auto resource = srv->GetResource();
+            PrepareResource(ctx, resource, false);
+        }
     }
 
-    for (auto &subBlock : parameterBlocks)
+    for (auto &uav : uavs)
     {
-        subBlock->PrepareResourcesAndConstantBuffer(ctx);
+        if (uav)
+        {
+            auto resource = uav->GetResource();
+            PrepareResource(ctx, resource, true);
+        }
+    }
+
+    for (auto &block : parameterBlocks)
+    {
+        if (block)
+        {
+            block->PrepareResourcesAndConstantBuffer(ctx);
+        }
     }
 
     return true;
@@ -578,7 +719,8 @@ bool ParameterBlock::BindIntoDescriptorSet(int32 setIndex, const SPtr<Descriptor
             {
                 CT_CHECK(range.count == 1);
                 CT_CHECK(parameterBlocks[flatIndex]);
-                parameterBlocks[flatIndex]->BindIntoDescriptorSet(setIndex, set);
+                if (!parameterBlocks[flatIndex]->BindIntoDescriptorSet(setIndex, set))
+                    return false;
             }
             break;
             case DescriptorType::Sampler:
@@ -592,7 +734,11 @@ bool ParameterBlock::BindIntoDescriptorSet(int32 setIndex, const SPtr<Descriptor
             case DescriptorType::TypedBufferSrv:
             case DescriptorType::StructuredBufferSrv:
             {
-                CT_CHECK(srvs[flatIndex]);
+                if (!srvs[flatIndex])
+                {
+                    CT_LOG(Error, CT_TEXT("ParameterBlock try to bind null srv into descriptor set, name: {0}."), bindingInfo.name);
+                    return false;
+                }
                 set->SetSrv(bindingInfo.binding, i, srvs[flatIndex].get());
             }
             break;
@@ -601,7 +747,11 @@ bool ParameterBlock::BindIntoDescriptorSet(int32 setIndex, const SPtr<Descriptor
             case DescriptorType::TypedBufferUav:
             case DescriptorType::StructuredBufferUav:
             {
-                CT_CHECK(uavs[flatIndex]);
+                if (!uavs[flatIndex])
+                {
+                    CT_LOG(Error, CT_TEXT("ParameterBlock try to bind null uav into descriptor set, name: {0}."), bindingInfo.name);
+                    return false;
+                }
                 set->SetUav(bindingInfo.binding, i, uavs[flatIndex].get());
             }
             break;
@@ -627,11 +777,14 @@ bool ParameterBlock::PrepareDescriptorSets(CopyContext *ctx)
 
         if (!sets[i])
         {
-            sets[i] = DescriptorSet::Create(RenderAPI::GetDevice()->GetGpuDescriptorPool(), reflection->GetDescriptorSetLayout(i));
-            BindIntoDescriptorSet(i, sets[i]);
+            auto set = DescriptorSet::Create(RenderAPI::GetDevice()->GetGpuDescriptorPool(), reflection->GetDescriptorSetLayout(i));
+            if (!BindIntoDescriptorSet(i, set))
+            {
+                return false;
+            }
+            sets[i] = set;
         }
     }
-
     return true;
 }
 
@@ -797,7 +950,7 @@ ShaderVar ShaderVar::operator[](const String &name) const
     auto ret = FindMember(name);
     if (!ret.IsValid() && IsValid())
     {
-        CT_LOG(Error, CT_TEXT("ShaderVar[] attemp to find invalid member, name is {0}"), name);
+        CT_LOG(Error, CT_TEXT("ShaderVar[] attemp to find invalid member, name is {0}."), name);
     }
     return ret;
 }
@@ -807,7 +960,7 @@ ShaderVar ShaderVar::operator[](int32 index) const
     auto ret = FindMember(index);
     if (!ret.IsValid() && IsValid())
     {
-        CT_LOG(Error, CT_TEXT("ShaderVar[] attemp to find invalid member, index is {0}"), index);
+        CT_LOG(Error, CT_TEXT("ShaderVar[] attemp to find invalid member, index is {0}."), index);
     }
     return ret;
 }

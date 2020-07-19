@@ -101,8 +101,9 @@ public:
         }
 
         vars->Root()[CT_TEXT("UB")][CT_TEXT("tint")] = Color(0.7f, 0.3f, 0.0f);
-        //vars->Root()[CT_TEXT("mainSampler")] = sampler;
-        vars->Root()[CT_TEXT("mainTexture")] = texture;
+        //vars->Root()[CT_TEXT("mainSampler")] = sampler;   // use default
+        //vars->Root()[CT_TEXT("mainTexture")] = texture;
+        //vars->Root()[CT_TEXT("mainTexture1")] = texture;  // ignore undefined
     }
 
     void Render(RenderContext *ctx, const SPtr<FrameBuffer> &fbo)

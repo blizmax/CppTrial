@@ -182,12 +182,12 @@ public:
         return (x != other.x || y != other.y || z != other.z || w != other.w);
     }
 
-    Quat operator+()
+    Quat operator+() const
     {
         return *this;
     }
 
-    Quat operator-()
+    Quat operator-() const
     {
         return Quat(-x, -y, -z, -w);
     }
@@ -229,6 +229,37 @@ public:
     friend Quat operator/(const Quat &lhs, float rhs)
     {
         return Quat(lhs.x / rhs, lhs.y / rhs, lhs.z / rhs, lhs.w / rhs);
+    }
+
+    static Quat Lerp(const Quat &a, const Quat &b, float t)
+    {
+        return Quat(Math::Lerp(a.x, b.x, t),
+                    Math::Lerp(a.y, b.y, t),
+                    Math::Lerp(a.z, b.z, t),
+                    Math::Lerp(a.w, b.w, t));
+    }
+
+    /** Assume t is in range [0,1]. */
+    static Quat Slerp(const Quat &a, const Quat &b, float t)
+    {
+        float d = a.Dot(b);
+        Quat x = b;
+
+        if (d < 0.0f)
+        {
+            d = -d;
+            x = -b;
+        }
+
+        // if too close, use linear interpolation instead
+        if (d > (1.0f - Math::EPSILON))
+        {
+            return Lerp(a, x, t);
+        }
+
+        float angle = Math::Acos(d);
+        float invSin = 1.0f / Math::Sin(angle);
+        return invSin * (Math::Sin((1.0f - t) * angle) * a + Math::Sin(t * angle) * x);
     }
 
     String ToString() const

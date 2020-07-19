@@ -20,6 +20,11 @@ CT_INLINE float Lerp(float a, float b, float t)
     return a * (1.0f - t) + b * t;
 }
 
+CT_INLINE float Mix(float a, float b, float t)
+{
+    return Lerp(a, b, t);
+}
+
 CT_INLINE float Smoothstep(float a, float b, float x)
 {
     float t = Clamp((x - a) / (b - 1), 0.0f, 1.0f);
