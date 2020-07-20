@@ -128,14 +128,14 @@ SPtr<VertexArray> SceneBuilder::CreateVao(int32 drawCount)
     auto instVbo = Buffer::Create(drawCount * sizeof(int32), ResourceBind::Vertex, CpuAccess::None, instanceIDs.GetData());
 
     auto staticLayout = VertexBufferLayout::Create(
-        { { CT_TEXT("pos"), ResourceFormat::RGB32Float },
-          { CT_TEXT("normal"), ResourceFormat::RGB32Float },
-          { CT_TEXT("bitangent"), ResourceFormat::RGB32Float },
-          { CT_TEXT("uv"), ResourceFormat::RG32Float } });
+        { { 0, CT_TEXT("inPos"), ResourceFormat::RGB32Float },
+          { 1, CT_TEXT("inNormal"), ResourceFormat::RGB32Float },
+          { 2, CT_TEXT("inBitangent"), ResourceFormat::RGB32Float },
+          { 3, CT_TEXT("inUV"), ResourceFormat::RG32Float } });
     auto instLayout = VertexBufferLayout::Create(
-        { { CT_TEXT("meshInstanceID"), ResourceFormat::R32Int } }, true);
+        { { 4, CT_TEXT("inMeshInstanceID"), ResourceFormat::R32Int } }, true);
     auto prevLayout = VertexBufferLayout::Create(
-        { { CT_TEXT("prevPos"), ResourceFormat::RGB32Float } });
+        { { 5, CT_TEXT("inPrevPos"), ResourceFormat::RGB32Float } });
 
     auto vertexLayout = VertexLayout::Create();
     vertexLayout->AddBufferLayout(staticLayout);
@@ -216,8 +216,8 @@ void SceneBuilder::CreateMeshBoundingBoxes(Scene *scene)
         Vector3 max = min;
         for (int32 v = 1; v < vertexCount; ++v)
         {
-            min = Math::Min(min, buffersData.staticDatas[vertexOffset + v].position);
-            max = Math::Max(max, buffersData.staticDatas[vertexOffset + v].position);
+            min = Vector3::Min(min, buffersData.staticDatas[vertexOffset + v].position);
+            max = Vector3::Max(max, buffersData.staticDatas[vertexOffset + v].position);
         }
         scene->meshBBs.Add(AABox(min, max));     
     }

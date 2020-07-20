@@ -213,6 +213,16 @@ public:
         return Vector2(Math::Lerp(a.x, b.x, t), Math::Lerp(a.y, b.y, t));
     }
 
+    static Vector2 Max(const Vector2 &a, const Vector2 &b)
+    {
+        return Vector2(Math::Max(a.x, b.x), Math::Max(a.y, b.y));
+    }
+
+    static Vector2 Min(const Vector2 &a, const Vector2 &b)
+    {
+        return Vector2(Math::Min(a.x, b.x), Math::Min(a.y, b.y));
+    }
+
     String ToString() const
     {
         return String::Format(CT_TEXT("[x={0},y={1}]"), x, y);

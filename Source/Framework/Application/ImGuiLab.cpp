@@ -152,9 +152,9 @@ void ImGuiLab::BindRenderer()
     graphicsState->SetProgram(program);
 
     auto vertexBufferLayout = VertexBufferLayout::Create(
-        { { CT_TEXT("VertexPosition"), ResourceFormat::RG32Float },
-          { CT_TEXT("VertexUV"), ResourceFormat::RG32Float },
-          { CT_TEXT("VertexColor"), ResourceFormat::RGBA8Unorm } });
+        { { 0, CT_TEXT("VertexPosition"), ResourceFormat::RG32Float },
+          { 1, CT_TEXT("VertexUV"), ResourceFormat::RG32Float },
+          { 2, CT_TEXT("VertexColor"), ResourceFormat::RGBA8Unorm } });
     vertexLayout = VertexLayout::Create();
     vertexLayout->AddBufferLayout(vertexBufferLayout);
 

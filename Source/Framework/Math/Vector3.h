@@ -228,6 +228,16 @@ public:
         return Vector3(Math::Lerp(a.x, b.x, t), Math::Lerp(a.y, b.y, t), Math::Lerp(a.z, b.z, t));
     }
 
+    static Vector3 Max(const Vector3 &a, const Vector3 &b)
+    {
+        return Vector3(Math::Max(a.x, b.x), Math::Max(a.y, b.y), Math::Max(a.z, b.z));
+    }
+
+    static Vector3 Min(const Vector3 &a, const Vector3 &b)
+    {
+        return Vector3(Math::Min(a.x, b.x), Math::Min(a.y, b.y), Math::Min(a.z, b.z));
+    }
+
     String ToString() const
     {
         return String::Format(CT_TEXT("[x={0},y={1},z={2}]"), x, y, z);

@@ -13,7 +13,10 @@ layout(location = 0) out vec2 UV;
 void main()
 {
     gl_Position = Projection * View * Model * vec4(VertexPosition, 1.0);
-    UV = VertexUV; 
+    gl_Position.y = -gl_Position.y;
+    gl_Position.z = (gl_Position.z + gl_Position.w) / 2.0;
+
+    UV = VertexUV;
 }
 
 #type fragment

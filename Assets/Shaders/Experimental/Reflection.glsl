@@ -2,7 +2,7 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-#include "Scene/Raster.glsl"
+//#include "Scene/Raster.glsl"
 
 struct Textures
 {
@@ -56,9 +56,28 @@ layout (binding = 4) uniform ArrayBlock
     float arrayData[7];
 };
 
+#type vertex
+
+
+layout(location = 0) in vec3 inPos;
+layout(location = 1) in vec3 inNormal;
+layout(location = 2) in vec3 inBitangent;
+layout(location = 3) in vec2 inUV;
+layout(location = 4) in int inMeshInstanceID;
+layout(location = 5) in vec3 inPrevPos;
+
+void main()
+{
+    gl_Position = vec4(0.0);
+}
+
 #type pixel
 
-layout(location = 0) in CT_VERTEX_OUT vOut;
+//layout(location = 0) in CT_VERTEX_OUT vOut;
+layout(location = 0) in VertexOut
+{
+    vec2 uv;
+} vOut;
 
 layout(location = 0) out vec4 FragColor;
 

@@ -1,17 +1,6 @@
 #include "Scene/Scene.glsl"
 #include "Scene/ShadingData.glsl"
 
-#define CT_VERTEX_IN        \
-    VertexIn                \
-    {                       \
-        vec3 pos;           \
-        vec3 normal;        \
-        vec3 bitangent;     \
-        vec2 uv;            \
-        int meshInstanceID; \
-        vec3 prevPos;       \
-    }
-
 #define CT_VERTEX_OUT            \
     VertexOut                    \
     {                            \
@@ -26,27 +15,33 @@
 
 //========================== VS =============================
 
-// layout(location = 0) in CT_VERTEX_IN vIn;
-// layout(location = 0) out CT_VERTEX_OUT vOut;
+layout(location = 0) in vec3 inPos;
+layout(location = 1) in vec3 inNormal;
+layout(location = 2) in vec3 inBitangent;
+layout(location = 3) in vec2 inUV;
+layout(location = 4) in int inMeshInstanceID;
+layout(location = 5) in vec3 inPrevPos;
 
-// void main()
-// {
-//     mat4 worldMat = GetWorldMatrix(vIn.meshInstanceID);
-//     vec4 posW = worldMat * vec4(vIn.pos, 1.0);
-//     vOut.posW = posW.xyz;
+layout(location = 0) out CT_VERTEX_OUT vOut;
 
-//     gl_Position = GetViewProjection(camera) * posW;
-//     gl_Position.y = -gl_Position.y;
-//     gl_Position.z = (gl_Position.z + gl_Position.w) / 2.0;
+void main()
+{
+    mat4 worldMat = GetWorldMatrix(inMeshInstanceID);
+    vec4 posW = worldMat * vec4(inPos, 1.0);
+    vOut.posW = posW.xyz;
 
-//     vOut.meshInstanceID = vIn.meshInstanceID;
-//     vOut.materialID = vIn.materialID;
-//     vOut.uv = vIn.uv;
+    gl_Position = GetViewProjection(camera) * posW;
+    gl_Position.y = -gl_Position.y;
+    gl_Position.z = (gl_Position.z + gl_Position.w) / 2.0;
 
-//     mat3 normalMatrix = GetInverseTransposeWorldMatrix(vIn.meshInstanceID);
-//     vOut.normalW = normalMatrix * vIn.normal;
-//     vOut.bitangentW = mat3(worldMat) * vIn.bitangent;
-// }
+    vOut.meshInstanceID = inMeshInstanceID;
+    vOut.materialID = inMaterialID;
+    vOut.uv = inUV;
+
+    mat3 normalMatrix = GetInverseTransposeWorldMatrix(inMeshInstanceID);
+    vOut.normalW = normalMatrix * inNormal;
+    vOut.bitangentW = mat3(worldMat) * inBitangent;
+}
 
 
 //========================== PS =============================

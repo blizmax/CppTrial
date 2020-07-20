@@ -50,8 +50,8 @@ public:
         state = GraphicsState::Create();
 
         auto vertexBufferLayout = VertexBufferLayout::Create(
-            { { CT_TEXT("VertexPosition"), ResourceFormat::RGB32Float },
-              { CT_TEXT("VertexUV"), ResourceFormat::RG32Float } });
+            { { 0, CT_TEXT("VertexPosition"), ResourceFormat::RGB32Float },
+              { 1, CT_TEXT("VertexUV"), ResourceFormat::RG32Float } });
         auto vertexLayout = VertexLayout::Create();
         vertexLayout->AddBufferLayout(vertexBufferLayout);
 

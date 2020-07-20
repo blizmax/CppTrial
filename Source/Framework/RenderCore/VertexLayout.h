@@ -9,12 +9,13 @@ public:
     {
         String name;
         ResourceFormat format;
+        uint32 location;
         uint32 size;
         uint32 offset;
         uint32 arrayLength;
 
-        Element(const String &name, ResourceFormat format, uint32 arrayLength = 1)
-            : name(name), format(format), arrayLength(arrayLength), offset(0)
+        Element(uint32 location, const String &name, ResourceFormat format, uint32 arrayLength = 1)
+            : name(name), format(format), location(location), arrayLength(arrayLength), offset(0)
         {
             size = GetResourceFormatBytes(format) * arrayLength;
         }

@@ -43,11 +43,10 @@ VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDe
             bindingDesc.inputRate = bufferLayouts[i]->IsPerInstanceData() ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
             vertexInputBindingDescs.Add(bindingDesc);
 
-            int32 location = 0;
             for (const auto &e : bufferLayouts[i]->GetElements())
             {
                 VkVertexInputAttributeDescription attrib = {};
-                attrib.location = location++;
+                attrib.location = e.location;
                 attrib.format = ToVkResourceFormat(e.format);
                 attrib.offset = e.offset;
                 attrib.binding = i;
