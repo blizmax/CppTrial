@@ -223,6 +223,11 @@ public:
         return Dot(other) < Math::EPSILON;
     }
 
+    static Vector3 Lerp(const Vector3 &a, const Vector3 &b, float t)
+    {
+        return Vector3(Math::Lerp(a.x, b.x, t), Math::Lerp(a.y, b.y, t), Math::Lerp(a.z, b.z, t));
+    }
+
     String ToString() const
     {
         return String::Format(CT_TEXT("[x={0},y={1},z={2}]"), x, y, z);

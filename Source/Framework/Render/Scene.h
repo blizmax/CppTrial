@@ -5,6 +5,7 @@
 #include "Render/Light.h"
 #include "Render/Material.h"
 #include "RenderCore/RenderAPI.h"
+#include "Math/AABox.h"
 
 class Scene
 {
@@ -45,6 +46,7 @@ public:
     static SPtr<Scene> Create();
 
 private:
+    void SortMeshes();
     void InitResources();
     void UploadResources();
     void UploadMaterial(int32 matID);
@@ -64,6 +66,7 @@ private:
     Array<Array<int32>> meshGroups;
     Array<SceneNode> nodes;
 
+    Array<AABox> meshBBs;
     Array<bool> meshHasDynamicDatas;
 
     SPtr<VertexArray> vao;

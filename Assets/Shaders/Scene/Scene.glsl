@@ -38,6 +38,11 @@ layout(binding = 5) buffer IndexBuffer
     int indices[];
 };
 
+layout(binding = 6) buffer PrevVertexBuffer
+{
+    PrevVertexData prevVertices[];
+};
+
 // Material
 layout(set = 1, binding = 0) buffer MaterialBuffer
 {

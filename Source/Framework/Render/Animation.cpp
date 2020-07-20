@@ -12,9 +12,17 @@ Animation::Animation(AnimTimeType duration)
 
 Matrix4 Animation::Interpolate(const Keyframe &start, const Keyframe &end, AnimTimeType time) const
 {
-    Matrix4 m;
-    //TODO
-    return m;
+    AnimTimeType localTime = time - start.time;
+    AnimTimeType keyframeDuration = end.time - start.time;
+    if (keyframeDuration < 0.0)
+        keyframeDuration += duration;
+    float factor = keyframeDuration != 0.0 ? (float)(localTime / keyframeDuration) : 1.0f;
+
+    Vector3 translation = Vector3::Lerp(start.translation, end.translation, factor);
+    Vector3 scaling = Vector3::Lerp(start.scaling, end.scaling, factor);
+    Quat rotation = Quat::Slerp(start.rotation, end.rotation, factor);
+
+    return Matrix4::TRS(translation, rotation, scaling);
 }
 
 Matrix4 Animation::AnimateChannel(Channel &c, AnimTimeType time)

@@ -117,10 +117,115 @@ SPtr<VertexArray> SceneBuilder::CreateVao(int32 drawCount)
 
     ResourceBindFlags vbBindFlags = ResourceBind::Vertex | ResourceBind::UnorderedAccess | ResourceBind::ShaderResource;
     auto staticVbo = Buffer::CreateStructured(sizeof(StaticVertexData), vertexCount, vbBindFlags, CpuAccess::None, nullptr, false);
+    auto prevVbo = Buffer::CreateStructured(sizeof(PrevVertexData), vertexCount, vbBindFlags, CpuAccess::None, nullptr, false);
 
+    Array<int32> instanceIDs;
+    instanceIDs.SetCount(drawCount);
+    for (int32 i = 0; i < drawCount; ++i)
+    {
+        instanceIDs[i] = i;
+    }
+    auto instVbo = Buffer::Create(drawCount * sizeof(int32), ResourceBind::Vertex, CpuAccess::None, instanceIDs.GetData());
 
+    auto staticLayout = VertexBufferLayout::Create(
+        { { CT_TEXT("pos"), ResourceFormat::RGB32Float },
+          { CT_TEXT("normal"), ResourceFormat::RGB32Float },
+          { CT_TEXT("bitangent"), ResourceFormat::RGB32Float },
+          { CT_TEXT("uv"), ResourceFormat::RG32Float } });
+    auto instLayout = VertexBufferLayout::Create(
+        { { CT_TEXT("meshInstanceID"), ResourceFormat::R32Int } }, true);
+    auto prevLayout = VertexBufferLayout::Create(
+        { { CT_TEXT("prevPos"), ResourceFormat::RGB32Float } });
+
+    auto vertexLayout = VertexLayout::Create();
+    vertexLayout->AddBufferLayout(staticLayout);
+    vertexLayout->AddBufferLayout(instLayout);
+    vertexLayout->AddBufferLayout(prevLayout);
+
+    auto vao = VertexArray::Create();
+    vao->SetVertexLayout(vertexLayout);
+    vao->SetIndexBuffer(ibo);
+    vao->SetTopology(meshes[0].topology);
+    vao->AddVertexBuffer(staticVbo);
+    vao->AddVertexBuffer(instVbo);
+    vao->AddVertexBuffer(prevVbo);
+
+    return vao;
+}
+
+void SceneBuilder::CreateSceneGraph(Scene *scene)
+{
+    scene->nodes = nodes; // Move it?
+}
+
+int32 SceneBuilder::CreateMeshData(Scene *scene)
+{
+    int32 drawCount = 0;
+
+    scene->meshDesces.AddUninitialized(meshes.Count());
+    scene->meshHasDynamicDatas.AddUninitialized(meshes.Count());
+    for (int32 i = 0; i < meshes.Count(); ++i)
+    {
+        scene->meshDesces.Add(MeshDesc());
+        auto &desc = scene->meshDesces.Last();
+
+        const auto &mesh = meshes[i];
+        desc.materialID = mesh.materialID;
+        desc.vertexOffset = mesh.staticVertexOffset;
+        desc.indexOffset = mesh.indexOffset;
+        desc.vertexCount = mesh.vertexCount;
+        desc.indexCount = mesh.indexCount;
+
+        drawCount += mesh.instances.Count();
+
+        for (const auto &instance : mesh.instances)
+        {
+            scene->meshInstanceDatas.Add(MeshInstanceData());
+            auto &d = scene->meshInstanceDatas.Last();
+            d.globalMatrixID = instance;
+            d.materialID = mesh.materialID;
+            d.meshID = i;
+            d.vertexOffset = mesh.staticVertexOffset;
+            d.indexOffset = mesh.indexOffset;
+        }
+
+        scene->meshHasDynamicDatas.Add(mesh.hasDynamicData);
+        if (mesh.hasDynamicData)
+        {
+            CT_CHECK(mesh.instances.Count() == 1);
+            for (int32 j = 0; j < mesh.vertexCount; ++j)
+            {
+                buffersData.dynamicDatas[mesh.dynamicVertexOffset + j].globalMatrixID = mesh.instances[0];
+            }
+        }
+    }
+
+    return drawCount;
+}
+
+void SceneBuilder::CreateMeshBoundingBoxes(Scene *scene)
+{
+    scene->meshBBs.AddUninitialized(meshes.Count());
+    for (int32 i = 0; i < meshes.Count(); ++i)
+    {
+        const auto &mesh = meshes[i];
+        int32 vertexOffset = mesh.staticVertexOffset;
+        int32 vertexCount = mesh.vertexCount;
+
+        Vector3 min(buffersData.staticDatas[vertexOffset].position);
+        Vector3 max = min;
+        for (int32 v = 1; v < vertexCount; ++v)
+        {
+            min = Math::Min(min, buffersData.staticDatas[vertexOffset + v].position);
+            max = Math::Max(max, buffersData.staticDatas[vertexOffset + v].position);
+        }
+        scene->meshBBs.Add(AABox(min, max));     
+    }
+}
+
+void SceneBuilder::CreateAnimationController(Scene *scene)
+{
     //TODO
-    return nullptr;
 }
 
 SPtr<Scene> SceneBuilder::GetScene()
@@ -135,53 +240,15 @@ SPtr<Scene> SceneBuilder::GetScene()
     scene->camera = camera ? camera : Camera::Create();
     scene->lights = lights;
     scene->materials = materials;
-    scene->nodes = nodes; // Move it?
+    // TODO lightProbe, envMap
 
-    int32 drawCount = 0;
-    { // Scene mesh data
-        scene->meshDesces.AddUninitialized(meshes.Count());
-        scene->meshHasDynamicDatas.AddUninitialized(meshes.Count());
-        for (int32 i = 0; i < meshes.Count(); ++i)
-        {
-            scene->meshDesces.Add(MeshDesc());
-            auto &desc = scene->meshDesces.Last();
-
-            const auto &mesh = meshes[i];
-            desc.materialID = mesh.materialID;
-            desc.vertexOffset = mesh.staticVertexOffset;
-            desc.indexOffset = mesh.indexOffset;
-            desc.vertexCount = mesh.vertexCount;
-            desc.indexCount = mesh.indexCount;
-
-            drawCount += mesh.instances.Count();
-
-            for (const auto &instance : mesh.instances)
-            {
-                scene->meshInstanceDatas.Add(MeshInstanceData());
-                auto &d = scene->meshInstanceDatas.Last();
-                d.globalMatrixID = instance;
-                d.materialID = mesh.materialID;
-                d.meshID = i;
-                d.vertexOffset = mesh.staticVertexOffset;
-                d.indexOffset = mesh.indexOffset;
-            }
-
-            scene->meshHasDynamicDatas.Add(mesh.hasDynamicData);
-            if (mesh.hasDynamicData)
-            {
-                CT_CHECK(mesh.instances.Count() == 1);
-                for (int32 j = 0; j < mesh.vertexCount; ++j)
-                {
-                    buffersData.dynamicDatas[mesh.dynamicVertexOffset + j].globalMatrixID = mesh.instances[0];
-                }
-            }
-        }
-    }
-
+    CreateSceneGraph(scene.get());
+    int32 drawCount = CreateMeshData(scene.get());
     scene->vao = CreateVao(drawCount);
-
-    //TODO
-
+    CreateMeshBoundingBoxes(scene.get());
+    CreateAnimationController(scene.get());
+    scene->Finalize();
     dirty = false;
+
     return scene;
 }

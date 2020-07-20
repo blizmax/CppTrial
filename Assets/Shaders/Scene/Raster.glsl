@@ -9,6 +9,7 @@
         vec3 bitangent;     \
         vec2 uv;            \
         int meshInstanceID; \
+        vec3 prevPos;       \
     }
 
 #define CT_VERTEX_OUT            \

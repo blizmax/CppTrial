@@ -233,10 +233,7 @@ public:
 
     static Quat Lerp(const Quat &a, const Quat &b, float t)
     {
-        return Quat(Math::Lerp(a.x, b.x, t),
-                    Math::Lerp(a.y, b.y, t),
-                    Math::Lerp(a.z, b.z, t),
-                    Math::Lerp(a.w, b.w, t));
+        return Quat(Math::Lerp(a.x, b.x, t), Math::Lerp(a.y, b.y, t), Math::Lerp(a.z, b.z, t), Math::Lerp(a.w, b.w, t));
     }
 
     /** Assume t is in range [0,1]. */

@@ -74,6 +74,11 @@ struct DynamicVertexData
     int32 globalMatrixID;
 };
 
+struct PrevVertexData
+{
+    Vector3 position;
+};
+
 struct MaterialData
 {
     Color base;     //RGB: Base color,     A: Transparency

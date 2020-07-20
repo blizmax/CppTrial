@@ -30,6 +30,19 @@ static const Array<TextureMapping> textureMappings = {
     { aiTextureType_AMBIENT, TextureType::Occlusion },
 };
 
+bool IsSrgbRequired(TextureType textureType)
+{
+    switch (textureType)
+    {
+    case TextureType::BaseColor:
+    case TextureType::Emissive:
+    case TextureType::Occlusion:
+        return true;
+    default:
+        return false;
+    }
+}
+
 String ToString(const aiString &aStr)
 {
     return String(aStr.C_Str());
@@ -57,9 +70,11 @@ Color ToColor(const aiColor3D &aCol)
 
 Matrix4 ToMatrix4(const aiMatrix4x4 &aMat)
 {
-    //TODO
-    Matrix4 m;
-    return m;
+    return Matrix4(
+        aMat.a1, aMat.a2, aMat.a3, aMat.a4,
+        aMat.b1, aMat.b2, aMat.b3, aMat.b4,
+        aMat.c1, aMat.c2, aMat.c3, aMat.c4,
+        aMat.d1, aMat.d2, aMat.d3, aMat.d4);
 }
 
 class ImporterImpl
@@ -123,19 +138,6 @@ public:
         }
 
         return builder.GetScene();
-    }
-
-    bool IsSrgbRequired(TextureType textureType)
-    {
-        switch (textureType)
-        {
-        case TextureType::BaseColor:
-        case TextureType::Emissive:
-        case TextureType::Occlusion:
-            return true;
-        default:
-            return false;
-        }
     }
 
     bool IsBone(const String &name)
@@ -305,7 +307,7 @@ public:
         int doubleSided;
         if (aMat->Get(AI_MATKEY_TWOSIDED, doubleSided) == AI_SUCCESS)
         {
-            //TODO
+            mat->SetDoubleSided(doubleSided != 0);
         }
 
         materials.Add(mat);

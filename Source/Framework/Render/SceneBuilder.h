@@ -39,6 +39,10 @@ public:
 private:
     int32 AddMaterial(const SPtr<Material> &material);
     SPtr<VertexArray> CreateVao(int32 drawCount);
+    void CreateSceneGraph(Scene *scene);
+    int32 CreateMeshData(Scene *scene);
+    void CreateMeshBoundingBoxes(Scene *scene);
+    void CreateAnimationController(Scene *scene);
 
 private:
     Array<SceneNode> nodes;

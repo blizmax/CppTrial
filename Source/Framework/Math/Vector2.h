@@ -208,6 +208,11 @@ public:
         return Dot(other) < Math::EPSILON;
     }
 
+    static Vector2 Lerp(const Vector2 &a, const Vector2 &b, float t)
+    {
+        return Vector2(Math::Lerp(a.x, b.x, t), Math::Lerp(a.y, b.y, t));
+    }
+
     String ToString() const
     {
         return String::Format(CT_TEXT("[x={0},y={1}]"), x, y);
