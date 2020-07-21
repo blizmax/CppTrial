@@ -38,6 +38,11 @@ void Scene::UploadResources()
     //TODO
 }
 
+void Scene::UpdateBounds()
+{
+    //TODO
+}
+
 void Scene::UploadMaterial(int32 matID)
 {
     auto &mat = materials[matID];

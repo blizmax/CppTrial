@@ -119,6 +119,16 @@ SPtr<VertexArray> SceneBuilder::CreateVao(int32 drawCount)
     auto staticVbo = Buffer::CreateStructured(sizeof(StaticVertexData), vertexCount, vbBindFlags, CpuAccess::None, nullptr, false);
     auto prevVbo = Buffer::CreateStructured(sizeof(PrevVertexData), vertexCount, vbBindFlags, CpuAccess::None, nullptr, false);
 
+    staticVbo->SetBlob(buffersData.staticDatas.GetData(), 0, staticVbo->GetSize());
+
+    Array<PrevVertexData> prevVertexDatas;
+    prevVertexDatas.AddUninitialized(vertexCount);
+    for (int32 i = 0; i < vertexCount; ++i)
+    {
+        prevVertexDatas[i].position = buffersData.staticDatas[i].position;
+    }
+    prevVbo->SetBlob(prevVertexDatas.GetData(), 0, prevVbo->GetSize());
+
     Array<int32> instanceIDs;
     instanceIDs.SetCount(drawCount);
     for (int32 i = 0; i < drawCount; ++i)

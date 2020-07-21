@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/Animation.h"
+#include "Render/AnimationController.h"
 #include "Render/CameraController.h"
 #include "Render/Light.h"
 #include "Render/Material.h"
@@ -50,10 +50,12 @@ private:
     void InitResources();
     void UploadResources();
     void UploadMaterial(int32 matID);
+    void UpdateBounds();
     void Finalize();
 
 private:
     friend class SceneBuilder;
+    friend class AnimationController;
 
     SPtr<Camera> camera;
     SPtr<CameraController> cameraController;
