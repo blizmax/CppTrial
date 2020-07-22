@@ -534,7 +534,7 @@ static void ParseReflection(const glslang::TProgram &program, const ProgramRefle
         }
         else
         {
-            if (qualifier.storage == glslang::EvqUniform || qualifier.storage == glslang::EvqGlobal)
+            if (qualifier.storage == glslang::EvqUniform || qualifier.storage == glslang::EvqGlobal || qualifier.storage == glslang::EvqBuffer)
             {
             }
             else
@@ -581,6 +581,8 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
     DirStackFileIncluder includer;
     includer.pushExternalLocalDirectory("Assets/Shaders/");
 
+    auto &options = desc.options;
+
     String defines;
     for (auto &[k, v] : desc.defines)
         defines += String::Format(CT_TEXT("#define {0} {1}\n"), k, v);
@@ -620,9 +622,13 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
     }
 
     //program.mapIO();
-    program.buildReflection();
 
-    if (desc.options.printReflectionInfo)
+    int32 ReflectOptions = EShReflectionDefault;
+    if (options.reflectAllVariables)
+        ReflectOptions |= EShReflectionAllBlockVariables;
+    program.buildReflection(ReflectOptions);
+
+    if (options.generateDebugInfo)
     {
         CT_LOG(Debug, CT_TEXT("==========================Reflection========================="));
         ParseReflection(program, builder, true);

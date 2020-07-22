@@ -10,11 +10,22 @@ public:
 
     ShaderVar Root() const
     {
-        return parameterBlock.GetRootVar();
+        return parameterBlock->GetRootVar();
+    }
+
+    void SetParameterBlock(const SPtr<ParameterBlock> &block)
+    {
+        CT_CHECK(block);
+        parameterBlock = block;
+    }
+
+    const SPtr<ParameterBlock> &GetParameterBlock() const
+    {
+        return parameterBlock;
     }
 
 protected:
-    ParameterBlock parameterBlock;
+    SPtr<ParameterBlock> parameterBlock;
     SPtr<ProgramReflection> reflection;
 };
 

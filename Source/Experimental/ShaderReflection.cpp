@@ -13,10 +13,12 @@ public:
     virtual void Startup() override
     {
         ProgramCompileOptions options;
-        options.printReflectionInfo = true;
+        options.generateDebugInfo = true;
+        options.reflectAllVariables = true;
         ProgramDefines defines;
         defines.Put(CT_TEXT("MATERIAL_COUNT"), CT_TEXT("5"));
-        program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/Reflection.glsl"), defines, options);
+        //program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/Reflection.glsl"), defines, options);
+        program = Program::Create(CT_TEXT("Assets/Shaders/Scene/SceneBlock.glsl"), defines, options);
     }
 
     virtual void Shutdown() override

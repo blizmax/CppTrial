@@ -229,7 +229,7 @@ void SceneBuilder::CreateMeshBoundingBoxes(Scene *scene)
             min = Vector3::Min(min, buffersData.staticDatas[vertexOffset + v].position);
             max = Vector3::Max(max, buffersData.staticDatas[vertexOffset + v].position);
         }
-        scene->meshBBs.Add(AABox(min, max));     
+        scene->meshBBs.Add(AABox(min, max));
     }
 }
 

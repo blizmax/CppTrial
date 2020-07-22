@@ -51,7 +51,7 @@ SPtr<Animation> AnimationController::GetAnimation(int32 meshID, int32 animID) co
 
     if (ptr->animations.Count() <= animID)
         return nullptr;
-    
+
     return ptr->animations[animID];
 }
 
@@ -75,13 +75,13 @@ bool AnimationController::SetActiveAnimation(int32 meshID, int32 animID)
         {
             activeAnimationCount++;
         }
-        else if(animID == -1)
+        else if (animID == -1)
         {
             activeAnimationCount--;
         }
         AllocPrevWorldMatrixBuffer();
     }
-    
+
     return true;
 }
 
@@ -98,9 +98,9 @@ void AnimationController::CreateBuffers()
 {
     int32 count = 4 * scene->nodes.Count();
 
-    worldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), 4 * count,  ResourceBind::ShaderResource, CpuAccess::None, nullptr, false);
+    worldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), 4 * count, ResourceBind::ShaderResource, CpuAccess::None, nullptr, false);
     prevWorldMatrixBuffer = worldMatrixBuffer;
-    invTransposeWorldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), 4 * count,  ResourceBind::ShaderResource, CpuAccess::None, nullptr, false);
+    invTransposeWorldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), 4 * count, ResourceBind::ShaderResource, CpuAccess::None, nullptr, false);
 
     //TODO
 }

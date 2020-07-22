@@ -76,4 +76,5 @@ private:
     SPtr<Buffer> meshInstancesBuffer;
     SPtr<Buffer> materialsBuffer;
     SPtr<Buffer> lightsBuffer;
+    SPtr<ParameterBlock> sceneBlock;
 };

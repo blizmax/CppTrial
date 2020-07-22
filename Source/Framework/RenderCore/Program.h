@@ -13,7 +13,8 @@ struct ShaderDesc
 
 struct ProgramCompileOptions
 {
-    bool printReflectionInfo = false;
+    bool reflectAllVariables = false;
+    bool generateDebugInfo = false;
 
     ProgramCompileOptions() = default;
 };
