@@ -51,6 +51,7 @@ private:
     void UploadResources();
     void UploadMaterial(int32 matID);
     void UpdateBounds();
+    void CreateDrawList();
     void Finalize();
 
 private:
@@ -59,6 +60,7 @@ private:
 
     SPtr<Camera> camera;
     SPtr<CameraController> cameraController;
+    SPtr<AnimationController> animationController;
 
     Array<SPtr<Material>> materials;
     Array<SPtr<Light>> lights;
@@ -69,6 +71,7 @@ private:
     Array<SceneNode> nodes;
 
     Array<AABox> meshBBs;
+    AABox sceneBB;
     Array<bool> meshHasDynamicDatas;
 
     SPtr<VertexArray> vao;

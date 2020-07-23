@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/.Package.h"
+#include "Math/Vector2.h"
 
 class Vector3
 {
@@ -23,6 +24,11 @@ public:
     Vector3(float x, float y, float z)
         : x(x), y(y), z(z)
     {
+    }
+
+    explicit operator Vector2() const
+    {
+        return Vector2(x, y);
     }
 
     float operator[](int32 i) const

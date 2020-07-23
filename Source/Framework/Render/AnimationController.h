@@ -19,6 +19,11 @@ public:
     bool SetActiveAnimation(int32 meshID, int32 animID);
     int32 GetActiveAnimation(int32 meshID) const;
 
+    const Array<Matrix4> &GetGlobalMatrices() const
+    {
+        return globalMatrices;
+    }
+
     static UPtr<AnimationController> Create();
 
 private:

@@ -44,9 +44,9 @@ int32 SceneBuilder::AddMesh(Mesh mesh)
     }
 
     {
-        buffersData.indices.AddUninitialized(spec.indexCount);
-        buffersData.staticDatas.AddUninitialized(spec.vertexCount);
-        buffersData.dynamicDatas.AddUninitialized(spec.hasDynamicData ? spec.vertexCount : 0);
+        buffersData.indices.Reserve(spec.indexCount);
+        buffersData.staticDatas.Reserve(spec.vertexCount);
+        buffersData.dynamicDatas.Reserve(spec.hasDynamicData ? spec.vertexCount : 0);
 
         for (auto e : mesh.indices)
             buffersData.indices.Add(e);
@@ -130,7 +130,7 @@ SPtr<VertexArray> SceneBuilder::CreateVao(int32 drawCount)
     prevVbo->SetBlob(prevVertexDatas.GetData(), 0, prevVbo->GetSize());
 
     Array<int32> instanceIDs;
-    instanceIDs.SetCount(drawCount);
+    instanceIDs.AddUninitialized(drawCount);
     for (int32 i = 0; i < drawCount; ++i)
     {
         instanceIDs[i] = i;
@@ -172,8 +172,8 @@ int32 SceneBuilder::CreateMeshData(Scene *scene)
 {
     int32 drawCount = 0;
 
-    scene->meshDesces.AddUninitialized(meshes.Count());
-    scene->meshHasDynamicDatas.AddUninitialized(meshes.Count());
+    scene->meshDesces.Reserve(meshes.Count());
+    scene->meshHasDynamicDatas.Reserve(meshes.Count());
     for (int32 i = 0; i < meshes.Count(); ++i)
     {
         scene->meshDesces.Add(MeshDesc());
@@ -215,7 +215,7 @@ int32 SceneBuilder::CreateMeshData(Scene *scene)
 
 void SceneBuilder::CreateMeshBoundingBoxes(Scene *scene)
 {
-    scene->meshBBs.AddUninitialized(meshes.Count());
+    scene->meshBBs.Reserve(meshes.Count());
     for (int32 i = 0; i < meshes.Count(); ++i)
     {
         const auto &mesh = meshes[i];

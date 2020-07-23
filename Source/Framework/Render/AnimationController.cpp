@@ -6,9 +6,9 @@ AnimationController::AnimationController(Scene *scene)
     : scene(scene)
 {
     int32 matCount = scene->nodes.Count();
-    localMatrices.SetCount(matCount);
-    globalMatrices.SetCount(matCount);
-    invTransposeGlobalMatrices.SetCount(matCount);
+    localMatrices.AddUninitialized(matCount);
+    globalMatrices.AddUninitialized(matCount);
+    invTransposeGlobalMatrices.AddUninitialized(matCount);
 
     CreateBuffers();
 }
