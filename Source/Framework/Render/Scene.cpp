@@ -4,18 +4,34 @@ namespace
 {
 const int32 PREV_VERTEX_BUFFER_INDEX = 2;
 
-const String MESH_BUFFER_NAME = CT_TEXT("meshes");
-const String MESH_INSTANCE_BUFFER_NAME = CT_TEXT("meshInstances");
-const String PREV_VERTEX_BUFFER_NAME = CT_TEXT("prevVertexBuffer");
-const String MATERIAL_BUFFER_NAME = CT_TEXT("materials");
-const String LIGHT_BUFFER_NAME = CT_TEXT("lights");
+const String MESH_BUFFER_NAME = CT_TEXT("MeshDescBuffer");
+const String MESH_INSTANCE_BUFFER_NAME = CT_TEXT("MeshInstanceBuffer");
+const String PREV_VERTEX_BUFFER_NAME = CT_TEXT("PrevVertexBuffer");
+const String MATERIAL_BUFFER_NAME = CT_TEXT("MaterialBuffer");
+const String LIGHT_BUFFER_NAME = CT_TEXT("LightBuffer");
 
 }
-
 
 SPtr<Scene> Scene::Create()
 {
     return Memory::MakeShared<Scene>();
+}
+
+void Scene::ResetCamera(bool resetDepthRange)
+{
+    //TODO
+}
+
+ProgramDefines Scene::GetSceneDefines() const
+{
+    ProgramDefines defines;
+    defines.Put(CT_TEXT("MATERIAL_COUNT"), StringConvert::ToString(materials.Count()));
+    return defines;
+}
+
+void Scene::Update(RenderContext *ctx, float currentTime)
+{
+    //TODO
 }
 
 void Scene::Render(RenderContext *ctx, GraphicsState *state, GraphicsVars *vars)
@@ -41,8 +57,7 @@ void Scene::SortMeshes()
 
 void Scene::InitResources()
 {
-    ProgramDefines defines;
-    defines.Put(CT_TEXT("MATERIAL_COUNT"), StringConvert::ToString(materials.Count()));
+    ProgramDefines defines = GetSceneDefines();
     auto program = Program::Create(CT_TEXT("Assets/Shaders/Scene/SceneBlock.glsl"), defines);
     auto reflection = program->GetReflection();
     sceneBlock = ParameterBlock::Create(reflection->GetDefaultBlockReflection());
@@ -96,6 +111,10 @@ void Scene::UploadMaterial(int32 matID)
     var[CT_TEXT("samplerStates")][matID] = mat->GetSampler();
 }
 
+void Scene::UpdateMeshInstanceFlags()
+{
+    //TODO
+}
 
 void Scene::UpdateBounds()
 {
@@ -117,6 +136,13 @@ void Scene::UpdateBounds()
     }
 }
 
+void Scene::UpdateCamera()
+{
+    if (cameraController)
+        cameraController->Update();
+    //TODO
+}
+
 void Scene::CreateDrawList()
 {
     //TODO
@@ -126,5 +152,16 @@ void Scene::Finalize()
 {
     SortMeshes();
     InitResources();
+    animationController->Animate(RenderAPI::GetDevice()->GetRenderContext(), 0);
+    UpdateMeshInstanceFlags();
+    UpdateBounds();
+    CreateDrawList();
+
+    UpdateCamera();
+    UpdateLights();
+    UpdateMaterials();
+    UploadResources();
     //TODO
+
+
 }

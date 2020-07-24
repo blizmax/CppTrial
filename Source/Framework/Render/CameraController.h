@@ -6,6 +6,13 @@
 class CameraController
 {
 public:
+    enum class Mode
+    {
+        FirsetPerson,
+        Orbiter,
+        SixDOF,
+    };
+
     CameraController(const SPtr<Camera> &camera)
         : camera(camera)
     {
@@ -13,6 +20,7 @@ public:
 
     virtual ~CameraController() = default;
 
+    virtual Mode GetMode() const = 0;
     virtual bool Update() = 0;
 
     virtual void OnTouchDown(TouchDownEvent &event)
@@ -80,6 +88,11 @@ public:
     virtual void OnMouseMoved(MouseMovedEvent &event) override;
     virtual void OnMouseScrolled(MouseScrolledEvent &event) override;
 
+    virtual Mode GetMode() const override
+    {
+        return CameraController::Mode::Orbiter;
+    }
+
     static SPtr<OrbiterCameraController> Create(const SPtr<Camera> &camera)
     {
         return Memory::MakeShared<OrbiterCameraController>(camera);
@@ -112,6 +125,11 @@ public:
     virtual void OnMouseScrolled(MouseScrolledEvent &event) override;
     virtual void OnKeyDown(KeyDownEvent &event) override;
     virtual void OnKeyUp(KeyUpEvent &event) override;
+
+    virtual Mode GetMode() const override
+    {
+        return b6DOF ? CameraController::Mode::SixDOF : CameraController::Mode::FirsetPerson;
+    }
 
     static SPtr<TFirstPersonCameraController> Create(const SPtr<Camera> &camera)
     {

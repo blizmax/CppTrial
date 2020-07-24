@@ -1,17 +1,70 @@
 #pragma once
 
+#include "Math/AABox.h"
 #include "Render/AnimationController.h"
 #include "Render/CameraController.h"
 #include "Render/Light.h"
 #include "Render/Material.h"
 #include "RenderCore/RenderAPI.h"
-#include "Math/AABox.h"
 
 class Scene
 {
 public:
-    void BindSamplerToMaterials(const SPtr<Sampler> &sampler);
+    void Update(RenderContext *ctx, float currentTime);
     void Render(RenderContext *ctx, GraphicsState *state, GraphicsVars *vars);
+    void BindSamplerToMaterials(const SPtr<Sampler> &sampler);
+    void ResetCamera(bool resetDepthRange = true);
+    ProgramDefines GetSceneDefines() const;
+
+    void SetCamera(const SPtr<Camera> &cam)
+    {
+        camera = cam;
+    }
+
+    const SPtr<Camera> &GetCamera() const
+    {
+        return camera;
+    }
+
+    void SetCameraController(const SPtr<CameraController> &controller)
+    {
+        cameraController = controller;
+    }
+
+    const SPtr<CameraController> &GetCameraController() const
+    {
+        return cameraController;
+    }
+
+    const AABox &GetSceneBounds() const
+    {
+        return sceneBB;
+    }
+
+    const AABox &GetMeshBounds(int32 meshID) const
+    {
+        return meshBBs[meshID];
+    }
+
+    int32 GetMeshCount() const
+    {
+        return meshDesces.Count();
+    }
+
+    const MeshDesc &GetMesh(int32 meshID) const
+    {
+        return meshDesces[meshID];
+    }
+
+    int32 GetMeshInstanceCount() const
+    {
+        return meshInstanceDatas.Count();
+    }
+
+    const MeshInstanceData &GetMeshInstance(int32 instanceID) const
+    {
+        return meshInstanceDatas[instanceID];
+    }
 
     int32 GetMaterialCount() const
     {
@@ -50,7 +103,12 @@ private:
     void InitResources();
     void UploadResources();
     void UploadMaterial(int32 matID);
+    void UpdateMeshInstanceFlags();
     void UpdateBounds();
+    void UpdateCamera();
+    void UpdateLights();
+    void UpdateMaterials();
+
     void CreateDrawList();
     void Finalize();
 
@@ -60,7 +118,8 @@ private:
 
     SPtr<Camera> camera;
     SPtr<CameraController> cameraController;
-    SPtr<AnimationController> animationController;
+
+    UPtr<AnimationController> animationController;
 
     Array<SPtr<Material>> materials;
     Array<SPtr<Light>> lights;

@@ -42,6 +42,16 @@ public:
         return channels.Count();
     }
 
+    int32 GetChannelMatrixID(int32 c) const
+    {
+        return channels[c].matrixID;
+    }
+
+    const Array<Channel> &GetChannels() const
+    {
+        return channels;
+    }
+
     void SetName(const String &newName)
     {
         name = newName;

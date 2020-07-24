@@ -2,6 +2,18 @@
 #include "Render/Scene.h"
 #include "RenderCore/RenderContext.h"
 
+namespace
+{
+const String WORLD_MATRIX_BUFFER_NAME = CT_TEXT("WorldMatrixBuffer");
+const String INVERSE_TRANSPOSE_WORLD_MATRIX_BUFFER_NAME = CT_TEXT("InverseTransposeWorldMatrixBuffer");
+
+}
+
+UPtr<AnimationController> AnimationController::Create(Scene *scene)
+{
+    return Memory::MakeUnique<AnimationController>(scene);
+}
+
 AnimationController::AnimationController(Scene *scene)
     : scene(scene)
 {
@@ -10,7 +22,10 @@ AnimationController::AnimationController(Scene *scene)
     globalMatrices.AddUninitialized(matCount);
     invTransposeGlobalMatrices.AddUninitialized(matCount);
 
-    CreateBuffers();
+    int32 vecCount = 4 * matCount;
+    worldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), 4 * vecCount, ResourceBind::ShaderResource, CpuAccess::None, nullptr, false);
+    prevWorldMatrixBuffer = worldMatrixBuffer;
+    invTransposeWorldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), 4 * vecCount, ResourceBind::ShaderResource, CpuAccess::None, nullptr, false);
 }
 
 void AnimationController::AddAnimation(int32 meshID, const SPtr<Animation> &anim)
@@ -34,7 +49,46 @@ void AnimationController::ToggleAnimations(bool animate)
 
 bool AnimationController::Animate(RenderContext *ctx, Animation::AnimTimeType currentTime)
 {
-    //TODO
+    for (auto &v : matricesChanged)
+        v = false;
+
+    if (animationChanged == false)
+    {
+        if (activeAnimationCount == 0)
+            return false;
+
+        if (lastAnimationTime == currentTime)
+        {
+            ctx->CopyResource(prevWorldMatrixBuffer.get(), worldMatrixBuffer.get());
+            return false;
+        }
+    }
+    else
+    {
+        InitLocalMatrices();
+    }
+
+    animationChanged = false;
+    lastAnimationTime = currentTime;
+
+    for (const auto &[i, m] : meshes)
+    {
+        if (m.activeAnimation == -1)
+            continue;
+        auto &anim = m.animations[m.activeAnimation];
+        anim->Animate(currentTime, localMatrices);
+        for (int32 i = 0; i < anim->GetChannelCount(); ++i)
+        {
+            matricesChanged[anim->GetChannelMatrixID(i)] = true;
+        }
+    }
+
+    std::swap(prevWorldMatrixBuffer, worldMatrixBuffer);
+    UpdateMatrices();
+    BindBuffers();
+
+    //TODO skinning pass
+    return true;
 }
 
 int32 AnimationController::GetAnimationCount(int32 meshID) const
@@ -94,17 +148,6 @@ int32 AnimationController::GetActiveAnimation(int32 meshID) const
     return ptr->activeAnimation;
 }
 
-void AnimationController::CreateBuffers()
-{
-    int32 count = 4 * scene->nodes.Count();
-
-    worldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), 4 * count, ResourceBind::ShaderResource, CpuAccess::None, nullptr, false);
-    prevWorldMatrixBuffer = worldMatrixBuffer;
-    invTransposeWorldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), 4 * count, ResourceBind::ShaderResource, CpuAccess::None, nullptr, false);
-
-    //TODO
-}
-
 void AnimationController::AllocPrevWorldMatrixBuffer()
 {
     if (activeAnimationCount > 0)
@@ -128,7 +171,34 @@ void AnimationController::InitLocalMatrices()
     }
 }
 
+void AnimationController::UpdateMatrices()
+{
+    globalMatrices = localMatrices;
+
+    auto &nodes = scene->nodes;
+    for (int32 i = 0; i < globalMatrices.Count(); ++i)
+    {
+        if (nodes[i].parent != -1)
+        {
+            globalMatrices[i] = globalMatrices[nodes[i].parent] * globalMatrices[i];
+            matricesChanged[i] = matricesChanged[i] || matricesChanged[nodes[i].parent];
+        }
+
+        invTransposeGlobalMatrices[i] = globalMatrices[i].Inverse().Transpose();
+
+        //TODO skinning pass
+    }
+    worldMatrixBuffer->SetBlob(globalMatrices.GetData(), 0, worldMatrixBuffer->GetSize());
+    invTransposeWorldMatrixBuffer->SetBlob(invTransposeGlobalMatrices.GetData(), 0, invTransposeWorldMatrixBuffer->GetSize());
+}
+
 void AnimationController::BindBuffers()
+{
+    scene->sceneBlock->SetBuffer(WORLD_MATRIX_BUFFER_NAME, worldMatrixBuffer);
+    scene->sceneBlock->SetBuffer(INVERSE_TRANSPOSE_WORLD_MATRIX_BUFFER_NAME, invTransposeWorldMatrixBuffer);
+}
+
+void AnimationController::CreateSkinningPass()
 {
     //TODO
 }

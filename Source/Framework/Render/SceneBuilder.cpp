@@ -235,7 +235,14 @@ void SceneBuilder::CreateMeshBoundingBoxes(Scene *scene)
 
 void SceneBuilder::CreateAnimationController(Scene *scene)
 {
-    //TODO
+    scene->animationController = AnimationController::Create(scene);
+    for (int32 i = 0; i < meshes.Count(); ++i)
+    {
+        for (const auto &anim : meshes[i].animations)
+        {
+            scene->animationController->AddAnimation(i, anim);
+        }
+    }
 }
 
 SPtr<Scene> SceneBuilder::GetScene()

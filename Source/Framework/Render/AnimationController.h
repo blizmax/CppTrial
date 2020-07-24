@@ -24,12 +24,13 @@ public:
         return globalMatrices;
     }
 
-    static UPtr<AnimationController> Create();
+    static UPtr<AnimationController> Create(Scene *scene);
 
 private:
-    void CreateBuffers();
+    void CreateSkinningPass();
     void AllocPrevWorldMatrixBuffer();
     void InitLocalMatrices();
+    void UpdateMatrices();
     void BindBuffers();
 
 private:
@@ -43,11 +44,13 @@ private:
 
     Scene *scene;
     int32 activeAnimationCount = 0;
+    Animation::AnimTimeType lastAnimationTime = 0.0;
     bool animationChanged = true;
 
     Array<Matrix4> localMatrices;
     Array<Matrix4> globalMatrices;
     Array<Matrix4> invTransposeGlobalMatrices;
+    Array<bool> matricesChanged;
 
     HashMap<int32, MeshAnimation> meshes;
 
