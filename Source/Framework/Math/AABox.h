@@ -81,6 +81,17 @@ public:
         return max - min;
     }
 
+    float GetRadius() const
+    {
+        return ((max - min) * 0.5f).Length();
+    }
+
+    float GetVolume() const
+    {
+        Vector3 s = max - min;
+        return s.x * s.y * s.z;
+    }
+
     static AABox Transform(const AABox &box, const Matrix4 &mat)
     {
         AABox result = box;

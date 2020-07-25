@@ -60,6 +60,16 @@ struct RandomGenerator
     }
 };
 
+CT_INLINE float Degrees(float radian)
+{
+    return RAD_TO_DEG * radian;
+}
+
+CT_INLINE float Radians(float degree)
+{
+    return DEG_TO_RAD * degree;
+}
+
 CT_INLINE float Sin(float value)
 {
     return std::sin(value);

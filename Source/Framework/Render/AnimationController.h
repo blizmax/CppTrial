@@ -24,6 +24,16 @@ public:
         return globalMatrices;
     }
 
+    bool DidMatrixChanged(int32 matrixID) const
+    {
+        return matricesChanged[matrixID];
+    }
+
+    const Array<bool> &GetMatricesChanged() const
+    {
+        return matricesChanged;
+    }
+
     static UPtr<AnimationController> Create(Scene *scene);
 
 private:

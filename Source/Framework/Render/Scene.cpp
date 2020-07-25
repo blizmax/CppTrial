@@ -19,7 +19,19 @@ SPtr<Scene> Scene::Create()
 
 void Scene::ResetCamera(bool resetDepthRange)
 {
-    //TODO
+    Vector3 center = sceneBB.GetCenter();
+    camera->SetPosition(center);
+    camera->SetTarget(center + Vector3(0.0f, 0.0f, -1.0f));
+    camera->SetUp(Vector3::Y);
+
+    if (resetDepthRange)
+    {
+        float radius = sceneBB.GetRadius();
+        float nearZ = Math::Max(0.1f, radius / 750.0f);
+        float farZ = radius * 50.0f;
+        camera->SetNearZ(nearZ);
+        camera->SetFarZ(farZ);
+    }
 }
 
 ProgramDefines Scene::GetSceneDefines() const
@@ -29,9 +41,36 @@ ProgramDefines Scene::GetSceneDefines() const
     return defines;
 }
 
-void Scene::Update(RenderContext *ctx, float currentTime)
+SceneUpdateFlags Scene::Update(RenderContext *ctx, float currentTime)
 {
+    updateFlags = SceneUpdate::None;
+    if (animationController->Animate(ctx, currentTime))
+    {
+        updateFlags |= SceneUpdate::SceneGraphChanged;
+
+        auto &changes = animationController->GetMatricesChanged();
+        for (const auto &e : meshInstanceDatas)
+        {
+            if (changes[e.globalMatrixID])
+            {
+                updateFlags |= SceneUpdate::MeshesMoved;
+                break;
+            }
+        }
+    }
+
+    if (UpdateCamera())
+        updateFlags |= SceneUpdate::CameraChanged;
+    if (UpdateLights())
+        updateFlags |= SceneUpdate::LightChanged;
+    if (UpdateMaterials())
+        updateFlags |= SceneUpdate::MaterialChanged;
+    
+    ctx->Flush();
+
     //TODO
+
+    return updateFlags;
 }
 
 void Scene::Render(RenderContext *ctx, GraphicsState *state, GraphicsVars *vars)
@@ -136,11 +175,25 @@ void Scene::UpdateBounds()
     }
 }
 
-void Scene::UpdateCamera()
+bool Scene::UpdateCamera()
 {
     if (cameraController)
         cameraController->Update();
     //TODO
+
+    return true;
+}
+
+bool Scene::UpdateLights()
+{
+    //TODO
+    return true;
+}
+
+bool Scene::UpdateMaterials()
+{
+    //TODO
+    return true;
 }
 
 void Scene::CreateDrawList()
@@ -162,6 +215,5 @@ void Scene::Finalize()
     UpdateMaterials();
     UploadResources();
     //TODO
-
 
 }

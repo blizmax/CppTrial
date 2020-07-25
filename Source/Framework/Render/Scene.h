@@ -10,7 +10,7 @@
 class Scene
 {
 public:
-    void Update(RenderContext *ctx, float currentTime);
+    SceneUpdateFlags Update(RenderContext *ctx, float currentTime);
     void Render(RenderContext *ctx, GraphicsState *state, GraphicsVars *vars);
     void BindSamplerToMaterials(const SPtr<Sampler> &sampler);
     void ResetCamera(bool resetDepthRange = true);
@@ -105,9 +105,9 @@ private:
     void UploadMaterial(int32 matID);
     void UpdateMeshInstanceFlags();
     void UpdateBounds();
-    void UpdateCamera();
-    void UpdateLights();
-    void UpdateMaterials();
+    bool UpdateCamera();
+    bool UpdateLights();
+    bool UpdateMaterials();
 
     void CreateDrawList();
     void Finalize();
@@ -139,4 +139,6 @@ private:
     SPtr<Buffer> materialsBuffer;
     SPtr<Buffer> lightsBuffer;
     SPtr<ParameterBlock> sceneBlock;
+
+    SceneUpdateFlags updateFlags = SceneUpdate::All;
 };

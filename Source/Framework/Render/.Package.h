@@ -13,6 +13,17 @@ enum class LightType
     Directional = CT_LIGHT_TYPE_DIRECTIONAL,
 };
 
+CT_DECL_FLAGS(SceneUpdate){
+    None = 0,
+    MeshesMoved = 1 << 0,
+    SceneGraphChanged = 1 << 1,
+    CameraChanged = 1 << 2,
+    LightChanged = 1 << 3,
+    MaterialChanged = 1 << 4,
+
+    All = (uint32)-1,
+};
+
 struct SceneNode
 {
     String name;

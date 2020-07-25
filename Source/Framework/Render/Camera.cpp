@@ -27,7 +27,7 @@ void Camera::CalculateParameters() const
     data.viewMat = Matrix4::LookAt(data.posW, data.target, data.up);
     if (fovY != 0.0f)
     {
-        data.projMat = Matrix4::Projection(fovY, data.aspectRatio, data.nearZ, data.farZ);
+        data.projMat = Matrix4::Projection(Math::Degrees(fovY), data.aspectRatio, data.nearZ, data.farZ);
     }
     else
     {
