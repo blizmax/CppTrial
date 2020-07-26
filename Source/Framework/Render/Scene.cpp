@@ -9,7 +9,12 @@ const String MESH_INSTANCE_BUFFER_NAME = CT_TEXT("MeshInstanceBuffer");
 const String PREV_VERTEX_BUFFER_NAME = CT_TEXT("PrevVertexBuffer");
 const String MATERIAL_BUFFER_NAME = CT_TEXT("MaterialBuffer");
 const String LIGHT_BUFFER_NAME = CT_TEXT("LightBuffer");
+const String CAMERA_BUFFER_NAME = CT_TEXT("CameraBuffer");
 
+CT_INLINE bool DoesTransformFlip(const Matrix4 &m)
+{
+    return m.ToMatrix3().Determinant() < 0.0f;
+}
 }
 
 SPtr<Scene> Scene::Create()
@@ -32,6 +37,42 @@ void Scene::ResetCamera(bool resetDepthRange)
         camera->SetNearZ(nearZ);
         camera->SetFarZ(farZ);
     }
+}
+
+void Scene::AddViewpoint()
+{
+    AddViewpoint(camera->GetPosition(), camera->GetTarget(), camera->GetUp());
+}
+
+void Scene::AddViewpoint(const Vector3 &position, const Vector3 &target, const Vector3 &up)
+{
+    viewpoints.Add({ position, target, up });
+    SelectViewpoint(viewpoints.Count() - 1);
+}
+
+void Scene::RemoveViewpoint()
+{
+    if (currentViewpointIndex == 0)
+    {
+        CT_LOG(Warning, CT_TEXT("Cannot remove default viewpoint."));
+        return;
+    }
+    viewpoints.RemoveAt(currentViewpointIndex);
+    SelectViewpoint(0);
+}
+
+void Scene::SelectViewpoint(int32 index)
+{
+    if (index < 0 || index >= viewpoints.Count())
+    {
+        CT_LOG(Warning, CT_TEXT("Try to select invalid viewpoint, ignored."));
+        return;
+    }
+
+    camera->SetPosition(viewpoints[index].position);
+    camera->SetTarget(viewpoints[index].target);
+    camera->SetUp(viewpoints[index].up);
+    currentViewpointIndex = index;
 }
 
 ProgramDefines Scene::GetSceneDefines() const
@@ -65,7 +106,7 @@ SceneUpdateFlags Scene::Update(RenderContext *ctx, float currentTime)
         updateFlags |= SceneUpdate::LightChanged;
     if (UpdateMaterials())
         updateFlags |= SceneUpdate::MaterialChanged;
-    
+
     ctx->Flush();
 
     //TODO
@@ -78,7 +119,20 @@ void Scene::Render(RenderContext *ctx, GraphicsState *state, GraphicsVars *vars)
     state->SetVertexArray(vao);
     vars->SetParameterBlock(sceneBlock);
 
-    //TODO
+    auto currentRS = state->GetRasterizationState();
+
+    if (counterClockwiseDrawArgs.count)
+    {
+        state->SetRasterizationState(frontCounterClockwiseRS);
+        ctx->DrawIndexedIndirect(state, vars, counterClockwiseDrawArgs.count, counterClockwiseDrawArgs.buffer.get(), 0, nullptr, 0);
+    }
+    if (clockwiseDrawArgs.count)
+    {
+        state->SetRasterizationState(frontClockwiseRS);
+        ctx->DrawIndexedIndirect(state, vars, clockwiseDrawArgs.count, clockwiseDrawArgs.buffer.get(), 0, nullptr, 0);
+    }
+
+    state->SetRasterizationState(currentRS);
 }
 
 void Scene::BindSamplerToMaterials(const SPtr<Sampler> &sampler)
@@ -89,25 +143,22 @@ void Scene::BindSamplerToMaterials(const SPtr<Sampler> &sampler)
     }
 }
 
-void Scene::SortMeshes()
-{
-    //TODO
-}
-
 void Scene::InitResources()
 {
     ProgramDefines defines = GetSceneDefines();
-    auto program = Program::Create(CT_TEXT("Assets/Shaders/Scene/SceneBlock.glsl"), defines);
+    ProgramCompileOptions options;
+    options.generateDebugInfo = true;
+    auto program = Program::Create(CT_TEXT("Assets/Shaders/Scene/SceneBlock.glsl"), defines, options);
     auto reflection = program->GetReflection();
     sceneBlock = ParameterBlock::Create(reflection->GetDefaultBlockReflection());
 
-    meshesBuffer = Buffer::CreateStructured(sizeof(MeshDesc), meshDesces.Count(), ResourceBind::ShaderResource, CpuAccess::None, nullptr, false);
-    meshInstancesBuffer = Buffer::CreateStructured(sizeof(MeshInstanceData), meshInstanceDatas.Count(), ResourceBind::ShaderResource, CpuAccess::None, nullptr, false);
-    materialsBuffer = Buffer::CreateStructured(sizeof(MaterialData), materials.Count(), ResourceBind::ShaderResource, CpuAccess::None, nullptr, false);
+    meshesBuffer = Buffer::CreateStructured(sizeof(MeshDesc), meshDesces.Count());
+    meshInstancesBuffer = Buffer::CreateStructured(sizeof(MeshInstanceData), meshInstanceDatas.Count());
+    materialsBuffer = Buffer::CreateStructured(sizeof(MaterialData), materials.Count());
 
     if (!lights.IsEmpty())
     {
-        lightsBuffer = Buffer::CreateStructured(sizeof(LightData), lights.Count(), ResourceBind::ShaderResource, CpuAccess::None, nullptr, false);
+        lightsBuffer = Buffer::CreateStructured(sizeof(LightData), lights.Count());
     }
 }
 
@@ -152,7 +203,13 @@ void Scene::UploadMaterial(int32 matID)
 
 void Scene::UpdateMeshInstanceFlags()
 {
-    //TODO
+    for (auto &e : meshInstanceDatas)
+    {
+        e.flags = CT_MESH_INSTANCE_NONE;
+        const auto &m = animationController->GetGlobalMatrices()[e.globalMatrixID];
+        if (DoesTransformFlip(m))
+            e.flags |= CT_MESH_INSTANCE_FLIPPED;
+    }
 }
 
 void Scene::UpdateBounds()
@@ -175,45 +232,127 @@ void Scene::UpdateBounds()
     }
 }
 
-bool Scene::UpdateCamera()
+bool Scene::UpdateCamera(bool force)
 {
-    if (cameraController)
-        cameraController->Update();
-    //TODO
+    bool changed = force;
 
-    return true;
+    if (cameraController && cameraController->Update())
+    {
+        changed = true;
+    }
+    if (changed)
+    {
+        sceneBlock->GetRootVar()[CAMERA_BUFFER_NAME].SetBlob(camera->GetData());
+    }
+
+    return changed;
 }
 
-bool Scene::UpdateLights()
+bool Scene::UpdateLights(bool force)
 {
-    //TODO
-    return true;
+    bool changed = force;
+
+    if (changed)
+    {
+        Array<LightData> lightDatas;
+        for (int32 i = 0; i < lights.Count(); ++i)
+        {
+            lightDatas.Add(lights[i]->GetData());
+        }
+        if (!lightDatas.IsEmpty())
+        {
+            lightsBuffer->SetBlob(lightDatas.GetData(), 0, sizeof(LightData) * lightDatas.Count());
+        }
+    }
+
+    return changed;
 }
 
-bool Scene::UpdateMaterials()
+bool Scene::UpdateMaterials(bool force)
 {
-    //TODO
-    return true;
+    bool changed = force;
+
+    for (int32 i = 0; i < materials.Count(); ++i)
+    {
+        bool updated = changed; //TODO Check material updated separately (use update frame id ?)
+        if (updated)
+        {
+            UploadMaterial(i);
+        }
+    }
+
+    return changed;
 }
 
 void Scene::CreateDrawList()
 {
-    //TODO
+    auto buffer = sceneBlock->GetBuffer(CT_TEXT("WorldMatrixBuffer"));
+    const Matrix4 *matrices = (Matrix4 *)buffer->Map(BufferMapType::Read);
+    Array<DrawIndexedIndirectArgs> cwArgs, ccwArgs;
+
+    for (const auto &e : meshInstanceDatas)
+    {
+        const auto &mesh = meshDesces[e.meshID];
+        const auto &transform = matrices[e.globalMatrixID];
+
+        DrawIndexedIndirectArgs args = {
+            .indexCount = (uint32)mesh.indexCount,
+            .instanceCount = 1,
+            .firstIndex = (uint32)mesh.indexOffset,
+            .vertexOffset = mesh.vertexOffset,
+            .firstInstance = (uint32)(cwArgs.Count() + ccwArgs.Count()),
+        };
+        DoesTransformFlip(transform) ? cwArgs.Add(args) : ccwArgs.Add(args);
+    }
+
+    if (auto count = cwArgs.Count())
+    {
+        clockwiseDrawArgs.buffer = Buffer::CreateIndirect(cwArgs);
+        clockwiseDrawArgs.count = count;
+    }
+    if (auto count = ccwArgs.Count())
+    {
+        counterClockwiseDrawArgs.buffer = Buffer::CreateIndirect(ccwArgs);
+        counterClockwiseDrawArgs.count = count;
+    }
 }
 
 void Scene::Finalize()
 {
     SortMeshes();
     InitResources();
+
+    // This will bind matrix buffers.
     animationController->Animate(RenderAPI::GetDevice()->GetRenderContext(), 0);
+
     UpdateMeshInstanceFlags();
     UpdateBounds();
     CreateDrawList();
 
-    UpdateCamera();
-    UpdateLights();
-    UpdateMaterials();
+    UpdateCamera(true);
+    AddViewpoint();
+    UpdateLights(true);
+    UpdateMaterials(true);
     UploadResources();
-    //TODO
 
+    UpdateGeometryStats();
+
+    if (animationController->GetAnimationCount(0))
+        animationController->SetActiveAnimation(0, 0);
+
+    RasterizationStateDesc desc;
+    desc.frontCCW = false;
+    frontClockwiseRS = RasterizationState::Create(desc);
+    desc.frontCCW = true;
+    frontCounterClockwiseRS = RasterizationState::Create(desc);
+}
+
+void Scene::SortMeshes()
+{
+    //TODO
+}
+
+void Scene::UpdateGeometryStats()
+{
+    //TODO
 }

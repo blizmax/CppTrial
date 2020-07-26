@@ -12,7 +12,7 @@ public:
         VmaAllocation allocation = VK_NULL_HANDLE;
     };
 
-    VulkanBuffer(uint32 size, ResourceBindFlags bindFlags, CpuAccess access);
+    VulkanBuffer(uint32 size, ResourceBindFlags bindFlags, BufferCpuAccess access);
     virtual ~VulkanBuffer();
 
     virtual void *Map(BufferMapType mapType) override;

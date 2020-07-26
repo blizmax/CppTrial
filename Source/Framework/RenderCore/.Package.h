@@ -59,7 +59,7 @@ CT_DECL_FLAGS(ResourceBind){
     Shared = 1 << 9,
 };
 
-enum class CpuAccess
+enum class BufferCpuAccess
 {
     None,
     Write,
@@ -328,6 +328,23 @@ struct Scissor
     int32 y;
     uint32 width;
     uint32 height;
+};
+
+struct DrawIndirectArgs
+{
+    uint32 vertexCount;
+    uint32 instanceCount;
+    uint32 firstVertex;
+    uint32 firstInstance;
+};
+
+struct DrawIndexedIndirectArgs
+{
+    uint32 indexCount;
+    uint32 instanceCount;
+    uint32 firstIndex;
+    int32 vertexOffset;
+    uint32 firstInstance;
 };
 
 CT_DECL_FLAGS(GraphicsStateBind){

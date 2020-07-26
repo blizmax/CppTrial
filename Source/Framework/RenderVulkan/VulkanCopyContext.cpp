@@ -32,8 +32,8 @@ SPtr<ReadTextureTask> ReadTextureTask::Create(CopyContext *ctx, const Texture *t
     copy.imageSubresource.mipLevel = mipLevel;
     copy.imageOffset = { 0, 0, 0 };
     copy.imageExtent = { (uint32)w, (uint32)h, (uint32)d };
-    auto downloadBuffer = Buffer::Create(dataSize, ResourceBind::None, CpuAccess::Read, nullptr);
-    copy.bufferOffset = downloadBuffer->GetOffset();
+    auto downloadBuffer = Buffer::Create(dataSize, ResourceBind::None, BufferCpuAccess::Read, nullptr);
+    copy.bufferOffset = downloadBuffer->GetGpuAddressOffset();
 
     auto vkCtx = static_cast<VulkanCopyContext *>(ctx);
     ctx->ResourceBarrier(texture, ResourceState::CopySource);
@@ -169,17 +169,14 @@ void VulkanCopyContextImpl::CopyResource(const Resource *dst, const Resource *sr
     }
 }
 
-void VulkanCopyContextImpl::CopyBufferRegion(const Buffer *dst, int32 dstOffset, const Buffer *src, int32 srcOffset, uint32 size)
+void VulkanCopyContextImpl::CopyBufferRegion(const Buffer *dst, uint64 dstOffset, const Buffer *src, uint64 srcOffset, uint32 size)
 {
-    CT_CHECK(srcOffset >= 0);
-    CT_CHECK(dstOffset >= 0);
-
     ResourceBarrier(dst, ResourceState::CopyDest, nullptr);
     ResourceBarrier(src, ResourceState::CopySource, nullptr);
 
     VkBufferCopy copy = {};
-    copy.srcOffset = src->GetOffset() + srcOffset;
-    copy.dstOffset = dst->GetOffset() + dstOffset;
+    copy.srcOffset = src->GetGpuAddressOffset() + srcOffset;
+    copy.dstOffset = dst->GetGpuAddressOffset() + dstOffset;
     copy.size = size;
 
     auto srcHandle = static_cast<const VulkanBuffer *>(src)->GetHandle();
@@ -261,7 +258,7 @@ void VulkanCopyContextImpl::UpdateBuffer(const Buffer *buffer, const void *data,
     if (size == 0)
         return;
 
-    auto uploadBuffer = Buffer::Create(size, ResourceBind::None, CpuAccess::Write, data);
+    auto uploadBuffer = Buffer::Create(size, ResourceBind::None, BufferCpuAccess::Write, data);
     CopyBufferRegion(buffer, offset, uploadBuffer.get(), 0, size);
 }
 
@@ -300,8 +297,8 @@ void VulkanCopyContextImpl::UpdateSubresource(const Texture *texture, int32 subr
     CT_CHECK(copy.imageExtent.width >= 0 && copy.imageExtent.height >= 0 && copy.imageExtent.depth >= 0);
 
 
-    auto uploadBuffer = Buffer::Create(dataSize, ResourceBind::None, CpuAccess::Write, data);
-    copy.bufferOffset = uploadBuffer->GetOffset();
+    auto uploadBuffer = Buffer::Create(dataSize, ResourceBind::None, BufferCpuAccess::Write, data);
+    copy.bufferOffset = uploadBuffer->GetGpuAddressOffset();
 
     ResourceBarrier(texture, ResourceState::CopyDest, nullptr);
     ResourceBarrier(uploadBuffer.get(), ResourceState::CopySource, nullptr);
@@ -338,8 +335,8 @@ void VulkanCopyContextImpl::UpdateSubresources(const Texture *texture, int32 fir
         copy.imageExtent.width = w;
         copy.imageExtent.height = h;
         copy.imageExtent.depth = d;
-        auto uploadBuffer = Buffer::Create(dataSize, ResourceBind::None, CpuAccess::Write, dataSrc);
-        copy.bufferOffset = uploadBuffer->GetOffset();
+        auto uploadBuffer = Buffer::Create(dataSize, ResourceBind::None, BufferCpuAccess::Write, dataSrc);
+        copy.bufferOffset = uploadBuffer->GetGpuAddressOffset();
 
         ResourceBarrier(texture, ResourceState::CopyDest, nullptr);
         ResourceBarrier(uploadBuffer.get(), ResourceState::CopySource, nullptr);
@@ -377,7 +374,7 @@ bool VulkanCopyContextImpl::BufferBarrier(const Buffer *buffer, ResourceState ne
         barrier.srcAccessMask = ToVkAccess(buffer->GetGlobalState());
         barrier.dstAccessMask = ToVkAccess(newState);
         barrier.buffer = static_cast<const VulkanBuffer *>(buffer)->GetHandle();
-        barrier.offset = buffer->GetOffset();
+        barrier.offset = buffer->GetGpuAddressOffset();
         barrier.size = buffer->GetSize();
 
         vkCmdPipelineBarrier(contextData->GetCommandBufferHandle(), srcStageMask, dstStageMask, 0, 0, nullptr, 1, &barrier, 0, nullptr);

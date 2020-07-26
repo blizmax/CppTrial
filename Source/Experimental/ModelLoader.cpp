@@ -114,8 +114,8 @@ public:
         auto vertexLayout = VertexLayout::Create();
         vertexLayout->AddBufferLayout(vertexBufferLayout);
 
-        auto vbo = Buffer::Create(sizeof(Vertex) * vertices.Count(), ResourceBind::Vertex, CpuAccess::None, vertices.GetData());
-        auto ibo = Buffer::Create(sizeof(uint32) * indices.Count(), ResourceBind::Index, CpuAccess::None, indices.GetData());
+        auto vbo = Buffer::Create(sizeof(Vertex) * vertices.Count(), ResourceBind::Vertex, BufferCpuAccess::None, vertices.GetData());
+        auto ibo = Buffer::Create(sizeof(uint32) * indices.Count(), ResourceBind::Index, BufferCpuAccess::None, indices.GetData());
 
         vao = VertexArray::Create();
         vao->SetVertexLayout(vertexLayout);

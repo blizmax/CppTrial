@@ -101,6 +101,14 @@ void Material::SetIndexOfRefraction(float value)
     }
 }
 
+void Material::SetSpecularTransmission(float value)
+{
+    if (data.specularTransmission != value)
+    {
+        data.specularTransmission = value;
+    }
+}
+
 void Material::SetDoubleSided(bool value)
 {
     int32 flags = data.flags | CT_MAT_DOUBLE_SIDED;

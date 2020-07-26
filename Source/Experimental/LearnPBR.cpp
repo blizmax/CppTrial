@@ -89,8 +89,10 @@ public:
         float width = window.GetWidth();
         float height = window.GetHeight();
         auto camera = Camera::Create();
-        auto controller = OrbiterCameraController::Create(camera);
-        controller->SetModelParams(Vector3(), 10.0f, 15.0f);
+        //auto controller = OrbiterCameraController::Create(camera);
+        //controller->SetModelParams(Vector3(), 1.0f, 15.0f);
+        //auto controller = FirstPersonCameraController::Create(camera);
+        auto controller = SixDOFCameraController::Create(camera);
         controller->SetViewport(width, height);
         cameraController = controller;
 
@@ -106,8 +108,8 @@ public:
         auto vertexLayout = VertexLayout::Create();
         vertexLayout->AddBufferLayout(vertexBufferLayout);
 
-        auto vbo = Buffer::Create(sizeof(Vertex) * vertices.Count(), ResourceBind::Vertex, CpuAccess::None, vertices.GetData());
-        auto ibo = Buffer::Create(sizeof(uint32) * indices.Count(), ResourceBind::Index, CpuAccess::None, indices.GetData());
+        auto vbo = Buffer::Create(sizeof(Vertex) * vertices.Count(), ResourceBind::Vertex, BufferCpuAccess::None, vertices.GetData());
+        auto ibo = Buffer::Create(sizeof(uint32) * indices.Count(), ResourceBind::Index, BufferCpuAccess::None, indices.GetData());
 
         vao = VertexArray::Create();
         vao->SetVertexLayout(vertexLayout);

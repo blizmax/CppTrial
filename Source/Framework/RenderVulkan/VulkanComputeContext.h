@@ -52,7 +52,7 @@ public:
         impl.CopyResource(dst, src);
     }
 
-    virtual void CopyBufferRegion(const Buffer *dst, int32 dstOffset, const Buffer *src, int32 srcOffset, uint32 size) override
+    virtual void CopyBufferRegion(const Buffer *dst, uint64 dstOffset, const Buffer *src, uint64 srcOffset, uint32 size) override
     {
         impl.CopyBufferRegion(dst, dstOffset, src, srcOffset, size);
     }

@@ -34,6 +34,13 @@ struct SceneNode
     Array<int32> meshes;
 };
 
+struct Viewpoint
+{
+    Vector3 position;
+    Vector3 target;
+    Vector3 up;
+};
+
 struct Mesh
 {
     String name;

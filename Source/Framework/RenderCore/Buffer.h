@@ -5,7 +5,7 @@
 class Buffer : public Resource
 {
 public:
-    Buffer(uint32 size, ResourceBindFlags bindFlags, CpuAccess access)
+    Buffer(uint32 size, ResourceBindFlags bindFlags, BufferCpuAccess access)
         : Resource(ResourceType::Buffer, bindFlags, size), cpuAccess(access)
     {
     }
@@ -47,12 +47,12 @@ public:
     SPtr<ResourceView> GetSrv(int32 first, int32 count = -1);
     SPtr<ResourceView> GetUav(int32 first, int32 count = -1);
 
-    uint32 GetOffset() const
+    uint64 GetGpuAddressOffset() const
     {
         return offset;
     }
 
-    CpuAccess GetCpuAccess() const
+    BufferCpuAccess GetCpuAccess() const
     {
         return cpuAccess;
     }
@@ -94,13 +94,15 @@ public:
         SetBlob(&val, sizeof(T) * index, sizeof(T));
     }
 
-    static SPtr<Buffer> Create(uint32 size, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr);
-    static SPtr<Buffer> CreateTyped(ResourceFormat format, int32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr);
-    static SPtr<Buffer> CreateStructured(uint32 structSize, int32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, CpuAccess access = CpuAccess::None, const void *data = nullptr, bool createCounter = true);
+    static SPtr<Buffer> Create(uint32 size, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, BufferCpuAccess access = BufferCpuAccess::None, const void *data = nullptr);
+    static SPtr<Buffer> CreateTyped(ResourceFormat format, int32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, BufferCpuAccess access = BufferCpuAccess::None, const void *data = nullptr);
+    static SPtr<Buffer> CreateStructured(uint32 structSize, int32 count, ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess, BufferCpuAccess access = BufferCpuAccess::None, const void *data = nullptr, bool createCounter = false);
+    static SPtr<Buffer> CreateIndirect(const Array<DrawIndirectArgs> &args);
+    static SPtr<Buffer> CreateIndirect(const Array<DrawIndexedIndirectArgs> &args);
 
 protected:
     uint32 offset = 0;
-    CpuAccess cpuAccess;
+    BufferCpuAccess cpuAccess;
     int32 elementCount = 0;
     uint32 structSize = 0;
     ResourceFormat format = ResourceFormat::Unknown;

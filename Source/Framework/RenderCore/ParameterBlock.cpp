@@ -114,7 +114,7 @@ static const ReflectionResourceType *GetResourceType(const ShaderVar &var, const
             bindFlags = (resourceType->GetShaderResourceType() == ShaderResourceType::ConstantBuffer) ? ResourceBind::Constant : ResourceBind::ShaderResource;
             break;
         case ShaderAccess::ReadWrite:
-            bindFlags = ResourceBind::UnorderedAccess;
+            bindFlags = ResourceBind::UnorderedAccess; //ResourceBind::ShaderResource | ResourceBind::UnorderedAccess;
             break;
         default:
             CT_EXCEPTION(RenderCore, "Invalid shader access.");
@@ -142,14 +142,14 @@ bool ParameterBlock::IsBufferVarValid(const ShaderVar &var, const Buffer *buffer
     case ShaderResourceType::ConstantBuffer:
         return true;
     case ShaderResourceType::StructuredBuffer:
-        if (!buffer->IsStructured())
+        if (buffer && !buffer->IsStructured())
         {
             CT_EXCEPTION(RenderCore, "Structured buffer required.");
             return false;
         }
         return true;
     case ShaderResourceType::TypedBuffer:
-        if (!buffer->IsTyped())
+        if (buffer && !buffer->IsTyped())
         {
             CT_EXCEPTION(RenderCore, "Typed buffer required.");
             return false;
@@ -354,7 +354,7 @@ SPtr<Buffer> ParameterBlock::GetUnderlyingConstantBuffer() const
     if (constantBuffer == nullptr)
     {
         uint32 size = GetElementType()->GetSize();
-        constantBuffer = Buffer::Create(size, ResourceBind::Constant, CpuAccess::Write);
+        constantBuffer = Buffer::Create(size, ResourceBind::Constant, BufferCpuAccess::Write);
     }
     return constantBuffer;
 }

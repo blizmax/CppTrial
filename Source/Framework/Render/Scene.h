@@ -10,11 +10,25 @@
 class Scene
 {
 public:
+    ProgramDefines GetSceneDefines() const;
     SceneUpdateFlags Update(RenderContext *ctx, float currentTime);
     void Render(RenderContext *ctx, GraphicsState *state, GraphicsVars *vars);
     void BindSamplerToMaterials(const SPtr<Sampler> &sampler);
     void ResetCamera(bool resetDepthRange = true);
-    ProgramDefines GetSceneDefines() const;
+    void AddViewpoint();
+    void AddViewpoint(const Vector3 &position, const Vector3 &target, const Vector3 &up);
+    void RemoveViewpoint();
+    void SelectViewpoint(int32 index);
+
+    const Array<Viewpoint> &GetViewpoints() const
+    {
+        return viewpoints;
+    }
+
+    int32 GetViewpointCount() const
+    {
+        return viewpoints.Count();
+    }
 
     void SetCamera(const SPtr<Camera> &cam)
     {
@@ -28,6 +42,7 @@ public:
 
     void SetCameraController(const SPtr<CameraController> &controller)
     {
+        CT_CHECK(controller->GetCamera() == camera);
         cameraController = controller;
     }
 
@@ -105,9 +120,10 @@ private:
     void UploadMaterial(int32 matID);
     void UpdateMeshInstanceFlags();
     void UpdateBounds();
-    bool UpdateCamera();
-    bool UpdateLights();
-    bool UpdateMaterials();
+    bool UpdateCamera(bool force = false);
+    bool UpdateLights(bool force = false);
+    bool UpdateMaterials(bool force = false);
+    void UpdateGeometryStats();
 
     void CreateDrawList();
     void Finalize();
@@ -116,18 +132,28 @@ private:
     friend class SceneBuilder;
     friend class AnimationController;
 
+    struct DrawArgs
+    {
+        SPtr<Buffer> buffer;
+        int32 count = 0;
+    } clockwiseDrawArgs, counterClockwiseDrawArgs;
+
     SPtr<Camera> camera;
     SPtr<CameraController> cameraController;
+    Array<Viewpoint> viewpoints;
+    int32 currentViewpointIndex = 0;
 
     UPtr<AnimationController> animationController;
+    SPtr<RasterizationState> frontClockwiseRS;
+    SPtr<RasterizationState> frontCounterClockwiseRS;
 
     Array<SPtr<Material>> materials;
     Array<SPtr<Light>> lights;
 
     Array<MeshDesc> meshDesces;
     Array<MeshInstanceData> meshInstanceDatas;
-    Array<Array<int32>> meshGroups;
     Array<SceneNode> nodes;
+    //Array<Array<int32>> meshGroups;
 
     Array<AABox> meshBBs;
     AABox sceneBB;

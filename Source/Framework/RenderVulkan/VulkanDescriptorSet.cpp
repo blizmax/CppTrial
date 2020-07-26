@@ -138,7 +138,7 @@ void VulkanDescriptorSet::SetBufferView(int32 binding, int32 index, const Vulkan
     else
     {
         info.buffer = buffer->GetHandle();
-        info.offset = buffer->GetOffset();
+        info.offset = buffer->GetGpuAddressOffset();
         info.range = buffer->GetSize();
         write.pBufferInfo = &info;
     }

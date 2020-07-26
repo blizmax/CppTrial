@@ -30,6 +30,7 @@ public:
     void SetEmissiveColor(const Color &color);
     void SetAlphaThreshold(float value);
     void SetIndexOfRefraction(float value);
+    void SetSpecularTransmission(float value);
     void SetDoubleSided(bool value);
 
     const SPtr<Texture> &GetBaseColorTexture() const
@@ -85,6 +86,11 @@ public:
     float GetIndexOfRefraction() const
     {
         return data.IoR;
+    }
+
+    float GetSpecularTransmission() const
+    {
+        return data.specularTransmission;
     }
 
     bool IsDoubleSided() const

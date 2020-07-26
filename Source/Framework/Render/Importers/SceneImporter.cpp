@@ -310,6 +310,12 @@ public:
             mat->SetDoubleSided(doubleSided != 0);
         }
 
+        if (opacity < 1.0f)
+        {
+            mat->SetSpecularTransmission(1.0f - opacity);
+            mat->SetDoubleSided(true);
+        }
+
         materials.Add(mat);
         return true;
     }

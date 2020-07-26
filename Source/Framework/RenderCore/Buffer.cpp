@@ -1,6 +1,6 @@
 #include "RenderCore/Buffer.h"
 
-SPtr<Buffer> Buffer::CreateTyped(ResourceFormat format, int32 count, ResourceBindFlags bindFlags, CpuAccess access, const void *data)
+SPtr<Buffer> Buffer::CreateTyped(ResourceFormat format, int32 count, ResourceBindFlags bindFlags, BufferCpuAccess access, const void *data)
 {
     uint32 size = count * GetResourceFormatBytes(format);
     auto buffer = Create(size, bindFlags, access, data);
@@ -9,7 +9,7 @@ SPtr<Buffer> Buffer::CreateTyped(ResourceFormat format, int32 count, ResourceBin
     return buffer;
 }
 
-SPtr<Buffer> Buffer::CreateStructured(uint32 structSize, int32 count, ResourceBindFlags bindFlags, CpuAccess access, const void *data, bool createCounter)
+SPtr<Buffer> Buffer::CreateStructured(uint32 structSize, int32 count, ResourceBindFlags bindFlags, BufferCpuAccess access, const void *data, bool createCounter)
 {
     uint32 size = structSize * count;
     auto buffer = Create(size, bindFlags, access, data);
@@ -19,8 +19,22 @@ SPtr<Buffer> Buffer::CreateStructured(uint32 structSize, int32 count, ResourceBi
     const uint32 zeroVal = 0;
     if (createCounter)
     {
-        buffer->uavCounter = Create(sizeof(uint32), ResourceBind::UnorderedAccess, CpuAccess::None, &zeroVal);
+        buffer->uavCounter = Create(sizeof(uint32), ResourceBind::UnorderedAccess, BufferCpuAccess::None, &zeroVal);
     }
+    return buffer;
+}
+
+SPtr<Buffer> Buffer::CreateIndirect(const Array<DrawIndirectArgs> &args)
+{
+    uint32 size = args.Count() * sizeof(DrawIndirectArgs);
+    auto buffer = Create(size, ResourceBind::IndirectArg, BufferCpuAccess::None, args.GetData());
+    return buffer;
+}
+
+SPtr<Buffer> Buffer::CreateIndirect(const Array<DrawIndexedIndirectArgs> &args)
+{
+    uint32 size = args.Count() * sizeof(DrawIndexedIndirectArgs);
+    auto buffer = Create(size, ResourceBind::IndirectArg, BufferCpuAccess::None, args.GetData());
     return buffer;
 }
 

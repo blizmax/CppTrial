@@ -64,3 +64,9 @@ const Matrix4 &Camera::GetInvViewProjection() const
     CalculateParameters();
     return data.invViewProj;
 }
+
+const CameraData &Camera::GetData() const
+{
+    CalculateParameters();
+    return data;
+}

@@ -133,12 +133,12 @@ public:
             0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
             -0.5f, 0.5f, 0.0f, 0.0f, 1.0f
         };
-        auto vbo = Buffer::Create(sizeof(vertices), ResourceBind::Vertex, CpuAccess::None, vertices);
+        auto vbo = Buffer::Create(sizeof(vertices), ResourceBind::Vertex, BufferCpuAccess::None, vertices);
 
         uint32 indices[] = {
             0, 1, 2, 2, 3, 0
         };
-        auto ibo = Buffer::Create(sizeof(indices), ResourceBind::Index, CpuAccess::None, indices);
+        auto ibo = Buffer::Create(sizeof(indices), ResourceBind::Index, BufferCpuAccess::None, indices);
 
         vao = VertexArray::Create();
         vao->SetVertexLayout(vertexLayout);

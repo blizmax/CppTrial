@@ -11,6 +11,7 @@ public:
     const Matrix4 &GetProjection() const;
     const Matrix4 &GetViewProjection() const;
     const Matrix4 &GetInvViewProjection() const;
+    const CameraData &GetData() const;
 
     void SetPosition(const Vector3 &pos)
     {
@@ -131,11 +132,6 @@ public:
     float GetShutterSpeed() const
     {
         return data.shutterSpeed;
-    }
-
-    const CameraData &GetData() const
-    {
-        return data;
     }
 
     const String &GetName() const

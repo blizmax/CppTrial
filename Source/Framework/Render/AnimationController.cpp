@@ -21,11 +21,12 @@ AnimationController::AnimationController(Scene *scene)
     localMatrices.AddUninitialized(matCount);
     globalMatrices.AddUninitialized(matCount);
     invTransposeGlobalMatrices.AddUninitialized(matCount);
+    matricesChanged.AddUninitialized(matCount);
 
     int32 vecCount = 4 * matCount;
-    worldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), 4 * vecCount, ResourceBind::ShaderResource, CpuAccess::None, nullptr, false);
+    worldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), 4 * vecCount);
     prevWorldMatrixBuffer = worldMatrixBuffer;
-    invTransposeWorldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), 4 * vecCount, ResourceBind::ShaderResource, CpuAccess::None, nullptr, false);
+    invTransposeWorldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), 4 * vecCount);
 }
 
 void AnimationController::AddAnimation(int32 meshID, const SPtr<Animation> &anim)
@@ -154,7 +155,7 @@ void AnimationController::AllocPrevWorldMatrixBuffer()
     {
         if (worldMatrixBuffer == prevWorldMatrixBuffer)
         {
-            prevWorldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), worldMatrixBuffer->GetElementCount(), ResourceBind::ShaderResource, CpuAccess::None, nullptr, false);
+            prevWorldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), worldMatrixBuffer->GetElementCount());
         }
     }
     else

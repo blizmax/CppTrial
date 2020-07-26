@@ -1,7 +1,7 @@
 #include "RenderVulkan/VulkanBuffer.h"
 #include "RenderVulkan/VulkanDevice.h"
 
-SPtr<Buffer> Buffer::Create(uint32 size, ResourceBindFlags bindFlags, CpuAccess access, const void *data)
+SPtr<Buffer> Buffer::Create(uint32 size, ResourceBindFlags bindFlags, BufferCpuAccess access, const void *data)
 {
     auto ptr = Memory::MakeShared<VulkanBuffer>(size, bindFlags, access);
     ptr->weakThis = ptr;
@@ -10,16 +10,16 @@ SPtr<Buffer> Buffer::Create(uint32 size, ResourceBindFlags bindFlags, CpuAccess 
     return ptr;
 }
 
-VulkanBuffer::VulkanBuffer(uint32 size, ResourceBindFlags bindFlags, CpuAccess access)
+VulkanBuffer::VulkanBuffer(uint32 size, ResourceBindFlags bindFlags, BufferCpuAccess access)
     : Buffer(size, bindFlags, access)
 {
-    if (access == CpuAccess::Write)
+    if (access == BufferCpuAccess::Write)
     {
         bufferData = CreateBuffer(bindFlags, MemoryUsage::Upload);
     }
     else
     {
-        if (access == CpuAccess::Read && bindFlags == ResourceBind::None)
+        if (access == BufferCpuAccess::Read && bindFlags == ResourceBind::None)
             bufferData = CreateBuffer(bindFlags, MemoryUsage::Download);
         else
             bufferData = CreateBuffer(bindFlags, MemoryUsage::Default);
@@ -81,7 +81,7 @@ void *VulkanBuffer::Map(BufferMapType mapType)
 {
     if (mapType == BufferMapType::Write || mapType == BufferMapType::WriteDiscard)
     {
-        CT_CHECK(cpuAccess == CpuAccess::Write);
+        CT_CHECK(cpuAccess == BufferCpuAccess::Write);
     }
 
     if (mapType == BufferMapType::WriteDiscard)
@@ -94,14 +94,14 @@ void *VulkanBuffer::Map(BufferMapType mapType)
     bool useStaging = false;
     if (mapType == BufferMapType::Read)
     {
-        if ((cpuAccess == CpuAccess::Read && bindFlags != ResourceBind::None) || cpuAccess == CpuAccess::None)
+        if ((cpuAccess == BufferCpuAccess::Read && bindFlags != ResourceBind::None) || cpuAccess == BufferCpuAccess::None)
             useStaging = true;
     }
     if (useStaging)
     {
         if (!stagingBuffer)
         {
-            stagingBuffer = Buffer::Create(size, ResourceBind::None, CpuAccess::Read, nullptr);
+            stagingBuffer = Buffer::Create(size, ResourceBind::None, BufferCpuAccess::Read, nullptr);
         }
 
         auto context = gVulkanDevice->GetRenderContext();
@@ -134,7 +134,7 @@ void VulkanBuffer::SetBlob(const void *data, uint32 offset, uint32 dataSize)
 {
     CT_CHECK(offset + dataSize <= size);
 
-    if (cpuAccess == CpuAccess::Write)
+    if (cpuAccess == BufferCpuAccess::Write)
     {
         uint8 *dst = reinterpret_cast<uint8 *>(Map(BufferMapType::WriteDiscard));
         std::memcpy(dst + offset, data, dataSize);

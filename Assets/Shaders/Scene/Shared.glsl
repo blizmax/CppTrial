@@ -1,4 +1,8 @@
 
+// Instance defs
+#define CT_MESH_INSTANCE_NONE    0
+#define CT_MESH_INSTANCE_FLIPPED 1
+
 // Light defs
 #define CT_LIGHT_TYPE_POINT       0
 #define CT_LIGHT_TYPE_DIRECTIONAL 1

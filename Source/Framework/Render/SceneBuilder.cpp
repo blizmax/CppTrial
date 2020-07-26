@@ -113,11 +113,11 @@ SPtr<VertexArray> SceneBuilder::CreateVao(int32 drawCount)
     CT_CHECK(staticVbSize <= UINT32_MAX);
 
     ResourceBindFlags ibBindFlags = ResourceBind::Index | ResourceBind::ShaderResource;
-    auto ibo = Buffer::Create((uint32)ibSize, ibBindFlags, CpuAccess::None, buffersData.indices.GetData());
+    auto ibo = Buffer::Create((uint32)ibSize, ibBindFlags, BufferCpuAccess::None, buffersData.indices.GetData());
 
     ResourceBindFlags vbBindFlags = ResourceBind::Vertex | ResourceBind::UnorderedAccess | ResourceBind::ShaderResource;
-    auto staticVbo = Buffer::CreateStructured(sizeof(StaticVertexData), vertexCount, vbBindFlags, CpuAccess::None, nullptr, false);
-    auto prevVbo = Buffer::CreateStructured(sizeof(PrevVertexData), vertexCount, vbBindFlags, CpuAccess::None, nullptr, false);
+    auto staticVbo = Buffer::CreateStructured(sizeof(StaticVertexData), vertexCount, vbBindFlags, BufferCpuAccess::None, nullptr, false);
+    auto prevVbo = Buffer::CreateStructured(sizeof(PrevVertexData), vertexCount, vbBindFlags, BufferCpuAccess::None, nullptr, false);
 
     staticVbo->SetBlob(buffersData.staticDatas.GetData(), 0, staticVbo->GetSize());
 
@@ -135,7 +135,7 @@ SPtr<VertexArray> SceneBuilder::CreateVao(int32 drawCount)
     {
         instanceIDs[i] = i;
     }
-    auto instVbo = Buffer::Create(drawCount * sizeof(int32), ResourceBind::Vertex, CpuAccess::None, instanceIDs.GetData());
+    auto instVbo = Buffer::Create(drawCount * sizeof(int32), ResourceBind::Vertex, BufferCpuAccess::None, instanceIDs.GetData());
 
     auto staticLayout = VertexBufferLayout::Create(
         { { 0, CT_TEXT("inPos"), ResourceFormat::RGB32Float },
@@ -257,6 +257,11 @@ SPtr<Scene> SceneBuilder::GetScene()
     scene->camera = camera ? camera : Camera::Create();
     scene->lights = lights;
     scene->materials = materials;
+
+    if (scene->lights.IsEmpty())
+    {
+        scene->lights.Add(DirectionalLight::Create());
+    }
     // TODO lightProbe, envMap
 
     CreateSceneGraph(scene.get());

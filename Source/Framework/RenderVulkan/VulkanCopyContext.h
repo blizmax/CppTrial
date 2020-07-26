@@ -14,7 +14,7 @@ public:
     bool ResourceBarrier(const Resource *resource, ResourceState newState, const ResourceViewInfo *viewInfo);
     void UavBarrier(const Resource *resource);
     void CopyResource(const Resource *dst, const Resource *src);
-    void CopyBufferRegion(const Buffer *dst, int32 dstOffset, const Buffer *src, int32 srcOffset, uint32 size);
+    void CopyBufferRegion(const Buffer *dst, uint64 dstOffset, const Buffer *src, uint64 srcOffset, uint32 size);
     void CopySubresource(const Texture *dst, int32 dstSub, const Texture *src, int32 srcSub);
     void CopySubresourceRegion(const Texture *dst, int32 dstSub, const Texture *src, int32 srcSub, const Vector3I &dstOffset, const Vector3I &srcOffset, const Vector3I &size);
     void UpdateBuffer(const Buffer *buffer, const void *data, int32 offset, uint32 size);
@@ -67,7 +67,7 @@ public:
         impl.CopyResource(dst, src);
     }
 
-    virtual void CopyBufferRegion(const Buffer *dst, int32 dstOffset, const Buffer *src, int32 srcOffset, uint32 size) override
+    virtual void CopyBufferRegion(const Buffer *dst, uint64 dstOffset, const Buffer *src, uint64 srcOffset, uint32 size) override
     {
         impl.CopyBufferRegion(dst, dstOffset, src, srcOffset, size);
     }

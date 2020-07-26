@@ -39,7 +39,7 @@ public:
     virtual bool ResourceBarrier(const Resource *resource, ResourceState newState, const ResourceViewInfo *viewInfo = nullptr) = 0;
     virtual void UavBarrier(const Resource *resource) = 0;
     virtual void CopyResource(const Resource *dst, const Resource *src) = 0;
-    virtual void CopyBufferRegion(const Buffer *dst, int32 dstOffset, const Buffer *src, int32 srcOffset, uint32 size) = 0;
+    virtual void CopyBufferRegion(const Buffer *dst, uint64 dstOffset, const Buffer *src, uint64 srcOffset, uint32 size) = 0;
     virtual void CopySubresource(const Texture *dst, int32 dstSub, const Texture *src, int32 srcSub) = 0;
     virtual void CopySubresourceRegion(const Texture *dst, int32 dstSub, const Texture *src, int32 srcSub, const Vector3I &dstOffset = Vector3I(), const Vector3I &srcOffset = Vector3I(), const Vector3I &size = Vector3I(-1)) = 0;
     virtual void UpdateBuffer(const Buffer *buffer, const void *data, int32 offset, uint32 size) = 0;

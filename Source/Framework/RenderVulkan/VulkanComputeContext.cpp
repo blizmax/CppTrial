@@ -31,7 +31,7 @@ void VulkanComputeContextImpl::DispatchIndirect(ComputeState *state, ComputeVars
 
     ResourceBarrier(argBuffer, ResourceState::IndirectArg, nullptr);
     auto vkBuffer = static_cast<const VulkanBuffer *>(argBuffer);
-    vkCmdDispatchIndirect(contextData->GetCommandBufferHandle(), vkBuffer->GetHandle(), argBuffer->GetOffset() + argBufferOffset);
+    vkCmdDispatchIndirect(contextData->GetCommandBufferHandle(), vkBuffer->GetHandle(), argBuffer->GetGpuAddressOffset() + argBufferOffset);
 }
 
 void VulkanComputeContextImpl::ClearUav(const ResourceView *uav, const Vector4 &value)
@@ -45,7 +45,7 @@ void VulkanComputeContextImpl::ClearUav(const ResourceView *uav, const Vector4U 
     auto vkBuffer = dynamic_cast<const VulkanBuffer *>(uav->GetResource());
     if (vkBuffer)
     {
-        vkCmdFillBuffer(contextData->GetCommandBufferHandle(), vkBuffer->GetHandle(), vkBuffer->GetOffset(), vkBuffer->GetSize(), value.x);
+        vkCmdFillBuffer(contextData->GetCommandBufferHandle(), vkBuffer->GetHandle(), vkBuffer->GetGpuAddressOffset(), vkBuffer->GetSize(), value.x);
     }
     else
     {

@@ -130,8 +130,34 @@ void VulkanRenderContextImpl::DrawIndexedInstanced(GraphicsState *state, Graphic
     vkCmdEndRenderPass(contextData->GetCommandBufferHandle());
 }
 
+void VulkanRenderContextImpl::DrawIndirect(GraphicsState *state, GraphicsVars *vars, int32 drawCount, const Buffer *argBuffer, uint64 argBufferOffset, const Buffer *countBuffer, uint64 countBufferOffset)
+{
+    static_assert(sizeof(VkDrawIndirectCommand) == sizeof(DrawIndirectArgs));
+    CT_CHECK(drawCount >= 0);
+    auto argBufferHandle = static_cast<const VulkanBuffer *>(argBuffer)->GetHandle();
+
+    ResourceBarrier(argBuffer, ResourceState::IndirectArg, nullptr);
+    if (PrepareForDraw(state, vars) == false)
+        return;
+
+    vkCmdDrawIndirect(contextData->GetCommandBufferHandle(), argBufferHandle, argBufferOffset + argBuffer->GetGpuAddressOffset(), drawCount, sizeof(VkDrawIndirectCommand));
+}
+
+void VulkanRenderContextImpl::DrawIndexedIndirect(GraphicsState *state, GraphicsVars *vars, int32 drawCount, const Buffer *argBuffer, uint64 argBufferOffset, const Buffer *countBuffer, uint64 countBufferOffset)
+{
+    static_assert(sizeof(VkDrawIndexedIndirectCommand) == sizeof(DrawIndexedIndirectArgs));
+    CT_CHECK(drawCount >= 0);
+    auto argBufferHandle = static_cast<const VulkanBuffer *>(argBuffer)->GetHandle();
+
+    ResourceBarrier(argBuffer, ResourceState::IndirectArg, nullptr);
+    if (PrepareForDraw(state, vars) == false)
+        return;
+
+    vkCmdDrawIndexedIndirect(contextData->GetCommandBufferHandle(), argBufferHandle, argBufferOffset + argBuffer->GetGpuAddressOffset(), drawCount, sizeof(VkDrawIndexedIndirectCommand));
+}
+
 template <int32 offsetCount, typename ViewType>
-void InitBlitData(const ViewType *view, const Vector4I &rect, VkImageSubresourceLayers &layer, VkOffset3D offset[offsetCount])
+static void InitBlitData(const ViewType *view, const Vector4I &rect, VkImageSubresourceLayers &layer, VkOffset3D offset[offsetCount])
 {
     const Texture *texture = dynamic_cast<const Texture *>(view->GetResource());
 
@@ -230,7 +256,7 @@ void VulkanRenderContextImpl::SetVao(const VertexArray *vao)
     for (int32 i = 0; i < buffers.Count(); ++i)
     {
         auto vkBuffer = static_cast<VulkanBuffer *>(buffers[i].get());
-        VkDeviceSize offset = vkBuffer->GetOffset();
+        VkDeviceSize offset = vkBuffer->GetGpuAddressOffset();
         VkBuffer handle = vkBuffer->GetHandle();
         vkCmdBindVertexBuffers(commandBuffer, i, 1, &handle, &offset);
         ResourceBarrier(vkBuffer, ResourceState::VertexBuffer, nullptr);
@@ -238,7 +264,7 @@ void VulkanRenderContextImpl::SetVao(const VertexArray *vao)
     if (vao->GetIndexBuffer())
     {
         auto vkBuffer = static_cast<VulkanBuffer *>(vao->GetIndexBuffer().get());
-        VkDeviceSize offset = vkBuffer->GetOffset();
+        VkDeviceSize offset = vkBuffer->GetGpuAddressOffset();
         VkBuffer handle = vkBuffer->GetHandle();
         vkCmdBindIndexBuffer(commandBuffer, handle, offset, ToVkIndexType(vao->GetIndexBufferFormat()));
         ResourceBarrier(vkBuffer, ResourceState::IndexBuffer, nullptr);

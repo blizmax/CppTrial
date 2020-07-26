@@ -22,7 +22,7 @@ vec3 RGB2Normal(vec3 rgb)
     return normalize(n);
 }
 
-vec3 RG2Normal(vec3 rg)
+vec3 RG2Normal(vec2 rg)
 {
     // use r^2 + g^2 + z^2 = 1.0
     vec3 n;

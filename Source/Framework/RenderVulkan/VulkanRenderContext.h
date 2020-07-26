@@ -17,6 +17,8 @@ public:
     void DrawInstanced(GraphicsState *state, GraphicsVars *vars, int32 vertexCount, int32 instanceCount, int32 firstVertex, int32 firstInstance);
     void DrawIndexed(GraphicsState *state, GraphicsVars *vars, int32 indexCount, int32 firstIndex, int32 vertexOffset);
     void DrawIndexedInstanced(GraphicsState *state, GraphicsVars *vars, int32 indexCount, int32 instanceCount, int32 firstIndex, int32 vertexOffset, int32 firstInstance);
+    void DrawIndirect(GraphicsState *state, GraphicsVars *vars, int32 drawCount, const Buffer *argBuffer, uint64 argBufferOffset, const Buffer *countBuffer, uint64 countBufferOffset);
+    void DrawIndexedIndirect(GraphicsState *state, GraphicsVars *vars, int32 drawCount, const Buffer *argBuffer, uint64 argBufferOffset, const Buffer *countBuffer, uint64 countBufferOffset);
 
     void Blit(ResourceView *srcSrv, ResourceView *dstRtv, const Vector4I &srcRect = Vector4I(-1), const Vector4I &dstRect = Vector4I(-1), TextureFilter filter = TextureFilter::Linear);
     void ResolveResource(Texture *src, Texture *dst);
@@ -74,7 +76,7 @@ public:
         impl.CopyResource(dst, src);
     }
 
-    virtual void CopyBufferRegion(const Buffer *dst, int32 dstOffset, const Buffer *src, int32 srcOffset, uint32 size) override
+    virtual void CopyBufferRegion(const Buffer *dst, uint64 dstOffset, const Buffer *src, uint64 srcOffset, uint32 size) override
     {
         impl.CopyBufferRegion(dst, dstOffset, src, srcOffset, size);
     }
@@ -182,6 +184,16 @@ public:
     virtual void DrawIndexedInstanced(GraphicsState *state, GraphicsVars *vars, int32 indexCount, int32 instanceCount, int32 firstIndex, int32 vertexOffset, int32 firstInstance) override
     {
         impl.DrawIndexedInstanced(state, vars, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+    }
+
+    virtual void DrawIndirect(GraphicsState *state, GraphicsVars *vars, int32 drawCount, const Buffer *argBuffer, uint64 argBufferOffset, const Buffer *countBuffer, uint64 countBufferOffset) override
+    {
+        impl.DrawIndirect(state, vars, drawCount, argBuffer, argBufferOffset, countBuffer, countBufferOffset);
+    }
+
+    virtual void DrawIndexedIndirect(GraphicsState *state, GraphicsVars *vars, int32 drawCount, const Buffer *argBuffer, uint64 argBufferOffset, const Buffer *countBuffer, uint64 countBufferOffset) override
+    {
+        impl.DrawIndexedIndirect(state, vars, drawCount, argBuffer, argBufferOffset, countBuffer, countBufferOffset);
     }
 
     virtual void Blit(ResourceView *srcSrv, ResourceView *dstRtv, const Vector4I &srcRect, const Vector4I &dstRect, TextureFilter filter) override

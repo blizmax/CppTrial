@@ -229,8 +229,8 @@ void ImGuiLab::CreateVertexArray(ImDrawData *drawData)
             return;
     }
 
-    auto vbo = createVbo ? Buffer::Create(vboSize, ResourceBind::Vertex, CpuAccess::Write) : vertexArray->GetVertexBuffer(0);
-    auto ibo = createIbo ? Buffer::Create(iboSize, ResourceBind::Index, CpuAccess::Write) : vertexArray->GetIndexBuffer();
+    auto vbo = createVbo ? Buffer::Create(vboSize, ResourceBind::Vertex, BufferCpuAccess::Write) : vertexArray->GetVertexBuffer(0);
+    auto ibo = createIbo ? Buffer::Create(iboSize, ResourceBind::Index, BufferCpuAccess::Write) : vertexArray->GetIndexBuffer();
 
     vertexArray = VertexArray::Create();
     vertexArray->SetVertexLayout(vertexLayout);

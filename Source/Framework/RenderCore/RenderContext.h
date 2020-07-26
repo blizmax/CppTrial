@@ -16,7 +16,8 @@ public:
     virtual void DrawInstanced(GraphicsState *state, GraphicsVars *vars, int32 vertexCount, int32 instanceCount, int32 firstVertex, int32 firstInstance) = 0;
     virtual void DrawIndexed(GraphicsState *state, GraphicsVars *vars, int32 indexCount, int32 firstIndex, int32 vertexOffset) = 0;
     virtual void DrawIndexedInstanced(GraphicsState *state, GraphicsVars *vars, int32 indexCount, int32 instanceCount, int32 firstIndex, int32 vertexOffset, int32 firstInstance) = 0;
-    //TODO DrawIndirect
+    virtual void DrawIndirect(GraphicsState *state, GraphicsVars *vars, int32 drawCount, const Buffer *argBuffer, uint64 argBufferOffset, const Buffer *countBuffer, uint64 countBufferOffset) = 0;
+    virtual void DrawIndexedIndirect(GraphicsState *state, GraphicsVars *vars, int32 drawCount, const Buffer *argBuffer, uint64 argBufferOffset, const Buffer *countBuffer, uint64 countBufferOffset) = 0;
 
     /** From srv to rtv, rect: [left, up, right, down]  */
     virtual void Blit(ResourceView *srcSrv, ResourceView *dstRtv, const Vector4I &srcRect = Vector4I(-1), const Vector4I &dstRect = Vector4I(-1), TextureFilter filter = TextureFilter::Linear) = 0;
