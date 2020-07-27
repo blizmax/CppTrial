@@ -31,6 +31,7 @@ public:
     void SetAlphaThreshold(float value);
     void SetIndexOfRefraction(float value);
     void SetSpecularTransmission(float value);
+    void SetAlphaMode(int32 alphaMode);
     void SetDoubleSided(bool value);
 
     const SPtr<Texture> &GetBaseColorTexture() const
@@ -95,7 +96,7 @@ public:
 
     bool IsDoubleSided() const
     {
-        return (data.flags & CT_MAT_DOUBLE_SIDED) > 0;
+        return GetMaterialBit(data.flags, CT_MAT_DOUBLE_SIDED) > 0;
     }
 
     int32 GetFlags() const
@@ -127,6 +128,11 @@ public:
 
 private:
     void SetFlags(int32 flags);
+    void UpdateBaseColorType();
+    void UpdateSpecularType();
+    void UpdateEmissiveType();
+    void UpdateOcclusonType();
+    void UpdateNormalType();
 
 private:
     String name;

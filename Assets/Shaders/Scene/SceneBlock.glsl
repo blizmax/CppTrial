@@ -11,7 +11,7 @@ layout(location = 0) out vec4 outColor;
 void ActiveAllVariables()
 {
     int l = meshInstances.length();
-    l = meshes.length();
+    //l = meshes.length();
     l = worldMatrices.length();
     l = inverseTransposeWorldMatrices.length();
     l = vertices.length();

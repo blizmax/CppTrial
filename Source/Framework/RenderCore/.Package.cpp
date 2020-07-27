@@ -560,6 +560,11 @@ uint32 GetResourceFormatBytes(ResourceFormat format)
     return GetResourceFormatDesc(format).bytes;
 }
 
+uint32 GetResourceFormatComponentCount(ResourceFormat format)
+{
+    return GetResourceFormatDesc(format).componentCount;
+}
+
 uint32 GetResourceFormatWidthCompressionRatio(ResourceFormat format)
 {
     return GetResourceFormatDesc(format).compressionRatio.width;

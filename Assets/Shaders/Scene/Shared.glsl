@@ -1,41 +1,70 @@
 
 // Instance defs
-#define CT_MESH_INSTANCE_NONE    0
+#define CT_MESH_INSTANCE_NONE 0
 #define CT_MESH_INSTANCE_FLIPPED 1
 
 // Light defs
-#define CT_LIGHT_TYPE_POINT       0
+#define CT_LIGHT_TYPE_POINT 0
 #define CT_LIGHT_TYPE_DIRECTIONAL 1
 
 // Material defs
 #define CT_SHADING_MODEL_METAL_ROUGH 0 // Use 8 bits store shading models
-#define CT_SHADING_MODEL_SPEC_GLOSS  1
+#define CT_SHADING_MODEL_SPEC_GLOSS 1
 
-#define CT_MAT_SAMPLE_MODE_NONE     0
-#define CT_MAT_SAMPLE_MODE_CONST    1
-#define CT_MAT_SAMPLE_MODE_TEXTURE  2
+#define CT_MAT_SAMPLE_MODE_NONE 0
+#define CT_MAT_SAMPLE_MODE_CONST 1
+#define CT_MAT_SAMPLE_MODE_TEXTURE 2
 
-#define CT_MAT_NORMAL_MODE_NONE     0
-#define CT_MAT_NORMAL_MODE_RGB      1
-#define CT_MAT_NORMAL_MODE_RG       2
+#define CT_MAT_NORMAL_MODE_NONE 0
+#define CT_MAT_NORMAL_MODE_RGB 1
+#define CT_MAT_NORMAL_MODE_RG 2
 
-#define CT_MAT_DIFFUSE       10 // Offset bit
-#define CT_MAT_SPECULAR      12
-#define CT_MAT_EMISSIVE      14
-#define CT_MAT_NORMAL        16
-#define CT_MAT_OCCLUSION     18
+#define CT_MAT_DIFFUSE 10 // Offset bit
+#define CT_MAT_SPECULAR 12
+#define CT_MAT_EMISSIVE 14
+#define CT_MAT_NORMAL 16
+#define CT_MAT_OCCLUSION 18
 
-#define CT_MAT_DOUBLE_SIDED  (1 << 20)
+#define CT_MAT_DOUBLE_SIDED 20
+
+CT_INLINE int32 GetMaterialBits(int32 flags, int32 offset, int32 bits)
+{
+    return (flags >> offset) & ((1 << bits) - 1);
+}
+
+CT_INLINE int32 SetMaterialBits(int32 flags, int32 offset, int32 bits, int32 value)
+{
+    return ((value & ((1 << bits) - 1)) << offset) | (flags & (~(((1 << bits) - 1) << offset)));
+}
+
+CT_INLINE int32 GetMaterialBit(int32 flags, int32 offset)
+{
+    return GetMaterialBits(flags, offset, 1);
+}
+
+CT_INLINE int32 SetMaterialBit(int32 flags, int32 offset, bool value)
+{
+    return SetMaterialBits(flags, offset, 1, value ? 1 : 0);
+}
 
 CT_INLINE int32 GetMaterialSampleMode(int32 flags, int32 mapType)
 {
-    // each map has 2 bits
-    return (flags >> mapType) & ((1 << 2) - 1);
+    return GetMaterialBits(flags, mapType, 2);
+}
+
+CT_INLINE int32 SetMaterialSampleMode(int32 flags, int32 mapType, int32 mode)
+{
+    return SetMaterialBits(flags, mapType, 2, mode);
 }
 
 CT_INLINE int32 GetMaterialNormalMode(int32 flags)
 {
-    return (flags >> CT_MAT_NORMAL) & ((1 << 2) - 1);
+    return GetMaterialBits(flags, CT_MAT_NORMAL, 2);
+}
+
+CT_INLINE int32 SetMaterialNormalMode(int32 flags, int32 mode)
+{
+    return SetMaterialBits(flags, CT_MAT_NORMAL, 2, mode);
 }
 
 CT_INLINE int32 GetMaterialShadingModel(int32 flags)
@@ -135,7 +164,7 @@ struct CameraData
     Vector3 cameraW;
     float jitterY;
 
-    float frameHeight ;
+    float frameHeight;
     float focalDistance;
     float apertureRadius;
     float shutterSpeed;
@@ -144,4 +173,3 @@ struct CameraData
     CameraData();
 #endif
 };
-

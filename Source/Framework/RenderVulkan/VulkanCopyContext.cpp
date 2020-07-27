@@ -117,7 +117,7 @@ bool VulkanCopyContextImpl::ResourceBarrier(const Resource *resource, ResourceSt
 
 void VulkanCopyContextImpl::UavBarrier(const Resource *resource)
 {
-    CT_EXCEPTION(RenderCore, "Unsupported in vulkan.");
+    //CT_EXCEPTION(RenderCore, "Unsupported in vulkan.");
 }
 
 void VulkanCopyContextImpl::CopyResource(const Resource *dst, const Resource *src)

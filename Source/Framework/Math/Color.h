@@ -161,6 +161,11 @@ public:
         return *this;
     }
 
+    float Luminance() const
+    {
+        return Luminance(r, g, b);
+    }
+
     static Color Lerp(const Color &a, const Color &b, float t)
     {
         return (b - a) * t + a;

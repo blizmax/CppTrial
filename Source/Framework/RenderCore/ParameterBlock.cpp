@@ -114,7 +114,7 @@ static const ReflectionResourceType *GetResourceType(const ShaderVar &var, const
             bindFlags = (resourceType->GetShaderResourceType() == ShaderResourceType::ConstantBuffer) ? ResourceBind::Constant : ResourceBind::ShaderResource;
             break;
         case ShaderAccess::ReadWrite:
-            bindFlags = ResourceBind::UnorderedAccess; //ResourceBind::ShaderResource | ResourceBind::UnorderedAccess;
+            bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess; //ResourceBind::UnorderedAccess;
             break;
         default:
             CT_EXCEPTION(RenderCore, "Invalid shader access.");
@@ -136,29 +136,32 @@ bool ParameterBlock::IsBufferVarValid(const ShaderVar &var, const Buffer *buffer
     if (!resourceType)
         return false;
 
-    switch (resourceType->GetShaderResourceType())
-    {
-    case ShaderResourceType::RawBuffer:
-    case ShaderResourceType::ConstantBuffer:
-        return true;
-    case ShaderResourceType::StructuredBuffer:
-        if (buffer && !buffer->IsStructured())
-        {
-            CT_EXCEPTION(RenderCore, "Structured buffer required.");
-            return false;
-        }
-        return true;
-    case ShaderResourceType::TypedBuffer:
-        if (buffer && !buffer->IsTyped())
-        {
-            CT_EXCEPTION(RenderCore, "Typed buffer required.");
-            return false;
-        }
-        return true;
-    default:
-        CT_EXCEPTION(RenderCore, "Shader var is not a buffer var.");
-        return false;
-    }
+    return true;
+
+    // TODO
+    // switch (resourceType->GetShaderResourceType())
+    // {
+    // case ShaderResourceType::RawBuffer:
+    // case ShaderResourceType::ConstantBuffer:
+    //     return true;
+    // case ShaderResourceType::StructuredBuffer:
+    //     if (buffer && !buffer->IsStructured())
+    //     {
+    //         CT_EXCEPTION(RenderCore, "Structured buffer required.");
+    //         return false;
+    //     }
+    //     return true;
+    // case ShaderResourceType::TypedBuffer:
+    //     if (buffer && !buffer->IsTyped())
+    //     {
+    //         CT_EXCEPTION(RenderCore, "Typed buffer required.");
+    //         return false;
+    //     }
+    //     return true;
+    // default:
+    //     CT_EXCEPTION(RenderCore, "Shader var is not a buffer var.");
+    //     return false;
+    // }
 }
 
 bool ParameterBlock::IsTextureVarValid(const ShaderVar &var, const Texture *texture) const
@@ -705,6 +708,11 @@ bool ParameterBlock::BindIntoDescriptorSet(int32 setIndex, const SPtr<Descriptor
         }
     }
 
+    if (reflection->GetSetInfoCount() <= setIndex) // sub block does not contain bindings with this setIndex
+    {
+        return true;
+    }
+
     auto setInfo = reflection->GetSetInfo(setIndex);
     for (auto index : setInfo.bindingIndices)
     {
@@ -844,7 +852,7 @@ ShaderVar ShaderVar::FindMember(int32 index) const
         if (index >= 0 && index < arrayType->GetElementCount())
         {
             VarLocation newLoc;
-            newLoc.rangeIndex = location.arrayIndex;
+            newLoc.rangeIndex = location.rangeIndex;
             newLoc.arrayIndex = index;
             newLoc.byteOffset = location.byteOffset + arrayType->GetStride() * index;
             return ShaderVar(block, ShaderVarLocation(arrayType->GetElementType(), newLoc));
@@ -950,7 +958,7 @@ ShaderVar ShaderVar::operator[](const String &name) const
     auto ret = FindMember(name);
     if (!ret.IsValid() && IsValid())
     {
-        CT_LOG(Error, CT_TEXT("ShaderVar[] attemp to find invalid member, name is {0}."), name);
+        CT_LOG(Error, CT_TEXT("ShaderVar[] attempt to find invalid member, name is {0}."), name);
     }
     return ret;
 }
@@ -960,7 +968,7 @@ ShaderVar ShaderVar::operator[](int32 index) const
     auto ret = FindMember(index);
     if (!ret.IsValid() && IsValid())
     {
-        CT_LOG(Error, CT_TEXT("ShaderVar[] attemp to find invalid member, index is {0}."), index);
+        CT_LOG(Error, CT_TEXT("ShaderVar[] attempt to find invalid member, index is {0}."), index);
     }
     return ret;
 }

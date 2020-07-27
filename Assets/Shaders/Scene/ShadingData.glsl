@@ -33,7 +33,7 @@ vec3 RG2Normal(vec2 rg)
     return normalize(n);
 }
 
-void ApplyNormalMap(MaterialData md, inout ShadingData sd)
+void ApplyNormalMap(MaterialData md, inout ShadingData sd, int materialID)
 {
     int mode = GetMaterialNormalMode(md.flags);
     if (mode == CT_MAT_NORMAL_MODE_NONE)
@@ -43,7 +43,7 @@ void ApplyNormalMap(MaterialData md, inout ShadingData sd)
     if (mode == CT_MAT_NORMAL_MODE_RGB)
         mapN = RGB2Normal(mapN);
     else // CT_MAT_NORMAL_MODE_RG
-        mapN = RG2Normal(mapN);
+        mapN = RG2Normal(mapN.rg);
 
     sd.N = sd.T * mapN.x + sd.B * mapN.y + sd.N * mapN.z; // == mat3(T, B, N) * mapN
     sd.B = normalize(sd.B - sd.N * dot(sd.B, sd.N));
@@ -66,7 +66,7 @@ ShadingData PrepareShadingData(VertexData v, int materialID, vec3 viewDir)
 
     sd.faceN = v.faceNormalW;
     sd.frontFacing = dot(sd.V, sd.faceN) >= 0.0;
-    sd.doubleSided = (md.flags & CT_MAT_DOUBLE_SIDED) > 0;
+    sd.doubleSided = GetMaterialBit(md.flags, CT_MAT_DOUBLE_SIDED) > 0;
 
     bool validTangentSpace = dot(v.bitangentW, v.bitangentW) > 0.0;
     if (validTangentSpace)
@@ -118,7 +118,7 @@ ShadingData PrepareShadingData(VertexData v, int materialID, vec3 viewDir)
 
     if (validTangentSpace)
     {
-        ApplyNormalMap(md, sd);
+        ApplyNormalMap(md, sd, materialID);
     }
 
     sd.NdotV = dot(sd.N, sd.V);

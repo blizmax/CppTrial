@@ -28,7 +28,9 @@ public:
 
         //todo set cam controller
 
-        program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/LearnVK.glsl"), scene->GetSceneDefines());
+        ProgramCompileOptions options;
+        options.generateDebugInfo = true;
+        program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/LearnVK.glsl"), scene->GetSceneDefines(), options);
         vars = GraphicsVars::Create(program);
         state = GraphicsState::Create();
 

@@ -2,10 +2,13 @@
 
 namespace
 {
+const int32 STATIC_VERTEX_BUFFER_INDEX = 0;     
 const int32 PREV_VERTEX_BUFFER_INDEX = 2;
 
 const String MESH_BUFFER_NAME = CT_TEXT("MeshDescBuffer");
 const String MESH_INSTANCE_BUFFER_NAME = CT_TEXT("MeshInstanceBuffer");
+const String STATIC_VERTEX_BUFFER_NAME = CT_TEXT("StaticVertexBuffer");
+const String INDEX_BUFFER_NAME = CT_TEXT("IndexBuffer");
 const String PREV_VERTEX_BUFFER_NAME = CT_TEXT("PrevVertexBuffer");
 const String MATERIAL_BUFFER_NAME = CT_TEXT("MaterialBuffer");
 const String LIGHT_BUFFER_NAME = CT_TEXT("LightBuffer");
@@ -169,7 +172,10 @@ void Scene::UploadResources()
 
     sceneBlock->SetBuffer(MESH_BUFFER_NAME, meshesBuffer);
     sceneBlock->SetBuffer(MESH_INSTANCE_BUFFER_NAME, meshInstancesBuffer);
+
+    sceneBlock->SetBuffer(STATIC_VERTEX_BUFFER_NAME, vao->GetVertexBuffer(STATIC_VERTEX_BUFFER_INDEX));
     sceneBlock->SetBuffer(PREV_VERTEX_BUFFER_NAME, vao->GetVertexBuffer(PREV_VERTEX_BUFFER_INDEX));
+    sceneBlock->SetBuffer(INDEX_BUFFER_NAME, vao->GetIndexBuffer());
 
     sceneBlock->SetBuffer(MATERIAL_BUFFER_NAME, materialsBuffer);
     sceneBlock->SetBuffer(LIGHT_BUFFER_NAME, lightsBuffer);
@@ -286,10 +292,10 @@ bool Scene::UpdateMaterials(bool force)
 
 void Scene::CreateDrawList()
 {
-    auto buffer = sceneBlock->GetBuffer(CT_TEXT("WorldMatrixBuffer"));
-    const Matrix4 *matrices = (Matrix4 *)buffer->Map(BufferMapType::Read);
     Array<DrawIndexedIndirectArgs> cwArgs, ccwArgs;
 
+    auto buffer = sceneBlock->GetBuffer(CT_TEXT("WorldMatrixBuffer"));
+    const Matrix4 *matrices = (Matrix4 *)buffer->Map(BufferMapType::Read);
     for (const auto &e : meshInstanceDatas)
     {
         const auto &mesh = meshDesces[e.meshID];
@@ -304,6 +310,7 @@ void Scene::CreateDrawList()
         };
         DoesTransformFlip(transform) ? cwArgs.Add(args) : ccwArgs.Add(args);
     }
+    buffer->Unmap();
 
     if (auto count = cwArgs.Count())
     {

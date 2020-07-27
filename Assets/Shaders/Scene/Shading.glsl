@@ -18,12 +18,12 @@ struct ShadingResult
 ShadingResult InitShadingResult()
 {
     ShadingResult sr;
-    sr.diffuse = 0.0;
-    sr.color.rgb = 0.0;
+    sr.diffuse = vec3(0.0);
+    sr.color.rgb = vec3(0.0);
     sr.color.a = 1.0;
-    sr.specular = 0.0;
-    sr.diffuseBrdf = 0.0;
-    sr.specularBrdf = 0.0;
+    sr.specular = vec3(0.0);
+    sr.diffuseBrdf = vec3(0.0);
+    sr.specularBrdf = vec3(0.0);
     return sr;
 }
 
@@ -40,7 +40,7 @@ ShadingResult EvalMaterial(ShadingData sd, LightData light, float shadowFactor)
 
     float D = DistributionGGX(ggxAlpha, ls.NdotH);  
     float G = GeometrySmith(ggxAlpha, ls.NdotL, sd.NdotV);
-    float F = FresnelSchlick(sd.specular, vec3(1.0), saturate(ls.LdotH));
+    vec3 F = FresnelSchlick(sd.specular, vec3(1.0), saturate(ls.LdotH));
 
     vec3 nominator = D * G * F; 
     float denominator = 4 * sd.NdotV * ls.NdotL;
@@ -59,7 +59,7 @@ ShadingResult EvalMaterial(ShadingData sd, LightData light, float shadowFactor)
     sr.specular = ls.specular * sr.specularBrdf * ls.NdotL;
     sr.color.rgb += sr.specular;
     
-    sr.color.rgb *= sr.shadowFactor;
+    sr.color.rgb *= shadowFactor;
 
     return sr;
 }
