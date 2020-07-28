@@ -1,5 +1,6 @@
 #include "Render/Importers/SceneImporter.h"
 #include "Core/HashMap.h"
+#include "IO/FileHandle.h"
 #include "Render/Importers/TextureImporter.h"
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -7,6 +8,14 @@
 
 namespace
 {
+
+enum class ImportMode
+{
+    Default,
+    OBJ,
+    GLTF2,
+};
+
 enum class TextureType
 {
     BaseColor,
@@ -77,6 +86,11 @@ Matrix4 ToMatrix4(const aiMatrix4x4 &aMat)
         aMat.d1, aMat.d2, aMat.d3, aMat.d4);
 }
 
+float SpecPowerToRoughness(float specPower)
+{
+    return Math::Clamp01(Math::Sqrt(2.0f / (specPower + 2.0f)));
+}
+
 class ImporterImpl
 {
 public:
@@ -100,6 +114,13 @@ public:
             CT_LOG(Error, CT_TEXT("Load scene failed, error: {0}."), String(aImporter.GetErrorString()));
             return nullptr;
         }
+
+        auto fileHandle = IO::FileHandle(path);
+        auto extension = fileHandle.GetExtension();
+        if (extension == CT_TEXT(".obj"))
+            importMode = ImportMode::OBJ;
+        else if (extension == CT_TEXT(".gltf") || extension == CT_TEXT(".glb"))
+            importMode = ImportMode::GLTF2;
 
         if (CreateMaterials() == false)
         {
@@ -705,6 +726,7 @@ public:
 private:
     SceneBuilder builder;
     SPtr<SceneImportSettings> settings;
+    ImportMode importMode = ImportMode::Default;
     String directory;
     const aiScene *aScene = nullptr;
     HashMap<String, SPtr<Texture>> textureCache;

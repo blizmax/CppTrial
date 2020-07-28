@@ -9,7 +9,7 @@
 
 class Renderer
 {
-private:
+public:
     SPtr<GraphicsState> state;
     SPtr<RasterizationState> rasterizationState;
     SPtr<DepthStencilState> depthStencilState;
@@ -20,13 +20,22 @@ private:
     SPtr<Program> program;
     SPtr<GraphicsVars> vars;
 
+    SPtr<CameraController> cameraController;
+
 public:
     Renderer()
     {
+        auto &window = gApp->GetWindow();
+        float width = window.GetWidth();
+        float height = window.GetHeight();
+
         SceneImporter importer;
         scene = importer.Import(CT_TEXT("Assets/Models/viking_room/viking_room.obj"), nullptr);
-
-        //todo set cam controller
+        //scene = importer.Import(CT_TEXT("Assets/Models/nanosuit_reflection/nanosuit.obj"), nullptr);
+        //scene = importer.Import(CT_TEXT("Assets/Models/bee/Bee.glb"), nullptr);
+        cameraController = FirstPersonCameraController::Create(scene->GetCamera());
+        cameraController->SetViewport(width, height);
+        scene->SetCameraController(cameraController);
 
         ProgramCompileOptions options;
         options.generateDebugInfo = true;
@@ -36,6 +45,8 @@ public:
 
         {
             RasterizationStateDesc desc;
+            desc.cullMode = CullMode::None;
+            desc.polygonMode = PolygonMode::Wireframe;
             rasterizationState = RasterizationState::Create(desc);
         }
         {
@@ -52,6 +63,7 @@ public:
         }
 
         state->SetProgram(program);
+        state->SetRasterizationState(rasterizationState);
         state->SetDepthStencilState(depthStencilState);
         state->SetBlendState(blendState);
 
@@ -65,7 +77,7 @@ public:
 
         state->SetFrameBuffer(fbo);
         scene->Update(ctx, time);
-        scene->Render(ctx, state.get(), vars.get());
+        scene->Render(ctx, state.get(), vars.get(), SceneRender::CustomRasterizationState);
     }
 };
 
@@ -88,6 +100,46 @@ public:
     virtual void Tick() override
     {
         renderer->Render(gRenderManager->GetRenderContext(), gRenderManager->GetTargetFrameBuffer());
+    }
+
+    virtual void OnWindowResized(WindowResizedEvent &e) override
+    {
+        renderer->cameraController->SetViewport((float)e.width, (float)e.height);
+    }
+
+    virtual void OnKeyDown(KeyDownEvent &e) override
+    {
+        renderer->cameraController->OnKeyDown(e);
+
+        if (e.key == CT_KEY_R)
+        {
+            renderer->scene->ResetCamera();
+        }
+    }
+
+    virtual void OnKeyUp(KeyUpEvent &e) override
+    {
+        renderer->cameraController->OnKeyUp(e);
+    }
+
+    virtual void OnTouchDown(TouchDownEvent &e) override
+    {
+        renderer->cameraController->OnTouchDown(e);
+    }
+
+    virtual void OnTouchUp(TouchUpEvent &e) override
+    {
+        renderer->cameraController->OnTouchUp(e);
+    }
+
+    virtual void OnMouseMoved(MouseMovedEvent &e) override
+    {
+        renderer->cameraController->OnMouseMoved(e);
+    }
+
+    virtual void OnMouseScrolled(MouseScrolledEvent &e) override
+    {
+        renderer->cameraController->OnMouseScrolled(e);
     }
 };
 

@@ -2,7 +2,7 @@
 
 namespace
 {
-const int32 STATIC_VERTEX_BUFFER_INDEX = 0;     
+const int32 STATIC_VERTEX_BUFFER_INDEX = 0;
 const int32 PREV_VERTEX_BUFFER_INDEX = 2;
 
 const String MESH_BUFFER_NAME = CT_TEXT("MeshDescBuffer");
@@ -117,25 +117,29 @@ SceneUpdateFlags Scene::Update(RenderContext *ctx, float currentTime)
     return updateFlags;
 }
 
-void Scene::Render(RenderContext *ctx, GraphicsState *state, GraphicsVars *vars)
+void Scene::Render(RenderContext *ctx, GraphicsState *state, GraphicsVars *vars, SceneRenderFlags flags)
 {
     state->SetVertexArray(vao);
     vars->SetParameterBlock(sceneBlock);
 
+    bool overrideRS = (flags | SceneRender::CustomRasterizationState) == 0;
     auto currentRS = state->GetRasterizationState();
 
     if (counterClockwiseDrawArgs.count)
     {
-        state->SetRasterizationState(frontCounterClockwiseRS);
+        if (overrideRS)
+            state->SetRasterizationState(frontCounterClockwiseRS);
         ctx->DrawIndexedIndirect(state, vars, counterClockwiseDrawArgs.count, counterClockwiseDrawArgs.buffer.get(), 0, nullptr, 0);
     }
     if (clockwiseDrawArgs.count)
     {
-        state->SetRasterizationState(frontClockwiseRS);
+        if (overrideRS)
+            state->SetRasterizationState(frontClockwiseRS);
         ctx->DrawIndexedIndirect(state, vars, clockwiseDrawArgs.count, clockwiseDrawArgs.buffer.get(), 0, nullptr, 0);
     }
 
-    state->SetRasterizationState(currentRS);
+    if (overrideRS)
+        state->SetRasterizationState(currentRS);
 }
 
 void Scene::BindSamplerToMaterials(const SPtr<Sampler> &sampler)

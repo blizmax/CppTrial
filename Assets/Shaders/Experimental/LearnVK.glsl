@@ -12,8 +12,16 @@
 
 layout(location = 0) out vec4 outColor;
 
+bool constColor = true;
+
 void main() 
 {
+    if (constColor)
+    {
+        outColor = vec4(0.0, 1.0, 0.0, 1.0);
+        return;
+    }
+
     vec3 viewDir = normalize(GetCameraPosition(camera) - vOut.posW);
     ShadingData sd = PrepareShadingData(gl_PrimitiveID, viewDir);
 

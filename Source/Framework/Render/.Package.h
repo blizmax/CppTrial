@@ -24,6 +24,11 @@ CT_DECL_FLAGS(SceneUpdate){
     All = (uint32)-1,
 };
 
+CT_DECL_FLAGS(SceneRender){
+    None = 0,
+    CustomRasterizationState = 1,
+};
+
 struct SceneNode
 {
     String name;

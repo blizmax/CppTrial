@@ -12,7 +12,7 @@ class Scene
 public:
     ProgramDefines GetSceneDefines() const;
     SceneUpdateFlags Update(RenderContext *ctx, float currentTime);
-    void Render(RenderContext *ctx, GraphicsState *state, GraphicsVars *vars);
+    void Render(RenderContext *ctx, GraphicsState *state, GraphicsVars *vars, SceneRenderFlags flags = SceneRender::None);
     void BindSamplerToMaterials(const SPtr<Sampler> &sampler);
     void ResetCamera(bool resetDepthRange = true);
     void AddViewpoint();
