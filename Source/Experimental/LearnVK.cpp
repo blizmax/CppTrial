@@ -1,4 +1,5 @@
 #include "Application/Application.h"
+#include "Application/ImGuiLab.h"
 #include "Core/String.h"
 #include "IO/FileHandle.h"
 #include "Math/Color.h"
@@ -15,32 +16,16 @@ public:
     SPtr<DepthStencilState> depthStencilState;
     SPtr<BlendState> blendState;
     SPtr<Sampler> sampler;
-
-    SPtr<Scene> scene;
     SPtr<Program> program;
     SPtr<GraphicsVars> vars;
 
+    SPtr<Scene> scene;
     SPtr<CameraController> cameraController;
+    float sceneUpdateTime = 0.0f;
 
 public:
     Renderer()
     {
-        auto &window = gApp->GetWindow();
-        float width = window.GetWidth();
-        float height = window.GetHeight();
-
-        SceneImporter importer;
-        scene = importer.Import(CT_TEXT("Assets/Models/viking_room/viking_room.obj"), nullptr);
-        //scene = importer.Import(CT_TEXT("Assets/Models/nanosuit_reflection/nanosuit.obj"), nullptr);
-        //scene = importer.Import(CT_TEXT("Assets/Models/bee/Bee.glb"), nullptr);
-        cameraController = FirstPersonCameraController::Create(scene->GetCamera());
-        cameraController->SetViewport(width, height);
-        scene->SetCameraController(cameraController);
-
-        ProgramCompileOptions options;
-        options.generateDebugInfo = true;
-        program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/LearnVK.glsl"), scene->GetSceneDefines(), options);
-        vars = GraphicsVars::Create(program);
         state = GraphicsState::Create();
 
         {
@@ -62,7 +47,6 @@ public:
             blendState = BlendState::Create(desc);
         }
 
-        state->SetProgram(program);
         state->SetRasterizationState(rasterizationState);
         state->SetDepthStencilState(depthStencilState);
         state->SetBlendState(blendState);
@@ -70,14 +54,44 @@ public:
         //vars->Root()[CT_TEXT("UB")][CT_TEXT("tint")] = Color(0.7f, 0.3f, 0.0f);
     }
 
+    void LoadScene(const String &path)
+    {
+        auto &window = gApp->GetWindow();
+        float width = window.GetWidth();
+        float height = window.GetHeight();
+
+        SceneImporter importer;
+        auto settings = SceneImportSettings::Create();
+        settings->dontLoadBones = true;
+        scene = importer.Import(path, settings);
+
+        if (scene)
+        {
+            sceneUpdateTime = 0.0f;
+
+            cameraController = FirstPersonCameraController::Create(scene->GetCamera());
+            cameraController->SetViewport(width, height);
+            scene->SetCameraController(cameraController);
+            ProgramCompileOptions options;
+            options.generateDebugInfo = true;
+            program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/LearnVK.glsl"), scene->GetSceneDefines(), options);
+            vars = GraphicsVars::Create(program);
+            state->SetProgram(program);
+        }
+    }
+
     void Render(RenderContext *ctx, const SPtr<FrameBuffer> &fbo)
     {
-        static float time = 0.0f;
-        time += gApp->GetDeltaTime();
+        if (!scene)
+            return;
+
+        sceneUpdateTime += gApp->GetDeltaTime();
 
         state->SetFrameBuffer(fbo);
-        scene->Update(ctx, time);
-        scene->Render(ctx, state.get(), vars.get(), SceneRender::CustomRasterizationState);
+        scene->Update(ctx, sceneUpdateTime);
+
+        SceneRenderFlags flags = SceneRender::None;
+        scene->Render(ctx, state.get(), vars.get(), flags);
     }
 };
 
@@ -85,11 +99,33 @@ class LearnVK : public Logic
 {
 private:
     SPtr<Renderer> renderer;
+    ImGui::FileBrowser fileDialog;
 
 public:
     virtual void Startup() override
     {
         renderer = Memory::MakeShared<Renderer>();
+
+        gImGuiLab->drawHandler.On([this]() {
+            ImGui::Begin("ModelViewer");
+
+            ImGuiIO &io = ImGui::GetIO();
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+            ImGui::Separator();
+
+            if (ImGui::Button("Open file"))
+                fileDialog.Open();
+
+            fileDialog.Display();
+
+            if (fileDialog.HasSelected())
+            {
+                renderer->LoadScene(fileDialog.GetSelected().c_str());
+                fileDialog.ClearSelected();
+            }
+
+            ImGui::End();
+        });
     }
 
     virtual void Shutdown() override
@@ -104,11 +140,17 @@ public:
 
     virtual void OnWindowResized(WindowResizedEvent &e) override
     {
+        if (!renderer->scene)
+            return;
+
         renderer->cameraController->SetViewport((float)e.width, (float)e.height);
     }
 
     virtual void OnKeyDown(KeyDownEvent &e) override
     {
+        if (!renderer->scene)
+            return;
+
         renderer->cameraController->OnKeyDown(e);
 
         if (e.key == CT_KEY_R)
@@ -119,26 +161,36 @@ public:
 
     virtual void OnKeyUp(KeyUpEvent &e) override
     {
+        if (!renderer->scene)
+            return;
         renderer->cameraController->OnKeyUp(e);
     }
 
     virtual void OnTouchDown(TouchDownEvent &e) override
     {
+        if (!renderer->scene)
+            return;
         renderer->cameraController->OnTouchDown(e);
     }
 
     virtual void OnTouchUp(TouchUpEvent &e) override
     {
+        if (!renderer->scene)
+            return;
         renderer->cameraController->OnTouchUp(e);
     }
 
     virtual void OnMouseMoved(MouseMovedEvent &e) override
     {
+        if (!renderer->scene)
+            return;
         renderer->cameraController->OnMouseMoved(e);
     }
 
     virtual void OnMouseScrolled(MouseScrolledEvent &e) override
     {
+        if (!renderer->scene)
+            return;
         renderer->cameraController->OnMouseScrolled(e);
     }
 };

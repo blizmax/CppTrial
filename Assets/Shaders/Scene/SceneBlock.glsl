@@ -16,7 +16,7 @@ void ActiveAllVariables()
     l = inverseTransposeWorldMatrices.length();
     l = vertices.length();
     l = indices.length();
-    l = prevVertices.length();
+    //l = prevVertices.length();
 
     l = materials.length();
     vec4 v = texture(sampler2D(baseTextures[0], samplerStates[0]), vec2(0.0));

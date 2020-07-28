@@ -12,7 +12,7 @@
 
 layout(location = 0) out vec4 outColor;
 
-bool constColor = true;
+bool constColor = false;
 
 void main() 
 {

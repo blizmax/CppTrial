@@ -99,7 +99,9 @@ public:
     SPtr<Scene> Import(const String &path, const SPtr<SceneImportSettings> &settings)
     {
         this->settings = settings;
-        directory = path.Substring(0, path.LastIndexOf(CT_TEXT("/")));
+
+        auto fileHandle = IO::FileHandle(path);
+        directory = fileHandle.GetParentPath();
 
         uint32 assimpFlags = aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_FlipUVs;
         assimpFlags &= ~(aiProcess_FindDegenerates);
@@ -115,7 +117,6 @@ public:
             return nullptr;
         }
 
-        auto fileHandle = IO::FileHandle(path);
         auto extension = fileHandle.GetExtension();
         if (extension == CT_TEXT(".obj"))
             importMode = ImportMode::OBJ;
@@ -362,7 +363,7 @@ public:
             for (uint32 b = 0; b < aMesh->mNumBones; ++b)
             {
                 String name = ToString(aMesh->mBones[b]->mName);
-                boneMatrixMap[name] = ToMatrix4(aMesh->mBones[b]->mOffsetMatrix);
+                boneMatrixMap.Put(name, ToMatrix4(aMesh->mBones[b]->mOffsetMatrix));
             }
         }
     }
@@ -480,7 +481,7 @@ public:
                 mesh.uvs.Add(Vector2());
         }
 
-        if (aMesh->HasBones())
+        if (aMesh->HasBones() && !settings->dontLoadBones)
         {
             LoadBones(aMesh, mesh);
         }

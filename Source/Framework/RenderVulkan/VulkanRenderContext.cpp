@@ -141,6 +141,7 @@ void VulkanRenderContextImpl::DrawIndirect(GraphicsState *state, GraphicsVars *v
         return;
 
     vkCmdDrawIndirect(contextData->GetCommandBufferHandle(), argBufferHandle, argBufferOffset + argBuffer->GetGpuAddressOffset(), drawCount, sizeof(VkDrawIndirectCommand));
+    vkCmdEndRenderPass(contextData->GetCommandBufferHandle());
 }
 
 void VulkanRenderContextImpl::DrawIndexedIndirect(GraphicsState *state, GraphicsVars *vars, int32 drawCount, const Buffer *argBuffer, uint64 argBufferOffset, const Buffer *countBuffer, uint64 countBufferOffset)
@@ -154,6 +155,7 @@ void VulkanRenderContextImpl::DrawIndexedIndirect(GraphicsState *state, Graphics
         return;
 
     vkCmdDrawIndexedIndirect(contextData->GetCommandBufferHandle(), argBufferHandle, argBufferOffset + argBuffer->GetGpuAddressOffset(), drawCount, sizeof(VkDrawIndexedIndirectCommand));
+    vkCmdEndRenderPass(contextData->GetCommandBufferHandle());
 }
 
 template <int32 offsetCount, typename ViewType>

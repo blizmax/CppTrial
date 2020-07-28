@@ -3,6 +3,7 @@
 #include "Application/Application.h"
 #include "RenderCore/RenderAPI.h"
 #include <imgui.h>
+#include <imfilebrowser.h>
 
 class ImGuiLab : public Module
 {

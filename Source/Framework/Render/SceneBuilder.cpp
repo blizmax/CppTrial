@@ -112,10 +112,10 @@ SPtr<VertexArray> SceneBuilder::CreateVao(int32 drawCount)
     CT_CHECK(ibSize <= UINT32_MAX);
     CT_CHECK(staticVbSize <= UINT32_MAX);
 
-    ResourceBindFlags ibBindFlags = ResourceBind::Index | ResourceBind::ShaderResource;
+    ResourceBindFlags ibBindFlags = ResourceBind::Index | ResourceBind::ShaderResource | ResourceBind::UnorderedAccess;
     auto ibo = Buffer::Create((uint32)ibSize, ibBindFlags, BufferCpuAccess::None, buffersData.indices.GetData());
 
-    ResourceBindFlags vbBindFlags = ResourceBind::Vertex | ResourceBind::UnorderedAccess | ResourceBind::ShaderResource;
+    ResourceBindFlags vbBindFlags = ResourceBind::Vertex | ResourceBind::ShaderResource | ResourceBind::UnorderedAccess;
     auto staticVbo = Buffer::CreateStructured(sizeof(StaticVertexData), vertexCount, vbBindFlags, BufferCpuAccess::None, nullptr, false);
     auto prevVbo = Buffer::CreateStructured(sizeof(PrevVertexData), vertexCount, vbBindFlags, BufferCpuAccess::None, nullptr, false);
 

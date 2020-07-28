@@ -122,7 +122,7 @@ void Scene::Render(RenderContext *ctx, GraphicsState *state, GraphicsVars *vars,
     state->SetVertexArray(vao);
     vars->SetParameterBlock(sceneBlock);
 
-    bool overrideRS = (flags | SceneRender::CustomRasterizationState) == 0;
+    bool overrideRS = (flags & SceneRender::CustomRasterizationState) == 0;
     auto currentRS = state->GetRasterizationState();
 
     if (counterClockwiseDrawArgs.count)

@@ -19,8 +19,8 @@ public:
     float viewportWidth;
     float viewportHeight;
 
-    float near = -1.0f;
-    float far = 1.0f;
+    float nearZ = -1.0f;
+    float farZ = 1.0f;
     float zoom = 1.0f;
 
 public:

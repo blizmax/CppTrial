@@ -60,7 +60,7 @@ String IO::FileHandle::GetExtension() const
 
 String IO::FileHandle::GetParentPath() const
 {
-    return pathStr + CT_TEXT("../");
+    return pathStr + (pathStr.EndsWith(CT_TEXT("/")) ? CT_TEXT("../") : CT_TEXT("/../"));
 }
 
 String IO::FileHandle::GetChildPath(const String& name) const

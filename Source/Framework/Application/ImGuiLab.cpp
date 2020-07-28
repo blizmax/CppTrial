@@ -33,8 +33,8 @@ void ImGuiLab::Tick()
 
     Begin();
 
-    static bool open = false;
-    ImGui::ShowDemoWindow(&open);
+    //static bool open = false;
+    //ImGui::ShowDemoWindow(&open);
 
     drawHandler();
 
