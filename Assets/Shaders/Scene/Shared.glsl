@@ -10,6 +10,8 @@
 // Material defs
 #define CT_SHADING_MODEL_METAL_ROUGH 0 // Use 8 bits store shading models
 #define CT_SHADING_MODEL_SPEC_GLOSS 1
+#define CT_SHADING_MODEL_MAX_COUNT 256
+
 
 #define CT_MAT_SAMPLE_MODE_NONE 0
 #define CT_MAT_SAMPLE_MODE_CONST 1
@@ -69,7 +71,12 @@ CT_INLINE int32 SetMaterialNormalMode(int32 flags, int32 mode)
 
 CT_INLINE int32 GetMaterialShadingModel(int32 flags)
 {
-    return flags & 255;
+    return flags & (CT_SHADING_MODEL_MAX_COUNT - 1);
+}
+
+CT_INLINE int32 SetMaterialShadingModel(int32 flags, int32 model)
+{
+    return (flags & ~(CT_SHADING_MODEL_MAX_COUNT - 1)) | model;
 }
 
 struct MeshInstanceData

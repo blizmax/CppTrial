@@ -3,6 +3,7 @@
 #include "IO/FileHandle.h"
 #include "Render/Importers/TextureImporter.h"
 #include <assimp/Importer.hpp>
+#include <assimp/pbrmaterial.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
@@ -31,12 +32,30 @@ struct TextureMapping
     TextureType textureType;
 };
 
-static const Array<TextureMapping> textureMappings = {
-    { aiTextureType_DIFFUSE, TextureType::BaseColor },
-    { aiTextureType_SPECULAR, TextureType::Specular },
-    { aiTextureType_EMISSIVE, TextureType::Emissive },
-    { aiTextureType_NORMALS, TextureType::Normal },
-    { aiTextureType_AMBIENT, TextureType::Occlusion },
+static const Array<TextureMapping> textureMappings[3] = {
+    {
+        { aiTextureType_DIFFUSE, TextureType::BaseColor },
+        { aiTextureType_SPECULAR, TextureType::Specular },
+        { aiTextureType_EMISSIVE, TextureType::Emissive },
+        { aiTextureType_NORMALS, TextureType::Normal },
+        { aiTextureType_AMBIENT, TextureType::Occlusion },
+    },
+    {
+        { aiTextureType_DIFFUSE, TextureType::BaseColor },
+        { aiTextureType_SPECULAR, TextureType::Specular },
+        { aiTextureType_EMISSIVE, TextureType::Emissive },
+        { aiTextureType_AMBIENT, TextureType::Occlusion },
+        { aiTextureType_HEIGHT, TextureType::Normal },
+        { aiTextureType_DISPLACEMENT, TextureType::Normal },
+    },
+    {
+        { aiTextureType_DIFFUSE, TextureType::BaseColor },
+        { aiTextureType_EMISSIVE, TextureType::Emissive },
+        { aiTextureType_NORMALS, TextureType::Normal },
+        { aiTextureType_AMBIENT, TextureType::Occlusion },
+        //TODO
+        //{ AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, TextureType::Specular },
+    }
 };
 
 bool IsSrgbRequired(TextureType textureType)
@@ -228,7 +247,7 @@ public:
     {
         bool useSrgb = !settings->assumeLinearSpaceTextures;
 
-        for (const auto &e : textureMappings)
+        for (const auto &e : textureMappings[(int32)importMode])
         {
             if (aMat->GetTextureCount(e.aType) > 0)
             {
@@ -277,6 +296,13 @@ public:
         auto mat = Material::Create();
         mat->SetName(name);
 
+        int32 shadingModel = settings->shadingModel;
+        if (shadingModel == -1)
+        {
+            shadingModel = (importMode == ImportMode::OBJ ? CT_SHADING_MODEL_SPEC_GLOSS : CT_SHADING_MODEL_METAL_ROUGH);
+        }
+        mat->SetShadingModel(shadingModel);
+
         LoadTextures(mat, aMat);
 
         float opacity;
@@ -296,6 +322,11 @@ public:
         float shininess;
         if (aMat->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS)
         {
+            if (importMode == ImportMode::OBJ)
+            {
+                float roughness = SpecPowerToRoughness(shininess);
+                shininess = 1.0f - roughness;
+            }
             auto specular = mat->GetSpecularColor();
             specular.a = shininess;
             mat->SetSpecularColor(specular);
@@ -331,6 +362,30 @@ public:
         {
             mat->SetDoubleSided(doubleSided != 0);
         }
+
+        if (importMode == ImportMode::GLTF2)
+        {
+            if (aMat->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, aColor) == AI_SUCCESS)
+            {
+                Color color(aColor.r, aColor.g, aColor.b, mat->GetBaseColor().a);
+                mat->SetBaseColor(color);
+            }
+
+            Color specColor = mat->GetSpecularColor();
+            float metallic;
+            if (aMat->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR, metallic) == AI_SUCCESS)
+            {
+                specColor.b = metallic;
+            }
+            float roughness;
+            if (aMat->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR, roughness) == AI_SUCCESS)
+            {
+                specColor.g = roughness;
+            }
+            mat->SetSpecularColor(specColor);
+        }
+
+        //TODO Parse name
 
         if (opacity < 1.0f)
         {
@@ -656,13 +711,15 @@ public:
         camera->SetUp(ToVector3(aCamera->mUp));
         camera->SetTarget(ToVector3(aCamera->mLookAt) + ToVector3(aCamera->mPosition));
 
-        if (aCamera->mAspect != 0.0f)
-            camera->SetAspectRatio(aCamera->mAspect);
+        float aspectRatio = aCamera->mAspect != 0.0f ? aCamera->mAspect : camera->GetAspectRatio();
+        float focalLength = importMode == ImportMode::GLTF2 ? Math::FovToFocalLength(aCamera->mHorizontalFOV * 2.0f / aspectRatio, camera->GetFrameHeight()) : 35.0f;
+        camera->SetAspectRatio(aspectRatio);
+        camera->SetFocalLength(focalLength);
 
         camera->SetNearZ(aCamera->mClipPlaneNear);
         camera->SetFarZ(aCamera->mClipPlaneFar);
 
-        //TODO fov, add node
+        //TODO add node
 
         builder.SetCamera(camera);
 

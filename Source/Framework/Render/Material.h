@@ -33,6 +33,7 @@ public:
     void SetSpecularTransmission(float value);
     void SetAlphaMode(int32 alphaMode);
     void SetDoubleSided(bool value);
+    void SetShadingModel(int32 model);
 
     const SPtr<Texture> &GetBaseColorTexture() const
     {
@@ -97,6 +98,11 @@ public:
     bool IsDoubleSided() const
     {
         return GetMaterialBit(data.flags, CT_MAT_DOUBLE_SIDED) > 0;
+    }
+
+    int32 GetShadingModel() const
+    {
+        return GetMaterialShadingModel(data.flags);
     }
 
     int32 GetFlags() const

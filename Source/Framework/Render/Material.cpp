@@ -181,3 +181,9 @@ void Material::SetDoubleSided(bool value)
 {
     SetFlags(SetMaterialBit(data.flags, CT_MAT_DOUBLE_SIDED, value));
 }
+
+void Material::SetShadingModel(int32 model)
+{
+    CT_CHECK(model >= 0 && model < CT_SHADING_MODEL_MAX_COUNT);
+    SetFlags(SetMaterialShadingModel(data.flags, model));
+}

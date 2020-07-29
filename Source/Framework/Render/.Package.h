@@ -59,3 +59,18 @@ struct Mesh
     Topology topology = Topology::Undefined;
     SPtr<Material> material;
 };
+
+namespace Math
+{
+
+CT_INLINE float FocalLengthToFov(float focalLength, float frameHeight)
+{
+    return 2.0f * Math::Atan(0.5f * frameHeight / focalLength);
+}
+
+CT_INLINE float FovToFocalLength(float fov, float frameHeight)
+{
+    return frameHeight / (2.0f * Math::Tan(0.5f * fov));
+}
+
+}

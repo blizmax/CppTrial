@@ -1,15 +1,5 @@
 #include "Render/Camera.h"
 
-static float FocalLengthToFov(float focalLength, float frameHeight)
-{
-    return 2.0f * Math::Atan(0.5f * frameHeight / focalLength);
-}
-
-static float FovToFocalLength(float fov, float frameHeight)
-{
-    return frameHeight / (2.0f * tan(0.5f * fov));
-}
-
 SPtr<Camera> Camera::Create()
 {
     return Memory::MakeShared<Camera>();
@@ -22,7 +12,7 @@ void Camera::CalculateParameters() const
 
     dirty = false;
 
-    const float fovY = data.focalLength == 0.0f ? 0.0f : FocalLengthToFov(data.focalLength, data.frameHeight);
+    const float fovY = data.focalLength == 0.0f ? 0.0f : Math::FocalLengthToFov(data.focalLength, data.frameHeight);
 
     data.viewMat = Matrix4::LookAt(data.posW, data.target, data.up);
     if (fovY != 0.0f)
