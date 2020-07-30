@@ -35,6 +35,7 @@ include_directories(${CT_EXTERNAL_DIR}/glad/include)
 include_directories(${CT_EXTERNAL_DIR}/imgui)
 include_directories(${CT_EXTERNAL_DIR}/imgui-extensions)
 include_directories(${CT_EXTERNAL_DIR}/stb)
+include_directories(${CT_EXTERNAL_DIR}/tinyddsloader)
 include_directories(${CT_EXTERNAL_DIR}/vulkan/include)
 include_directories(${CT_EXTERNAL_DIR}/vma)
 
