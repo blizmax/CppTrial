@@ -5,6 +5,36 @@
 ImGuiLab imguiLab;
 ImGuiLab *gImGuiLab = &imguiLab;
 
+namespace ImGuiLabInternal
+{
+
+HashMap<int32, WPtr<Texture>> textures;
+
+ImTextureID ToImTextureID(const SPtr<Texture> &texture)
+{
+    if (!texture)
+        return (ImTextureID)-1;
+
+    textures.Put(texture->GetRuntimeID(), WPtr<Texture>(texture));
+    return (ImTextureID)(int64)texture->GetRuntimeID();
+}
+
+SPtr<Texture> FromImTextureID(ImTextureID texID)
+{
+    int32 runtimeID = (int32)(int64)texID;
+    if (runtimeID != -1)
+    {
+        auto &p = textures[runtimeID];
+        if (!p.expired())
+            return p.lock();
+        else
+            textures.Remove(runtimeID);
+    }
+    return Texture::GetDefault2D();
+}
+
+}
+
 void ImGuiLab::Startup()
 {
     IMGUI_CHECKVERSION();
@@ -193,10 +223,10 @@ void ImGuiLab::BindRenderer()
     sampler = Sampler::Create(SamplerDesc());
     texture = Texture::Create2D(width, height, ResourceFormat::RGBA8Unorm, 1, 1, pixels);
 
-    //io.Fonts->TexID = 0;
+    io.Fonts->TexID = CT_IMGUI_TEXID(texture);
 
-    programVars->Root()[CT_TEXT("mainSampler")] = sampler;
-    programVars->Root()[CT_TEXT("mainTex")] = texture;
+    programVars->Root()["mainSampler"] = sampler;
+    programVars->Root()["mainTex"] = texture;
 }
 
 void ImGuiLab::UnbindPlatform()
@@ -282,7 +312,7 @@ void ImGuiLab::SetupRenderState(ImDrawData *drawData, uint32 width, uint32 heigh
     float B = drawData->DisplayPos.y + drawData->DisplaySize.y;
 
     Matrix4 mvp = Matrix4::Ortho(L, R, B, T, -1.0f, 1.0f);
-    programVars->Root()[CT_TEXT("UB")][CT_TEXT("mvp")] = mvp;
+    programVars->Root()["UB"]["mvp"] = mvp;
 }
 
 void ImGuiLab::RenderDrawData(ImDrawData *drawData)
@@ -354,6 +384,11 @@ void ImGuiLab::RenderDrawData(ImDrawData *drawData)
                     scissor.width = (uint32)(clipRect.z - clipRect.x);
                     scissor.height = (uint32)(clipRect.w - clipRect.y);
                     graphicsState->SetScissor(0, scissor);
+
+                    if (cmd->TextureId)
+                    {
+                        programVars->Root()["mainTex"] = ImGuiLabInternal::FromImTextureID(cmd->TextureId);
+                    }
 
                     ctx->DrawIndexed(graphicsState.get(), programVars.get(), cmd->ElemCount, cmd->IdxOffset + indexOffset, cmd->VtxOffset + vertexOffset);
                 }

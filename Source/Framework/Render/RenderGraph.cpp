@@ -79,7 +79,8 @@ bool RenderGraph::RemovePass(const String &name)
 
 int32 RenderGraph::AddEdge(const String &from, const String &to)
 {
-
+    //TODO
+    return -1;
 }
 
 bool RenderGraph::RemoveEdge(const String &from, const String &to)
@@ -94,4 +95,21 @@ bool RenderGraph::RemoveEdge(int32 edgeID)
     if (ret)
         recompile = true;
     return ret;
+}
+
+void RenderGraph::SetInput(const String &name, const SPtr<Resource> &resource)
+{
+    //TODO
+}
+
+SPtr<Resource> RenderGraph::GetOutput(const String &name)
+{
+    //TODO
+    return nullptr;
+}
+
+bool RenderGraph::Compile()
+{
+    //TODO
+    return false;
 }

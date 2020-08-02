@@ -89,10 +89,10 @@ public:
         float width = window.GetWidth();
         float height = window.GetHeight();
         auto camera = Camera::Create();
-        //auto controller = OrbiterCameraController::Create(camera);
-        //controller->SetModelParams(Vector3(), 1.0f, 15.0f);
+        auto controller = OrbiterCameraController::Create(camera);
+        controller->SetModelParams(Vector3(), 1.0f, 15.0f);
         //auto controller = FirstPersonCameraController::Create(camera);
-        auto controller = SixDOFCameraController::Create(camera);
+        //auto controller = SixDOFCameraController::Create(camera);
         controller->SetViewport(width, height);
         cameraController = controller;
 
@@ -148,27 +148,27 @@ public:
 
         cameraController->Update();
         Matrix4 viewProj = cameraController->GetCamera()->GetViewProjection();
-        vars->Root()[CT_TEXT("FrameUB")][CT_TEXT("viewProj")] = viewProj;
-        vars->Root()[CT_TEXT("FrameUB")][CT_TEXT("camPos")] = cameraController->GetCamera()->GetPosition();
+        vars->Root()["FrameUB"]["viewProj"] = viewProj;
+        vars->Root()["FrameUB"]["camPos"] = cameraController->GetCamera()->GetPosition();
         for (int32 i = 0; i < lightPositions.Count(); ++i)
         {
-            vars->Root()[CT_TEXT("FrameUB")][CT_TEXT("lightPositions")][i] = lightPositions[i];
-            vars->Root()[CT_TEXT("FrameUB")][CT_TEXT("lightColors")][i] = lightColors[i];
+            vars->Root()["FrameUB"]["lightPositions"][i] = lightPositions[i];
+            vars->Root()["FrameUB"]["lightColors"][i] = lightColors[i];
         }
 
         for (int32 r = 0; r < ROWS; ++r)
         {
             for (int32 c = 0; c < COLS; ++c)
             {
-                auto var = vars->Root()[CT_TEXT("ObjectUB")][CT_TEXT("objects")][r * COLS + c];
-                var[CT_TEXT("ao")] = 1.0f;
-                var[CT_TEXT("albedo")] = Vector3(0.5f, 0.0f, 0.0f);
-                var[CT_TEXT("metallic")] = (float)r / (float)ROWS;
-                var[CT_TEXT("roughness")] = Math::Clamp((float)c / (float)COLS, 0.05f, 1.0f);
+                auto var = vars->Root()["ObjectUB"]["objects"][r * COLS + c];
+                var["ao"] = 1.0f;
+                var["albedo"] = Vector3(0.5f, 0.0f, 0.0f);
+                var["metallic"] = (float)r / (float)ROWS;
+                var["roughness"] = Math::Clamp((float)c / (float)COLS, 0.05f, 1.0f);
                 float x = (c - (COLS / 2)) * 2.5f;
                 float y = (r - (ROWS / 2)) * 2.5f;
                 Matrix4 model = Matrix4::Translate(x, y, 0.0f);
-                var[CT_TEXT("model")] = model;
+                var["model"] = model;
             }
         }
 

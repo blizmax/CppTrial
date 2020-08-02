@@ -153,7 +153,7 @@ public:
         cameraController->Update();
         Matrix4 mvp = cameraController->GetCamera()->GetViewProjection();
 
-        vars->Root()[CT_TEXT("UB")][CT_TEXT("mvp")] = mvp;
+        vars->Root()["UB"]["mvp"] = mvp;
         state->SetFrameBuffer(fbo);
         ctx->DrawIndexed(state.get(), vars.get(), indices.Count(), 0, 0);
     }

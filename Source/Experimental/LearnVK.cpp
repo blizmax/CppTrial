@@ -1,6 +1,9 @@
 #include "Application/Application.h"
 #include "Application/ImGuiLab.h"
 #include "Core/String.h"
+#include "Experimental/Widgets/ImageWindow.h"
+#include "Experimental/Widgets/CameraView.h"
+#include "Experimental/Widgets/MaterialView.h"
 #include "IO/FileHandle.h"
 #include "Math/Color.h"
 #include "Render/Importers/SceneImporter.h"
@@ -51,7 +54,6 @@ public:
         state->SetDepthStencilState(depthStencilState);
         state->SetBlendState(blendState);
 
-        //vars->Root()[CT_TEXT("UB")][CT_TEXT("tint")] = Color(0.7f, 0.3f, 0.0f);
     }
 
     void LoadScene(const String &path)
@@ -99,7 +101,10 @@ class LearnVK : public Logic
 {
 private:
     SPtr<Renderer> renderer;
-    ImGui::FileBrowser fileDialog;
+    ImGui::FileBrowser modelFileDialog;
+    ImageWindow imageWindow;
+    CameraView cameraView;
+    MaterialView materialView;
 
 public:
     virtual void Startup() override
@@ -113,18 +118,28 @@ public:
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::Separator();
 
-            if (ImGui::Button("Open file"))
-                fileDialog.Open();
+            if (ImGui::Button("Open model file"))
+                modelFileDialog.Open();
 
-            fileDialog.Display();
+            modelFileDialog.Display();
 
-            if (fileDialog.HasSelected())
+            if (modelFileDialog.HasSelected())
             {
-                renderer->LoadScene(fileDialog.GetSelected().c_str());
-                fileDialog.ClearSelected();
+                renderer->LoadScene(modelFileDialog.GetSelected().c_str());
+                modelFileDialog.ClearSelected();
             }
 
+            ImGui::Separator();
+            cameraView.SetScene(renderer->scene);
+            cameraView.OnGui();
+
+            ImGui::Separator();
+            materialView.SetScene(renderer->scene);
+            materialView.OnGui();
+
             ImGui::End();
+
+            imageWindow.OnGui();
         });
     }
 

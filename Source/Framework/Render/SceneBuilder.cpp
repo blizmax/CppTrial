@@ -260,7 +260,17 @@ SPtr<Scene> SceneBuilder::GetScene()
 
     if (scene->lights.IsEmpty())
     {
-        scene->lights.Add(DirectionalLight::Create());
+        auto dirLight = DirectionalLight::Create();
+        dirLight->SetIntensity(Color(3.0f, 2.89f, 3.0f, 1.0f));
+        dirLight->SetDirection(Vector3(0.6245101094245911f, -0.7170000076293945f, -0.3096744418144226f));
+        scene->lights.Add(dirLight);
+
+        auto pointLight = PointLight::Create();
+        pointLight->SetIntensity(Color(15.0f, 15.0f, 15.0f, 1.0f));
+        pointLight->SetPosition(Vector3(-2.8681933879852297f, 2.0f, 2.9874155521392824f));
+        pointLight->SetDirection(Vector3(2.5f, 0.0f, -2.5f));
+        pointLight->SetPenumbraAngle(0.0f);
+        scene->lights.Add(pointLight);
     }
     // TODO lightProbe, envMap
 

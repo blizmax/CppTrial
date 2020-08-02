@@ -60,7 +60,7 @@ void *DynamicLib::GetSymbol(const String &symbol) const
     if (symbol.IsEmpty())
         return nullptr;
 
-    return (void *)DYNLIB_GETSYM(handle, StringEncode::UTF8::ToChars(symbol).GetData());
+    return (void *)DYNLIB_GETSYM(handle, CT_U8_CSTR(symbol));
 }
 
 String DynamicLib::GetError() const

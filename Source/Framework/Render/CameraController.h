@@ -47,9 +47,14 @@ public:
     {
     }
 
-    void SetCameraSpeed(float newSpeed)
+    void SetSpeed(float inSpeed)
     {
-        speed = newSpeed;
+        speed = inSpeed;
+    }
+
+    float GetSpeed() const
+    {
+        return speed;
     }
 
     void SetViewport(float w, float h)
@@ -67,7 +72,7 @@ public:
 
 protected:
     SPtr<Camera> camera;
-    float speed = 1.0f;
+    float speed = 0.1f;
     float viewportWidth = 1.0f;
     float viewportHeight = 1.0f;
 };

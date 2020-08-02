@@ -259,3 +259,12 @@ public:
     }
 };
 }
+
+#define CT_U8_CSTR(str) StringEncode::UTF8::ToChars(str).GetData()
+#define CT_U8_CSTR_VAR(str, varName)                          \
+    const auto &u8CharArr = StringEncode::UTF8::ToChars(str); \
+    const char8 *varName = u8CharArr.GetData();
+
+// If CharType == char8
+// #define CT_U8_CSTR(str) str.CStr();
+// #define CT_U8_CSTR_VAR(str, varName) const char8 *varName = str.CStr();

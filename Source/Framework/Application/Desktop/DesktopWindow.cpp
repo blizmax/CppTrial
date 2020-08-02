@@ -2,7 +2,6 @@
 
 void DesktopWindow::CreateNativeWindow(const WindowDesc &desc)
 {
-    auto title = StringEncode::UTF8::ToChars(desc.title);
     int32 width = desc.width;
     int32 height = desc.height;
 
@@ -15,7 +14,7 @@ void DesktopWindow::CreateNativeWindow(const WindowDesc &desc)
         height = mode->height;
     }
 
-    window = glfwCreateWindow(width, height, title.GetData(), nullptr, nullptr);
+    window = glfwCreateWindow(width, height, CT_U8_CSTR(desc.title), nullptr, nullptr);
 
     glfwSetWindowUserPointer(window, this);
 
@@ -160,7 +159,7 @@ int32 DesktopWindow::GetHeight() const
 
 void DesktopWindow::SetTitle(const String &title)
 {
-    glfwSetWindowTitle(window, StringEncode::UTF8::ToChars(title).GetData());
+    glfwSetWindowTitle(window, CT_U8_CSTR(title));
 }
 
 void DesktopWindow::Minimize()

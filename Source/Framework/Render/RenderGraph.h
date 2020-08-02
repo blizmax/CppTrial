@@ -20,7 +20,6 @@ public:
 
     void SetInput(const String &name, const SPtr<Resource> &resource);
     SPtr<Resource> GetOutput(const String &name);
-
     bool Compile();
 
     bool ContainsPass(const String &name) const

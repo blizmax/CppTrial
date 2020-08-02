@@ -246,10 +246,11 @@ bool Scene::UpdateCamera(bool force)
 {
     bool changed = force;
 
-    if (cameraController && cameraController->Update())
-    {
+    if (cameraController)
+        cameraController->Update();
+    if (camera->Update())
         changed = true;
-    }
+
     if (changed)
     {
         sceneBlock->GetRootVar()[CAMERA_BUFFER_NAME].SetBlob(camera->GetData());

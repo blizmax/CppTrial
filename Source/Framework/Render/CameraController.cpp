@@ -78,7 +78,7 @@ void OrbiterCameraController::OnMouseMoved(MouseMovedEvent &event)
     Vector3 curVector = Project2DToUnitSphere(ConvertScreenPosition(event.x, event.y, viewportWidth, viewportHeight));
 
     Quat quat;
-    quat.SetFromToRotation(lastVector, curVector);
+    quat.SetFromToRotation(curVector, lastVector);
     rotation = quat * rotation;
     lastVector = curVector;
 
@@ -107,8 +107,7 @@ bool TFirstPersonCameraController<b6DOF>::Update()
             Vector3 camTarget = camera->GetTarget();
             Vector3 camUp = b6DOF ? camera->GetUp() : Vector3::Y;
 
-            Vector3 viewDir = camTarget - camPos;
-            viewDir.Normalize();
+            Vector3 viewDir = (camTarget - camPos).Normalize();
 
             if (leftBtnDown)
             {
@@ -118,7 +117,7 @@ bool TFirstPersonCameraController<b6DOF>::Update()
                 viewDir = qx.Rotate(viewDir);
                 camUp = qx.Rotate(camUp);
 
-                Quat qy(camUp, delta.x);
+                Quat qy(camUp, -delta.x);
                 viewDir = qy.Rotate(viewDir);
 
                 camera->SetTarget(camPos + viewDir);
@@ -174,8 +173,7 @@ bool TFirstPersonCameraController<b6DOF>::Update()
         Vector3 camTarget = camera->GetTarget();
         Vector3 camUp = camera->GetUp();
 
-        Vector3 viewDir = camTarget - camPos;
-        viewDir.Normalize();
+        Vector3 viewDir = (camTarget - camPos).Normalize();
         Vector3 sideway = viewDir.Cross(camUp.Normalize());
 
         camPos += movement.z * viewDir * speed;

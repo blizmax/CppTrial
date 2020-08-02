@@ -308,39 +308,69 @@ public:
             data = stbi_loadf_from_memory(bytes.GetData(), bytes.Count(), &width, &height, &channels, reqComp);
 
             if (channels == 4)
+            {
                 format = ResourceFormat::RGBA32Float;
+            }
             else if (channels == 2)
+            {
                 format = ResourceFormat::RG32Float;
+            }
             else if (channels == 1)
+            {
                 format = ResourceFormat::R32Float;
+            }
+            else if (channels == 3)
+            {
+                format = ResourceFormat::RGBA32Float;
+            }
         }
         else if (b16bits)
         {
             data = stbi_load_16_from_memory(bytes.GetData(), bytes.Count(), &width, &height, &channels, reqComp);
 
             if (channels == 4)
+            {
                 format = ResourceFormat::RGBA16Unorm;
+            }
             else if (channels == 2)
+            {
                 format = ResourceFormat::RG16Unorm;
+            }
             else if (channels == 1)
+            {
                 format = ResourceFormat::R16Unorm;
+            }
+            else if (channels == 3)
+            {
+                format = ResourceFormat::RGBA16Unorm;
+            }
         }
         else
         {
             data = stbi_load_from_memory(bytes.GetData(), bytes.Count(), &width, &height, &channels, reqComp);
 
             if (channels == 4)
+            {
                 format = ResourceFormat::RGBA8Unorm;
+            }
             else if (channels == 2)
+            {
                 format = ResourceFormat::RG8Unorm;
+            }
             else if (channels == 1)
+            {
                 format = ResourceFormat::R8Unorm;
+            }
+            else if (channels == 3)
+            {
+                format = ResourceFormat::RGBA8Unorm;
+            }
         }
 
         CT_CHECK(format != ResourceFormat::Unknown);
         if (format == ResourceFormat::Unknown)
         {
-            CT_LOG(Error, "Load dds image failed, Unknown resource format. Path: {0}.", file.GetPath());
+            CT_LOG(Error, "Load image failed, Unknown resource format. Path: {0}, channels:{1}.", file.GetPath(), channels);
             return nullptr;
         }
         if (settings->srgbFormat)

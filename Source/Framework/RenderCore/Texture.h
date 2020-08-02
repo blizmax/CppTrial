@@ -107,6 +107,11 @@ public:
         return mipLevel + arraySlice * mipLevels;
     }
 
+    int32 GetRuntimeID() const
+    {
+        return runtimeID;
+    }
+
     static SPtr<Texture> Create(int32 width, int32 height, int32 depth, ResourceFormat format, ResourceType resourceType, int32 arrayLayers = 1, int32 mipLevels = -1, int32 sampleCount = 1, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
     static SPtr<Texture> Create1D(int32 width, ResourceFormat format, int32 arrayLayers = 1, int32 mipLevels = -1, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
     static SPtr<Texture> Create2D(int32 width, int32 height, ResourceFormat format, int32 arrayLayers = 1, int32 mipLevels = -1, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
@@ -125,6 +130,8 @@ protected:
     void CheckViewParams(int32 &mostDetailedMip, int32 &mipLevels, int32 &firstArraySlice, int32 &arrayLayers) const;
 
 protected:
+    int32 runtimeID = -1;
+
     int32 width = 1;
     int32 height = 1;
     int32 depth = 1;
@@ -138,4 +145,6 @@ protected:
     Array<SPtr<ResourceView>> rtvs;
     Array<SPtr<ResourceView>> dsvs;
     WPtr<Texture> weakThis;
+
+    static int32 gRuntimeID;
 };

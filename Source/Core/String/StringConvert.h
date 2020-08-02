@@ -53,6 +53,16 @@ CT_INLINE String ToString(int64 value)
     return String(wstr.data(), (int32)wstr.size());
 }
 
+CT_INLINE String ToString(int8 value)
+{
+    return ToString((int32)value);
+}
+
+CT_INLINE String ToString(int16 value)
+{
+    return ToString((int32)value);
+}
+
 CT_INLINE String ToString(uint32 value)
 {
     std::wstring wstr = std::to_wstring(value);
@@ -63,6 +73,16 @@ CT_INLINE String ToString(uint64 value)
 {
     std::wstring wstr = std::to_wstring(value);
     return String(wstr.data(), (int32)wstr.size());
+}
+
+CT_INLINE String ToString(uint8 value)
+{
+    return ToString((uint32)value);
+}
+
+CT_INLINE String ToString(uint16 value)
+{
+    return ToString((uint32)value);
 }
 
 CT_INLINE String ToString(float value)

@@ -128,8 +128,7 @@ public:
         assimpFlags &= ~aiProcess_RemoveRedundantMaterials;
 
         Assimp::Importer aImporter;
-        auto u8str = StringEncode::UTF8::ToChars(path);
-        aScene = aImporter.ReadFile(u8str.GetData(), assimpFlags);
+        aScene = aImporter.ReadFile(CT_U8_CSTR(path), assimpFlags);
         if (aScene == nullptr || aScene->mFlags == AI_SCENE_FLAGS_INCOMPLETE)
         {
             CT_LOG(Error, CT_TEXT("Load scene failed, error: {0}."), String(aImporter.GetErrorString()));

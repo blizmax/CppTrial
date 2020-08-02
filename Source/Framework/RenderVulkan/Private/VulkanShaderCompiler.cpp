@@ -586,23 +586,21 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
     String defines;
     for (auto &[k, v] : desc.defines)
         defines += String::Format(CT_TEXT("#define {0} {1}\n"), k, v);
-    auto u8Defines = StringEncode::UTF8::ToChars(defines);
+    CT_U8_CSTR_VAR(defines, cstrDefines);
 
     Array<UPtr<glslang::TShader>> shaders;
     for (auto &e : desc.shaderDescs)
     {
-        auto u8Str = StringEncode::UTF8::ToChars(e.source);
-        char8 *cstr = u8Str.GetData();
-
         auto stage = ToEShLanguage(e.shaderType);
         shaders.Add(Memory::MakeUnique<glslang::TShader>(stage));
         auto shader = shaders.Last().get();
 
+        CT_U8_CSTR_VAR(e.source, cstr);
         shader->setStrings(&cstr, 1);
         shader->setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, 100);
         shader->setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_0);
         shader->setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
-        shader->setPreamble(u8Defines.GetData());
+        shader->setPreamble(cstrDefines);
 
         if (!shader->parse(&DefaultTBuiltInResource, 100, true, EShMsgDefault, includer))
         {

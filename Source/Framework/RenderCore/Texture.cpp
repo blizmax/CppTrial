@@ -2,6 +2,8 @@
 #include "Core/Math.h"
 #include "RenderCore/RenderContext.h"
 
+int32 Texture::gRuntimeID = 0;
+
 ResourceBindFlags UpdateBindFlags(ResourceBindFlags flags, bool hasInitData, int32 mipLevels, ResourceFormat format)
 {
     if (hasInitData && mipLevels == -1)
@@ -56,6 +58,8 @@ Texture::Texture(int32 width, int32 height, int32 depth, int32 arrayLayers, int3
     CT_CHECK(arrayLayers > 0 && mipLevels > 0 && sampleCount > 0);
 
     stateData.subStates.Add(stateData.state, arrayLayers * mipLevels); //resize and fill
+
+    runtimeID = gRuntimeID++;
 }
 
 void Texture::ClearViews()

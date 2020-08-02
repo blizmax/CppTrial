@@ -5,6 +5,12 @@ SPtr<Camera> Camera::Create()
     return Memory::MakeShared<Camera>();
 }
 
+void Camera::MarkDirty()
+{
+    dirty = true;
+    changedSinceLastUpdate = true;
+}
+
 void Camera::CalculateParameters() const
 {
     if (!dirty)
@@ -29,6 +35,16 @@ void Camera::CalculateParameters() const
     data.invViewProj = data.viewProjMat.Inverse();
 
     //TODO jitter mat, frustum
+}
+
+bool Camera::Update()
+{
+    CalculateParameters();
+
+    bool changed = changedSinceLastUpdate;
+    changedSinceLastUpdate = false;
+
+    return changed;
 }
 
 const Matrix4 &Camera::GetView() const

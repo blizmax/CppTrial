@@ -10,10 +10,10 @@ void Clipboard::Init()
 
 void DesktopClipboard::SetString(const String &value)
 {
-    glfwSetClipboardString(NULL, StringEncode::UTF8::ToChars(value).GetData());
+    glfwSetClipboardString(NULL, CT_U8_CSTR(value));
 }
 
 String DesktopClipboard::GetString()
 {
-    return StringEncode::UTF8::FromChars(glfwGetClipboardString(NULL));
+    return String(glfwGetClipboardString(NULL));
 }

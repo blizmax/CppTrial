@@ -7,6 +7,7 @@ class Camera
 public:
     virtual ~Camera() = default;
 
+    bool Update();
     const Matrix4 &GetView() const;
     const Matrix4 &GetProjection() const;
     const Matrix4 &GetViewProjection() const;
@@ -16,7 +17,7 @@ public:
     void SetPosition(const Vector3 &pos)
     {
         data.posW = pos;
-        dirty = true;
+        MarkDirty();
     }
 
     Vector3 GetPosition() const
@@ -27,7 +28,7 @@ public:
     void SetUp(const Vector3 &up)
     {
         data.up = up;
-        dirty = true;
+        MarkDirty();
     }
 
     Vector3 GetUp() const
@@ -38,7 +39,7 @@ public:
     void SetTarget(const Vector3 &target)
     {
         data.target = target;
-        dirty = true;
+        MarkDirty();
     }
 
     Vector3 GetTarget() const
@@ -49,7 +50,7 @@ public:
     void SetFocalLength(float value)
     {
         data.focalLength = value;
-        dirty = true;
+        MarkDirty();
     }
 
     float GetFocalLength() const
@@ -60,7 +61,7 @@ public:
     void SetAspectRatio(float value)
     {
         data.aspectRatio = value;
-        dirty = true;
+        MarkDirty();
     }
 
     float GetAspectRatio() const
@@ -71,7 +72,7 @@ public:
     void SetNearZ(float value)
     {
         data.nearZ = value;
-        dirty = true;
+        MarkDirty();
     }
 
     float GetNearZ() const
@@ -82,7 +83,7 @@ public:
     void SetFarZ(float value)
     {
         data.farZ = value;
-        dirty = true;
+        MarkDirty();
     }
 
     float GetFarZ() const
@@ -93,7 +94,7 @@ public:
     void SetFrameHeight(float value)
     {
         data.frameHeight = value;
-        dirty = true;
+        MarkDirty();
     }
 
     float GetFrameHeight() const
@@ -104,7 +105,7 @@ public:
     void SetFocalDistance(float value)
     {
         data.focalDistance = value;
-        dirty = true;
+        MarkDirty();
     }
 
     float GetFocalDistance() const
@@ -115,7 +116,7 @@ public:
     void SetApertureRadius(float value)
     {
         data.apertureRadius = value;
-        dirty = true;
+        MarkDirty();
     }
 
     float GetApertureRadius() const
@@ -126,7 +127,7 @@ public:
     void SetShutterSpeed(float value)
     {
         data.shutterSpeed = value;
-        dirty = true;
+        MarkDirty();
     }
 
     float GetShutterSpeed() const
@@ -147,10 +148,12 @@ public:
     static SPtr<Camera> Create();
 
 private:
+    void MarkDirty();
     void CalculateParameters() const;
 
 private:
     String name;
     mutable CameraData data{};
     mutable bool dirty = true;
+    bool changedSinceLastUpdate = false;
 };

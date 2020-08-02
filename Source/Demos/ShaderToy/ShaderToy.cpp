@@ -214,8 +214,8 @@ public:
             vars = GraphicsVars::Create(program);
             state->SetProgram(program);
 
-            vars->Root()[CT_TEXT("Sampler")] = sampler;
-            vars->Root()[CT_TEXT("Texture")] = texture;
+            vars->Root()["Sampler"] = sampler;
+            vars->Root()["Texture"] = texture;
         }
 
         page->OnShaderUpdate(vars);
@@ -233,7 +233,7 @@ public:
         cbuffer.view = camera->view;
         cbuffer.projection = camera->projection;
         cbuffer.time = totalTime;
-        vars->Root()[CT_TEXT("GBlock")].SetBlob(cbuffer);
+        vars->Root()["GBlock"].SetBlob(cbuffer);
 
         auto ctx = gRenderManager->GetRenderContext();
         state->SetFrameBuffer(gRenderManager->GetTargetFrameBuffer());

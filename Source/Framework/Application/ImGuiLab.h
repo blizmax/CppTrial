@@ -42,4 +42,12 @@ private:
     SPtr<GraphicsState> graphicsState;
 };
 
+namespace ImGuiLabInternal
+{
+ImTextureID ToImTextureID(const SPtr<Texture> &texture);
+}
+
+
+#define CT_IMGUI_TEXID(p) ::ImGuiLabInternal::ToImTextureID(p)
+
 extern ImGuiLab *gImGuiLab;
