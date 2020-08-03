@@ -43,7 +43,8 @@ private:
 }
 
 template <typename Node = GraphInternal::Node,
-          typename Edge = GraphInternal::Edge>
+          typename Edge = GraphInternal::Edge,
+          bool uniqueEdge = true>
 class Graph
 {
 public:
@@ -168,6 +169,11 @@ public:
         return nodes[nodeID];
     }
 
+    const HashMap<int32, Node> &GetNodes() const
+    {
+        return nodes;
+    }
+
     Edge &GetEdge(int32 edgeID)
     {
         return edges[edgeID];
@@ -176,6 +182,29 @@ public:
     const Edge &GetEdge(int32 edgeID) const
     {
         return edges[edgeID];
+    }
+
+    const HashMap<int32, Edge> &GetEdges() const
+    {
+        return edges;
+    }
+
+    const Array<int32> &GetForwardEdges(int32 nodeID) const
+    {
+        if (!forwardMap.Contains(nodeID))
+        {
+            forwardMap.Put(nodeID, {});
+        }
+        return forwardMap[nodeID];
+    }
+
+    const Array<int32> &GetBackwardEdges(int32 nodeID) const
+    {
+        if (!backwardMap.Contains(nodeID))
+        {
+            backwardMap.Put(nodeID, {});
+        }
+        return backwardMap[nodeID];
     }
 
 private:
@@ -225,14 +254,18 @@ private:
         {
             backwardMap.Put(to, {});
         }
-        for (int32 e : forwardMap[from])
+
+        if (uniqueEdge)
         {
-            if (edges[e].To() == to)
+            for (int32 e : forwardMap[from])
             {
-                return false;
+                if (edges[e].To() == to)
+                {
+                    return false;
+                }
             }
+            // No need to check backward
         }
-        // No need to check backward
 
         return true;
     }
@@ -251,8 +284,8 @@ private:
 private:
     HashMap<int32, Node> nodes;
     HashMap<int32, Edge> edges;
-    HashMap<int32, Array<int32>> forwardMap;  // from -> [to0, to1, to2...]
-    HashMap<int32, Array<int32>> backwardMap; // to -> [from0, from1, from2...]
+    mutable HashMap<int32, Array<int32>> forwardMap;  // from -> [to0, to1, to2...]
+    mutable HashMap<int32, Array<int32>> backwardMap; // to -> [from0, from1, from2...]
 
     int32 currentNodeID = 0;
     int32 currentEdgeID = 0;
