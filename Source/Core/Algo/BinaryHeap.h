@@ -59,7 +59,7 @@ CT_INLINE SizeType SiftUp(T *heap, SizeType count, SizeType index, Compare compa
 }
 
 template <typename T, typename Compare>
-void HeapSort(T *ptr, SizeType count, Compare compare)
+CT_INLINE void HeapSort(T *ptr, SizeType count, Compare compare)
 {
     if (count < 2)
         return;
@@ -77,4 +77,4 @@ void HeapSort(T *ptr, SizeType count, Compare compare)
     }
 }
 
-} // namespace AlgoInternal
+}
