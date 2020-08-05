@@ -5,7 +5,7 @@
 namespace AlgoInternal
 {
 template <typename T, typename Compare>
-SizeType LowerBound(T *ptr, SizeType count, const T &value, Compare compare)
+CT_INLINE SizeType LowerBound(T *ptr, SizeType count, const T &value, Compare compare)
 {
     SizeType start = 0;
     SizeType size = count;
@@ -18,12 +18,12 @@ SizeType LowerBound(T *ptr, SizeType count, const T &value, Compare compare)
     }
     return start;
 }
-} // namespace AlgoInternal
+}
 
 namespace Algo
 {
 template <typename T, typename Compare>
-SizeType BinarySearch(T *ptr, SizeType count, const T &value, Compare compare)
+CT_INLINE SizeType BinarySearch(T *ptr, SizeType count, const T &value, Compare compare)
 {
     SizeType index = AlgoInternal::LowerBound(ptr, count, value, compare);
     if (index < count)
@@ -36,4 +36,4 @@ SizeType BinarySearch(T *ptr, SizeType count, const T &value, Compare compare)
     return INDEX_NONE;
 }
 
-} // namespace Algo
+}

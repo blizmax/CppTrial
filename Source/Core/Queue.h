@@ -68,6 +68,21 @@ public:
         return container.Last();
     }
 
+    Element &Peek()
+    {
+        return container.First();
+    }
+
+    const Element &Peek() const
+    {
+        return container.First();
+    }
+
+    void Pop()
+    {
+        container.RemoveFirst();
+    }
+
     void Push(const Element &value)
     {
         container.Add(value);
@@ -76,11 +91,6 @@ public:
     void Push(Element &&value)
     {
         container.Add(std::move(value));
-    }
-
-    void Pop()
-    {
-        container.RemoveFirst();
     }
 
     bool operator==(const Queue &other) const

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Render/RenderGraph/.Package.h"
+#include "Render/RenderGraph/RenderPassReflection.h"
+#include "Render/RenderGraph/RenderGraphResourceCache.h"
 
 class RenderGraphCompiler
 {
@@ -10,7 +11,15 @@ public:
 private:
     RenderGraphCompiler(RenderGraph &graph);
 
+    void CompilePasses(RenderContext *ctx);
+
 private:
+    struct PassData
+    {
+        SPtr<RenderPass> pass;
+        RenderPassReflection reflection;
+    };
+
     RenderGraph &graph;    
 
 };

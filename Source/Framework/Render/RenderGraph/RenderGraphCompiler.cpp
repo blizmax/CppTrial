@@ -11,6 +11,9 @@ SPtr<RenderGraphExecutor> RenderGraphCompiler::Compile(RenderGraph &graph, Rende
 {
     RenderGraphCompiler compiler(graph);
 
+    auto resourceCache = RenderGraphResourceCache::Create();
+    
+
 
     //TODO
 

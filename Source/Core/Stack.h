@@ -58,6 +58,16 @@ public:
         return container.Last();
     }
 
+    Element &Peek()
+    {
+        return container.Last();
+    }
+
+    const Element &Peek() const
+    {
+        return container.Last();
+    }
+
     void Pop()
     {
         container.Pop();
