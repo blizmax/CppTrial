@@ -276,7 +276,7 @@ public:
         }
         else if (dimension == DDSFile::TextureDimension::Texture3D)
         {
-            return Texture::Create3D(width, height, depth, format, arrayLayers, mipLevels, imageData->m_mem);
+            return Texture::Create3D(width, height, depth, format, mipLevels, imageData->m_mem);
         }
 
         CT_LOG(Error, "Load dds image failed, Unsupported texture dimension. Path: {0}.", file.GetPath());

@@ -5,4 +5,5 @@
 class RenderGraph;
 class RenderGraphExecutor;
 class RenderGraphCompiler;
+class RenderGraphResourceCache;
 class RenderPassReflection;

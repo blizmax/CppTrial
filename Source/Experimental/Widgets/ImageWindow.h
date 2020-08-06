@@ -35,8 +35,8 @@ public:
 
         auto windowSize = ImGui::GetWindowSize();
         windowSize.y -= ImGui::GetCursorPosY();
-        float width = texture ? texture->GetHeight() : windowSize.x;
-        float height = texture ? texture->GetWidth() : windowSize.y;
+        float width = texture ? texture->GetWidth() : windowSize.x;
+        float height = texture ? texture->GetHeight() : windowSize.y;
         float aspect = texture ? (height / width) : 1.0f;
         if (windowSize.x * aspect < windowSize.y)
         {

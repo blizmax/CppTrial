@@ -10,6 +10,15 @@ ResourceBindFlags UpdateBindFlags(ResourceBindFlags flags, bool hasInitData, int
     {
         flags |= ResourceBind::RenderTarget;
     }
+
+    auto supported = GetResourceFormatBindFlags(format);
+    supported |= ResourceBind::Shared;
+    if ((flags & supported) != flags)
+    {
+        CT_EXCEPTION(RenderCore, "Texture::CreateXX() requested ResourceBindFlags not supported.");
+        flags = flags & supported;
+    }
+
     return flags;
 }
 
@@ -25,10 +34,10 @@ SPtr<Texture> Texture::Create2D(int32 width, int32 height, ResourceFormat format
     return Create(width, height, 1, format, ResourceType::Texture2D, arrayLayers, mipLevels, 1, data, flags);
 }
 
-SPtr<Texture> Texture::Create3D(int32 width, int32 height, int32 depth, ResourceFormat format, int32 arrayLayers, int32 mipLevels, const void *data, ResourceBindFlags flags)
+SPtr<Texture> Texture::Create3D(int32 width, int32 height, int32 depth, ResourceFormat format, int32 mipLevels, const void *data, ResourceBindFlags flags)
 {
     flags = UpdateBindFlags(flags, data != nullptr, mipLevels, format);
-    return Create(width, height, depth, format, ResourceType::Texture3D, arrayLayers, mipLevels, 1, data, flags);
+    return Create(width, height, depth, format, ResourceType::Texture3D, 1, mipLevels, 1, data, flags);
 }
 
 SPtr<Texture> Texture::CreateCube(int32 width, int32 height, ResourceFormat format, int32 arrayLayers, int32 mipLevels, const void *data, ResourceBindFlags flags)

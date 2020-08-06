@@ -2,6 +2,45 @@
 #include "Core/Math.h"
 #include "RenderVulkan/VulkanDevice.h"
 
+namespace
+{
+VkFormatFeatureFlags GetFormatFeatureBitsFromUsage(VkImageUsageFlags usage)
+{
+    CT_CHECK((usage & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT) == 0);
+    CT_CHECK((usage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) == 0);
+
+    VkFormatFeatureFlags bits = 0;
+    if (usage & VK_IMAGE_USAGE_TRANSFER_SRC_BIT)
+        bits |= VK_FORMAT_FEATURE_TRANSFER_SRC_BIT;
+    if (usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT)
+        bits |= VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
+    if (usage & VK_IMAGE_USAGE_SAMPLED_BIT)
+        bits |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT;
+    if (usage & VK_IMAGE_USAGE_STORAGE_BIT)
+        bits |= VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT;
+    if (usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
+        bits |= VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
+    if (usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
+        bits |= VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+
+    return bits;
+}
+
+VkImageTiling GetFormatImageTiling(VkFormat format, VkImageUsageFlags usage)
+{
+    VkFormatProperties p;
+    vkGetPhysicalDeviceFormatProperties(gVulkanDevice->GetPhysicalDeviceHandle(), format, &p);
+    auto featureBits = GetFormatFeatureBitsFromUsage(usage);
+    if ((p.optimalTilingFeatures & featureBits) == featureBits)
+        return VK_IMAGE_TILING_OPTIMAL;
+    if ((p.linearTilingFeatures & featureBits) == featureBits)
+        return VK_IMAGE_TILING_LINEAR;
+
+    CT_EXCEPTION(RenderCore, "Get image tiling failed");
+    return VK_IMAGE_TILING_OPTIMAL;
+}
+}
+
 SPtr<Texture> Texture::Create(int32 width, int32 height, int32 depth, ResourceFormat format, ResourceType resourceType, int32 arrayLayers, int32 mipLevels, int32 sampleCount, const void *data, ResourceBindFlags flags)
 {
     auto ptr = Memory::MakeShared<VulkanTexture>(width, height, depth, arrayLayers, mipLevels, sampleCount, format, resourceType, flags);
@@ -38,42 +77,6 @@ VulkanTexture::~VulkanTexture()
         textureData.allocation = VK_NULL_HANDLE;
         textureData.image = VK_NULL_HANDLE;
     }
-}
-
-static VkFormatFeatureFlags GetFormatFeatureBitsFromUsage(VkImageUsageFlags usage)
-{
-    CT_CHECK((usage & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT) == 0);
-    CT_CHECK((usage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) == 0);
-
-    VkFormatFeatureFlags bits = 0;
-    if (usage & VK_IMAGE_USAGE_TRANSFER_SRC_BIT)
-        bits |= VK_FORMAT_FEATURE_TRANSFER_SRC_BIT;
-    if (usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT)
-        bits |= VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
-    if (usage & VK_IMAGE_USAGE_SAMPLED_BIT)
-        bits |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT;
-    if (usage & VK_IMAGE_USAGE_STORAGE_BIT)
-        bits |= VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT;
-    if (usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
-        bits |= VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
-    if (usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
-        bits |= VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
-
-    return bits;
-}
-
-static VkImageTiling GetFormatImageTiling(VkFormat format, VkImageUsageFlags usage)
-{
-    VkFormatProperties p;
-    vkGetPhysicalDeviceFormatProperties(gVulkanDevice->GetPhysicalDeviceHandle(), format, &p);
-    auto featureBits = GetFormatFeatureBitsFromUsage(usage);
-    if ((p.optimalTilingFeatures & featureBits) == featureBits)
-        return VK_IMAGE_TILING_OPTIMAL;
-    if ((p.linearTilingFeatures & featureBits) == featureBits)
-        return VK_IMAGE_TILING_LINEAR;
-
-    CT_EXCEPTION(RenderCore, "Get imagee tiling failed");
-    return VK_IMAGE_TILING_OPTIMAL;
 }
 
 void VulkanTexture::InitData(const void *data, bool autoGenMips)

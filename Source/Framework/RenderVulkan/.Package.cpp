@@ -1,4 +1,5 @@
 #include "RenderVulkan/.Package.h"
+#include "RenderVulkan/VulkanDevice.h"
 
 VkImageLayout ToVkImageLayout(ResourceState state)
 {
@@ -607,4 +608,55 @@ VkFormat ToVkResourceFormat(ResourceFormat format)
 {
     CT_CHECK(formatDescs[static_cast<int32>(format)].format == format);
     return formatDescs[static_cast<int32>(format)].vkFormat;
+}
+
+ResourceBindFlags GetResourceFormatBindFlags(ResourceFormat format)
+{
+    VkFormatProperties p;
+    vkGetPhysicalDeviceFormatProperties(gVulkanDevice->GetPhysicalDeviceHandle(), ToVkResourceFormat(format), &p);
+
+    auto ConvertFlags = [](VkFormatFeatureFlags vk) -> ResourceBindFlags {
+        ResourceBindFlags f = ResourceBind::None;
+        if (vk & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT)
+            f |= ResourceBind::ShaderResource;
+        if (vk & VK_FORMAT_FEATURE_UNIFORM_TEXEL_BUFFER_BIT)
+            f |= ResourceBind::ShaderResource;
+        if (vk & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)
+            f |= ResourceBind::ShaderResource;
+        if (vk & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT)
+            f |= ResourceBind::UnorderedAccess;
+        if (vk & VK_FORMAT_FEATURE_STORAGE_IMAGE_ATOMIC_BIT)
+            f |= ResourceBind::UnorderedAccess;
+        if (vk & VK_FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_BIT)
+            f |= ResourceBind::UnorderedAccess;
+        if (vk & VK_FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_ATOMIC_BIT)
+            f |= ResourceBind::UnorderedAccess;
+        if (vk & VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT)
+            f |= ResourceBind::Vertex;
+        if (vk & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
+            f |= ResourceBind::RenderTarget;
+        if (vk & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT)
+            f |= ResourceBind::RenderTarget;
+        if (vk & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+            f |= ResourceBind::DepthStencil;
+
+        return f;
+    };
+
+    ResourceBindFlags flags = ResourceBind::None;
+    flags |= ConvertFlags(p.bufferFeatures);
+    flags |= ConvertFlags(p.linearTilingFeatures);
+    flags |= ConvertFlags(p.optimalTilingFeatures);
+
+    switch (format)
+    {
+    case ResourceFormat::R16UInt:
+    case ResourceFormat::R32UInt:
+        flags |= ResourceBind::Index;
+        break;
+    default:
+        break;
+    }
+
+    return flags;
 }

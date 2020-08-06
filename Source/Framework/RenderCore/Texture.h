@@ -115,7 +115,7 @@ public:
     static SPtr<Texture> Create(int32 width, int32 height, int32 depth, ResourceFormat format, ResourceType resourceType, int32 arrayLayers = 1, int32 mipLevels = -1, int32 sampleCount = 1, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
     static SPtr<Texture> Create1D(int32 width, ResourceFormat format, int32 arrayLayers = 1, int32 mipLevels = -1, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
     static SPtr<Texture> Create2D(int32 width, int32 height, ResourceFormat format, int32 arrayLayers = 1, int32 mipLevels = -1, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
-    static SPtr<Texture> Create3D(int32 width, int32 height, int32 depth, ResourceFormat format, int32 arrayLayers = 1, int32 mipLevels = -1, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
+    static SPtr<Texture> Create3D(int32 width, int32 height, int32 depth, ResourceFormat format, int32 mipLevels = -1, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
     static SPtr<Texture> CreateCube(int32 width, int32 height, ResourceFormat format, int32 arrayLayers = 1, int32 mipLevels = -1, const void *data = nullptr, ResourceBindFlags flags = ResourceBind::ShaderResource);
     static SPtr<Texture> Create2DMS(int32 width, int32 height, ResourceFormat format, int32 sampleCount, int32 arrayLayers = 1, ResourceBindFlags flags = ResourceBind::ShaderResource);
 

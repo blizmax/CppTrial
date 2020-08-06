@@ -7,7 +7,7 @@ RenderGraphCompiler::RenderGraphCompiler(RenderGraph &graph)
 {
 }
 
-SPtr<RenderGraphExecutor> RenderGraphCompiler::Compile(RenderGraph &graph, RenderContext *ctx)
+SPtr<RenderGraphExecutor> RenderGraphCompiler::Compile(RenderGraph &graph, RenderContext *ctx, const Dependencies &deps)
 {
     RenderGraphCompiler compiler(graph);
 

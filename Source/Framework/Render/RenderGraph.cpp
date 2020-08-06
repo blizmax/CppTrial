@@ -225,7 +225,7 @@ bool RenderGraph::Compile(RenderContext *ctx)
         return true;
 
     recompile = false;
-    executor = RenderGraphCompiler::Compile(*this, ctx);
+    executor = RenderGraphCompiler::Compile(*this, ctx, dependencies);
 
     return executor != nullptr;
 }

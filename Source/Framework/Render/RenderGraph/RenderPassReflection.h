@@ -153,6 +153,21 @@ public:
         return visibility;
     }
 
+    bool IsInput() const
+    {
+        return visibility == FieldVisibility::Input || visibility == FieldVisibility::InputOutput;
+    }
+
+    bool IsOutput() const
+    {
+        return visibility == FieldVisibility::Output || visibility == FieldVisibility::InputOutput;
+    }
+
+    bool IsInternal() const
+    {
+        return visibility == FieldVisibility::Internal;
+    }
+
 private:
     FieldType fieldType = FieldType::Texture2D;
     int32 width = 0;

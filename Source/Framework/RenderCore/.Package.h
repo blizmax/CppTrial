@@ -423,3 +423,6 @@ bool IsDepthStencilFormat(ResourceFormat format);
 bool IsSrgbFormat(ResourceFormat format);
 ResourceFormat LinearToSrgbFormat(ResourceFormat format);
 ResourceFormat SrgbToLinearFormat(ResourceFormat format);
+
+/** API dependent */
+ResourceBindFlags GetResourceFormatBindFlags(ResourceFormat format);

@@ -2,9 +2,8 @@
 
 #include "Render/Scene.h"
 #include "Render/RenderPass.h"
+#include "Render/RenderGraph/RenderGraphCompiler.h"
 #include "Core/Graph.h"
-
-class RenderGraphExecutor;
 
 class RenderGraph
 {
@@ -81,5 +80,6 @@ private:
     Array<NodePort> outputs;
 
     SPtr<RenderGraphExecutor> executor;
+    RenderGraphCompiler::Dependencies dependencies;
     bool recompile = false;
 };

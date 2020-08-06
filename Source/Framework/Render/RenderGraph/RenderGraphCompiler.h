@@ -6,7 +6,13 @@
 class RenderGraphCompiler
 {
 public:
-    static SPtr<RenderGraphExecutor> Compile(RenderGraph &graph, RenderContext *ctx);
+    struct Dependencies
+    {
+        RenderGraphResourceCache::DefaultProperties defaultResourceProps;
+        HashMap<String, SPtr<Resource>> externalResources;
+    };
+
+    static SPtr<RenderGraphExecutor> Compile(RenderGraph &graph, RenderContext *ctx, const Dependencies &deps);
 
 private:
     RenderGraphCompiler(RenderGraph &graph);
