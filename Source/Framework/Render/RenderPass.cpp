@@ -1,4 +1,4 @@
-#include "Render/RenderGraph/RenderPassReflection.h"
+#include "Render/RenderPass.h"
 
 namespace RenderPassReflectionInternal
 {

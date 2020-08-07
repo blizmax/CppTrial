@@ -1,24 +1,16 @@
 #pragma once
 
 #include "Render/RenderGraph/.Package.h"
-#include "Render/RenderGraph/RenderPassReflection.h"
 
 class RenderGraphResourceCache
 {
 public:
-    struct DefaultProperties
-    {
-        int32 width = 0;
-        int32 height = 0;
-        ResourceFormat format = ResourceFormat::Unknown;
-    };
-
     void Reset();
     void RegisterExternalResource(const String &name, const SPtr<Resource> &resource);
     void RegisterField(const String &name, const RenderPassReflection::Field &field);
     SPtr<Resource> GetResource(const String &name) const;
     const RenderPassReflection::Field &GetResourceReflection(const String &name) const;
-    void AllocateResources(const DefaultProperties &props);
+    void AllocateResources(const RenderGraph::ResourceProperties &defaultProps);
 
     static SPtr<RenderGraphResourceCache> Create();
 

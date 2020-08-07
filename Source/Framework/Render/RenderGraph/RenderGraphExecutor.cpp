@@ -5,7 +5,8 @@ SPtr<RenderGraphExecutor> RenderGraphExecutor::Create()
     return Memory::MakeShared<RenderGraphExecutor>();
 }
 
-void RenderGraphExecutor::Execute()
+void RenderGraphExecutor::Execute(const RenderGraph::ExecuteContext &ctx)
 {
     //TODO
+
 }

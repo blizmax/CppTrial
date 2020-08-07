@@ -84,9 +84,9 @@ namespace Algo
 {
 
 template <typename GraphType, typename Visitor>
-CT_INLINE bool DepthFirstSearch(const GraphType &graph, int32 srcNode, int32 dstNode, Visitor visitor)
+CT_INLINE bool DepthFirstSearch(const GraphType &graph, int32 srcNode, int32 dstNode, Visitor visitor, bool forward = true)
 {
-    auto search = AlgoInternal::DFS<GraphType>(graph, srcNode);
+    auto search = AlgoInternal::DFS<GraphType>(graph, srcNode, forward);
     while (true)
     {
         int32 n = search();
@@ -102,15 +102,15 @@ CT_INLINE bool DepthFirstSearch(const GraphType &graph, int32 srcNode, int32 dst
 }
 
 template <typename GraphType, typename Visitor>
-CT_INLINE void DepthFirstSearch(const GraphType &graph, int32 srcNode, Visitor visitor)
+CT_INLINE void DepthFirstSearch(const GraphType &graph, int32 srcNode, Visitor visitor, bool forward = true)
 {
-    DepthFirstSearch(graph, srcNode, -1, visitor);
+    DepthFirstSearch(graph, srcNode, -1, visitor, forward);
 }
 
 template <typename GraphType>
-CT_INLINE bool DepthFirstSearch(const GraphType &graph, int32 srcNode, int32 dstNode)
+CT_INLINE bool DepthFirstSearch(const GraphType &graph, int32 srcNode, int32 dstNode, bool forward = true)
 {
-    auto search = AlgoInternal::DFS<GraphType>(graph, srcNode);
+    auto search = AlgoInternal::DFS<GraphType>(graph, srcNode, forward);
     while (true)
     {
         int32 n = search();
@@ -124,9 +124,9 @@ CT_INLINE bool DepthFirstSearch(const GraphType &graph, int32 srcNode, int32 dst
 }
 
 template <typename GraphType, typename Visitor>
-CT_INLINE bool BreadthFirstSearch(const GraphType &graph, int32 srcNode, int32 dstNode, Visitor visitor)
+CT_INLINE bool BreadthFirstSearch(const GraphType &graph, int32 srcNode, int32 dstNode, Visitor visitor, bool forward = true)
 {
-    auto search = AlgoInternal::BFS<GraphType>(graph, srcNode);
+    auto search = AlgoInternal::BFS<GraphType>(graph, srcNode, forward);
     while (true)
     {
         int32 n = search();
@@ -142,15 +142,15 @@ CT_INLINE bool BreadthFirstSearch(const GraphType &graph, int32 srcNode, int32 d
 }
 
 template <typename GraphType, typename Visitor>
-CT_INLINE void BreadthFirstSearch(const GraphType &graph, int32 srcNode, Visitor visitor)
+CT_INLINE void BreadthFirstSearch(const GraphType &graph, int32 srcNode, Visitor visitor, bool forward = true)
 {
-    BreadthFirstSearch(graph, srcNode, -1, visitor);
+    BreadthFirstSearch(graph, srcNode, -1, visitor, forward);
 }
 
 template <typename GraphType>
-CT_INLINE bool BreadthFirstSearch(const GraphType &graph, int32 srcNode, int32 dstNode)
+CT_INLINE bool BreadthFirstSearch(const GraphType &graph, int32 srcNode, int32 dstNode, bool forward = true)
 {
-    auto search = AlgoInternal::BFS<GraphType>(graph, srcNode);
+    auto search = AlgoInternal::BFS<GraphType>(graph, srcNode, forward);
     while (true)
     {
         int32 n = search();
@@ -161,6 +161,20 @@ CT_INLINE bool BreadthFirstSearch(const GraphType &graph, int32 srcNode, int32 d
             return true;
     }
     return false;
+}
+
+
+// FIXME Should add functions to Graph class?
+template <typename GraphType>
+CT_INLINE bool HasPath(const GraphType &graph, int32 srcNode, int32 dstNode)
+{
+    return DepthFirstSearch(graph, srcNode, dstNode);
+}
+
+template <typename GraphType>
+CT_INLINE bool HasCycle(const GraphType &graph, int32 srcNode)
+{
+    return DepthFirstSearch(graph, srcNode, srcNode);
 }
 
 }

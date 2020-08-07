@@ -1,13 +1,37 @@
 #pragma once
 
-#include "Render/Scene.h"
-#include "Render/RenderPass.h"
-#include "Render/RenderGraph/RenderGraphCompiler.h"
 #include "Core/Graph.h"
+#include "Render/.Package.h"
+#include "RenderCore/RenderContext.h"
+
+class Scene;
+class RenderPass;
+class RenderGraphCompiler;
+class RenderGraphExecutor;
 
 class RenderGraph
 {
 public:
+    struct ResourceProperties
+    {
+        int32 width;
+        int32 height;
+        ResourceFormat format = ResourceFormat::Unknown;
+    };
+
+    struct ExecuteContext
+    {
+        RenderContext *renderContext;
+        ResourceProperties defaultResourceProps;
+    };
+
+    struct CompileContext
+    {
+        RenderContext *renderContext;
+        ResourceProperties defaultResourceProps;
+        HashMap<String, SPtr<Resource>> externalResources;
+    };
+
     RenderGraph();
 
     void SetScene(const SPtr<Scene> &scene);
@@ -74,12 +98,14 @@ private:
     int32 GetOutputIndex(const NodePort &port) const;
 
 private:
+    friend class RenderGraphCompiler;
+
     SPtr<Scene> scene;
     Graph<Node, Edge, false> graph;
     HashMap<String, int32> passNameToIndex;
     Array<NodePort> outputs;
 
+    CompileContext compileContext;
     SPtr<RenderGraphExecutor> executor;
-    RenderGraphCompiler::Dependencies dependencies;
     bool recompile = false;
 };

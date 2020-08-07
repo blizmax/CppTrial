@@ -1,6 +1,8 @@
 #include "Render/RenderGraph.h"
 #include "Render/RenderGraph/RenderGraphCompiler.h"
 #include "Render/RenderGraph/RenderGraphExecutor.h"
+#include "Render/RenderPass.h"
+#include "Render/Scene.h"
 
 SPtr<RenderGraph> RenderGraph::Create()
 {
@@ -225,7 +227,9 @@ bool RenderGraph::Compile(RenderContext *ctx)
         return true;
 
     recompile = false;
-    executor = RenderGraphCompiler::Compile(*this, ctx, dependencies);
+
+    compileContext.renderContext = ctx;
+    executor = RenderGraphCompiler::Compile(*this, compileContext);
 
     return executor != nullptr;
 }

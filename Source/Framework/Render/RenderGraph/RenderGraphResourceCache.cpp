@@ -51,13 +51,13 @@ const RenderPassReflection::Field &RenderGraphResourceCache::GetResourceReflecti
     return resourceDatas[*ptr].field;
 }
 
-void RenderGraphResourceCache::AllocateResources(const DefaultProperties &props)
+void RenderGraphResourceCache::AllocateResources(const RenderGraph::ResourceProperties &defaultProps)
 {
     auto CreateResource = [&, this](ResourceData &r) {
         auto &field = r.field;
 
-        auto width = field.GetWidth() ? field.GetWidth() : props.width;
-        auto height = field.GetHeight() ? field.GetHeight() : props.height;
+        auto width = field.GetWidth() ? field.GetWidth() : defaultProps.width;
+        auto height = field.GetHeight() ? field.GetHeight() : defaultProps.height;
         auto depth = field.GetDepth() ? field.GetDepth() : 1;
         auto sampleCount = field.GetSampleCount() ? field.GetSampleCount() : 1;
         auto bindFlags = field.GetResourceBindFlags();
@@ -68,7 +68,7 @@ void RenderGraphResourceCache::AllocateResources(const DefaultProperties &props)
 
         if (field.GetFieldType() != RenderPassReflection::FieldType::RawBuffer)
         {
-            format = field.GetResourceFormat() != ResourceFormat::Unknown ? field.GetResourceFormat() : props.format;
+            format = field.GetResourceFormat() != ResourceFormat::Unknown ? field.GetResourceFormat() : defaultProps.format;
             if (r.resolveBindFlags)
             {
                 ResourceBindFlags flags = ResourceBind::UnorderedAccess | ResourceBind::ShaderResource;

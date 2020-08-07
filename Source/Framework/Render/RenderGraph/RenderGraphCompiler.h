@@ -1,31 +1,30 @@
 #pragma once
 
-#include "Render/RenderGraph/RenderPassReflection.h"
 #include "Render/RenderGraph/RenderGraphResourceCache.h"
 
 class RenderGraphCompiler
 {
 public:
-    struct Dependencies
-    {
-        RenderGraphResourceCache::DefaultProperties defaultResourceProps;
-        HashMap<String, SPtr<Resource>> externalResources;
-    };
-
-    static SPtr<RenderGraphExecutor> Compile(RenderGraph &graph, RenderContext *ctx, const Dependencies &deps);
-
-private:
-    RenderGraphCompiler(RenderGraph &graph);
-
-    void CompilePasses(RenderContext *ctx);
+    using CompileContext = RenderGraph::CompileContext;
+    static SPtr<RenderGraphExecutor> Compile(RenderGraph &graph, const CompileContext &ctx);
 
 private:
     struct PassData
     {
+        int32 nodeID;
+        String name;
         SPtr<RenderPass> pass;
         RenderPassReflection reflection;
     };
 
-    RenderGraph &graph;    
+    RenderGraphCompiler(RenderGraph &graph);
 
+    void ResolveExecutionOrder(const CompileContext &ctx);
+    void CompilePasses(const CompileContext &ctx);
+    bool InsertAutoPasses();
+    void ValidateGraph();
+
+private:
+    RenderGraph &graph;
+    Array<PassData> executionList;
 };

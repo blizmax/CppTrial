@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Render/RenderGraph.h"
 #include "Render/RenderPass.h"
 
-class RenderGraph;
 class RenderGraphExecutor;
 class RenderGraphCompiler;
 class RenderGraphResourceCache;

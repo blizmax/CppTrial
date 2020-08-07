@@ -267,6 +267,21 @@ private:
             // No need to check backward
         }
 
+        // TODO Acyclic check
+        // if (acyclic)
+        // {
+        //     if (forwardMap.Contains(to))
+        //     {
+        //         for (int32 e : forwardMap[to])
+        //         {
+        //             if (edges[e].To() == from)
+        //             {
+        //                 return false;
+        //             }
+        //         }
+        //     }
+        // }
+
         return true;
     }
 
