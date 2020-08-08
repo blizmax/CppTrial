@@ -61,6 +61,11 @@ public:
         return scene;
     }
 
+    int32 GetOutputCount() const
+    {
+        return outputs.Count();
+    }
+
     static SPtr<RenderGraph> Create();
 
 private:

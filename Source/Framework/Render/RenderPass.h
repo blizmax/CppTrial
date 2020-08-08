@@ -64,46 +64,6 @@ public:
         return ResourceType(FieldType::TextureCube, width, height, 1, 1, mipLevels, arrayLayers);
     }
 
-    Field &SetName(const String &inName)
-    {
-        name = inName;
-        return *this;
-    }
-
-    Field &SetDesc(const String &inDesc)
-    {
-        desc = inDesc;
-        return *this;
-    }
-
-    Field &SetResourceFormat(ResourceFormat inFormat)
-    {
-        format = inFormat;
-        return *this;
-    }
-
-    Field &SetResourceBindFlags(ResourceBindFlags flags)
-    {
-        bindFlags = flags;
-        return *this;
-    }
-
-    Field &SetVisibility(FieldVisibility inVisibility)
-    {
-        visibility = inVisibility;
-        return *this;
-    }
-
-    const String &GetName() const
-    {
-        return name;
-    }
-
-    const String &GetDesc() const
-    {
-        return desc;
-    }
-
     int32 GetWidth() const
     {
         return width;
@@ -134,9 +94,21 @@ public:
         return mipLevels;
     }
 
+    Field &SetResourceFormat(ResourceFormat inFormat)
+    {
+        format = inFormat;
+        return *this;
+    }
+
     ResourceFormat GetResourceFormat() const
     {
         return format;
+    }
+
+    Field &SetResourceBindFlags(ResourceBindFlags flags)
+    {
+        bindFlags = flags;
+        return *this;
     }
 
     ResourceBindFlags GetResourceBindFlags() const
@@ -144,9 +116,37 @@ public:
         return bindFlags;
     }
 
+    Field &SetName(const String &inName)
+    {
+        name = inName;
+        return *this;
+    }
+
+    const String &GetName() const
+    {
+        return name;
+    }
+
+    Field &SetDesc(const String &inDesc)
+    {
+        desc = inDesc;
+        return *this;
+    }
+
+    const String &GetDesc() const
+    {
+        return desc;
+    }
+
     FieldType GetFieldType() const
     {
         return fieldType;
+    }
+
+    Field &SetVisibility(FieldVisibility inVisibility)
+    {
+        visibility = inVisibility;
+        return *this;
     }
 
     FieldVisibility GetVisibility() const
@@ -169,6 +169,17 @@ public:
         return visibility == FieldVisibility::Internal;
     }
 
+    Field &SetOptional(bool value)
+    {
+        optional = value;
+        return *this;
+    }
+
+    bool IsOptional() const
+    {
+        return optional;
+    }
+
 private:
     FieldType fieldType = FieldType::Texture2D;
     int32 width = 0;
@@ -180,6 +191,7 @@ private:
     ResourceFormat format = ResourceFormat::Unknown;
     ResourceBindFlags bindFlags = ResourceBind::None;
     FieldVisibility visibility = FieldVisibility::Undefined;
+    bool optional = false;
     String name;
     String desc;
 };
@@ -216,12 +228,22 @@ public:
         return fields[GetFieldIndex(name)];
     }
 
+    Field &GetField(const String &name)
+    {
+        return fields[GetFieldIndex(name)];
+    }
+
     bool HasField(int32 index) const
     {
         return index >= 0 && index <= fields.Count();
     }
 
     const Field &GetField(int32 index) const
+    {
+        return fields[index];
+    }
+
+    Field &GetField(int32 index)
     {
         return fields[index];
     }

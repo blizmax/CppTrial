@@ -8,5 +8,4 @@ SPtr<RenderGraphExecutor> RenderGraphExecutor::Create()
 void RenderGraphExecutor::Execute(const RenderGraph::ExecuteContext &ctx)
 {
     //TODO
-
 }

@@ -17,14 +17,16 @@ private:
         RenderPassReflection reflection;
     };
 
-    RenderGraphCompiler(RenderGraph &graph);
+    RenderGraphCompiler(RenderGraph &graph, const CompileContext &ctx);
 
-    void ResolveExecutionOrder(const CompileContext &ctx);
-    void CompilePasses(const CompileContext &ctx);
+    void ResolveExecutionOrder();
+    void CompilePasses();
     bool InsertAutoPasses();
-    void ValidateGraph();
+    bool ValidateGraph();
+    void AllocateResources(RenderGraphResourceCache *resourceCache);
 
 private:
     RenderGraph &graph;
+    const CompileContext &ctx;
     Array<PassData> executionList;
 };

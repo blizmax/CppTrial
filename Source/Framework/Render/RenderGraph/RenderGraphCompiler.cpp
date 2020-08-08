@@ -4,14 +4,14 @@
 #include "Render/RenderGraph.h"
 #include "Render/RenderGraph/RenderGraphExecutor.h"
 
-RenderGraphCompiler::RenderGraphCompiler(RenderGraph &graph)
-    : graph(graph)
+RenderGraphCompiler::RenderGraphCompiler(RenderGraph &graph, const CompileContext &ctx)
+    : graph(graph), ctx(ctx)
 {
 }
 
-SPtr<RenderGraphExecutor> RenderGraphCompiler::Compile(RenderGraph &graph, const RenderGraph::CompileContext &ctx)
+SPtr<RenderGraphExecutor> RenderGraphCompiler::Compile(RenderGraph &graph, const CompileContext &ctx)
 {
-    RenderGraphCompiler compiler(graph);
+    RenderGraphCompiler compiler(graph, ctx);
 
     auto resourceCache = RenderGraphResourceCache::Create();
     for (auto &[n, r] : ctx.externalResources)
@@ -19,17 +19,19 @@ SPtr<RenderGraphExecutor> RenderGraphCompiler::Compile(RenderGraph &graph, const
         resourceCache->RegisterExternalResource(n, r);
     }
 
-    compiler.ResolveExecutionOrder(ctx);
-    compiler.CompilePasses(ctx);
+    compiler.ResolveExecutionOrder();
+    compiler.CompilePasses();
     if (compiler.InsertAutoPasses())
-        compiler.ResolveExecutionOrder(ctx);
+        compiler.ResolveExecutionOrder();
+    compiler.ValidateGraph();
+    compiler.AllocateResources(resourceCache.get());
 
     //TODO
 
     return nullptr;
 }
 
-void RenderGraphCompiler::ResolveExecutionOrder(const CompileContext &ctx)
+void RenderGraphCompiler::ResolveExecutionOrder()
 {
     executionList.Clear();
 
@@ -71,7 +73,7 @@ void RenderGraphCompiler::ResolveExecutionOrder(const CompileContext &ctx)
     }
 }
 
-void RenderGraphCompiler::CompilePasses(const CompileContext &ctx)
+void RenderGraphCompiler::CompilePasses()
 {
     //TODO while(true) ...
 
@@ -120,7 +122,7 @@ bool RenderGraphCompiler::InsertAutoPasses()
 
                     if (idx == -1)
                         continue;
-                    
+
                     const auto &dstField = reflection.GetField(edge.dst.fieldName);
                     CT_CHECK(srcField.IsValid());
                     CT_CHECK(dstField.IsValid());
@@ -137,7 +139,101 @@ bool RenderGraphCompiler::InsertAutoPasses()
     return changed;
 }
 
-void RenderGraphCompiler::ValidateGraph()
+bool RenderGraphCompiler::ValidateGraph()
 {
-    //TODO
+    for (const auto &e : executionList)
+    {
+        for (int32 i = 0; i < e.reflection.GetFieldCount(); ++i)
+        {
+            auto &field = e.reflection.GetField(i);
+            if (!field.IsInput())
+                continue;
+            if (field.IsOptional())
+                continue;
+
+            const String &name = field.GetName();
+            bool found = false;
+            for (int32 edgeID : graph.graph.GetBackwardEdges(e.nodeID))
+            {
+                if (graph.graph.GetEdge(edgeID).dst.fieldName == name)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            String resName = e.name + CT_TEXT(".") + name;
+            bool hasExternal = ctx.externalResources.Contains(resName);
+
+            if (hasExternal && found)
+            {
+                CT_EXCEPTION(Render, "Input field can not have both bound external resource and incoming edge.");
+                return false;
+            }
+            if (!hasExternal && !found)
+            {
+                CT_EXCEPTION(Render, "Input field resource is required.");
+                return false;
+            }
+        }
+    }
+
+    if (graph.GetOutputCount() == 0)
+    {
+        CT_EXCEPTION(Render, "Graph must have at least one output");
+        return false;
+    }
+
+    return true;
+}
+
+void RenderGraphCompiler::AllocateResources(RenderGraphResourceCache *resourceCache)
+{
+    HashMap<RenderPass *, int32> passToIndex;
+    for (int32 i = 0; i < executionList.Count(); ++i)
+    {
+        passToIndex.Put(executionList[i].pass.get(), i);
+    }
+
+    for (int32 i = 0; i < executionList.Count(); ++i)
+    {
+        int32 nodeID = executionList[i].nodeID;
+        const auto &node = graph.graph.GetNode(nodeID);
+        auto &reflection = executionList[i].reflection;
+
+        auto IsResourceUsed = [&, this](const auto &field) {
+            if (field.IsOptional())
+                return true;
+            if (graph.GetOutputIndex({ nodeID, field.GetName() }) != -1)
+                return true;
+            for (int32 e : graph.graph.GetForwardEdges(nodeID))
+            {
+                const auto &edge = graph.graph.GetEdge(e);
+                if (edge.src.fieldName == field.GetName())
+                    return true;
+            }
+            return false;
+        };
+
+        // Register pass outputs
+        for (int32 f = 0; f < reflection.GetFieldCount(); ++f)
+        {
+            auto field = reflection.GetField(f); //FIXME Use reference?
+            String fullName = node.name + CT_TEXT(".") + field.GetName();
+            if (!field.IsInput())
+            {
+                if (IsResourceUsed(field) == false)
+                    continue;
+
+                bool graphOut = graph.GetOutputIndex({ nodeID, field.GetName() }) != -1;
+                if (graphOut && field.GetResourceBindFlags() != ResourceBind::None)
+                    field.SetResourceBindFlags(field.GetResourceBindFlags() | ResourceBind::ShaderResource);
+
+                resourceCache->RegisterField(fullName, field);
+            }
+        }
+
+        //TODO go over pass inputs
+    }
+    resourceCache->AllocateResources(ctx.defaultResourceProps);
 }
