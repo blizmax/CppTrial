@@ -1,8 +1,8 @@
 #include "Application/Application.h"
 #include "Application/ImGuiLab.h"
 #include "Core/String.h"
-#include "Experimental/Widgets/ImageWindow.h"
 #include "Experimental/Widgets/CameraView.h"
+#include "Experimental/Widgets/ImageWindow.h"
 #include "Experimental/Widgets/MaterialView.h"
 #include "IO/FileHandle.h"
 #include "Math/Color.h"
@@ -10,6 +10,8 @@
 #include "Render/Importers/TextureImporter.h"
 #include "Render/RenderManager.h"
 #include "RenderCore/RenderAPI.h"
+
+#include "Experimental/Widgets/ProfileWindow.h"
 
 class Renderer
 {
@@ -53,7 +55,6 @@ public:
         state->SetRasterizationState(rasterizationState);
         state->SetDepthStencilState(depthStencilState);
         state->SetBlendState(blendState);
-
     }
 
     void LoadScene(const String &path)
@@ -106,6 +107,9 @@ private:
     CameraView cameraView;
     MaterialView materialView;
 
+    Array<Profiler::SessionData> sessions;
+    ProfileWindow profileWindow;
+
 public:
     virtual void Startup() override
     {
@@ -140,6 +144,16 @@ public:
             ImGui::End();
 
             imageWindow.OnGui();
+
+            profileWindow.AddFrameData(sessions);
+            sessions.Clear();
+            profileWindow.OnGui();
+        });
+
+        auto &gProfiler = Profiler::GetGlobalProfiler();
+        gProfiler.sessionEndEventHandler.On([this](const auto &data) {
+            sessions.Add(data);
+            //CT_LOG(Debug, CT_TEXT("Session end, name:{0}, elapsed:{1}, frameID:{2}"), data.name, data.elapsedTime, gApp->GetTotalFrames());
         });
     }
 

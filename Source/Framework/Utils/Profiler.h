@@ -11,6 +11,8 @@ public:
     struct SessionData
     {
         String name;
+        int64 startTime;
+        float elapsedTime;
     };
 
     struct ScopeData
@@ -26,21 +28,22 @@ public:
         Scope(const String &name, Profiler &profiler)
             : profiler(profiler)
         {
-            scopeData.name = name;
-            scopeData.startTime = Time::NanoTime();
+            data.name = name;
+            data.startTime = Time::NanoTime();
 
-            profiler.scopeBeginEventHandler(scopeData);
+            profiler.scopeBeginEventHandler(data);
         }
+
         ~Scope()
         {
-            scopeData.elapsedTime = (Time::NanoTime() - scopeData.startTime) / 1000000.0f;
+            data.elapsedTime = (Time::NanoTime() - data.startTime) / 1000000.0f;
 
-            profiler.scopeEndEventHandler(scopeData);
+            profiler.scopeEndEventHandler(data);
         }
 
     private:
         Profiler &profiler;
-        ScopeData scopeData;
+        ScopeData data;
     };
 
 public:
@@ -103,7 +106,11 @@ private:
         EndSessionUnlocked();
 
         sessionOpen = true;
+
         sessionData.name = name;
+        sessionData.startTime = Time::NanoTime();
+        sessionData.elapsedTime = 0.0f;
+
         sessionBeginEventHandler(sessionData);
     }
 
@@ -112,6 +119,8 @@ private:
         if (sessionOpen)
         {
             sessionOpen = false;
+
+            sessionData.elapsedTime = (Time::NanoTime() - sessionData.startTime) / 1000000.0f;
 
             sessionEndEventHandler(sessionData);
         }

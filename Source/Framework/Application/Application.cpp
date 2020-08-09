@@ -113,7 +113,6 @@ void Application::Run()
         CT_PROFILE_SESSION_BEGIN(CT_TEXT("Logic"));
         gLogic->Tick();
 
-        CT_PROFILE_SESSION_BEGIN(CT_TEXT("RenderManager"));
         gRenderManager->Tick();
 
         CT_PROFILE_SESSION_BEGIN(CT_TEXT("ImGuiLab"));
@@ -124,6 +123,7 @@ void Application::Run()
 #endif
         window->Tick();
 
+        CT_PROFILE_SESSION_BEGIN(CT_TEXT("RenderManager"));
         gRenderManager->Present();
 
         if (window->ShouldClose())
