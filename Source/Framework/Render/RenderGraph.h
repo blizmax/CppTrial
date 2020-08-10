@@ -8,6 +8,7 @@ class Scene;
 class RenderPass;
 class RenderGraphCompiler;
 class RenderGraphExecutor;
+class RenderGraphResourceCache;
 
 class RenderGraph
 {
@@ -23,13 +24,14 @@ public:
     {
         RenderContext *renderContext;
         ResourceProperties defaultResourceProps;
+        RenderGraphResourceCache *resourceCache;
     };
 
     struct CompileContext
     {
         RenderContext *renderContext;
         ResourceProperties defaultResourceProps;
-        HashMap<String, SPtr<Resource>> externalResources;
+        const HashMap<String, SPtr<Resource>> &externalResources;
     };
 
     RenderGraph();
@@ -50,6 +52,7 @@ public:
     void MarkOutput(const String &name);
     void UnmarkOutput(const String &name);
     bool Compile(RenderContext *ctx);
+    void Execute(RenderContext *ctx);
 
     bool ContainsPass(const String &name) const
     {
@@ -110,7 +113,8 @@ private:
     HashMap<String, int32> passNameToIndex;
     Array<NodePort> outputs;
 
-    CompileContext compileContext;
+    ResourceProperties defaultResourceProps;
+    HashMap<String, SPtr<Resource>> externalResources;
     SPtr<RenderGraphExecutor> executor;
     bool recompile = false;
 };

@@ -8,6 +8,7 @@ public:
     void Reset();
     void RegisterExternalResource(const String &name, const SPtr<Resource> &resource);
     void RegisterField(const String &name, const RenderPassReflection::Field &field);
+    void RegisterFieldAlias(const String &oriName, const String &alias, const RenderPassReflection::Field &field);
     SPtr<Resource> GetResource(const String &name) const;
     const RenderPassReflection::Field &GetResourceReflection(const String &name) const;
     void AllocateResources(const RenderGraph::ResourceProperties &defaultProps);

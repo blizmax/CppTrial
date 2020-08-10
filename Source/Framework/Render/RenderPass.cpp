@@ -1,12 +1,64 @@
 #include "Render/RenderPass.h"
 
-namespace RenderPassReflectionInternal
+namespace RenderPassInternal
 {
+
+FieldVisibility MergeVisibility(FieldVisibility va, FieldVisibility vb)
+{
+    FieldVisibility result = va;
+
+    if (va == FieldVisibility::Input)
+    {
+        switch (vb)
+        {
+        case FieldVisibility::Output:
+        case FieldVisibility::InputOutput:
+            result = FieldVisibility::InputOutput;
+            break;
+        default:
+            break;
+        }
+    }
+    else if (va == FieldVisibility::Output)
+    {
+        switch (vb)
+        {
+        case FieldVisibility::Input:
+        case FieldVisibility::InputOutput:
+            result = FieldVisibility::InputOutput;
+            break;
+        default:
+            break;
+        }
+    }
+
+    return result;
+}
 
 bool Field::IsValid() const
 {
-    //TODO
+    if (sampleCount > 1 && mipLevels > 1)
+    {
+        CT_LOG(Error, CT_TEXT("RenderPassField is invalid, a multisampled field's mipLevels can not > 1."));
+        return false;
+    }
+    if (IsInternal() && IsOptional())
+    {
+        CT_LOG(Error, CT_TEXT("RenderPassField is invalid, an internal field can not be optional."));
+        return false;
+    }
+
     return true;
+}
+
+Field &Field::Merge(const Field &other)
+{
+    CT_CHECK(!other.IsInternal());
+    CT_CHECK(!IsInternal());
+
+    bindFlags |= other.bindFlags;
+    visibility = MergeVisibility(visibility, other.visibility);
+    return *this;
 }
 
 Field &Field::ResourceType(FieldType type, int32 width, int32 height, int32 depth, int32 sampleCount, int32 mipLevels, int32 arrayLayers)
@@ -15,14 +67,19 @@ Field &Field::ResourceType(FieldType type, int32 width, int32 height, int32 dept
     {
     case FieldType::RawBuffer:
         CT_CHECK(height == 0 && depth == 0 && sampleCount == 0 && mipLevels == 0 && arrayLayers == 0);
+        break;
     case FieldType::Texture1D:
         CT_CHECK(height == 1 && depth == 1 && sampleCount == 1);
+        break;
     case FieldType::Texture2D:
         CT_CHECK(depth == 1);
+        break;
     case FieldType::Texture3D:
         CT_CHECK(sampleCount == 1 && mipLevels == 1);
+        break;
     case FieldType::TextureCube:
         CT_CHECK(depth == 1 && mipLevels == 1);
+        break;
     default:
         CT_CHECK(false);
         break;
@@ -53,30 +110,7 @@ RenderPassReflection::Field &RenderPassReflection::AddField(Field field)
             // Merge IO
             if (va != vb)
             {
-                if (va == FieldVisibility::Input)
-                {
-                    switch (vb)
-                    {
-                    case FieldVisibility::Output:
-                    case FieldVisibility::InputOutput:
-                        f.SetVisibility(FieldVisibility::InputOutput);
-                        break;
-                    default:
-                        break;
-                    }
-                }
-                else if (va == FieldVisibility::Output)
-                {
-                    switch (vb)
-                    {
-                    case FieldVisibility::Input:
-                    case FieldVisibility::InputOutput:
-                        f.SetVisibility(FieldVisibility::InputOutput);
-                        break;
-                    default:
-                        break;
-                    }
-                }
+                f.SetVisibility(MergeVisibility(va, vb));
             }
             return f;
         }

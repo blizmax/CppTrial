@@ -2,7 +2,6 @@
 #include "Core/Algo/GraphSearch.h"
 #include "Core/Algo/TopologicalSort.h"
 #include "Render/RenderGraph.h"
-#include "Render/RenderGraph/RenderGraphExecutor.h"
 
 RenderGraphCompiler::RenderGraphCompiler(RenderGraph &graph, const CompileContext &ctx)
     : graph(graph), ctx(ctx)
@@ -26,9 +25,13 @@ SPtr<RenderGraphExecutor> RenderGraphCompiler::Compile(RenderGraph &graph, const
     compiler.ValidateGraph();
     compiler.AllocateResources(resourceCache.get());
 
-    //TODO
+    auto executor = RenderGraphExecutor::Create();
+    executor->resourceCache = resourceCache;
+    executor->executionList = std::move(compiler.executionList);
 
-    return nullptr;
+    compiler.RestoreCompilationChanges();
+
+    return executor;
 }
 
 void RenderGraphCompiler::ResolveExecutionOrder()
@@ -75,7 +78,7 @@ void RenderGraphCompiler::ResolveExecutionOrder()
 
 void RenderGraphCompiler::CompilePasses()
 {
-    //TODO while(true) ...
+    //TODO Prepare pass compile data
 
     for (auto &e : executionList)
     {
@@ -189,11 +192,11 @@ bool RenderGraphCompiler::ValidateGraph()
 
 void RenderGraphCompiler::AllocateResources(RenderGraphResourceCache *resourceCache)
 {
-    HashMap<RenderPass *, int32> passToIndex;
-    for (int32 i = 0; i < executionList.Count(); ++i)
-    {
-        passToIndex.Put(executionList[i].pass.get(), i);
-    }
+    // HashMap<RenderPass *, int32> passToIndex;
+    // for (int32 i = 0; i < executionList.Count(); ++i)
+    // {
+    //     passToIndex.Put(executionList[i].pass.get(), i);
+    // }
 
     for (int32 i = 0; i < executionList.Count(); ++i)
     {
@@ -233,7 +236,32 @@ void RenderGraphCompiler::AllocateResources(RenderGraphResourceCache *resourceCa
             }
         }
 
-        //TODO go over pass inputs
+        // Go over pass inputs, add as aliases to the connected outputs.
+        for (int32 e : graph.graph.GetBackwardEdges(nodeID))
+        {
+            const auto &edge = graph.graph.GetEdge(e);
+            
+            if (edge.dst.fieldName.IsEmpty())
+            {
+                CT_CHECK(edge.src.fieldName.IsEmpty());
+                continue;
+            }
+
+            const auto &dstField = reflection.GetField(edge.dst.fieldName);
+            CT_CHECK(dstField.IsValid() && dstField.IsInput());
+
+            const auto &srcNode = graph.graph.GetNode(edge.src.nodeID);
+            String srcFieldName = srcNode.name + CT_TEXT(".") + edge.src.fieldName;
+            String dstFieldName = node.name + CT_TEXT(".") + edge.dst.fieldName;
+
+            resourceCache->RegisterFieldAlias(srcFieldName, dstFieldName, dstField);
+        }
     }
+
     resourceCache->AllocateResources(ctx.defaultResourceProps);
+}
+
+void RenderGraphCompiler::RestoreCompilationChanges()
+{
+    //TODO
 }

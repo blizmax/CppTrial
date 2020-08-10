@@ -28,7 +28,27 @@ void RenderGraphResourceCache::RegisterField(const String &name, const RenderPas
     nameToIndex.Put(name, newIndex);
     bool resolveBindFlags = field.GetResourceBindFlags() == ResourceBind::None;
 
-    resourceDatas.Add({ .resource = nullptr, .resolveBindFlags = resolveBindFlags });
+    resourceDatas.Add({
+        .field = field,
+        .resource = nullptr,
+        .resolveBindFlags = resolveBindFlags,
+    });
+}
+
+void RenderGraphResourceCache::RegisterFieldAlias(const String &oriName, const String &alias, const RenderPassReflection::Field &field)
+{
+    auto ptr = nameToIndex.TryGet(oriName);
+    if (!ptr)
+    {
+        CT_LOG(Error, CT_TEXT("RenderGraphResourceCache::RegisterFieldAlias() try to register an alias to a nonexistent field, ori name: {0}."), oriName);
+        return;
+    }
+
+    int32 index = *ptr;
+    nameToIndex.Put(alias, index);
+    resourceDatas[index].field.Merge(field);
+    resourceDatas[index].resource = nullptr;
+    resourceDatas[index].resolveBindFlags = resourceDatas[index].resolveBindFlags || (field.GetResourceBindFlags() == ResourceBind::None);
 }
 
 SPtr<Resource> RenderGraphResourceCache::GetResource(const String &name) const

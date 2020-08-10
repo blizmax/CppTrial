@@ -3,7 +3,7 @@
 #include "Render/.Package.h"
 #include "Render/RenderGraph.h"
 
-namespace RenderPassReflectionInternal
+namespace RenderPassInternal
 {
 enum class FieldType
 {
@@ -34,6 +34,7 @@ public:
     }
 
     bool IsValid() const;
+    Field &Merge(const Field &other);
     Field &ResourceType(FieldType type, int32 width, int32 height, int32 depth, int32 sampleCount, int32 mipLevels, int32 arrayLayers);
 
     bool operator==(const Field &other) const = default;
@@ -201,9 +202,9 @@ private:
 class RenderPassReflection
 {
 public:
-    using FieldType = RenderPassReflectionInternal::FieldType;
-    using FieldVisibility = RenderPassReflectionInternal::FieldVisibility;
-    using Field = RenderPassReflectionInternal::Field;
+    using FieldType = RenderPassInternal::FieldType;
+    using FieldVisibility = RenderPassInternal::FieldVisibility;
+    using Field = RenderPassInternal::Field;
 
     Field &AddInput(const String &name, const String &desc);
     Field &AddOutput(const String &name, const String &desc);

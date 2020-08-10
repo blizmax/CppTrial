@@ -7,5 +7,18 @@ SPtr<RenderGraphExecutor> RenderGraphExecutor::Create()
 
 void RenderGraphExecutor::Execute(const RenderGraph::ExecuteContext &ctx)
 {
-    //TODO
+    for (auto &e : executionList)
+    {
+        e.pass->Execute(ctx);
+    }
+}
+
+void RenderGraphExecutor::SetInput(const String &name, const SPtr<Resource> &resource)
+{
+    resourceCache->RegisterExternalResource(name, resource);
+}
+
+SPtr<Resource> RenderGraphExecutor::GetResource(const String &name) const
+{
+    return resourceCache->GetResource(name);
 }

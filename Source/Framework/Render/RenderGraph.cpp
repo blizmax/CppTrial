@@ -228,8 +228,29 @@ bool RenderGraph::Compile(RenderContext *ctx)
 
     recompile = false;
 
-    compileContext.renderContext = ctx;
-    executor = RenderGraphCompiler::Compile(*this, compileContext);
+    executor = RenderGraphCompiler::Compile(
+        *this,
+        {
+            .renderContext = ctx,
+            .defaultResourceProps = defaultResourceProps,
+            .externalResources = externalResources,
+        });
 
     return executor != nullptr;
+}
+
+void RenderGraph::Execute(RenderContext *ctx)
+{
+    if (!Compile(ctx))
+    {
+        CT_LOG(Error, CT_TEXT("RendeGraph::Execute() failed to compile."));
+        return;
+    }
+
+    CT_CHECK(executor);
+    executor->Execute({
+        .renderContext = ctx,
+        .defaultResourceProps = defaultResourceProps,
+        .resourceCache = executor->GetResourceCache().get(),
+    });
 }
