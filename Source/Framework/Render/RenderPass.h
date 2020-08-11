@@ -276,6 +276,10 @@ public:
     {
     }
 
+    virtual void SetScene(const SPtr<Scene> &scene)
+    {
+    }
+
     void SetName(const String &inName)
     {
         name = inName;

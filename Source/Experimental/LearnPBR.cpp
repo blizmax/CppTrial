@@ -1,5 +1,4 @@
 #include "Application/Application.h"
-#include "Core/String.h"
 #include "IO/FileHandle.h"
 #include "Render/CameraController.h"
 #include "Render/Importers/SceneImporter.h"

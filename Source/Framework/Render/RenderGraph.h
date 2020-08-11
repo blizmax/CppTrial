@@ -53,6 +53,7 @@ public:
     void UnmarkOutput(const String &name);
     bool Compile(RenderContext *ctx);
     void Execute(RenderContext *ctx);
+    void OnResize(const FrameBuffer *targetFbo);
 
     bool ContainsPass(const String &name) const
     {
@@ -104,6 +105,8 @@ private:
 
     NodePort ParseNodePort(const String &fullname) const;
     int32 GetOutputIndex(const NodePort &port) const;
+    void UnmarkOutputs(int32 nodeID);
+    bool CheckNodePortField(const NodePort &port, bool input) const;
 
 private:
     friend class RenderGraphCompiler;

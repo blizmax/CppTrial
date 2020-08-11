@@ -183,8 +183,8 @@ SPtr<GraphicsStateObject> GraphicsState::GetGso(const GraphicsVars *vars)
         desc.topology = vertexArray->GetTopology();
         desc.rootSignature = rootSignature;
 
-        auto Predicate = [this](const SPtr<GraphicsStateObject> &g) {
-            return g && (g->GetDesc() == desc);
+        auto Predicate = [this](const SPtr<GraphicsStateObject> &o) {
+            return o && (o->GetDesc() == desc);
         };
         if (stateGraph.MatchesByPredicate(Predicate))
         {

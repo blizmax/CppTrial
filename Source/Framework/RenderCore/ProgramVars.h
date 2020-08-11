@@ -42,5 +42,9 @@ public:
 class ComputeVars : public ProgramVars
 {
 public:
-    //bool Apply(ComputeContext *ctx, RootSignature *rootSignature);
+    ComputeVars(const SPtr<ProgramReflection> &reflection);
+
+    bool Apply(ComputeContext *ctx, RootSignature *rootSignature);
+
+    static SPtr<ComputeVars> Create(const SPtr<Program> &program);
 };

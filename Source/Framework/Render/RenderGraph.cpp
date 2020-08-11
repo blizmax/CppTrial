@@ -30,13 +30,28 @@ RenderGraph::NodePort RenderGraph::ParseNodePort(const String &fullname) const
     return port;
 }
 
+bool RenderGraph::CheckNodePortField(const NodePort &port, bool input) const
+{
+    if (port.nodeID == -1)
+        return false;
+
+    if (port.fieldName.IsEmpty())
+        return true;
+
+    // TODO
+    return true;
+}
+
 void RenderGraph::SetScene(const SPtr<Scene> &inScene)
 {
     if (scene == inScene)
         return;
 
     scene = inScene;
-    //TODO notify all passes
+    for (auto &[i, n] : graph.GetNodes())
+    {
+        n.pass->SetScene(scene);
+    }
 
     recompile = true;
 }
@@ -72,6 +87,7 @@ int32 RenderGraph::AddPass(const String &name, const SPtr<RenderPass> &pass)
 
     // TODO reset callback
     pass->SetName(name);
+    pass->SetScene(scene);
 
     recompile = true;
 
@@ -88,10 +104,9 @@ bool RenderGraph::RemovePass(const String &name)
         return false;
     }
 
-    //TODO
-
     graph.RemoveNode(passIndex);
     passNameToIndex.Remove(name);
+    UnmarkOutputs(passIndex);
 
     recompile = true;
 
@@ -132,15 +147,31 @@ int32 RenderGraph::AddEdge(const String &src, const String &dst)
         return -1;
     }
 
-    //TODO Check edge not exists
+    // If this is a data edge, make sure dst field is not already initialized
+    if (!dstPort.fieldName.IsEmpty())
+    {
+        for (int32 e : graph.GetBackwardEdges(dstPort.nodeID))
+        {
+            const auto &edge = graph.GetEdge(e);
+            if (edge.dst == dstPort)
+            {
+                CT_LOG(Error, CT_TEXT("RenderGraph::AddEdge() destination {0} is already initialized, remove that edge first."), dst);
+                return -1;
+            }
+        }
+    }
 
-    //TODO Check field in certain pass exists
+    //Check field in certain pass exists
+    if (!CheckNodePortField(srcPort, false))
+        return -1;
+    if (!CheckNodePortField(dstPort, true))
+        return -1;
 
     Edge edge = { srcPort, dstPort };
-    graph.AddEdge(std::move(edge));
+    int32 ret = graph.AddEdge(std::move(edge));
 
     recompile = true;
-    return -1;
+    return ret;
 }
 
 bool RenderGraph::RemoveEdge(const String &src, const String &dst)
@@ -162,7 +193,35 @@ bool RenderGraph::RemoveEdge(int32 edgeID)
 
 void RenderGraph::SetInput(const String &name, const SPtr<Resource> &resource)
 {
-    //TODO
+    auto port = ParseNodePort(name);
+    if (port.nodeID == -1)
+    {
+        CT_LOG(Warning, CT_TEXT("RenderGraph::SetInput() can not find pass, name:{0}."), name);
+        return;
+    }
+    if (!CheckNodePortField(port, true))
+    {
+        CT_LOG(Warning, CT_TEXT("RenderGraph::SetInput() field is invalid, name:{0}."), name);
+        return;
+    }
+
+    if (resource)
+    {
+        externalResources.Put(name, resource);
+    }
+    else
+    {
+        if (externalResources.Contains(name))
+        {
+            CT_LOG(Warning, CT_TEXT("RenderGraph::SetInput() try to remove an external resource, name:{0}."), name);
+            return;
+        }
+    }
+
+    if (executor)
+    {
+        executor->SetInput(name, resource);
+    }
 }
 
 int32 RenderGraph::GetOutputIndex(const NodePort &port) const
@@ -195,18 +254,45 @@ SPtr<Resource> RenderGraph::GetOutput(const String &name) const
     if (!IsOutput(name))
         return nullptr;
 
-    //TODO
-    return nullptr;
+    CT_CHECK(executor);
+    return executor->GetResource(name);
 }
 
 void RenderGraph::MarkOutput(const String &name)
 {
     auto port = ParseNodePort(name);
+    if (port.nodeID == -1)
+    {
+        CT_LOG(Warning, CT_TEXT("RenderGraph::MarkOutput() can not find pass, name:{0}."), name);
+        return;
+    }
+    if (!CheckNodePortField(port, false))
+    {
+        CT_LOG(Warning, CT_TEXT("RenderGraph::MarkOutput() field is invalid, name:{0}."), name);
+        return;
+    }
+
     if (GetOutputIndex(port) == -1)
     {
-        //TODO Check can be output
         outputs.Add(port);
         recompile = true;
+    }
+}
+
+void RenderGraph::UnmarkOutputs(int32 nodeID)
+{
+    int32 curIndex = 0;
+    while (curIndex < outputs.Count())
+    {
+        for (int32 i = curIndex; i < outputs.Count(); ++i)
+        {
+            if (outputs[i].nodeID == nodeID)
+            {
+                outputs.RemoveAt(i);
+                curIndex = i;
+                break;
+            }
+        }
     }
 }
 
@@ -253,4 +339,16 @@ void RenderGraph::Execute(RenderContext *ctx)
         .defaultResourceProps = defaultResourceProps,
         .resourceCache = executor->GetResourceCache().get(),
     });
+}
+
+void RenderGraph::OnResize(const FrameBuffer *targetFbo)
+{
+    const auto texture = targetFbo->GetColorTexture(0);
+    CT_CHECK(texture != nullptr);
+
+    defaultResourceProps.format = texture->GetResourceFormat();
+    defaultResourceProps.width = targetFbo->GetWidth();
+    defaultResourceProps.height = targetFbo->GetHeight();
+
+    recompile = true;
 }

@@ -96,7 +96,7 @@ public:
     }
 };
 
-class LearnVK : public Logic
+class LearnRenderGraph : public Logic
 {
 private:
     SPtr<Renderer> renderer;
@@ -222,5 +222,5 @@ public:
     }
 };
 
-LearnVK logic;
+LearnRenderGraph logic;
 Logic *gLogic = &logic;
