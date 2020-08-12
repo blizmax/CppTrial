@@ -66,7 +66,7 @@ void Material::UpdateNormalType()
     SetFlags(SetMaterialNormalMode(data.flags, mode));
 }
 
-void Material::SetBaseTexture(const SPtr<Texture> &texture)
+void Material::SetBaseTexture(const APtr<Texture> &texture)
 {
     if (resources.baseTexture != texture)
     {
@@ -77,7 +77,7 @@ void Material::SetBaseTexture(const SPtr<Texture> &texture)
     }
 }
 
-void Material::SetSpecularTexture(const SPtr<Texture> &texture)
+void Material::SetSpecularTexture(const APtr<Texture> &texture)
 {
     if (resources.specularTexture != texture)
     {
@@ -86,7 +86,7 @@ void Material::SetSpecularTexture(const SPtr<Texture> &texture)
     }
 }
 
-void Material::SetEmissiveTexture(const SPtr<Texture> &texture)
+void Material::SetEmissiveTexture(const APtr<Texture> &texture)
 {
     if (resources.emissiveTexture != texture)
     {
@@ -95,7 +95,7 @@ void Material::SetEmissiveTexture(const SPtr<Texture> &texture)
     }
 }
 
-void Material::SetNormalTexture(const SPtr<Texture> &texture)
+void Material::SetNormalTexture(const APtr<Texture> &texture)
 {
     if (resources.normalTexture != texture)
     {
@@ -104,7 +104,7 @@ void Material::SetNormalTexture(const SPtr<Texture> &texture)
     }
 }
 
-void Material::SetOcclusionTexture(const SPtr<Texture> &texture)
+void Material::SetOcclusionTexture(const APtr<Texture> &texture)
 {
     if (resources.occlusionTexture != texture)
     {

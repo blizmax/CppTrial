@@ -2,6 +2,7 @@
 #include "Core/HashMap.h"
 #include "IO/FileHandle.h"
 #include "Render/Importers/TextureImporter.h"
+#include "Utils/DebugTimer.h"
 #include <assimp/Importer.hpp>
 #include <assimp/pbrmaterial.h>
 #include <assimp/postprocess.h>
@@ -122,17 +123,21 @@ public:
         auto fileHandle = IO::FileHandle(path);
         directory = fileHandle.GetParentPath();
 
+        Assimp::Importer aImporter;
+
         uint32 assimpFlags = aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_FlipUVs;
         assimpFlags &= ~(aiProcess_FindDegenerates);
         assimpFlags &= ~(aiProcess_OptimizeGraph);
         assimpFlags &= ~aiProcess_RemoveRedundantMaterials;
-
-        Assimp::Importer aImporter;
-        aScene = aImporter.ReadFile(CT_U8_CSTR(path), assimpFlags);
-        if (aScene == nullptr || aScene->mFlags == AI_SCENE_FLAGS_INCOMPLETE)
+    
         {
-            CT_LOG(Error, CT_TEXT("Load scene failed, error: {0}."), String(aImporter.GetErrorString()));
-            return nullptr;
+            DebugTimer timer(CT_TEXT("Assimp ReadFile"));
+            aScene = aImporter.ReadFile(CT_U8_CSTR(path), assimpFlags);
+            if (aScene == nullptr || aScene->mFlags == AI_SCENE_FLAGS_INCOMPLETE)
+            {
+                CT_LOG(Error, CT_TEXT("Load scene failed, error: {0}."), String(aImporter.GetErrorString()));
+                return nullptr;
+            }
         }
 
         auto extension = fileHandle.GetExtension();
@@ -141,43 +146,62 @@ public:
         else if (extension == CT_TEXT(".gltf") || extension == CT_TEXT(".glb"))
             importMode = ImportMode::GLTF2;
 
-        if (CreateMaterials() == false)
         {
-            CT_LOG(Error, CT_TEXT("Create scene materials failed."));
-            return nullptr;
+            DebugTimer timer(CT_TEXT("CreateMaterials"));
+            if (CreateMaterials() == false)
+            {
+                CT_LOG(Error, CT_TEXT("Create scene materials failed."));
+                return nullptr;
+            }
         }
 
-        if (CreateSceneGraph() == false)
         {
-            CT_LOG(Error, CT_TEXT("Create scene graph failed."));
-            return nullptr;
+            DebugTimer timer(CT_TEXT("CreateSceneGraph"));
+            if (CreateSceneGraph() == false)
+            {
+                CT_LOG(Error, CT_TEXT("Create scene graph failed."));
+                return nullptr;
+            }
         }
 
-        if (CreateMeshes() == false)
         {
-            CT_LOG(Error, CT_TEXT("Create scene meshes failed."), path);
-            return nullptr;
+            DebugTimer timer(CT_TEXT("CreateMeshes"));
+            if (CreateMeshes() == false)
+            {
+                CT_LOG(Error, CT_TEXT("Create scene meshes failed."), path);
+                return nullptr;
+            }
         }
 
-        if (CreateAnimations() == false)
         {
-            CT_LOG(Error, CT_TEXT("Create scene animations failed."), path);
-            return nullptr;
+            DebugTimer timer(CT_TEXT("CreateAnimations"));
+            if (CreateAnimations() == false)
+            {
+                CT_LOG(Error, CT_TEXT("Create scene animations failed."), path);
+                return nullptr;
+            }
         }
 
-        if (CreateCamera() == false)
         {
-            CT_LOG(Error, CT_TEXT("Create scene camera failed."), path);
-            return nullptr;
+            DebugTimer timer(CT_TEXT("CreateCamera"));
+            if (CreateCamera() == false)
+            {
+                CT_LOG(Error, CT_TEXT("Create scene camera failed."), path);
+                return nullptr;
+            }
         }
 
-        if (CreateLights() == false)
         {
-            CT_LOG(Error, CT_TEXT("Create scene lights failed."), path);
-            return nullptr;
+            DebugTimer timer(CT_TEXT("CreateLights"));
+            if (CreateLights() == false)
+            {
+                CT_LOG(Error, CT_TEXT("Create scene lights failed."), path);
+                return nullptr;
+            }
         }
-
-        return builder.GetScene();
+   
+        DebugTimer timer(CT_TEXT("SceneBuilder"));
+        return builder.GetScene();     
     }
 
     bool IsBone(const String &name)
@@ -220,7 +244,7 @@ public:
         return nodes.Count();
     }
 
-    void SetTexture(const SPtr<Material> &mat, const SPtr<Texture> &texture, TextureType textureType)
+    void SetTexture(const SPtr<Material> &mat, const APtr<Texture> &texture, TextureType textureType)
     {
         switch (textureType)
         {
@@ -260,7 +284,7 @@ public:
                     continue;
                 }
 
-                SPtr<Texture> texture;
+                APtr<Texture> texture;
                 auto texPtr = textureCache.TryGet(path);
                 if (texPtr)
                 {
@@ -274,11 +298,9 @@ public:
                     textureSettings->srgbFormat = useSrgb && IsSrgbRequired(e.textureType);
                     TextureImporter importer;
                     texture = importer.Import(fullPath, textureSettings);
-                    if (texture)
-                        textureCache.Put(path, texture);
+                    textureCache.Put(path, texture);
                 }
 
-                CT_CHECK(texture);
                 SetTexture(mat, texture, e.textureType);
             }
         }
@@ -786,7 +808,7 @@ private:
     ImportMode importMode = ImportMode::Default;
     String directory;
     const aiScene *aScene = nullptr;
-    HashMap<String, SPtr<Texture>> textureCache;
+    HashMap<String, APtr<Texture>> textureCache;
     Array<SPtr<Material>> materials;
     SPtr<Camera> camera;
     HashMap<const aiNode *, int32> nodePtrToID;
@@ -798,11 +820,14 @@ private:
 
 APtr<Scene> SceneImporter::Import(const String &path, const SPtr<ImportSettings> &settings)
 {
+    DebugTimer timer(CT_TEXT("SceneImport"));
+
     APtr<Scene> result;
 
     ImporterImpl impl;
     auto scene = impl.Import(path, ImportSettings::As<SceneImportSettings>(settings));
 
-    result.SetData(APtr<Scene>::InnerData::Create(scene));
+    result = scene;
+
     return result;
 }

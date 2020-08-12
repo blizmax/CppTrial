@@ -1,12 +1,16 @@
 #pragma once
 
-#include "Core/.Package.h"
 #include "Core/String.h"
 #include <chrono>
 #include <ctime>
 
 namespace Time
 {
+
+constexpr int32 MILLIS_PER_SECOND = 1000;
+constexpr int32 MICROS_PER_SECOND = 1000000;
+constexpr int32 NANOS_PER_SECOND = 1000000000;
+
 using Clock = std::chrono::high_resolution_clock;
 using TimePoint = std::chrono::time_point<Clock>;
 using Nanoseconds = std::chrono::nanoseconds;

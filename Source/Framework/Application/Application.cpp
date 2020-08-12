@@ -110,6 +110,9 @@ void Application::Run()
 
         gThreadManager->Tick();
 
+        CT_PROFILE_SESSION_BEGIN(CT_TEXT("AssetManager"));
+        gAssetManager->Tick();
+
         CT_PROFILE_SESSION_BEGIN(CT_TEXT("Logic"));
         gLogic->Tick();
 

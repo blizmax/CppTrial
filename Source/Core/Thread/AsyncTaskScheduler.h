@@ -6,7 +6,7 @@
 class AsyncTask
 {
 public:
-    AsyncTask(const String &name, const ThreadFunc &func)
+    AsyncTask(const String &name, const Runnable &func)
         : name(name), worker(func)
     {
     }
@@ -50,7 +50,7 @@ public:
         canceled = true;
     }
 
-    static SPtr<AsyncTask> Create(const String &name, const ThreadFunc &func)
+    static SPtr<AsyncTask> Create(const String &name, const Runnable &func)
     {
         return Memory::MakeShared<AsyncTask>(name, func);
     }
@@ -63,7 +63,7 @@ private:
     static constexpr uint32 DONE = 2;
 
     String name;
-    ThreadFunc worker;
+    Runnable worker;
     std::atomic_uint32_t state{ READY };
     bool canceled = false;
 };

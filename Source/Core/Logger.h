@@ -127,6 +127,6 @@ private:
     LogLevel level = DEFAULT_LEVEL;
 };
 
-inline Logger Logger::gLogger(CT_TEXT("Global"));
+inline Logger Logger::gLogger(CT_TEXT("Core"));
 
 #define CT_LOG(lv, ...) Logger::GetGlobal().Log(LogLevel::lv, __VA_ARGS__)

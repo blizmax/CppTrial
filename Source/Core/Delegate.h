@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Core/.Package.h"
 #include "Core/Array.h"
 #include "Core/Thread/.Package.h"
-#include <functional>
 
 template <typename T>
 class Delegate;

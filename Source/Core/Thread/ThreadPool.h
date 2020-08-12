@@ -4,8 +4,6 @@
 #include "Core/String.h"
 #include "Core/Exception.h"
 
-using ThreadFunc = std::function<void()>;
-
 namespace ThreadPoolInternal
 {
 class ThreadProxy
@@ -45,7 +43,7 @@ public:
         return workID;
     }
 
-    void Start(const String &newName, int32 id, const ThreadFunc &func)
+    void Start(const String &newName, int32 id, const Runnable &func)
     {
         {
             std::unique_lock<std::mutex> lock(mutex);
@@ -77,7 +75,7 @@ private:
     {
         while (true)
         {
-            ThreadFunc func = nullptr;
+            Runnable func = nullptr;
 
             {
                 std::unique_lock<std::mutex> lock(mutex);
@@ -102,7 +100,7 @@ private:
 
 private:
     String name;
-    ThreadFunc worker = nullptr;
+    Runnable worker = nullptr;
     UPtr<std::thread> thread;
     mutable std::mutex mutex;
     std::condition_variable startedCond;
@@ -202,7 +200,7 @@ public:
         return proxies.Count();
     }
 
-    Handle Run(const String &name, const ThreadFunc &func)
+    Handle Run(const String &name, const Runnable &func)
     {
         CT_CHECK(func != nullptr);
 

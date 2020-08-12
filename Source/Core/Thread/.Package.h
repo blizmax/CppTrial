@@ -3,7 +3,6 @@
 #include "Core/.Package.h"
 #include "Core/Time.h"
 #include <atomic>
-#include <functional>
 #include <mutex>
 #include <shared_mutex>
 #include <thread>

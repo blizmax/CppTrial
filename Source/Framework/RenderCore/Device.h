@@ -8,18 +8,16 @@
 #include "RenderCore/RenderWindow.h"
 #include "RenderCore/Resource.h"
 
-using ReleaseFunc = std::function<void(void)>;
-
 class DeferredReleaser
 {
 public:
     struct ReleaseData
     {
         uint64 fenceValue;
-        ReleaseFunc releaseFunc;
+        Runnable releaseFunc;
     };
 
-    void AddReleaseData(const ReleaseFunc &func, uint64 fenceValue)
+    void AddReleaseData(const Runnable &func, uint64 fenceValue)
     {
         releaseDatas.Add({ fenceValue, func });
     }
@@ -83,7 +81,7 @@ public:
         return renderContext.get();
     }
 
-    void Release(const ReleaseFunc &func)
+    void Release(const Runnable &func)
     {
         deferredReleaser.AddReleaseData(func, frameFence->GetCpuValue());
     }

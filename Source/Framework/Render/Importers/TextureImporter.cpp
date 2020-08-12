@@ -1,4 +1,5 @@
 #include "Render/Importers/TextureImporter.h"
+#include "Assets/AssetManager.h"
 #include "IO/FileHandle.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -18,8 +19,8 @@ namespace
 class ImporterImpl
 {
 public:
-    ImporterImpl(const SPtr<TextureImportSettings> &settings)
-        : settings(settings)
+    ImporterImpl(const APtr<Texture> &asset, const SPtr<TextureImportSettings> &settings)
+        : asset(asset), settings(settings)
     {
     }
 
@@ -216,7 +217,7 @@ public:
         }
     }
 
-    SPtr<Texture> CreateFromDDSFile(const IO::FileHandle &file)
+    void CreateFromDDSFile(const IO::FileHandle &file)
     {
         auto bytes = file.ReadBytes();
         DDSFile dds;
@@ -225,7 +226,7 @@ public:
         if (tinyddsloader::Result::Success != ret)
         {
             CT_LOG(Error, "Load dds image failed. Path: {0}, errorCode: {1}.", file.GetPath(), static_cast<std::underlying_type_t<tinyddsloader::Result>>(ret));
-            return nullptr;
+            return;
         }
 
         ResourceFormat format = GetResourceFormat(dds);
@@ -233,7 +234,7 @@ public:
         if (format == ResourceFormat::Unknown)
         {
             CT_LOG(Error, "Load dds image failed, Unknown resource format. Path: {0}.", file.GetPath());
-            return nullptr;
+            return;
         }
         if (settings->srgbFormat)
         {
@@ -252,38 +253,37 @@ public:
             dds.Flip();
         }
 
-        int32 width = dds.GetWidth();
-        int32 height = dds.GetHeight();
-        int32 depth = dds.GetDepth();
-        int32 arrayLayers = dds.GetArraySize();
-        auto dimension = dds.GetTextureDimension();
-        auto imageData = dds.GetImageData();
-        if (dimension == DDSFile::TextureDimension::Texture1D)
-        {
-            return Texture::Create1D(width, format, arrayLayers, mipLevels, imageData->m_mem);
-        }
-        else if (dimension == DDSFile::TextureDimension::Texture2D)
-        {
-            if (dds.IsCubemap())
+        gAssetManager->RunMainthread([asset = this->asset, dds = std::move(dds), format, mipLevels]() mutable {
+            int32 width = dds.GetWidth();
+            int32 height = dds.GetHeight();
+            int32 depth = dds.GetDepth();
+            int32 arrayLayers = dds.GetArraySize();
+            auto dimension = dds.GetTextureDimension();
+            auto imageData = dds.GetImageData();
+            if (dimension == DDSFile::TextureDimension::Texture1D)
             {
-                //TODO arrayLayers /= 6 ?
-                return Texture::CreateCube(width, height, format, arrayLayers, mipLevels, imageData->m_mem);
+                asset = Texture::Create1D(width, format, arrayLayers, mipLevels, imageData->m_mem);
             }
-            else
+            else if (dimension == DDSFile::TextureDimension::Texture2D)
             {
-                return Texture::Create2D(width, height, format, arrayLayers, mipLevels, imageData->m_mem);
+                if (dds.IsCubemap())
+                {
+                    //TODO arrayLayers /= 6 ?
+                    asset = Texture::CreateCube(width, height, format, arrayLayers, mipLevels, imageData->m_mem);
+                }
+                else
+                {
+                    asset = Texture::Create2D(width, height, format, arrayLayers, mipLevels, imageData->m_mem);
+                }
             }
-        }
-        else if (dimension == DDSFile::TextureDimension::Texture3D)
-        {
-            return Texture::Create3D(width, height, depth, format, mipLevels, imageData->m_mem);
-        }
-
-        CT_LOG(Error, "Load dds image failed, Unsupported texture dimension. Path: {0}.", file.GetPath());
-        return nullptr;
+            else if (dimension == DDSFile::TextureDimension::Texture3D)
+            {
+                asset = Texture::Create3D(width, height, depth, format, mipLevels, imageData->m_mem);
+            }
+        });
     }
 
-    SPtr<Texture> CreateFromStbi(const IO::FileHandle &file)
+    void CreateFromStbi(const IO::FileHandle &file)
     {
         auto bytes = file.ReadBytes();
 
@@ -294,7 +294,7 @@ public:
         if (!stbi_info_from_memory(bytes.GetData(), bytes.Count(), &width, &height, &channels))
         {
             CT_LOG(Error, "Load image failed, can not get image info. Path: {0}.", file.GetPath());
-            return nullptr;
+            return;
         }
 
         // NOTE Always convert 3-elements image to 4-elements.
@@ -367,11 +367,10 @@ public:
             }
         }
 
-        CT_CHECK(format != ResourceFormat::Unknown);
         if (format == ResourceFormat::Unknown)
         {
             CT_LOG(Error, "Load image failed, Unknown resource format. Path: {0}, channels:{1}.", file.GetPath(), channels);
-            return nullptr;
+            return;
         }
         if (settings->srgbFormat)
         {
@@ -381,36 +380,39 @@ public:
         if (!data)
         {
             CT_LOG(Error, "Load image failed. Path: {0}, reason: {1}", file.GetPath(), String(stbi_failure_reason()));
-            return nullptr;
+            return;
         }
-        auto texture = Texture::Create2D(width, height, format, 1, settings->generateMips ? -1 : 1, data);
-        stbi_image_free(data);
 
-        return texture;
+        int32 mipLevels = settings->generateMips ? -1 : 1;
+        gAssetManager->RunMainthread([asset = this->asset, width, height, format, mipLevels, data]() mutable {
+            asset = Texture::Create2D(width, height, format, 1, mipLevels, data);
+            stbi_image_free(data);
+        });
     }
 
-    SPtr<Texture> Import(const String &path)
+    void Import(const String &path)
     {
         IO::FileHandle file(path);
         if (!file.IsFile())
         {
             CT_LOG(Error, "Load image failed, can not open file. Path: {0}.", path);
-            return nullptr;
+            return;
         }
 
         String ext = file.GetExtension();
         if (ext == CT_TEXT(".dds"))
         {
-            return CreateFromDDSFile(file);
+            CreateFromDDSFile(file);
         }
         else
         {
-            return CreateFromStbi(file);
+            CreateFromStbi(file);
         }
     }
 
 private:
     SPtr<TextureImportSettings> settings;
+    APtr<Texture> asset;
 };
 
 }
@@ -419,9 +421,10 @@ APtr<Texture> TextureImporter::Import(const String &path, const SPtr<ImportSetti
 {
     APtr<Texture> result;
 
-    ImporterImpl impl(ImportSettings::As<TextureImportSettings>(settings));
-    auto texture = impl.Import(path);
+    gAssetManager->RunMultithread([=]() {
+        ImporterImpl impl(result, ImportSettings::As<TextureImportSettings>(settings));
+        impl.Import(path);
+    });
 
-    result.SetData(APtr<Texture>::InnerData::Create(texture));
     return result;
 }

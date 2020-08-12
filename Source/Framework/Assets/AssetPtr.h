@@ -33,9 +33,6 @@ public:
 
     AssetPtr(AssetPtr &&) noexcept = default;
     AssetPtr &operator=(AssetPtr &&) noexcept = default;
-    AssetPtr(std::nullptr_t)
-    {
-    }
 
     AssetPtr(const AssetPtr &other)
     {
@@ -50,6 +47,15 @@ public:
             Swap(temp);
         }
         return *this;
+    }
+
+    AssetPtr(const SPtr<T> &ptr)
+    {
+        SetData(InnerData::Create(ptr));
+    }
+
+    AssetPtr(std::nullptr_t)
+    {
     }
 
     T *Get() const

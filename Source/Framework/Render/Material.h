@@ -2,14 +2,15 @@
 
 #include "Render/.Package.h"
 #include "RenderCore/Texture.h"
+#include "Assets/AssetPtr.h"
 
 struct MaterialResources
 {
-    SPtr<Texture> baseTexture;
-    SPtr<Texture> specularTexture;
-    SPtr<Texture> emissiveTexture;
-    SPtr<Texture> normalTexture;
-    SPtr<Texture> occlusionTexture;
+    APtr<Texture> baseTexture;
+    APtr<Texture> specularTexture;
+    APtr<Texture> emissiveTexture;
+    APtr<Texture> normalTexture;
+    APtr<Texture> occlusionTexture;
     SPtr<Sampler> samplerState;
 };
 
@@ -18,11 +19,11 @@ class Material
 public:
     Material() = default;
 
-    void SetBaseTexture(const SPtr<Texture> &texture);
-    void SetSpecularTexture(const SPtr<Texture> &texture);
-    void SetEmissiveTexture(const SPtr<Texture> &texture);
-    void SetNormalTexture(const SPtr<Texture> &texture);
-    void SetOcclusionTexture(const SPtr<Texture> &texture);
+    void SetBaseTexture(const APtr<Texture> &texture);
+    void SetSpecularTexture(const APtr<Texture> &texture);
+    void SetEmissiveTexture(const APtr<Texture> &texture);
+    void SetNormalTexture(const APtr<Texture> &texture);
+    void SetOcclusionTexture(const APtr<Texture> &texture);
     void SetSampler(const SPtr<Sampler> &sampler);
 
     void SetBaseColor(const Color &color);
@@ -35,32 +36,32 @@ public:
     void SetDoubleSided(bool value);
     void SetShadingModel(int32 model);
 
-    const SPtr<Texture> &GetBaseColorTexture() const
+    SPtr<Texture> GetBaseColorTexture() const
     {
         return resources.baseTexture;
     }
 
-    const SPtr<Texture> &GetSpecularTexture() const
+    SPtr<Texture> GetSpecularTexture() const
     {
         return resources.specularTexture;
     }
 
-    const SPtr<Texture> &GetEmissiveTexture() const
+    SPtr<Texture> GetEmissiveTexture() const
     {
         return resources.emissiveTexture;
     }
 
-    const SPtr<Texture> &GetNormalTexture() const
+    SPtr<Texture> GetNormalTexture() const
     {
         return resources.normalTexture;
     }
 
-    const SPtr<Texture> &GetOcclusionTexture() const
+    SPtr<Texture> GetOcclusionTexture() const
     {
         return resources.occlusionTexture;
     }
 
-    const SPtr<Sampler> GetSampler() const
+    SPtr<Sampler> GetSampler() const
     {
         return resources.samplerState;
     }

@@ -18,7 +18,7 @@ void ThreadManager::Tick()
 {
 }
 
-ThreadPool::Handle ThreadManager::RunThread(const String &name, const ThreadFunc &func)
+ThreadPool::Handle ThreadManager::RunThread(const String &name, const Runnable &func)
 {
     return ThreadPool::GetGlobal().Run(name, func);
 }

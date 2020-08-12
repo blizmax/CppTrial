@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <initializer_list>
 #include <typeindex>
+#include <functional>
 
 #include "debugbreak.h"
 
@@ -82,6 +83,8 @@ constexpr int32 INDEX_NONE = -1;
 typedef wchar CharType;
 typedef size_t SizeType;
 typedef uint32 HashType;
+
+using Runnable = std::function<void(void)>;
 
 template <typename T>
 CT_INLINE std::type_index TypeIndexOf()
