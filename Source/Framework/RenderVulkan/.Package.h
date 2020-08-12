@@ -21,6 +21,7 @@ VkPipelineStageFlags ToVkPipelineStage(ResourceState state, bool src);
 VkShaderStageFlagBits ToVkShaderStage(ShaderType shaderType);
 VkShaderStageFlags ToVkShaderVisibility(ShaderVisibilityFlags visibility);
 VkDescriptorType ToVkDescriptorType(DescriptorType descType);
+VkQueryType ToVkQueryType(QueryType queryType);
 VkMemoryPropertyFlags ToVkMemoryProperty(MemoryUsage usage);
 VkBufferUsageFlags ToVkBufferUsage(ResourceBindFlags bind);
 VkImageType ToVkImageType(ResourceType resourceType);

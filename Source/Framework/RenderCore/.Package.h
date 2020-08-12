@@ -134,6 +134,13 @@ enum class DescriptorType
     Count,
 };
 
+enum class QueryType
+{
+    Timestamp,
+    Occlusion,
+    PipelineStats,
+};
+
 enum class TextureFilter
 {
     Nearest,

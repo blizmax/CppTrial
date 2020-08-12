@@ -177,6 +177,22 @@ VkDescriptorType ToVkDescriptorType(DescriptorType descType)
     }
 }
 
+VkQueryType ToVkQueryType(QueryType queryType)
+{
+    switch (queryType)
+    {
+    case QueryType::Timestamp:
+        return VK_QUERY_TYPE_TIMESTAMP;
+    case QueryType::Occlusion:
+        return VK_QUERY_TYPE_OCCLUSION;
+    case QueryType::PipelineStats:
+        return VK_QUERY_TYPE_PIPELINE_STATISTICS;
+    default:
+        CT_EXCEPTION(RenderCore, "Unsupported query type!");
+        return VK_QUERY_TYPE_MAX_ENUM;
+    }
+}
+
 VkMemoryPropertyFlags ToVkMemoryProperty(MemoryUsage usage)
 {
     switch (usage)

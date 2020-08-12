@@ -43,7 +43,7 @@ SPtr<ComputeStateObject> ComputeState::GetCso(const ComputeVars *vars)
         else
         {
             cso = ComputeStateObject::Create(desc);
-            stateGraph.SetCurrentNodeData(gso);
+            stateGraph.SetCurrentNodeData(cso);
         }
     }
 
