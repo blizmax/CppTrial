@@ -262,23 +262,23 @@ public:
             auto imageData = dds.GetImageData();
             if (dimension == DDSFile::TextureDimension::Texture1D)
             {
-                asset = Texture::Create1D(width, format, arrayLayers, mipLevels, imageData->m_mem);
+                asset.GetData()->ptr = Texture::Create1D(width, format, arrayLayers, mipLevels, imageData->m_mem);
             }
             else if (dimension == DDSFile::TextureDimension::Texture2D)
             {
                 if (dds.IsCubemap())
                 {
                     //TODO arrayLayers /= 6 ?
-                    asset = Texture::CreateCube(width, height, format, arrayLayers, mipLevels, imageData->m_mem);
+                    asset.GetData()->ptr = Texture::CreateCube(width, height, format, arrayLayers, mipLevels, imageData->m_mem);
                 }
                 else
                 {
-                    asset = Texture::Create2D(width, height, format, arrayLayers, mipLevels, imageData->m_mem);
+                    asset.GetData()->ptr = Texture::Create2D(width, height, format, arrayLayers, mipLevels, imageData->m_mem);
                 }
             }
             else if (dimension == DDSFile::TextureDimension::Texture3D)
             {
-                asset = Texture::Create3D(width, height, depth, format, mipLevels, imageData->m_mem);
+                asset.GetData()->ptr = Texture::Create3D(width, height, depth, format, mipLevels, imageData->m_mem);
             }
         });
     }
@@ -385,7 +385,7 @@ public:
 
         int32 mipLevels = settings->generateMips ? -1 : 1;
         gAssetManager->RunMainthread([asset = this->asset, width, height, format, mipLevels, data]() mutable {
-            asset = Texture::Create2D(width, height, format, 1, mipLevels, data);
+            asset.GetData()->ptr = Texture::Create2D(width, height, format, 1, mipLevels, data);
             stbi_image_free(data);
         });
     }
@@ -420,6 +420,7 @@ private:
 APtr<Texture> TextureImporter::Import(const String &path, const SPtr<ImportSettings> &settings)
 {
     APtr<Texture> result;
+    result.NewData();
 
     gAssetManager->RunMultithread([=]() {
         ImporterImpl impl(result, ImportSettings::As<TextureImportSettings>(settings));

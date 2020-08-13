@@ -97,7 +97,7 @@ public:
 
     static Profiler &GetGlobalProfiler()
     {
-        return gProfiler;
+        return sGlobal;
     }
 
 private:
@@ -127,14 +127,14 @@ private:
     }
 
 private:
-    static Profiler gProfiler;
+    static Profiler sGlobal;
 
     bool sessionOpen = false;
     mutable std::shared_mutex mutex;
     SessionData sessionData;
 };
 
-inline Profiler Profiler::gProfiler;
+inline Profiler Profiler::sGlobal;
 
 #define CT_PROFILE_SESSION_BEGIN(name) ::Profiler::GetGlobalProfiler().BeginSession(name)
 #define CT_PROFILE_SESSION_END() ::Profiler::GetGlobalProfiler().EndSession()

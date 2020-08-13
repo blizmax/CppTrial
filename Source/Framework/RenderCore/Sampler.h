@@ -34,7 +34,6 @@ public:
     }
 
     static SPtr<Sampler> Create(const SamplerDesc &desc);
-    static SPtr<Sampler> GetDefault();
 
 protected:
     SamplerDesc desc;

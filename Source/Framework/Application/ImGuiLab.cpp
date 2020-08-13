@@ -30,7 +30,7 @@ SPtr<Texture> FromImTextureID(ImTextureID texID)
         else
             textures.Remove(runtimeID);
     }
-    return Texture::GetDefault2D();
+    return RenderAPI::GetDefaultTexture2D();
 }
 
 }

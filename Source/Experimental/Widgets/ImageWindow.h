@@ -6,7 +6,7 @@
 class ImageWindow
 {
 public:
-    SPtr<Texture> texture;
+    APtr<Texture> texture;
     ImGui::FileBrowser fileDialog;
 
 public:

@@ -64,9 +64,15 @@ public:
     static SPtr<GraphicsStateObject> Create(const GraphicsStateObjectDesc &desc);
 
 protected:
-    GraphicsStateObject(const GraphicsStateObjectDesc &desc)
-        : desc(desc)
+    GraphicsStateObject(const GraphicsStateObjectDesc &inDesc)
+        : desc(inDesc)
     {
+        if (!desc.blendState)
+            desc.blendState = BlendState::Create({});
+        if (!desc.depthStencilState)
+            desc.depthStencilState = DepthStencilState::Create({});
+        if (!desc.rasterizationState)
+            desc.rasterizationState = RasterizationState::Create({});
     }
 
 protected:

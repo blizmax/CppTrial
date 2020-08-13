@@ -14,17 +14,17 @@ static ShaderType GetShaderType(const String &str)
     return ShaderType::Vertex;
 }
 
-SPtr<Program> Program::Create(const String &path, const ProgramDefines &defines, const ProgramCompileOptions &options)
+ProgramDesc Program::CreateDesc(const String &path, const ProgramDefines &defines)
 {
     ProgramDesc desc;
     desc.defines = defines;
-    desc.options = options;
+    desc.options = sOptions;
 
     IO::FileHandle file(path);
     if (!file.IsFile())
     {
         CT_EXCEPTION(RenderCore, "Cannot find source file.");
-        return nullptr;
+        return desc;
     }
 
     String src = file.ReadString();
@@ -77,7 +77,7 @@ SPtr<Program> Program::Create(const String &path, const ProgramDefines &defines,
     while (AppendShaderDesc())
         ;
 
-    return Program::Create(desc);
+    return desc;
 }
 
 SPtr<ProgramKernel> ProgramKernel::Create(const ProgramDesc &desc)

@@ -6,6 +6,7 @@
 #include "Render/MeshGenerator.h"
 #include "Render/RenderManager.h"
 #include "RenderCore/RenderAPI.h"
+#include "Render/RenderPasses/FullScreenPass.h"
 
 class Renderer
 {
@@ -22,6 +23,8 @@ public:
     SPtr<GraphicsVars> vars;
     SPtr<Program> reflectionProgram;
 
+    SPtr<FullScreenPass> testPass;
+
     struct Vertex
     {
         Vector3 position;
@@ -36,11 +39,6 @@ public:
 
     static constexpr int32 ROWS = 7;
     static constexpr int32 COLS = 7;
-
-    SPtr<Program> CreateProgram()
-    {
-        return Program::Create(CT_TEXT("Assets/Shaders/Experimental/LearnPBR.glsl"));
-    }
 
     void LoadModel()
     {
@@ -95,7 +93,7 @@ public:
         controller->SetViewport(width, height);
         cameraController = controller;
 
-        program = CreateProgram();
+        program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/LearnPBR.glsl"));
         vars = GraphicsVars::Create(program);
 
         state = GraphicsState::Create();
@@ -139,6 +137,10 @@ public:
         state->SetRasterizationState(rasterizationState);
         state->SetDepthStencilState(depthStencilState);
         state->SetBlendState(blendState);
+
+
+        // Full screen pass
+        testPass = FullScreenPass::Create(CT_TEXT("Assets/Shaders/Experimental/FullScreenTest.glsl"));
     }
 
     void Render(RenderContext *ctx, const SPtr<FrameBuffer> &fbo)
@@ -172,6 +174,8 @@ public:
         }
 
         ctx->DrawIndexedInstanced(state.get(), vars.get(), indices.Count(), ROWS * COLS, 0, 0, 0);
+
+        testPass->Execute(ctx, fbo);
     }
 };
 

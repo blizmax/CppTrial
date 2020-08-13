@@ -37,8 +37,8 @@ public:
 protected:
     bool ApplyGraphicsVars(GraphicsVars *vars, RootSignature *rootSignature);
     void SetPipelineState(GraphicsStateObject *gso);
-    void SetVao(const VertexArray *vao);
-    void SetFbo(const FrameBuffer *fbo);
+    void SetVertexArray(const VertexArray *vao);
+    void SetFrameBuffer(const FrameBuffer *fbo);
     void SetViewports(const Array<Viewport> &viewports);
     void SetScissors(const Array<Scissor> &scissors);
     bool PrepareForDraw(GraphicsState *state, GraphicsVars *vars);

@@ -16,7 +16,7 @@ struct BlendStateDesc
         BlendOperation alphaBlendOp = BlendOperation::Add;
     };
 
-    Array<AttachmentDesc> attachments;
+    Array<AttachmentDesc> attachments{{}}; // default attach count = 1
     bool alphaToCoverageEnabled = false;
     float blendFactor[4] = { 0.0f };
 };

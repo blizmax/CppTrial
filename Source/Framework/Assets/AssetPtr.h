@@ -75,6 +75,11 @@ public:
         std::swap(data, other.data);
     }
 
+    void NewData()
+    {
+        data = InnerData::Create();
+    }
+
     void SetData(const SPtr<InnerData> &newData)
     {
         if (newData != data)

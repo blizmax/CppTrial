@@ -81,7 +81,7 @@ public:
 
     static Logger &GetGlobal()
     {
-        return gLogger;
+        return sGlobal;
     }
 
 private:
@@ -121,12 +121,12 @@ public:
     mutable Delegate<void(LogLevel, const String &)> printHandler;
 
 private:
-    static Logger gLogger;
+    static Logger sGlobal;
 
     String tag;
     LogLevel level = DEFAULT_LEVEL;
 };
 
-inline Logger Logger::gLogger(CT_TEXT("Core"));
+inline Logger Logger::sGlobal(CT_TEXT("Core"));
 
 #define CT_LOG(lv, ...) Logger::GetGlobal().Log(LogLevel::lv, __VA_ARGS__)

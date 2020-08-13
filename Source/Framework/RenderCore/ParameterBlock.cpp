@@ -733,7 +733,7 @@ bool ParameterBlock::BindIntoDescriptorSet(int32 setIndex, const SPtr<Descriptor
             break;
             case DescriptorType::Sampler:
             {
-                auto sampler = samplers[flatIndex] ? samplers[flatIndex].get() : Sampler::GetDefault().get();
+                auto sampler = samplers[flatIndex] ? samplers[flatIndex].get() : RenderAPI::GetDefaultSampler().get();
                 set->SetSampler(bindingInfo.binding, i, sampler);
             }
             break;

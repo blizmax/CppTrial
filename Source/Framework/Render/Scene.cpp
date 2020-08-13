@@ -153,9 +153,7 @@ void Scene::BindSamplerToMaterials(const SPtr<Sampler> &sampler)
 void Scene::InitResources()
 {
     ProgramDefines defines = GetSceneDefines();
-    ProgramCompileOptions options;
-    options.generateDebugInfo = true;
-    auto program = Program::Create(CT_TEXT("Assets/Shaders/Scene/SceneBlock.glsl"), defines, options);
+    auto program = Program::Create(CT_TEXT("Assets/Shaders/Scene/SceneBlock.glsl"), defines);
     auto reflection = program->GetReflection();
     sceneBlock = ParameterBlock::Create(reflection->GetDefaultBlockReflection());
 
@@ -199,7 +197,7 @@ void Scene::UploadMaterial(int32 matID)
         if (texture)
             var.SetTexture(texture);
         else
-            var.SetTexture(Texture::GetDefault2D());
+            var.SetTexture(RenderAPI::GetDefaultTexture2D());
     };
 
     SetTexture(var[CT_TEXT("baseTextures")][matID], mat->GetBaseColorTexture());

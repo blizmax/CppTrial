@@ -8,8 +8,8 @@ SPtr<GraphicsStateObject> GraphicsStateObject::Create(const GraphicsStateObjectD
     return Memory::MakeShared<VulkanGraphicsStateObject>(desc);
 }
 
-VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDesc &desc)
-    : GraphicsStateObject(desc)
+VulkanGraphicsStateObject::VulkanGraphicsStateObject(const GraphicsStateObjectDesc &inDesc)
+    : GraphicsStateObject(inDesc)
 {
     auto vkProgramKernel = static_cast<VulkanProgramKernel *>(desc.programKernel.get());
     Array<VkPipelineShaderStageCreateInfo> shaderInfos;

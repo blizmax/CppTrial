@@ -15,8 +15,6 @@ struct ProgramCompileOptions
 {
     bool reflectAllVariables = false;
     bool generateDebugInfo = false;
-
-    ProgramCompileOptions() = default;
 };
 
 struct ProgramDesc
@@ -29,6 +27,16 @@ struct ProgramDesc
     ProgramDesc(std::initializer_list<ShaderDesc> initList)
         : shaderDescs(initList)
     {
+    }
+
+    bool HasShader(ShaderType shaderType) const
+    {
+        for (auto &d : shaderDescs)
+        {
+            if (d.shaderType == shaderType)
+                return true;
+        }
+        return false;
     }
 };
 
@@ -83,6 +91,11 @@ public:
         return kernel;
     }
 
+    static void SetCompileOptions(const ProgramCompileOptions &options)
+    {
+        sOptions = options;
+    }
+
     static SPtr<Program> Create(const ProgramDesc &desc)
     {
         auto ptr = Memory::MakeShared<Program>();
@@ -90,8 +103,18 @@ public:
         return ptr;
     }
 
-    static SPtr<Program> Create(const String &path, const ProgramDefines &defines = {}, const ProgramCompileOptions &options = {});
+    static SPtr<Program> Create(const String &path, const ProgramDefines &defines = {})
+    {
+        return Create(CreateDesc(path, defines));
+    }
+
+    /** API dependent */
+    static ProgramDesc CreateDesc(const String &path, const ProgramDefines &defines = {});
 
 private:
     SPtr<ProgramKernel> kernel;
+
+    static ProgramCompileOptions sOptions;
 };
+
+inline ProgramCompileOptions Program::sOptions;

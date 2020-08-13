@@ -73,9 +73,8 @@ public:
             cameraController = FirstPersonCameraController::Create(scene->GetCamera());
             cameraController->SetViewport(width, height);
             scene->SetCameraController(cameraController);
-            ProgramCompileOptions options;
-            options.generateDebugInfo = true;
-            program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/LearnVK.glsl"), scene->GetSceneDefines(), options);
+
+            program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/LearnVK.glsl"), scene->GetSceneDefines());
             vars = GraphicsVars::Create(program);
             state->SetProgram(program);
         }

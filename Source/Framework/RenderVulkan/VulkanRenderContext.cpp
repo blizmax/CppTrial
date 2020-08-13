@@ -251,7 +251,7 @@ void VulkanRenderContextImpl::SetPipelineState(GraphicsStateObject *gso)
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, handle);
 }
 
-void VulkanRenderContextImpl::SetVao(const VertexArray *vao)
+void VulkanRenderContextImpl::SetVertexArray(const VertexArray *vao)
 {
     auto commandBuffer = contextData->GetCommandBufferHandle();
     const auto &buffers = vao->GetVertexBuffers();
@@ -273,7 +273,7 @@ void VulkanRenderContextImpl::SetVao(const VertexArray *vao)
     }
 }
 
-void VulkanRenderContextImpl::SetFbo(const FrameBuffer *fbo)
+void VulkanRenderContextImpl::SetFrameBuffer(const FrameBuffer *fbo)
 {
     for (int i = 0; i < fbo->GetColorTextureCount(); ++i)
     {
@@ -334,9 +334,9 @@ bool VulkanRenderContextImpl::PrepareForDraw(GraphicsState *state, GraphicsVars 
     if (bindFlags & GraphicsStateBind::PipelineState)
         SetPipelineState(gso.get());
     if (bindFlags & GraphicsStateBind::Vao)
-        SetVao(state->GetVertexArray().get());
+        SetVertexArray(state->GetVertexArray().get());
     if (bindFlags & GraphicsStateBind::Fbo)
-        SetFbo(state->GetFrameBuffer().get());
+        SetFrameBuffer(state->GetFrameBuffer().get());
     if (bindFlags & GraphicsStateBind::Viewports)
         SetViewports(state->GetViewports());
     if (bindFlags & GraphicsStateBind::Scissors)
