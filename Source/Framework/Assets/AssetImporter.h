@@ -17,8 +17,14 @@ public:
     }
 };
 
+class IAssetImporter
+{
+public:
+    virtual ~IAssetImporter() = default;
+};
+
 template <typename T>
-class AssetImporter
+class AssetImporter : public IAssetImporter
 {
 public:
     virtual ~AssetImporter() = default;

@@ -1,5 +1,6 @@
 #include "Application/Application.h"
 #include "Application/ImGuiLab.h"
+#include "Assets/AssetManager.h"
 #include "Experimental/Widgets/CameraView.h"
 #include "Experimental/Widgets/ImageWindow.h"
 #include "Experimental/Widgets/MaterialView.h"
@@ -61,10 +62,9 @@ public:
         float width = window.GetWidth();
         float height = window.GetHeight();
 
-        SceneImporter importer;
         auto settings = SceneImportSettings::Create();
         settings->dontLoadBones = true;
-        scene = importer.Import(path, settings);
+        scene = gAssetManager->Import<Scene>(path, settings);
 
         if (scene)
         {

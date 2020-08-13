@@ -5,9 +5,9 @@
 #include "Experimental/Widgets/MaterialView.h"
 #include "IO/FileHandle.h"
 #include "Render/Importers/SceneImporter.h"
-#include "Render/Importers/TextureImporter.h"
 #include "Render/RenderManager.h"
 #include "RenderCore/RenderAPI.h"
+#include "Assets/AssetManager.h"
 
 #include "Experimental/Widgets/ProfileWindow.h"
 
@@ -65,10 +65,9 @@ public:
         float width = window.GetWidth();
         float height = window.GetHeight();
 
-        SceneImporter importer;
         auto settings = SceneImportSettings::Create();
         settings->dontLoadBones = true;
-        scene = importer.Import(path, settings);
+        scene = gAssetManager->Import<Scene>(path, settings);
 
         if (scene)
         {

@@ -11,9 +11,9 @@ namespace Thread
 {
 CT_INLINE uint32 GetCurrentThreadID()
 {
-    std::thread::id threadId = std::this_thread::get_id();
+    std::thread::id threadID = std::this_thread::get_id();
     std::hash<std::thread::id> hash;
-    return static_cast<uint32>(hash(threadId));
+    return static_cast<uint32>(hash(threadID));
 }
 
 CT_INLINE uint32 HardwareConcurrency()
@@ -30,4 +30,12 @@ CT_INLINE void YieldThis()
 {
     std::this_thread::yield();
 }
+
+inline uint32 gMainThreadID = GetCurrentThreadID();
+
+CT_INLINE bool IsMainThread()
+{
+    return GetCurrentThreadID() == gMainThreadID;
+}
+
 }

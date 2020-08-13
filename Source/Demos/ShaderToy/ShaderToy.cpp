@@ -1,6 +1,7 @@
 #include "Application/Application.h"
 #include "Application/ImGuiLab.h"
 #include "Application/ThreadManager.h"
+#include "Assets/AssetManager.h"
 #include "Core/Thread.h"
 #include "Demos/ShaderToy/Page1.h"
 #include "Demos/ShaderToy/Page2.h"
@@ -170,8 +171,7 @@ public:
 
         {
             sampler = Sampler::Create(SamplerDesc());
-            TextureImporter importer;
-            texture = importer.Import(CT_TEXT("Assets/Textures/test.png"), nullptr);
+            texture = gAssetManager->Import<Texture>(CT_TEXT("Assets/Textures/test.png"), nullptr);
         }
 
         watcher = Memory::MakeUnique<IO::FileWatcher>(

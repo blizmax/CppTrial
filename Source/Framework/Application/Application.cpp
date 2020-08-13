@@ -3,6 +3,8 @@
 #include "Assets/AssetManager.h"
 #include "Core/Time.h"
 #include "Render/RenderManager.h"
+#include "Render/Importers/SceneImporter.h"
+#include "Render/Importers/TextureImporter.h"
 
 #include "Application/ImGuiLab.h"
 
@@ -45,6 +47,9 @@ void Application::Init()
     CT_LOG(Info, CT_TEXT("ImGuiLab startup."));
 
     gLogic->Startup();
+
+    gAssetManager->RegisterImporter<Texture>(Memory::New<TextureImporter>());
+    gAssetManager->RegisterImporter<Scene>(Memory::New<SceneImporter>());
 
     GetWindow().windowResizedHandler += ([](auto &e) {
         if (e.handled)

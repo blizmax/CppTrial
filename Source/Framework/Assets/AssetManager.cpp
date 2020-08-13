@@ -24,8 +24,15 @@ void AssetManager::Tick()
 
 void AssetManager::RunMainthread(const Runnable &func)
 {
-    std::unique_lock<std::mutex> lock(assetSyncMutex);
-    assetSyncTasks.Add(func);
+    if (Thread::IsMainThread())
+    {
+        func();
+    }
+    else
+    {
+        std::unique_lock<std::mutex> lock(assetSyncMutex);
+        assetSyncTasks.Add(func);
+    }
 }
 
 void AssetManager::RunMultithread(const Runnable &func)

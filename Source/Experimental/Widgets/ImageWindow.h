@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Application/ImGuiLab.h"
-#include "Render/Importers/TextureImporter.h"
+#include "Assets/AssetManager.h"
 
 class ImageWindow
 {
@@ -12,8 +12,7 @@ public:
 public:
     void LoadImage(const String &path)
     {
-        TextureImporter importer;
-        texture = importer.Import(path, nullptr);
+        texture = gAssetManager->Import<Texture>(path, nullptr);
     }
 
     void OnGui()
