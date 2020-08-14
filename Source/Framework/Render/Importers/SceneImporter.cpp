@@ -1,4 +1,5 @@
 #include "Render/Importers/SceneImporter.h"
+#include "Assets/AssetManager.h"
 #include "Core/HashMap.h"
 #include "IO/FileHandle.h"
 #include "Render/Importers/TextureImporter.h"
@@ -114,9 +115,12 @@ float SpecPowerToRoughness(float specPower)
 class ImporterImpl
 {
 public:
-    ImporterImpl() = default;
+    ImporterImpl(const APtr<Scene> &asset, const SPtr<SceneImportSettings> &settings)
+        : asset(asset), settings(settings)
+    {
+    }
 
-    SPtr<Scene> Import(const String &path, const SPtr<SceneImportSettings> &settings)
+    void Import(const String &path)
     {
         this->settings = settings;
 
@@ -129,14 +133,14 @@ public:
         assimpFlags &= ~(aiProcess_FindDegenerates);
         assimpFlags &= ~(aiProcess_OptimizeGraph);
         assimpFlags &= ~aiProcess_RemoveRedundantMaterials;
-    
+
         {
             DebugTimer timer(CT_TEXT("Assimp ReadFile"));
             aScene = aImporter.ReadFile(CT_U8_CSTR(path), assimpFlags);
             if (aScene == nullptr || aScene->mFlags == AI_SCENE_FLAGS_INCOMPLETE)
             {
                 CT_LOG(Error, CT_TEXT("Load scene failed, error: {0}."), String(aImporter.GetErrorString()));
-                return nullptr;
+                return;
             }
         }
 
@@ -151,7 +155,7 @@ public:
             if (CreateMaterials() == false)
             {
                 CT_LOG(Error, CT_TEXT("Create scene materials failed."));
-                return nullptr;
+                return;
             }
         }
 
@@ -160,7 +164,7 @@ public:
             if (CreateSceneGraph() == false)
             {
                 CT_LOG(Error, CT_TEXT("Create scene graph failed."));
-                return nullptr;
+                return;
             }
         }
 
@@ -169,7 +173,7 @@ public:
             if (CreateMeshes() == false)
             {
                 CT_LOG(Error, CT_TEXT("Create scene meshes failed."), path);
-                return nullptr;
+                return;
             }
         }
 
@@ -178,7 +182,7 @@ public:
             if (CreateAnimations() == false)
             {
                 CT_LOG(Error, CT_TEXT("Create scene animations failed."), path);
-                return nullptr;
+                return;
             }
         }
 
@@ -187,7 +191,7 @@ public:
             if (CreateCamera() == false)
             {
                 CT_LOG(Error, CT_TEXT("Create scene camera failed."), path);
-                return nullptr;
+                return;
             }
         }
 
@@ -196,12 +200,14 @@ public:
             if (CreateLights() == false)
             {
                 CT_LOG(Error, CT_TEXT("Create scene lights failed."), path);
-                return nullptr;
+                return;
             }
         }
-   
-        DebugTimer timer(CT_TEXT("SceneBuilder"));
-        return builder.GetScene();     
+
+        gAssetManager->RunMainthread([asset = this->asset, builder = std::move(this->builder)]() mutable {
+            DebugTimer timer(CT_TEXT("SceneBuilder"));
+            asset.GetData()->ptr = builder.GetScene();
+        });
     }
 
     bool IsBone(const String &name)
@@ -804,6 +810,7 @@ public:
 
 private:
     SceneBuilder builder;
+    APtr<Scene> asset;
     SPtr<SceneImportSettings> settings;
     ImportMode importMode = ImportMode::Default;
     String directory;
@@ -823,11 +830,12 @@ APtr<Scene> SceneImporter::Import(const String &path, const SPtr<ImportSettings>
     DebugTimer timer(CT_TEXT("SceneImport"));
 
     APtr<Scene> result;
+    result.NewData();
 
-    ImporterImpl impl;
-    auto scene = impl.Import(path, ImportSettings::As<SceneImportSettings>(settings));
-
-    result = scene;
+    gAssetManager->RunMultithread([=]() {
+        ImporterImpl impl(result, ImportSettings::As<SceneImportSettings>(settings));
+        impl.Import(path);
+    });
 
     return result;
 }

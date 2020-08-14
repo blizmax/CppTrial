@@ -367,20 +367,21 @@ public:
             }
         }
 
+        if (!data)
+        {
+            CT_LOG(Error, "Load image failed. Path: {0}, reason: {1}", file.GetPath(), String(stbi_failure_reason()));
+            return;
+        }
+
         if (format == ResourceFormat::Unknown)
         {
             CT_LOG(Error, "Load image failed, Unknown resource format. Path: {0}, channels:{1}.", file.GetPath(), channels);
+            stbi_image_free(data);
             return;
         }
         if (settings->srgbFormat)
         {
             format = LinearToSrgbFormat(format);
-        }
-
-        if (!data)
-        {
-            CT_LOG(Error, "Load image failed. Path: {0}, reason: {1}", file.GetPath(), String(stbi_failure_reason()));
-            return;
         }
 
         int32 mipLevels = settings->generateMips ? -1 : 1;

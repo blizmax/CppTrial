@@ -7,6 +7,13 @@
 #include "Render/RenderManager.h"
 #include "RenderCore/RenderAPI.h"
 
+#undef DEBUG
+#include <assimp/Importer.hpp>
+#include <assimp/pbrmaterial.h>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+#include <assimp/DefaultLogger.hpp>
+
 class Renderer
 {
 public:
@@ -73,7 +80,7 @@ public:
         CT_LOG(Debug, CT_TEXT("Load model end, total used time:{0}, vertexCount:{1}, triangleCount:{2}"), t, vertexCount, triangleCount);
     }
 
-    void LoadModel()
+    void LoadSphere()
     {
         MeshGenerator gen;
         //MeshData meshData = gen.CreateBox(1.0f, 1.0f, 1.0f, 1);
@@ -88,17 +95,41 @@ public:
         indices = meshData.indices;
     }
 
+    void LoadModel()
+    {
+        Assimp::Importer aImporter;
+        uint32 assimpFlags = aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_FlipUVs;
+        assimpFlags &= ~(aiProcess_FindDegenerates);
+        assimpFlags &= ~(aiProcess_OptimizeGraph);
+        assimpFlags &= ~aiProcess_RemoveRedundantMaterials;
+
+        String path = CT_TEXT("C:/Users/Administrator/Desktop/Models/Bee.glb");
+        auto aScene = aImporter.ReadFile(CT_U8_CSTR(path), assimpFlags);
+
+        if (aScene == nullptr || aScene->mFlags == AI_SCENE_FLAGS_INCOMPLETE)
+        {
+            CT_LOG(Error, CT_TEXT("Load scene failed, error: {0}."), String(aImporter.GetErrorString()));
+        }
+        else
+        {
+            CT_LOG(Info, CT_TEXT("Load scene done."));
+        }
+
+        //TODO
+
+    }
+
 public:
     Renderer()
     {
-        LoadModel();
+        LoadSphere();
 
         auto &window = gApp->GetWindow();
         float width = window.GetWidth();
         float height = window.GetHeight();
         auto camera = Camera::Create();
         auto controller = OrbiterCameraController::Create(camera);
-        controller->SetModelParams(Vector3(), 10.0f, 15.0f);
+        controller->SetModelParams(Vector3(), 1.0f, 10.0f);
         controller->SetViewport(width, height);
         cameraController = controller;
 
