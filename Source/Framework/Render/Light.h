@@ -7,12 +7,23 @@ class Light
 public:
     virtual ~Light() = default;
 
-    virtual void SetIntensity(const Color &color);
+    virtual bool Update();
+    virtual void SetIntensity(const Vector3 &val);
     virtual float GetPower() const = 0;
+
+    Color GetIntensityColor() const;
+    void SetIntensityColor(const Color &color);
+    float GetIntensityScale() const;
+    void SetIntensityScale(float scale);
 
     LightType GetLightType() const
     {
         return (LightType)data.type;
+    }
+
+    Vector3 GetIntensity() const
+    {
+        return data.intensity;
     }
 
     const LightData &GetData() const
@@ -31,8 +42,16 @@ public:
     }
 
 protected:
+    void MarkDirty();
+    void UpdateIntensityCache() const;
+
+protected:
     String name;
     LightData data{};
+    mutable Color intensityColor{Color::WHITE};
+    mutable float intensityScale = 1.0f;
+    bool dirty = true;
+    bool changedSinceLastUpdate = false;
 };
 
 class DirectionalLight : public Light
@@ -83,11 +102,6 @@ public:
     float GetOpeningAngle() const
     {
         return data.openingAngle;
-    }
-
-    Vector3 GetIntensity() const
-    {
-        return data.intensity;
     }
 
     static SPtr<PointLight> Create();

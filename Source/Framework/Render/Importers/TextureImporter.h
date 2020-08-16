@@ -20,4 +20,5 @@ class TextureImporter : public AssetImporter<Texture>
 {
 public:
     virtual APtr<Texture> Import(const String &path, const SPtr<ImportSettings> &settings) override;
+    APtr<Texture> ImportFromMemory(Array<uint8> bytes, const SPtr<ImportSettings> &settings);
 };

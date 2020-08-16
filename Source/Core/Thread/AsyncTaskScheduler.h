@@ -6,8 +6,8 @@
 class AsyncTask
 {
 public:
-    AsyncTask(const String &name, const Runnable &func)
-        : name(name), worker(func)
+    AsyncTask(const String &name, Runnable func)
+        : name(name), worker(std::move(func))
     {
     }
 
@@ -50,9 +50,9 @@ public:
         canceled = true;
     }
 
-    static SPtr<AsyncTask> Create(const String &name, const Runnable &func)
+    static SPtr<AsyncTask> Create(const String &name, Runnable func)
     {
-        return Memory::MakeShared<AsyncTask>(name, func);
+        return Memory::MakeShared<AsyncTask>(name, std::move(func));
     }
 
 private:

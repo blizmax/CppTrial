@@ -144,5 +144,5 @@ protected:
     Array<SPtr<ResourceView>> dsvs;
     WPtr<Texture> weakThis;
 
-    static int32 gRuntimeID;
+    static int32 sRuntimeID;
 };

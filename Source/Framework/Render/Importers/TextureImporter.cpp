@@ -217,15 +217,14 @@ public:
         }
     }
 
-    void CreateFromDDSFile(const IO::FileHandle &file)
+    void CreateFromDDSFile(Array<uint8> bytes)
     {
-        auto bytes = file.ReadBytes();
         DDSFile dds;
         auto ret = dds.Load(bytes.GetData(), bytes.Count());
 
         if (tinyddsloader::Result::Success != ret)
         {
-            CT_LOG(Error, "Load dds image failed. Path: {0}, errorCode: {1}.", file.GetPath(), static_cast<std::underlying_type_t<tinyddsloader::Result>>(ret));
+            CT_LOG(Error, "Load dds image failed. Path: {0}, errorCode: {1}.", path, static_cast<std::underlying_type_t<tinyddsloader::Result>>(ret));
             return;
         }
 
@@ -233,7 +232,7 @@ public:
         CT_CHECK(format != ResourceFormat::Unknown);
         if (format == ResourceFormat::Unknown)
         {
-            CT_LOG(Error, "Load dds image failed, Unknown resource format. Path: {0}.", file.GetPath());
+            CT_LOG(Error, "Load dds image failed, Unknown resource format. Path: {0}.", path);
             return;
         }
         if (settings->srgbFormat)
@@ -283,17 +282,15 @@ public:
         });
     }
 
-    void CreateFromStbi(const IO::FileHandle &file)
+    void CreateFromStbi(Array<uint8> bytes)
     {
-        auto bytes = file.ReadBytes();
-
         stbi_set_flip_vertically_on_load(settings->flipY ? 1 : 0);
 
         ResourceFormat format = ResourceFormat::Unknown;
         int32 width, height, channels;
         if (!stbi_info_from_memory(bytes.GetData(), bytes.Count(), &width, &height, &channels))
         {
-            CT_LOG(Error, "Load image failed, can not get image info. Path: {0}.", file.GetPath());
+            CT_LOG(Error, "Load image failed, can not get image info. Path: {0}.", path);
             return;
         }
 
@@ -369,13 +366,13 @@ public:
 
         if (!data)
         {
-            CT_LOG(Error, "Load image failed. Path: {0}, reason: {1}", file.GetPath(), String(stbi_failure_reason()));
+            CT_LOG(Error, "Load image failed. Path: {0}, reason: {1}", path, String(stbi_failure_reason()));
             return;
         }
 
         if (format == ResourceFormat::Unknown)
         {
-            CT_LOG(Error, "Load image failed, Unknown resource format. Path: {0}, channels:{1}.", file.GetPath(), channels);
+            CT_LOG(Error, "Load image failed, Unknown resource format. Path: {0}, channels:{1}.", path, channels);
             stbi_image_free(data);
             return;
         }
@@ -400,20 +397,29 @@ public:
             return;
         }
 
+        this->path = path;
+
         String ext = file.GetExtension();
+        auto bytes = file.ReadBytes();
         if (ext == CT_TEXT(".dds"))
         {
-            CreateFromDDSFile(file);
+            CreateFromDDSFile(std::move(bytes));
         }
         else
         {
-            CreateFromStbi(file);
+            CreateFromStbi(std::move(bytes));
         }
+    }
+
+    void ImportFromMemory(Array<uint8> bytes)
+    {
+        CreateFromStbi(std::move(bytes));
     }
 
 private:
     SPtr<TextureImportSettings> settings;
     APtr<Texture> asset;
+    String path;
 };
 
 }
@@ -426,6 +432,19 @@ APtr<Texture> TextureImporter::Import(const String &path, const SPtr<ImportSetti
     gAssetManager->RunMultithread([=]() {
         ImporterImpl impl(result, ImportSettings::As<TextureImportSettings>(settings));
         impl.Import(path);
+    });
+
+    return result;
+}
+
+APtr<Texture> TextureImporter::ImportFromMemory(Array<uint8> data, const SPtr<ImportSettings> &settings)
+{
+    APtr<Texture> result;
+    result.NewData();
+
+    gAssetManager->RunMultithread([=]() {
+        ImporterImpl impl(result, ImportSettings::As<TextureImportSettings>(settings));
+        impl.ImportFromMemory(std::move(data));
     });
 
     return result;

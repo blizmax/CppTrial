@@ -12,8 +12,8 @@ public:
     void Shutdown() override;
     void Tick() override;
 
-    void RunMultithread(const Runnable &func);
-    void RunMainthread(const Runnable &func);
+    void RunMultithread(Runnable func);
+    void RunMainthread(Runnable func);
 
     template <typename T>
     void RegisterImporter(IAssetImporter *importer)

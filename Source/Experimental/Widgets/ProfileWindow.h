@@ -211,7 +211,7 @@ public:
 
     void OnGui()
     {
-        if (ImGui::Begin("Profile Window", &open, ImGuiWindowFlags_NoScrollbar))
+        if (ImGui::Begin("Profiler", &open, ImGuiWindowFlags_NoScrollbar))
         {
             ImVec2 canvasSize = ImGui::GetContentRegionAvail();
 

@@ -19,6 +19,8 @@ class Material
 public:
     Material() = default;
 
+    bool Update();
+
     void SetBaseTexture(const APtr<Texture> &texture);
     void SetSpecularTexture(const APtr<Texture> &texture);
     void SetEmissiveTexture(const APtr<Texture> &texture);
@@ -134,6 +136,8 @@ public:
     static SPtr<Material> Create();
 
 private:
+    void MarkDirty();
+
     void SetFlags(int32 flags);
     void UpdateBaseColorType();
     void UpdateSpecularType();
@@ -145,4 +149,6 @@ private:
     String name;
     MaterialData data{};
     MaterialResources resources{};
+    bool dirty = true;
+    bool changedSinceLastUpdate = false;
 };

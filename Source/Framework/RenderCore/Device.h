@@ -17,9 +17,9 @@ public:
         Runnable releaseFunc;
     };
 
-    void AddReleaseData(const Runnable &func, uint64 fenceValue)
+    void AddReleaseData(Runnable func, uint64 fenceValue)
     {
-        releaseDatas.Add({ fenceValue, func });
+        releaseDatas.Add({ fenceValue, std::move(func) });
     }
 
     void Release(uint64 fenceValue)
@@ -81,9 +81,9 @@ public:
         return renderContext.get();
     }
 
-    void Release(const Runnable &func)
+    void Release(Runnable func)
     {
-        deferredReleaser.AddReleaseData(func, frameFence->GetCpuValue());
+        deferredReleaser.AddReleaseData(std::move(func), frameFence->GetCpuValue());
     }
 
     static SPtr<Device> Create(RenderWindow *window, const DeviceDesc &desc);

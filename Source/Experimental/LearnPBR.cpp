@@ -175,7 +175,7 @@ public:
 
         ctx->DrawIndexedInstanced(state.get(), vars.get(), indices.Count(), ROWS * COLS, 0, 0, 0);
 
-        testPass->Execute(ctx, fbo);
+        //testPass->Execute(ctx, fbo);
     }
 };
 

@@ -43,14 +43,14 @@ public:
         return workID;
     }
 
-    void Start(const String &newName, int32 id, const Runnable &func)
+    void Start(const String &newName, int32 id, Runnable func)
     {
         {
             std::unique_lock<std::mutex> lock(mutex);
 
             name = newName;
             workID = id;
-            worker = func;
+            worker = std::move(func);
             running = true;
         }
         startedCond.notify_one();
@@ -82,7 +82,7 @@ private:
                 if (!running)
                     startedCond.wait(lock);
 
-                func = worker;
+                func = std::move(worker);
             }
 
             if (!func)
@@ -200,7 +200,7 @@ public:
         return proxies.Count();
     }
 
-    Handle Run(const String &name, const Runnable &func)
+    Handle Run(const String &name, Runnable func)
     {
         CT_CHECK(func != nullptr);
 
@@ -208,7 +208,7 @@ public:
 
         SPtr<ThreadProxy> proxy = GetAvailableProxyUnlocked();
         int32 id = nextWorkID++;
-        proxy->Start(name, id, func);
+        proxy->Start(name, id, std::move(func));
 
         return Handle(proxy, id);
     }

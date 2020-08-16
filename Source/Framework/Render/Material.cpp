@@ -5,11 +5,33 @@ SPtr<Material> Material::Create()
     return Memory::MakeShared<Material>();
 }
 
+void Material::MarkDirty()
+{
+    dirty = true;
+    changedSinceLastUpdate = true;
+}
+
+bool Material::Update()
+{
+    UpdateBaseColorType();
+    UpdateSpecularType();
+    UpdateEmissiveType();
+    UpdateOcclusonType();
+    UpdateNormalType();
+
+    bool changed = changedSinceLastUpdate;
+    changedSinceLastUpdate = false;
+
+    return changed;
+}
+
 void Material::SetFlags(int32 flags)
 {
     if (data.flags != flags)
     {
         data.flags = flags;
+
+        MarkDirty();
     }
 }
 
@@ -118,6 +140,7 @@ void Material::SetSampler(const SPtr<Sampler> &sampler)
     if (resources.samplerState != sampler)
     {
         resources.samplerState = sampler;
+        MarkDirty();
     }
 }
 
@@ -153,6 +176,7 @@ void Material::SetAlphaThreshold(float value)
     if (data.alphaThreshold != value)
     {
         data.alphaThreshold = value;
+        MarkDirty();
     }
 }
 
@@ -161,6 +185,7 @@ void Material::SetIndexOfRefraction(float value)
     if (data.IoR != value)
     {
         data.IoR = value;
+        MarkDirty();
     }
 }
 
@@ -169,6 +194,7 @@ void Material::SetSpecularTransmission(float value)
     if (data.specularTransmission != value)
     {
         data.specularTransmission = value;
+        MarkDirty();
     }
 }
 

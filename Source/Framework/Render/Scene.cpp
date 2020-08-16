@@ -260,6 +260,11 @@ bool Scene::UpdateCamera(bool force)
 bool Scene::UpdateLights(bool force)
 {
     bool changed = force;
+    for (int32 i = 0; i < lights.Count(); ++i)
+    {
+        if (lights[i]->Update())
+            changed = true;
+    }
 
     if (changed)
     {
@@ -283,10 +288,14 @@ bool Scene::UpdateMaterials(bool force)
 
     for (int32 i = 0; i < materials.Count(); ++i)
     {
-        bool updated = changed; //TODO Check material updated separately (use update frame id ?)
+        bool updated = force;
+        if (materials[i]->Update())
+            updated = true;
+
         if (updated)
         {
             UploadMaterial(i);
+            changed = true;
         }
     }
 

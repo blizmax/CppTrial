@@ -289,6 +289,11 @@ public:
         return 0.2126f * r + 0.7152f * g + 0.0722f * b;
     }
 
+    static float Luminance(const Color &color)
+    {
+        return Luminance(color.r, color.g, color.b);
+    }
+
     String ToString() const
     {
         return String::Format(CT_TEXT("[r={0},g={1},b={2},a={3}]"), r, g, b, a);

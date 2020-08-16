@@ -18,9 +18,9 @@ void ThreadManager::Tick()
 {
 }
 
-ThreadPool::Handle ThreadManager::RunThread(const String &name, const Runnable &func)
+ThreadPool::Handle ThreadManager::RunThread(const String &name, Runnable func)
 {
-    return ThreadPool::GetGlobal().Run(name, func);
+    return ThreadPool::GetGlobal().Run(name, std::move(func));
 }
 
 void ThreadManager::RunAsync(const SPtr<AsyncTask> &task)

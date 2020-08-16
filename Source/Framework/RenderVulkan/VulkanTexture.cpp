@@ -88,7 +88,6 @@ void VulkanTexture::InitData(const void *data, bool autoGenMips)
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageInfo.extent.width = CT_ALIGN(GetResourceFormatWidthCompressionRatio(format), width);
     imageInfo.extent.height = CT_ALIGN(GetResourceFormatHeightCompressionRatio(format), height);
-    ;
     imageInfo.extent.depth = depth;
     imageInfo.format = ToVkResourceFormat(format);
     imageInfo.imageType = ToVkImageType(resourceType);

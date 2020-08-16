@@ -35,6 +35,7 @@ struct TextureMapping
 };
 
 static const Array<TextureMapping> textureMappings[3] = {
+    //Default
     {
         { aiTextureType_DIFFUSE, TextureType::BaseColor },
         { aiTextureType_SPECULAR, TextureType::Specular },
@@ -42,6 +43,7 @@ static const Array<TextureMapping> textureMappings[3] = {
         { aiTextureType_NORMALS, TextureType::Normal },
         { aiTextureType_AMBIENT, TextureType::Occlusion },
     },
+    //OBJ
     {
         { aiTextureType_DIFFUSE, TextureType::BaseColor },
         { aiTextureType_SPECULAR, TextureType::Specular },
@@ -50,12 +52,14 @@ static const Array<TextureMapping> textureMappings[3] = {
         { aiTextureType_HEIGHT, TextureType::Normal },
         { aiTextureType_DISPLACEMENT, TextureType::Normal },
     },
+    //GLTF2
     {
         { aiTextureType_DIFFUSE, TextureType::BaseColor },
         { aiTextureType_EMISSIVE, TextureType::Emissive },
         { aiTextureType_NORMALS, TextureType::Normal },
         { aiTextureType_AMBIENT, TextureType::Occlusion },
         //TODO
+        { aiTextureType_SPECULAR, TextureType::Specular },
         //{ AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, TextureType::Specular },
     }
 };
@@ -298,20 +302,42 @@ public:
                 }
                 else
                 {
-                    String fullPath = directory + CT_TEXT("/") + path;
                     auto textureSettings = TextureImportSettings::Create();
                     textureSettings->generateMips = true;
                     textureSettings->srgbFormat = useSrgb && IsSrgbRequired(e.textureType);
                     TextureImporter importer;
-                    texture = importer.Import(fullPath, textureSettings);
+
+                    // Embedded texture
+                    if (path.StartsWith(CT_TEXT("*")))
+                    {
+                        int32 i = StringConvert::ParseInt32(path.Substring(1));
+                        const auto aTex = aScene->mTextures[i];
+                        if (aTex->mHeight == 0)
+                        {
+                            Array<uint8> bytes;
+                            bytes.AddUninitialized(aTex->mWidth);
+                            std::memcpy(bytes.GetData(), aTex->pcData, aTex->mWidth);
+                            texture = importer.ImportFromMemory(std::move(bytes), settings);
+                        }
+                        else
+                        {
+                            CT_EXCEPTION(Render, "Not implement");
+                            //TODO Create texture in main thread directly
+                            //ResourceFormat format = ResourceFormat::RGBA8Unorm;
+                        }
+                    }
+                    else
+                    {
+                        String fullPath = directory + CT_TEXT("/") + path;
+                        texture = importer.Import(fullPath, textureSettings);
+                    }
+
                     textureCache.Put(path, texture);
                 }
 
                 SetTexture(mat, texture, e.textureType);
             }
         }
-
-        //FIXME Should flush?
     }
 
     bool CreateMaterial(const aiMaterial *aMat)
@@ -659,7 +685,9 @@ public:
 
         auto ResetTime = [](auto keys, uint32 count) {
             if (count > 1)
+            {
                 CT_CHECK(keys[1].mTime >= 0);
+            }
 
             if (keys[0].mTime < 0)
                 keys[0].mTime = 0;
@@ -693,7 +721,7 @@ public:
             while (!done)
             {
                 auto time = NextKeyTime();
-                CT_CHECK(time == 0 || (time / ticksPerSecond) > keyframe.time);
+                CT_CHECK(time == 0 || (time / ticksPerSecond) >= keyframe.time);
                 keyframe.time = time / ticksPerSecond;
 
                 done = ParseAnimationKey(aNode->mPositionKeys, aNode->mNumPositionKeys, time, pos, keyframe.translation, ToVector3);
@@ -756,7 +784,11 @@ public:
     bool AddLightCommon(const SPtr<Light> &light, const aiLight *aLight)
     {
         CT_CHECK(aLight->mColorDiffuse == aLight->mColorSpecular);
-        light->SetIntensity(ToColor(aLight->mColorSpecular));
+        light->SetIntensity({
+            aLight->mColorSpecular.r,
+            aLight->mColorSpecular.g,
+            aLight->mColorSpecular.b,
+        });
 
         //TODO add node
 

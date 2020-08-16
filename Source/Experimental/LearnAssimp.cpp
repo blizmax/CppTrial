@@ -83,10 +83,46 @@ struct Mesh
 class LearnAssimp : public Logic
 {
 private:
+    void DumpLight(int32 index, const aiLight *aLight)
+    {
+        auto lightType = aLight->mType;
+        String name = ToString(aLight->mName);
+
+        CT_LOG(Debug, CT_TEXT("Dump light{0}:{1}"), index, name);
+    }
+
+    void DumpAnimation(int32 index, const aiAnimation *aAnim)
+    {
+        String name = ToString(aAnim->mName);
+        double durationInTicks = aAnim->mDuration;
+        double ticksPerSecond = aAnim->mTicksPerSecond ? aAnim->mTicksPerSecond : 25;
+        double durationInSeconds = durationInTicks / ticksPerSecond;
+
+        CT_LOG(Debug, CT_TEXT("Dump animation{0}:{1}"), index, name);
+
+        for (uint32 i = 0; i < aAnim->mNumChannels; ++i)
+        {
+            auto aNode = aAnim->mChannels[i];
+            String nodeName = ToString(aNode->mNodeName);
+            auto posKeys = aNode->mNumPositionKeys;
+            auto rotKeys = aNode->mNumRotationKeys;
+            auto sclKeys = aNode->mNumScalingKeys;
+
+            CT_LOG(Info, CT_TEXT("Channel{0}:{1}"), i, nodeName);
+            CT_LOG(Info, CT_TEXT("<positionKeys>:{0}"), posKeys);
+            CT_LOG(Info, CT_TEXT("<rotationKeys>:{0}"), rotKeys);
+            CT_LOG(Info, CT_TEXT("<scalingKeys>:{0}"), sclKeys);
+        }
+    }
+
     void DumpEmbeddedTexture(int32 index, const aiTexture *aTex)
     {
         String fileName = ToString(aTex->mFilename);
         CT_LOG(Debug, CT_TEXT("Dump embedded texture{0}:{1}"), index, fileName);
+
+        String format = String(aTex->achFormatHint);
+        CT_LOG(Info, CT_TEXT("<formatHint> {0}"), format);
+        CT_LOG(Info, CT_TEXT("<dimension> width:{0}, height:{1}"), aTex->mWidth, aTex->mHeight);
     }
 
     void DumpMaterial(int32 index, const aiMaterial *aMat)
@@ -151,7 +187,7 @@ private:
         GET_SCALAR(AI_MATKEY_SHININESS, shininess, float)
         GET_SCALAR(AI_MATKEY_SHININESS_STRENGTH, specularStrength, float)
 
-        
+
         GET_TEXTURE(aiTextureType_DIFFUSE, diffuseTexture)
         GET_TEXTURE(aiTextureType_SPECULAR, specularTexture)
         GET_TEXTURE(aiTextureType_OPACITY, opacityTexture)
@@ -163,10 +199,10 @@ private:
         GET_TEXTURE(aiTextureType_HEIGHT, heightTexture)
         GET_TEXTURE(aiTextureType_DISPLACEMENT, displacementTexture)
         GET_TEXTURE(aiTextureType_REFLECTION, reflectionTexture)
-        
-        
+
+
         //GET_TEXTURE(AI_MATKEY_GLOBAL_BACKGROUND_IMAGE, globalBgTexture)
-    
+
 
         int shadingModel;
         if (aMat->Get(AI_MATKEY_SHADING_MODEL, shadingModel) == AI_SUCCESS)
@@ -192,7 +228,8 @@ public:
         assimpFlags &= ~(aiProcess_OptimizeGraph);
         assimpFlags &= ~aiProcess_RemoveRedundantMaterials;
 
-        String path = CT_TEXT("C:/Users/Administrator/Desktop/Models/Bee.glb");
+        String path = CT_TEXT("D:/Assets/Models/Bee.glb");
+        //String path = CT_TEXT("D:/Assets/Media/Arcade/Arcade.fbx");
         auto aScene = aImporter.ReadFile(CT_U8_CSTR(path), assimpFlags);
 
         if (aScene == nullptr || aScene->mFlags == AI_SCENE_FLAGS_INCOMPLETE)
@@ -201,6 +238,18 @@ public:
         }
 
         //Assimp::DefaultLogger::kill();
+
+        CT_LOG(Info, CT_TEXT("Dump assimp begin========================================"));
+
+        for (uint32 i = 0; i < aScene->mNumLights; ++i)
+        {
+            DumpLight(i, aScene->mLights[i]);
+        }
+
+        for (uint32 i = 0; i < aScene->mNumAnimations; ++i)
+        {
+            DumpAnimation(i, aScene->mAnimations[i]);
+        }
 
         for (uint32 i = 0; i < aScene->mNumTextures; ++i)
         {
@@ -211,6 +260,8 @@ public:
         {
             DumpMaterial(i, aScene->mMaterials[i]);
         }
+
+        CT_LOG(Info, CT_TEXT("Dump assimp end========================================"));
     }
 
 

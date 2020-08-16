@@ -3,6 +3,7 @@
 #include "Experimental/Widgets/CameraView.h"
 #include "Experimental/Widgets/ImageWindow.h"
 #include "Experimental/Widgets/MaterialView.h"
+#include "Experimental/Widgets/LightView.h"
 #include "IO/FileHandle.h"
 #include "Render/Importers/SceneImporter.h"
 #include "Render/RenderManager.h"
@@ -22,9 +23,12 @@ public:
     SPtr<Program> program;
     SPtr<GraphicsVars> vars;
 
-    SPtr<Scene> scene;
+    SPtr<RasterizationState> wireframeRS;
+
+    APtr<Scene> scene;
     SPtr<CameraController> cameraController;
     float sceneUpdateTime = 0.0f;
+    bool loading = false;
 
 public:
     Renderer()
@@ -35,7 +39,7 @@ public:
             RasterizationStateDesc desc;
             desc.cullMode = CullMode::None;
             desc.polygonMode = PolygonMode::Wireframe;
-            rasterizationState = RasterizationState::Create(desc);
+            wireframeRS = RasterizationState::Create(desc);
         }
         {
             DepthStencilStateDesc desc;
@@ -50,7 +54,6 @@ public:
             blendState = BlendState::Create(desc);
         }
 
-        state->SetRasterizationState(rasterizationState);
         state->SetDepthStencilState(depthStencilState);
         state->SetBlendState(blendState);
 
@@ -61,26 +64,10 @@ public:
 
     void LoadScene(const String &path)
     {
-        auto &window = gApp->GetWindow();
-        float width = window.GetWidth();
-        float height = window.GetHeight();
-
         auto settings = SceneImportSettings::Create();
         settings->dontLoadBones = true;
         scene = gAssetManager->Import<Scene>(path, settings);
-
-        if (scene)
-        {
-            sceneUpdateTime = 0.0f;
-
-            cameraController = FirstPersonCameraController::Create(scene->GetCamera());
-            cameraController->SetViewport(width, height);
-            scene->SetCameraController(cameraController);
-         
-            program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/LearnVK.glsl"), scene->GetSceneDefines());
-            vars = GraphicsVars::Create(program);
-            state->SetProgram(program);
-        }
+        loading = true;
     }
 
     void Render(RenderContext *ctx, const SPtr<FrameBuffer> &fbo)
@@ -88,12 +75,38 @@ public:
         if (!scene)
             return;
 
-        sceneUpdateTime += gApp->GetDeltaTime();
+        if (loading)
+        {
+            loading = false;
+
+            sceneUpdateTime = 0.0f;
+
+            auto &window = gApp->GetWindow();
+            float width = window.GetWidth();
+            float height = window.GetHeight();
+            cameraController = FirstPersonCameraController::Create(scene->GetCamera());
+            cameraController->SetViewport(width, height);
+            scene->SetCameraController(cameraController);
+
+            program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/LearnVK.glsl"), scene->GetSceneDefines());
+            vars = GraphicsVars::Create(program);
+            state->SetProgram(program);
+        }
+        else
+        {
+            sceneUpdateTime += gApp->GetDeltaTime();
+        }
 
         state->SetFrameBuffer(fbo);
         scene->Update(ctx, sceneUpdateTime);
 
         SceneRenderFlags flags = SceneRender::None;
+        if (rasterizationState)
+        {
+            state->SetRasterizationState(rasterizationState);
+            flags |= SceneRender::CustomRasterizationState;
+        }
+
         scene->Render(ctx, state.get(), vars.get(), flags);
     }
 };
@@ -106,13 +119,28 @@ private:
     ImageWindow imageWindow;
     CameraView cameraView;
     MaterialView materialView;
+    LightView lightView;
 
     Array<Profiler::SessionData> sessions;
     ProfileWindow profileWindow;
 
+    bool wireframe = false;
+    void OnGuiDebugView()
+    {
+        if (!ImGui::CollapsingHeader("Debug"))
+            return;
+
+        if (ImGui::Checkbox("Wireframe", &wireframe))
+        {
+            renderer->rasterizationState = wireframe ? renderer->wireframeRS : nullptr;
+        }
+    }
+
 public:
     virtual void Startup() override
     {
+        gApp->GetWindow().Maximize();
+
         renderer = Memory::MakeShared<Renderer>();
 
         gImGuiLab->drawHandler.On([this]() {
@@ -134,12 +162,19 @@ public:
             }
 
             ImGui::Separator();
+            OnGuiDebugView();
+
+            ImGui::Separator();
             cameraView.SetScene(renderer->scene);
             cameraView.OnGui();
 
             ImGui::Separator();
             materialView.SetScene(renderer->scene);
             materialView.OnGui();
+
+            ImGui::Separator();
+            lightView.SetScene(renderer->scene);
+            lightView.OnGui();
 
             ImGui::End();
 

@@ -22,7 +22,7 @@ void AssetManager::Tick()
     assetSyncTasks.Clear();
 }
 
-void AssetManager::RunMainthread(const Runnable &func)
+void AssetManager::RunMainthread(Runnable func)
 {
     if (Thread::IsMainThread())
     {
@@ -31,11 +31,11 @@ void AssetManager::RunMainthread(const Runnable &func)
     else
     {
         std::unique_lock<std::mutex> lock(assetSyncMutex);
-        assetSyncTasks.Add(func);
+        assetSyncTasks.Add(std::move(func));
     }
 }
 
-void AssetManager::RunMultithread(const Runnable &func)
+void AssetManager::RunMultithread(Runnable func)
 {
-    gThreadManager->RunAsync(func);
+    gThreadManager->RunAsync(std::move(func));
 }
