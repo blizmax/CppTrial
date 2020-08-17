@@ -1,5 +1,4 @@
 #type vertex
-#version 330 core
 
 layout(location = 0) in vec3 VertexPosition;
 layout(location = 1) in vec2 VertexUV;
@@ -17,7 +16,6 @@ void main()
 }
 
 #type fragment
-#version 330 core
 
 #include "Assets/Shaders/Utility.glsl"
 #include "Assets/Shaders/Random.glsl"

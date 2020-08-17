@@ -121,12 +121,12 @@ public:
         return impl.ReadSubresourceAsync(texture, subresource);
     }
 
-    virtual void Dispatch(ComputeState *state, ComputeVars *vars, const Vector3U &size) override
+    virtual void Dispatch(ComputeState *state, ComputeVars *vars, const Vector3I &size) override
     {
         impl.Dispatch(state, vars, size);
     }
 
-    virtual void DispatchIndirect(ComputeState *state, ComputeVars *vars, const Buffer *argBuffer, uint32 argBufferOffset) override
+    virtual void DispatchIndirect(ComputeState *state, ComputeVars *vars, const Buffer *argBuffer, uint64 argBufferOffset) override
     {
         impl.DispatchIndirect(state, vars, argBuffer, argBufferOffset);
     }

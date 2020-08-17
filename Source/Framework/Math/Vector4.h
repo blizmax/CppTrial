@@ -253,9 +253,9 @@ public:
         return String::Format(CT_TEXT("[x={0},y={1},z={2},w={3}]"), x, y, z, w);
     }
 
-    uint32 HashCode() const
+    HashType HashCode() const
     {
-        uint32 hash = Hash::HashValue(x);
+        HashType hash = Hash::HashValue(x);
         Hash::HashCombine(hash, Hash::HashValue(y));
         Hash::HashCombine(hash, Hash::HashValue(z));
         Hash::HashCombine(hash, Hash::HashValue(w));

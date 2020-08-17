@@ -9,9 +9,18 @@ static ShaderType GetShaderType(const String &str)
         return ShaderType::Vertex;
     if (str.StartsWith(CT_TEXT("#type pixel")) || str.StartsWith(CT_TEXT("#type fragment")))
         return ShaderType::Pixel;
+    if (str.StartsWith(CT_TEXT("#type compute")))
+        return ShaderType::Compute;
 
     CT_EXCEPTION(RenderCore, "Not implement.");
     return ShaderType::Vertex;
+}
+
+static String GetVersionAndExtensions()
+{
+    return CT_TEXT("#version 450\n"
+                   "#extension GL_ARB_separate_shader_objects : enable\n"
+                   "#extension GL_GOOGLE_include_directive : enable\n");
 }
 
 ProgramDesc Program::CreateDesc(const String &path, const ProgramDefines &defines)
@@ -30,7 +39,7 @@ ProgramDesc Program::CreateDesc(const String &path, const ProgramDefines &define
     String src = file.ReadString();
     auto lines = src.Split(CT_TEXT("\n"));
     int32 globalLineNum = 0;
-    String globalStr;
+    String globalStr = GetVersionAndExtensions();
     int32 startLine = 1;
 
     for (int32 l = startLine; l <= lines.Count(); ++l)

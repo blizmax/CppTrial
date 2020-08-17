@@ -203,3 +203,13 @@ void AnimationController::CreateSkinningPass()
 {
     //TODO
 }
+
+void AnimationController::ExecuteSkinningPass(RenderContext *ctx)
+{
+    if (!skinningPass)
+        return;
+    
+    skinningMatrixBuffer->SetBlob(skinningMatrices.GetData(), 0, skinningMatrixBuffer->GetSize());
+    invTransposeSkinningMatrixBuffer->SetBlob(invTransposeSkinningMatrices.GetData(), 0, invTransposeSkinningMatrixBuffer->GetSize());
+    skinningPass->Execute(ctx, skinningDispatchSize, 1, 1);
+}

@@ -21,6 +21,13 @@ requires std::integral<T>
     }
 }
 
+template <typename T>
+requires std::is_enum_v<T>
+    CT_INLINE HashType HashValue(T value)
+{
+    return HashValue((std::underlying_type_t<T>)value);
+}
+
 CT_INLINE HashType HashValue(float value)
 {
     union

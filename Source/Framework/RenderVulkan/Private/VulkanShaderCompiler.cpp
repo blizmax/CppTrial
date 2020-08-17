@@ -508,6 +508,9 @@ static SPtr<ReflectionVar> ParseBlockVar(const String &name, const glslang::TObj
 static void ParseReflection(const glslang::TProgram &program, const ProgramReflectionBuilder &builder, bool printDebugInfo)
 {
     auto reflection = builder.GetReflection();
+    Vector3I threadGroupSize = { (int32)program.getLocalSize(0), (int32)program.getLocalSize(1), (int32)program.getLocalSize(2) };
+    reflection->SetThreadGroupSize(threadGroupSize);
+
     auto globalBlockReflection = reflection->GetDefaultBlockReflection();
     auto globalStruct = std::static_pointer_cast<ReflectionStructType>(globalBlockReflection->GetElementType());
 
@@ -572,7 +575,11 @@ static void ParseReflection(const glslang::TProgram &program, const ProgramRefle
     globalBlockReflection->Finalize();
 
     if (printDebugInfo)
-        CT_LOG(Debug, CT_TEXT("Parse result:{0}"), globalStruct->ToString());
+    {
+        if (reflection->HasShaderType(ShaderType::Compute))
+            CT_LOG(Debug, CT_TEXT("Thread group size:{0}"), reflection->GetThreadGroupSize());
+        CT_LOG(Debug, CT_TEXT("Default block parse result:{0}"), globalStruct->ToString());
+    }
 }
 
 bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModuleFunc &func, const ProgramReflectionBuilder &builder)
@@ -582,7 +589,6 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
     includer.pushExternalLocalDirectory("Assets/Shaders/");
 
     auto &options = desc.options;
-
     String defines;
     for (auto &[k, v] : desc.defines)
         defines += String::Format(CT_TEXT("#define {0} {1}\n"), k, v);
@@ -610,6 +616,7 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
         }
 
         program.addShader(shader);
+        builder.GetReflection()->AddShaderType(e.shaderType);
     }
 
     if (!program.link(EShMsgDefault))

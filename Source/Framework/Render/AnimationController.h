@@ -3,6 +3,7 @@
 #include "Render/Animation.h"
 #include "Math/Matrix4.h"
 #include "Core/HashMap.h"
+#include "Render/RenderPasses/ComputePass.h"
 
 class Scene;
 
@@ -38,6 +39,7 @@ public:
 
 private:
     void CreateSkinningPass();
+    void ExecuteSkinningPass(RenderContext *ctx);
     void AllocPrevWorldMatrixBuffer();
     void InitLocalMatrices();
     void UpdateMatrices();
@@ -57,14 +59,20 @@ private:
     Animation::AnimTimeType lastAnimationTime = 0.0;
     bool animationChanged = true;
 
+    HashMap<int32, MeshAnimation> meshes;
+
     Array<Matrix4> localMatrices;
     Array<Matrix4> globalMatrices;
     Array<Matrix4> invTransposeGlobalMatrices;
     Array<bool> matricesChanged;
-
-    HashMap<int32, MeshAnimation> meshes;
-
     SPtr<Buffer> worldMatrixBuffer;
     SPtr<Buffer> prevWorldMatrixBuffer;
     SPtr<Buffer> invTransposeWorldMatrixBuffer;
+
+    SPtr<ComputePass> skinningPass;
+    Array<Matrix4> skinningMatrices;
+    Array<Matrix4> invTransposeSkinningMatrices;
+    int32 skinningDispatchSize = 0;
+    SPtr<Buffer> skinningMatrixBuffer;
+    SPtr<Buffer> invTransposeSkinningMatrixBuffer;
 };

@@ -20,7 +20,8 @@ public:
         defines.Put(CT_TEXT("MATERIAL_COUNT"), CT_TEXT("5"));
         //program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/Reflection.glsl"), defines);
         //program = Program::Create(CT_TEXT("Assets/Shaders/Scene/SceneBlock.glsl"), defines);
-        program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/FullScreenTest.glsl"));
+        //program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/FullScreenTest.glsl"));
+        program = Program::Create(CT_TEXT("Assets/Shaders/Scene/Skinning.glsl"), {});
     }
 
     virtual void Shutdown() override

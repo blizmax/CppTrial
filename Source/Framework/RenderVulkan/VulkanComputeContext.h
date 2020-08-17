@@ -9,8 +9,8 @@ public:
     VulkanComputeContextImpl(const SPtr<GpuQueue> &queue, ComputeContext *ctx);
     ~VulkanComputeContextImpl();
 
-    void Dispatch(ComputeState *state, ComputeVars *vars, const Vector3U &size);
-    void DispatchIndirect(ComputeState *state, ComputeVars *vars, const Buffer *argBuffer, uint32 argBufferOffset);
+    void Dispatch(ComputeState *state, ComputeVars *vars, const Vector3I &size);
+    void DispatchIndirect(ComputeState *state, ComputeVars *vars, const Buffer *argBuffer, uint64 argBufferOffset);
     void ClearUav(const ResourceView *uav, const Vector4 &value);
     void ClearUav(const ResourceView *uav, const Vector4U &value);
     void ClearUavCounter(const Buffer *buffer, uint32 value);
@@ -97,12 +97,12 @@ public:
         return impl.ReadSubresourceAsync(texture, subresource);
     }
 
-    virtual void Dispatch(ComputeState *state, ComputeVars *vars, const Vector3U &size) override
+    virtual void Dispatch(ComputeState *state, ComputeVars *vars, const Vector3I &size) override
     {
         impl.Dispatch(state, vars, size);
     }
 
-    virtual void DispatchIndirect(ComputeState *state, ComputeVars *vars, const Buffer *argBuffer, uint32 argBufferOffset) override
+    virtual void DispatchIndirect(ComputeState *state, ComputeVars *vars, const Buffer *argBuffer, uint64 argBufferOffset) override
     {
         impl.DispatchIndirect(state, vars, argBuffer, argBufferOffset);
     }

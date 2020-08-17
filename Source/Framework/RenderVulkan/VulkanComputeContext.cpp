@@ -16,15 +16,17 @@ VulkanComputeContextImpl::~VulkanComputeContextImpl()
 {
 }
 
-void VulkanComputeContextImpl::Dispatch(ComputeState *state, ComputeVars *vars, const Vector3U &size)
+void VulkanComputeContextImpl::Dispatch(ComputeState *state, ComputeVars *vars, const Vector3I &size)
 {
+    CT_CHECK(size.x >= 0 && size.y >= 0 && size.z >= 0);
+
     if (PrepareForDispatch(state, vars) == false)
         return;
 
     vkCmdDispatch(contextData->GetCommandBufferHandle(), size.x, size.y, size.z);
 }
 
-void VulkanComputeContextImpl::DispatchIndirect(ComputeState *state, ComputeVars *vars, const Buffer *argBuffer, uint32 argBufferOffset)
+void VulkanComputeContextImpl::DispatchIndirect(ComputeState *state, ComputeVars *vars, const Buffer *argBuffer, uint64 argBufferOffset)
 {
     if (PrepareForDispatch(state, vars) == false)
         return;

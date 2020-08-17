@@ -34,6 +34,18 @@ public:
         CT_CHECK(i >= 0 && i < 2);
         return *(&x + i);
     }
+
+    String ToString() const
+    {
+        return String::Format(CT_TEXT("[x={0},y={1}]"), x, y);
+    }
+
+    HashType HashCode() const
+    {
+        HashType hash = Hash::HashValue(x);
+        Hash::HashCombine(hash, Hash::HashValue(y));
+        return hash;
+    }
 };
 
 template <typename T>
@@ -68,6 +80,19 @@ public:
     {
         CT_CHECK(i >= 0 && i < 3);
         return *(&x + i);
+    }
+
+    String ToString() const
+    {
+        return String::Format(CT_TEXT("[x={0},y={1},z={2}]"), x, y, z);
+    }
+
+    HashType HashCode() const
+    {
+        HashType hash = Hash::HashValue(x);
+        Hash::HashCombine(hash, Hash::HashValue(y));
+        Hash::HashCombine(hash, Hash::HashValue(z));
+        return hash;
     }
 };
 
@@ -104,6 +129,20 @@ public:
     {
         CT_CHECK(i >= 0 && i < 4);
         return *(&x + i);
+    }
+
+    String ToString() const
+    {
+        return String::Format(CT_TEXT("[x={0},y={1},z={2},w={3}]"), x, y, z, w);
+    }
+
+    HashType HashCode() const
+    {
+        HashType hash = Hash::HashValue(x);
+        Hash::HashCombine(hash, Hash::HashValue(y));
+        Hash::HashCombine(hash, Hash::HashValue(z));
+        Hash::HashCombine(hash, Hash::HashValue(w));
+        return hash;
     }
 };
 

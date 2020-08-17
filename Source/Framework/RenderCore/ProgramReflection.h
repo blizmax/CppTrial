@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/HashMap.h"
+#include "Core/HashSet.h"
 #include "RenderCore/RootSignature.h"
 
 enum class ShaderDataType
@@ -649,6 +650,26 @@ public:
         return rootSignatureDesc;
     }
 
+    void SetThreadGroupSize(const Vector3I &size)
+    {
+        threadGroupSize = size;
+    }
+
+    Vector3I GetThreadGroupSize() const
+    {
+        return threadGroupSize;
+    }
+
+    void AddShaderType(ShaderType shaderType)
+    {
+        shaderTypes.Add(shaderType);
+    }
+
+    bool HasShaderType(ShaderType shaderType) const
+    {
+        return shaderTypes.Contains(shaderType);
+    }
+
     static SPtr<ProgramReflection> Create()
     {
         return Memory::MakeShared<ProgramReflection>();
@@ -658,6 +679,8 @@ private:
     RootSignatureDesc rootSignatureDesc;
     bool finalized = false;
     SPtr<ParameterBlockReflection> defaultBlockReflection;
+    Vector3I threadGroupSize;
+    HashSet<ShaderType> shaderTypes;
 };
 
 class ProgramReflectionBuilder
