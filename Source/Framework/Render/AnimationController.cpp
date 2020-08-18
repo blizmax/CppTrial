@@ -24,9 +24,9 @@ AnimationController::AnimationController(Scene *scene)
     matricesChanged.AddUninitialized(matCount);
 
     int32 vecCount = 4 * matCount;
-    worldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), 4 * vecCount);
+    worldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), vecCount);
     prevWorldMatrixBuffer = worldMatrixBuffer;
-    invTransposeWorldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), 4 * vecCount);
+    invTransposeWorldMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), vecCount);
 }
 
 void AnimationController::AddAnimation(int32 meshID, const SPtr<Animation> &anim)
@@ -87,8 +87,8 @@ bool AnimationController::Animate(RenderContext *ctx, Animation::AnimTimeType cu
     std::swap(prevWorldMatrixBuffer, worldMatrixBuffer);
     UpdateMatrices();
     BindBuffers();
+    ExecuteSkinningPass(ctx);
 
-    //TODO skinning pass
     return true;
 }
 
@@ -98,19 +98,7 @@ int32 AnimationController::GetAnimationCount(int32 meshID) const
     return (!ptr) ? 0 : ptr->animations.Count();
 }
 
-SPtr<Animation> AnimationController::GetAnimation(int32 meshID, int32 animID) const
-{
-    auto ptr = meshes.TryGet(meshID);
-    if (!ptr)
-        return nullptr;
-
-    if (ptr->animations.Count() <= animID)
-        return nullptr;
-
-    return ptr->animations[animID];
-}
-
-bool AnimationController::SetActiveAnimation(int32 meshID, int32 animID)
+bool AnimationController::SetActiveAnimationID(int32 meshID, int32 animID)
 {
     auto ptr = meshes.TryGet(meshID);
     if (!ptr)
@@ -140,13 +128,38 @@ bool AnimationController::SetActiveAnimation(int32 meshID, int32 animID)
     return true;
 }
 
-int32 AnimationController::GetActiveAnimation(int32 meshID) const
+int32 AnimationController::GetActiveAnimationID(int32 meshID) const
 {
     auto ptr = meshes.TryGet(meshID);
     if (!ptr)
         return -1;
 
     return ptr->activeAnimation;
+}
+
+SPtr<Animation> AnimationController::GetAnimation(int32 meshID, int32 animID) const
+{
+    auto ptr = meshes.TryGet(meshID);
+    if (!ptr)
+        return nullptr;
+
+    if (animID < 0 || animID >= ptr->animations.Count())
+        return nullptr;
+
+    return ptr->animations[animID];
+}
+
+SPtr<Animation> AnimationController::GetActiveAnimation(int32 meshID) const
+{
+    auto ptr = meshes.TryGet(meshID);
+    if (!ptr)
+        return nullptr;
+
+    int32 animID = ptr->activeAnimation;
+    if (animID < 0 || animID >= ptr->animations.Count())
+        return nullptr;
+
+    return ptr->animations[animID];
 }
 
 void AnimationController::AllocPrevWorldMatrixBuffer()
@@ -187,7 +200,11 @@ void AnimationController::UpdateMatrices()
 
         invTransposeGlobalMatrices[i] = globalMatrices[i].Inverse().Transpose();
 
-        //TODO skinning pass
+        if (skinningPass)
+        {
+            skinningMatrices[i] = globalMatrices[i] * nodes[i].localToBindPose;
+            invTransposeSkinningMatrices[i] = skinningMatrices[i].Inverse().Transpose();
+        }
     }
     worldMatrixBuffer->SetBlob(globalMatrices.GetData(), 0, worldMatrixBuffer->GetSize());
     invTransposeWorldMatrixBuffer->SetBlob(invTransposeGlobalMatrices.GetData(), 0, invTransposeWorldMatrixBuffer->GetSize());
@@ -197,11 +214,40 @@ void AnimationController::BindBuffers()
 {
     scene->sceneBlock->SetBuffer(WORLD_MATRIX_BUFFER_NAME, worldMatrixBuffer);
     scene->sceneBlock->SetBuffer(INVERSE_TRANSPOSE_WORLD_MATRIX_BUFFER_NAME, invTransposeWorldMatrixBuffer);
+    //TODO sceneBlock prevWorldMatrixBuffer
 }
 
-void AnimationController::CreateSkinningPass()
+void AnimationController::CreateSkinningPass(const Array<StaticVertexData> &staticDatas, const Array<DynamicVertexData> &dynamicDatas)
 {
-    //TODO
+    if (dynamicDatas.IsEmpty())
+        return;
+
+    int32 matCount = scene->nodes.Count();
+    skinningMatrices.AddUninitialized(matCount);
+    invTransposeSkinningMatrices.AddUninitialized(matCount);
+
+    skinningPass = ComputePass::Create(CT_TEXT("Assets/Shaders/Scene/Skinning.glsl"));
+    auto var = skinningPass->GetRootVar();
+    var["SkinnedVertexBuffer"] = scene->GetStaticVertexBuffer();
+    var["PrevSkinnedVertexBuffer"] = scene->GetPrevVertexBuffer();
+
+    ResourceBindFlags bindFlags = ResourceBind::ShaderResource | ResourceBind::UnorderedAccess;
+    auto staticBuffer = Buffer::CreateStructured(sizeof(StaticVertexData), staticDatas.Count(), bindFlags);
+    auto dynamiBuffer = Buffer::CreateStructured(sizeof(StaticVertexData), dynamicDatas.Count(), bindFlags);
+    staticBuffer->SetBlob(staticDatas.GetData(), 0, staticBuffer->GetSize());
+    dynamiBuffer->SetBlob(dynamicDatas.GetData(), 0, dynamiBuffer->GetSize());
+    var["StaticVertexBuffer"] = staticBuffer;
+    var["DynamicVertexBuffer"] = dynamiBuffer;
+
+    int32 vecCount = 4 * matCount;
+    skinningMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), vecCount);
+    invTransposeSkinningMatrixBuffer = Buffer::CreateStructured(sizeof(Vector4), vecCount);
+    var["BoneMatrixBuffer"] = skinningMatrixBuffer;
+    var["InverseTransposeBoneMatrixBuffer"] = invTransposeSkinningMatrixBuffer;
+    var["WorldMatrixBuffer"] = worldMatrixBuffer;
+    var["InverseTransposeBoneMatrixBuffer"] = invTransposeWorldMatrixBuffer;
+
+    skinningDispatchSize = dynamicDatas.Count();
 }
 
 void AnimationController::ExecuteSkinningPass(RenderContext *ctx)

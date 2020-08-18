@@ -236,6 +236,7 @@ void SceneBuilder::CreateMeshBoundingBoxes(Scene *scene)
 void SceneBuilder::CreateAnimationController(Scene *scene)
 {
     scene->animationController = AnimationController::Create(scene);
+    scene->animationController->CreateSkinningPass(buffersData.staticDatas, buffersData.dynamicDatas);
     for (int32 i = 0; i < meshes.Count(); ++i)
     {
         for (const auto &anim : meshes[i].animations)

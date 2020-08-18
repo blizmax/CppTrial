@@ -114,6 +114,10 @@ public:
     static SPtr<Scene> Create();
 
 private:
+    const SPtr<Buffer> &GetStaticVertexBuffer() const;
+    const SPtr<Buffer> &GetDrawIDBuffer() const;
+    const SPtr<Buffer> &GetPrevVertexBuffer() const;
+
     void SortMeshes();
     void InitResources();
     void UploadResources();

@@ -6,13 +6,7 @@
 class ComputePass
 {
 public:
-    ComputePass(const ProgramDesc &desc)
-    {
-        auto program = Program::Create(desc);
-        state = ComputeState::Create();
-        state->SetProgram(program);
-        vars = ComputeVars::Create(program);
-    }
+    ComputePass(const ProgramDesc &desc);
 
     virtual ~ComputePass() = default;
 

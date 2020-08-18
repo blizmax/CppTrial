@@ -12,6 +12,14 @@ SPtr<ComputePass> ComputePass::Create(const String &path, const ProgramDefines &
     return Create(desc);
 }
 
+ComputePass::ComputePass(const ProgramDesc &desc)
+{
+    auto program = Program::Create(desc);
+    state = ComputeState::Create();
+    state->SetProgram(program);
+    vars = ComputeVars::Create(program);
+}
+
 void ComputePass::Execute(ComputeContext *ctx, int32 threadsX, int32 threadsY, int32 threadsZ)
 {
     auto threadGroupSize = GetThreadGroupSize();

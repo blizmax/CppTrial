@@ -238,7 +238,7 @@ bool VulkanRenderContextImpl::ApplyGraphicsVars(GraphicsVars *vars, RootSignatur
 {
     if (vars->Apply(renderContext, rootSignature) == false)
     {
-        CT_LOG(Warning, CT_TEXT("Call ApplyGraphicsVars() failed."));
+        CT_LOG(Warning, CT_TEXT("VulkanRenderContextImpl::ApplyGraphicsVars() call failed."));
         return false;
     }
     return true;

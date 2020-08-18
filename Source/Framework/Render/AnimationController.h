@@ -16,9 +16,10 @@ public:
     void ToggleAnimations(bool animate);
     bool Animate(RenderContext *ctx, Animation::AnimTimeType currentTime);
     int32 GetAnimationCount(int32 meshID) const;
+    bool SetActiveAnimationID(int32 meshID, int32 animID);
+    int32 GetActiveAnimationID(int32 meshID) const;
     SPtr<Animation> GetAnimation(int32 meshID, int32 animID) const;
-    bool SetActiveAnimation(int32 meshID, int32 animID);
-    int32 GetActiveAnimation(int32 meshID) const;
+    SPtr<Animation> GetActiveAnimation(int32 meshID) const;
 
     const Array<Matrix4> &GetGlobalMatrices() const
     {
@@ -38,7 +39,7 @@ public:
     static UPtr<AnimationController> Create(Scene *scene);
 
 private:
-    void CreateSkinningPass();
+    void CreateSkinningPass(const Array<StaticVertexData> &staticDatas, const Array<DynamicVertexData> &dynamicDatas);
     void ExecuteSkinningPass(RenderContext *ctx);
     void AllocPrevWorldMatrixBuffer();
     void InitLocalMatrices();
@@ -72,7 +73,7 @@ private:
     SPtr<ComputePass> skinningPass;
     Array<Matrix4> skinningMatrices;
     Array<Matrix4> invTransposeSkinningMatrices;
-    int32 skinningDispatchSize = 0;
     SPtr<Buffer> skinningMatrixBuffer;
     SPtr<Buffer> invTransposeSkinningMatrixBuffer;
+    int32 skinningDispatchSize = 0;
 };

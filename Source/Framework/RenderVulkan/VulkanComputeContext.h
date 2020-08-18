@@ -16,6 +16,8 @@ public:
     void ClearUavCounter(const Buffer *buffer, uint32 value);
 
 protected:
+    bool ApplyComputeVars(ComputeVars *vars, RootSignature *rootSignature);
+    void SetPipelineState(ComputeStateObject *cso);
     void ClearColorImage(const ResourceView *view, float v0, float v1, float v2, float v3);
     void ClearColorImage(const ResourceView *view, uint32 v0, uint32 v1, uint32 v2, uint32 v3);
     bool PrepareForDispatch(ComputeState *state, ComputeVars *vars);

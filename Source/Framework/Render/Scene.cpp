@@ -3,6 +3,7 @@
 namespace
 {
 const int32 STATIC_VERTEX_BUFFER_INDEX = 0;
+const int32 DRAW_ID_BUFFER_INDEX = 1;
 const int32 PREV_VERTEX_BUFFER_INDEX = 2;
 
 const String MESH_BUFFER_NAME = CT_TEXT("MeshDescBuffer");
@@ -167,6 +168,21 @@ void Scene::InitResources()
     }
 }
 
+const SPtr<Buffer> &Scene::GetStaticVertexBuffer() const
+{
+    return vao->GetVertexBuffer(STATIC_VERTEX_BUFFER_INDEX);
+}
+
+const SPtr<Buffer> &Scene::GetDrawIDBuffer() const
+{
+    return vao->GetVertexBuffer(DRAW_ID_BUFFER_INDEX);
+}
+
+const SPtr<Buffer> &Scene::GetPrevVertexBuffer() const
+{
+    return vao->GetVertexBuffer(PREV_VERTEX_BUFFER_INDEX);
+}
+
 void Scene::UploadResources()
 {
     meshesBuffer->SetBlob(meshDesces.GetData(), 0, meshDesces.Count() * sizeof(MeshDesc));
@@ -175,8 +191,8 @@ void Scene::UploadResources()
     sceneBlock->SetBuffer(MESH_BUFFER_NAME, meshesBuffer);
     sceneBlock->SetBuffer(MESH_INSTANCE_BUFFER_NAME, meshInstancesBuffer);
 
-    sceneBlock->SetBuffer(STATIC_VERTEX_BUFFER_NAME, vao->GetVertexBuffer(STATIC_VERTEX_BUFFER_INDEX));
-    sceneBlock->SetBuffer(PREV_VERTEX_BUFFER_NAME, vao->GetVertexBuffer(PREV_VERTEX_BUFFER_INDEX));
+    sceneBlock->SetBuffer(STATIC_VERTEX_BUFFER_NAME, GetStaticVertexBuffer());
+    sceneBlock->SetBuffer(PREV_VERTEX_BUFFER_NAME, GetPrevVertexBuffer());
     sceneBlock->SetBuffer(INDEX_BUFFER_NAME, vao->GetIndexBuffer());
 
     sceneBlock->SetBuffer(MATERIAL_BUFFER_NAME, materialsBuffer);
@@ -357,7 +373,7 @@ void Scene::Finalize()
     UpdateGeometryStats();
 
     if (animationController->GetAnimationCount(0))
-        animationController->SetActiveAnimation(0, 0);
+        animationController->SetActiveAnimationID(0, 0);
 
     RasterizationStateDesc desc;
     desc.frontCCW = false;

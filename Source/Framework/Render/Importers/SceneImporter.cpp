@@ -126,8 +126,6 @@ public:
 
     void Import(const String &path)
     {
-        this->settings = settings;
-
         auto fileHandle = IO::FileHandle(path);
         directory = fileHandle.GetParentPath();
 

@@ -1,6 +1,7 @@
 #include "RenderVulkan/VulkanComputeContext.h"
 #include "RenderVulkan/VulkanBuffer.h"
 #include "RenderVulkan/VulkanTexture.h"
+#include "RenderVulkan/VulkanComputeStateObject.h"
 
 SPtr<ComputeContext> ComputeContext::Create(const SPtr<GpuQueue> &queue)
 {
@@ -113,8 +114,34 @@ void VulkanComputeContextImpl::ClearColorImage(const ResourceView *view, uint32 
     vkCmdClearColorImage(contextData->GetCommandBufferHandle(), vkTexture->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &colVal, 1, &range);
 }
 
+bool VulkanComputeContextImpl::ApplyComputeVars(ComputeVars *vars, RootSignature *rootSignature)
+{
+    if (vars->Apply(computeContext, rootSignature) == false)
+    {
+        CT_LOG(Warning, CT_TEXT("VulkanComputeContextImpl::ApplyComputeVars() call failed."));
+        return false;
+    }
+    return true;
+}
+
+void VulkanComputeContextImpl::SetPipelineState(ComputeStateObject *cso)
+{
+    auto commandBuffer = contextData->GetCommandBufferHandle();
+    auto handle = static_cast<VulkanComputeStateObject *>(cso)->GetHandle();
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, handle);
+}
+
 bool VulkanComputeContextImpl::PrepareForDispatch(ComputeState *state, ComputeVars *vars)
 {
-    //TODO
+    auto cso = state->GetCso(vars);
+
+    if (vars)
+    {
+        if (!ApplyComputeVars(vars, cso->GetDesc().rootSignature.get()))
+            return false;
+    }
+
+    SetPipelineState(cso.get());
+
     return true;
 }
