@@ -4,6 +4,8 @@
 #include "Experimental/Widgets/ImageWindow.h"
 #include "Experimental/Widgets/MaterialView.h"
 #include "Experimental/Widgets/LightView.h"
+#include "Experimental/Widgets/AnimationView.h"
+#include "Experimental/Widgets/MeshView.h"
 #include "IO/FileHandle.h"
 #include "Render/Importers/SceneImporter.h"
 #include "Render/RenderManager.h"
@@ -118,8 +120,10 @@ private:
     ImGui::FileBrowser modelFileDialog;
     ImageWindow imageWindow;
     CameraView cameraView;
+    MeshView meshView;
     MaterialView materialView;
     LightView lightView;
+    //AnimationView animationView;
 
     Array<Profiler::SessionData> sessions;
     ProfileWindow profileWindow;
@@ -136,6 +140,31 @@ private:
         }
     }
 
+    void OnGuiStatsView()
+    {
+        if (!renderer->scene)
+            return;
+        
+        auto s = renderer->scene->GetStatistics();
+        ImGui::Columns(2);
+        ImGui::Text("Meshes: %d", s.meshCount);
+        ImGui::NextColumn();
+        ImGui::Text("Instances: %d", s.instanceCount);
+        ImGui::NextColumn();
+        ImGui::Text("Triangles: %d", s.triangleCount);
+        ImGui::NextColumn();
+        ImGui::Text("Vertices: %d", s.vertexCount);
+        ImGui::NextColumn();
+        ImGui::Text("Total triangles: %d", s.instancedTriangleCount);
+        ImGui::NextColumn();
+        ImGui::Text("Total vertices: %d", s.instancedVertexCount);
+        ImGui::NextColumn();
+        ImGui::Text("Materials: %d", s.materialCount);
+        ImGui::NextColumn();
+        ImGui::Text("Lights: %d", s.lightCount);
+        ImGui::Columns(1);
+    }
+
 public:
     virtual void Startup() override
     {
@@ -144,6 +173,8 @@ public:
         renderer = Memory::MakeShared<Renderer>();
 
         gImGuiLab->drawHandler.On([this]() {
+            //ImGui::ShowDemoWindow();
+
             ImGui::Begin("ModelViewer");
 
             ImGuiIO &io = ImGui::GetIO();
@@ -162,11 +193,18 @@ public:
             }
 
             ImGui::Separator();
+            OnGuiStatsView();
+
+            ImGui::Separator();
             OnGuiDebugView();
 
             ImGui::Separator();
             cameraView.SetScene(renderer->scene);
             cameraView.OnGui();
+
+            ImGui::Separator();
+            meshView.SetScene(renderer->scene);
+            meshView.OnGui();
 
             ImGui::Separator();
             materialView.SetScene(renderer->scene);
@@ -175,6 +213,10 @@ public:
             ImGui::Separator();
             lightView.SetScene(renderer->scene);
             lightView.OnGui();
+
+            // ImGui::Separator();
+            // animationView.SetScene(renderer->scene);
+            // animationView.OnGui();
 
             ImGui::End();
 

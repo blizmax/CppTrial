@@ -10,7 +10,18 @@
 class Scene
 {
 public:
-    ProgramDefines GetSceneDefines() const;
+    struct Statistics
+    {
+        int32 meshCount;
+        int32 triangleCount;
+        int32 vertexCount;
+        int32 instanceCount;
+        int32 instancedTriangleCount;
+        int32 instancedVertexCount;
+        int32 materialCount;
+        int32 lightCount;
+    };
+
     SceneUpdateFlags Update(RenderContext *ctx, float currentTime);
     void Render(RenderContext *ctx, GraphicsState *state, GraphicsVars *vars, SceneRenderFlags flags = SceneRender::None);
     void BindSamplerToMaterials(const SPtr<Sampler> &sampler);
@@ -19,6 +30,8 @@ public:
     void AddViewpoint(const Vector3 &position, const Vector3 &target, const Vector3 &up);
     void RemoveViewpoint();
     void SelectViewpoint(int32 index);
+    ProgramDefines GetSceneDefines() const;
+    Statistics GetStatistics() const;
 
     const Array<Viewpoint> &GetViewpoints() const
     {
@@ -127,7 +140,6 @@ private:
     bool UpdateCamera(bool force = false);
     bool UpdateLights(bool force = false);
     bool UpdateMaterials(bool force = false);
-    void UpdateGeometryStats();
 
     void CreateDrawList();
     void Finalize();
@@ -171,4 +183,7 @@ private:
     SPtr<ParameterBlock> sceneBlock;
 
     SceneUpdateFlags updateFlags = SceneUpdate::All;
+
+    mutable Statistics stats;
+    mutable bool statsDirty = true;
 };

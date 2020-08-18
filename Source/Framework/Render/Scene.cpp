@@ -370,8 +370,6 @@ void Scene::Finalize()
     UpdateMaterials(true);
     UploadResources();
 
-    UpdateGeometryStats();
-
     if (animationController->GetAnimationCount(0))
         animationController->SetActiveAnimationID(0, 0);
 
@@ -380,6 +378,8 @@ void Scene::Finalize()
     frontClockwiseRS = RasterizationState::Create(desc);
     desc.frontCCW = true;
     frontCounterClockwiseRS = RasterizationState::Create(desc);
+
+    statsDirty = true;
 }
 
 void Scene::SortMeshes()
@@ -387,7 +387,38 @@ void Scene::SortMeshes()
     //TODO
 }
 
-void Scene::UpdateGeometryStats()
+Scene::Statistics Scene::GetStatistics() const
 {
-    //TODO
+    if (!statsDirty)
+        return stats;
+
+    statsDirty = false;
+
+    stats.meshCount = GetMeshCount(); 
+    int32 triangleNum = 0;
+    int32 vertexNum = 0;
+    for (int32 i = 0; i < GetMeshCount(); ++i)
+    {
+        const auto &m = GetMesh(i);
+        triangleNum += m.indexCount / 3;
+        vertexNum += m.vertexCount;
+    }
+    stats.triangleCount = triangleNum;
+    stats.vertexCount = vertexNum;
+
+    stats.instanceCount = GetMeshInstanceCount();
+    triangleNum = vertexNum = 0; 
+    for (int32 i = 0; i < GetMeshInstanceCount(); ++i)
+    {
+        const auto &m = GetMesh(GetMeshInstance(i).meshID);
+        triangleNum += m.indexCount / 3;
+        vertexNum += m.vertexCount;
+    }
+    stats.instancedTriangleCount = triangleNum;
+    stats.instancedVertexCount = vertexNum;
+
+    stats.materialCount = GetMaterialCount();
+    stats.lightCount = GetLightCount();
+
+    return stats;
 }
