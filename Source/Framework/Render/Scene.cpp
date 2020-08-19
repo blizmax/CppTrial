@@ -151,6 +151,15 @@ void Scene::BindSamplerToMaterials(const SPtr<Sampler> &sampler)
     }
 }
 
+void Scene::SetEnvironmentMap(const SPtr<Texture> &map)
+{
+    if (envMap != map)
+    {
+        envMap = map;
+        //TODO Bind to sceneBlock
+    }
+}
+
 void Scene::InitResources()
 {
     ProgramDefines defines = GetSceneDefines();

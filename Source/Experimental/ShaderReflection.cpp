@@ -21,7 +21,8 @@ public:
         //program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/Reflection.glsl"), defines);
         //program = Program::Create(CT_TEXT("Assets/Shaders/Scene/SceneBlock.glsl"), defines);
         //program = Program::Create(CT_TEXT("Assets/Shaders/Experimental/FullScreenTest.glsl"));
-        program = Program::Create(CT_TEXT("Assets/Shaders/Scene/Skinning.glsl"), {});
+        //program = Program::Create(CT_TEXT("Assets/Shaders/Scene/Skinning.glsl"), {});
+        program = Program::Create(CT_TEXT("Assets/Shaders/Passes/SkyBox.glsl"), {});
     }
 
     virtual void Shutdown() override

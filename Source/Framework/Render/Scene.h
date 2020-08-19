@@ -25,6 +25,7 @@ public:
     SceneUpdateFlags Update(RenderContext *ctx, float currentTime);
     void Render(RenderContext *ctx, GraphicsState *state, GraphicsVars *vars, SceneRenderFlags flags = SceneRender::None);
     void BindSamplerToMaterials(const SPtr<Sampler> &sampler);
+    void SetEnvironmentMap(const SPtr<Texture> &map);
     void ResetCamera(bool resetDepthRange = true);
     void AddViewpoint();
     void AddViewpoint(const Vector3 &position, const Vector3 &target, const Vector3 &up);
@@ -32,6 +33,11 @@ public:
     void SelectViewpoint(int32 index);
     ProgramDefines GetSceneDefines() const;
     Statistics GetStatistics() const;
+
+    const SPtr<Texture> &GetEnvironmentMap() const
+    {
+        return envMap;
+    }
 
     const Array<Viewpoint> &GetViewpoints() const
     {
@@ -181,6 +187,8 @@ private:
     SPtr<Buffer> materialsBuffer;
     SPtr<Buffer> lightsBuffer;
     SPtr<ParameterBlock> sceneBlock;
+
+    SPtr<Texture> envMap;
 
     SceneUpdateFlags updateFlags = SceneUpdate::All;
 
