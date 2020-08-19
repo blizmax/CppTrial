@@ -31,6 +31,8 @@ public:
     SPtr<CameraController> cameraController;
     float sceneUpdateTime = 0.0f;
     bool loading = false;
+    bool exportScene = false;
+    String sceneExportFolder;
 
 public:
     Renderer()
@@ -110,6 +112,14 @@ public:
         }
 
         scene->Render(ctx, state.get(), vars.get(), flags);
+
+        if (exportScene)
+        {
+            exportScene = false;
+
+            String path = sceneExportFolder + CT_TEXT("SceneShot.png");
+            gAssetManager->Export<Texture>(fbo->GetColorTexture(0), path);
+        }
     }
 };
 
@@ -118,6 +128,7 @@ class LearnVK : public Logic
 private:
     SPtr<Renderer> renderer;
     ImGui::FileBrowser modelFileDialog;
+    ImGui::FileBrowser sceneExportDialog{ ImGuiFileBrowserFlags_SelectDirectory };
     ImageWindow imageWindow;
     CameraView cameraView;
     MeshView meshView;
@@ -181,15 +192,25 @@ public:
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::Separator();
 
-            if (ImGui::Button("Open model file"))
+            if (ImGui::Button("Open model"))
                 modelFileDialog.Open();
+            ImGui::SameLine();
+            if (ImGui::Button("Scene shot") && renderer->scene)
+                sceneExportDialog.Open();
 
             modelFileDialog.Display();
-
             if (modelFileDialog.HasSelected())
             {
                 renderer->LoadScene(modelFileDialog.GetSelected().c_str());
                 modelFileDialog.ClearSelected();
+            }
+
+            sceneExportDialog.Display();
+            if (sceneExportDialog.HasSelected())
+            {
+                renderer->exportScene = true;
+                renderer->sceneExportFolder = sceneExportDialog.GetSelected().c_str();
+                sceneExportDialog.ClearSelected();
             }
 
             ImGui::Separator();

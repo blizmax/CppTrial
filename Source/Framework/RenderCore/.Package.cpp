@@ -2,6 +2,7 @@
 
 static ResourceFormatDesc formatDescs[] = 
 {
+    //                                                    bytes        componentCount                            isDepth isStencil isCompressed  compressionRatio                                            componentBits
     {ResourceFormat::Unknown,            "Unknown",         0,              0,  ResourceComponentType::Unknown,    {false,  false, false,},        {1, 1},                                                  {0, 0, 0, 0    }},
     {ResourceFormat::R8Unorm,            "R8Unorm",         1,              1,  ResourceComponentType::Unorm,      {false,  false, false,},        {1, 1},                                                  {8, 0, 0, 0    }},
     {ResourceFormat::R8Snorm,            "R8Snorm",         1,              1,  ResourceComponentType::Snorm,      {false,  false, false,},        {1, 1},                                                  {8, 0, 0, 0    }},

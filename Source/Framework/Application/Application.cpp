@@ -5,6 +5,7 @@
 #include "Render/RenderManager.h"
 #include "Render/Importers/SceneImporter.h"
 #include "Render/Importers/TextureImporter.h"
+#include "Render/Exporters/TextureExporter.h"
 
 #include "Application/ImGuiLab.h"
 
@@ -50,6 +51,7 @@ void Application::Init()
 
     gAssetManager->RegisterImporter<Texture>(Memory::New<TextureImporter>());
     gAssetManager->RegisterImporter<Scene>(Memory::New<SceneImporter>());
+    gAssetManager->RegisterExporter<Texture>(Memory::New<TextureExporter>());
 
     GetWindow().windowResizedHandler += ([](auto &e) {
         if (e.handled)

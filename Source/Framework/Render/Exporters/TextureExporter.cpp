@@ -57,9 +57,18 @@ public:
             stbi_flip_vertically_on_write(true);
         }
 
+        auto format = asset->GetResourceFormat();
         int32 w = asset->GetWidth();
         int32 h = asset->GetHeight();
-        int32 n = GetResourceFormatComponentCount(asset->GetResourceFormat());
+        int32 n = GetResourceFormatComponentCount(format);
+
+        if (format == ResourceFormat::BGRA8Unorm || format == ResourceFormat::BGRA8UnormSrgb || format == ResourceFormat::BGRX8Unorm || format == ResourceFormat::BGRX8UnormSrgb)
+        {
+            for (int32 i = 0; i < w * h; ++i)
+            {
+                std::swap(data[i * 4], data[i * 4 + 2]);
+            }
+        }
 
         if (stbi_write_png(CT_U8_CSTR(path), w, h, n, data.GetData(), 0) == 0)
         {
@@ -98,7 +107,7 @@ public:
                 auto subresource = copy.asset->GetSubresourceIndex(arraySlice, mipLevel);
                 auto data = RenderAPI::GetDevice()->GetRenderContext()->ReadSubresource(copy.asset.get(), subresource);
 
-                gAssetManager->RunMultithread([data = std::move(data), copy = std::move(copy)](){
+                gAssetManager->RunMultithread([data = std::move(data), copy = std::move(copy)]() {
                     copy.WriteToFile(std::move(data));
                 });
             });
