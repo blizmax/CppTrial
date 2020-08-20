@@ -12,9 +12,17 @@ set(DIR_IMGUI
     ${CT_EXTERNAL_DIR}/imgui/imgui_widgets.cpp
 )
 
+set(DIR_IMGUI_NODE_EDITOR
+    ${CT_EXTERNAL_DIR}/imgui-node-editor/crude_json.cpp
+    ${CT_EXTERNAL_DIR}/imgui-node-editor/imgui_canvas.cpp
+    ${CT_EXTERNAL_DIR}/imgui-node-editor/imgui_node_editor.cpp
+    ${CT_EXTERNAL_DIR}/imgui-node-editor/imgui_node_editor_api.cpp
+)
+
 add_library(Application 
     ${DIR_APPLICATION}
     ${DIR_IMGUI}
+    ${DIR_IMGUI_NODE_EDITOR}
 )
 
 target_link_libraries(Application Math)
