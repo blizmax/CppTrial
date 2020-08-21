@@ -163,6 +163,20 @@ static EShLanguage ToEShLanguage(ShaderType shaderType)
     }
 }
 
+static glslang::EShSource ToEShSource(ShaderLanguage shaderLang)
+{
+    switch(shaderLang)
+    {
+    case ShaderLanguage::Glsl:
+        return glslang::EShSourceGlsl;
+    case ShaderLanguage::Hlsl:
+        return glslang::EShSourceHlsl;
+    default:
+        CT_EXCEPTION(RenderCore, "Unsupported shader language.");
+        return glslang::EShSourceNone;
+    }
+}
+
 static SPtr<ReflectionStructType> ParseStructType(const glslang::TType *blockType, const String &name, const glslang::TType *structType, int32 baseOffset);
 
 static SPtr<ReflectionType> ParseDataType(const glslang::TType *blockType, const String &name, const glslang::TType *ttype, int32 totalSize)
@@ -603,7 +617,7 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
 
         CT_U8_CSTR_VAR(e.source, cstr);
         shader->setStrings(&cstr, 1);
-        shader->setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, 100);
+        shader->setEnvInput(ToEShSource(e.language), stage, glslang::EShClientVulkan, 100);
         shader->setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_0);
         shader->setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
         shader->setPreamble(cstrDefines);
@@ -639,7 +653,7 @@ bool VulkanShaderCompilerImpl::Compile(const ProgramDesc &desc, const ShaderModu
         ParseReflection(program, builder, true);
         CT_LOG(Debug, CT_TEXT("==========================!Reflection========================="));
 
-        //program.dumpReflection();
+        program.dumpReflection();
     }
     else
     {

@@ -1,4 +1,6 @@
 
+#include "SharedDefines.glsl"
+
 // Instance defs
 #define CT_MESH_INSTANCE_NONE 0
 #define CT_MESH_INSTANCE_FLIPPED 1

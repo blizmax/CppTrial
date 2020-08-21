@@ -16,11 +16,21 @@ static ShaderType GetShaderType(const String &str)
     return ShaderType::Vertex;
 }
 
-static String GetVersionAndExtensions()
+static ShaderLanguage GetShaderLanguage(const String &ext)
 {
-    return CT_TEXT("#version 450\n"
-                   "#extension GL_ARB_separate_shader_objects : enable\n"
-                   "#extension GL_GOOGLE_include_directive : enable\n");
+    if (ext == CT_TEXT(".glsl"))
+        return ShaderLanguage::Glsl;
+    if (ext == CT_TEXT(".hlsl"))
+        return ShaderLanguage::Hlsl;
+    return ShaderLanguage::Unknown;
+}
+
+static String GetVersionAndExtensions(ShaderLanguage lang)
+{
+    return lang != ShaderLanguage::Glsl ? CT_TEXT("")
+                           : CT_TEXT("#version 450\n"
+                                     "#extension GL_ARB_separate_shader_objects : enable\n"
+                                     "#extension GL_GOOGLE_include_directive : enable\n");
 }
 
 ProgramDesc Program::CreateDesc(const String &path, const ProgramDefines &defines)
@@ -36,10 +46,17 @@ ProgramDesc Program::CreateDesc(const String &path, const ProgramDefines &define
         return desc;
     }
 
+    ShaderLanguage shaderLang = GetShaderLanguage(file.GetExtension());
+    if (shaderLang == ShaderLanguage::Unknown)
+    {
+        CT_EXCEPTION(RenderCore, "Unsupported shader language.");
+        return desc;
+    }
+
     String src = file.ReadString();
     auto lines = src.Split(CT_TEXT("\n"));
     int32 globalLineNum = 0;
-    String globalStr = GetVersionAndExtensions();
+    String globalStr = GetVersionAndExtensions(shaderLang);
     int32 startLine = 1;
 
     for (int32 l = startLine; l <= lines.Count(); ++l)
@@ -79,7 +96,7 @@ ProgramDesc Program::CreateDesc(const String &path, const ProgramDefines &define
                 break;
             }
         }
-        desc.shaderDescs.Add({ shaderType, shaderSrc });
+        desc.shaderDescs.Add({ shaderType, shaderLang, shaderSrc });
         return !eof;
     };
 

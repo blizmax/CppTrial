@@ -92,6 +92,13 @@ enum class ShaderType
     Count,
 };
 
+enum class ShaderLanguage
+{
+    Unknown,
+    Glsl,
+    Hlsl,
+};
+
 CT_DECL_FLAGS(ShaderVisibility){
     None = 0,
     Vertex = (1 << (int32)ShaderType::Vertex),

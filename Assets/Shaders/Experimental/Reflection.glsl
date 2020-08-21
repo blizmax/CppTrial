@@ -93,11 +93,40 @@
 //     FragColor = texture(sampler2D(textures[0], samplers[0]), vOut.uv) + col * v;
 // }
 
-#type compute
+// #type compute
 
-layout(local_size_x = 32, local_size_y = 32) in;
+// layout(local_size_x = 32, local_size_y = 32) in;
 
-void main()
+// void main()
+// {
+
+// }
+
+struct VS_INPUT
 {
+    float4 pos : POSITION;
+};
 
+struct VS_OUTPUT
+{
+    float4 pos : SV_Position;
+};
+
+#type vertex
+
+VS_OUTPUT main(VS_INPUT vin)
+{
+   VS_OUTPUT vsout;
+   vsout.pos = vin.pos;
+
+   return vsout;
 }
+
+#type pixel
+
+float4 main() : SV_TARGET
+{
+    return 0;
+}
+
+

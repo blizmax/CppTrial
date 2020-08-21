@@ -8,6 +8,7 @@ using ProgramDefines = HashMap<String, String>;
 struct ShaderDesc
 {
     ShaderType shaderType;
+    ShaderLanguage language = ShaderLanguage::Glsl;
     String source;
 };
 
