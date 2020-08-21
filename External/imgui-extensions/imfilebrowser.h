@@ -434,7 +434,7 @@ inline void ImGui::FileBrowser::Display()
                         selectedFilename_ = rsc.name;
                         if(!(flags_ & ImGuiFileBrowserFlags_SelectDirectory))
                         {
-#ifdef _MSC_VER
+#if 0  //_#ifdef MSC_VER
                             strcpy_s(inputNameBuf_->data(), inputNameBuf_->size(),
                                      selectedFilename_.u8string().c_str());
 #else

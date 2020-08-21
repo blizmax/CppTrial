@@ -3,6 +3,11 @@
 #include "Math/Matrix4.h"
 #include "Math/Vector3.h"
 
+#pragma push_macro("min")
+#pragma push_macro("max")
+#undef min
+#undef max
+
 class AABox
 {
 public:
@@ -10,6 +15,7 @@ public:
     Vector3 max{ 0.5f, 0.5f, 0.5f };
 
     AABox() = default;
+
     AABox(const Vector3 &min, const Vector3 &max)
         : min(min), max(max)
     {
@@ -114,3 +120,6 @@ public:
         return min != other.min || max != other.max;
     }
 };
+
+#pragma pop_macro("min")
+#pragma pop_macro("max")

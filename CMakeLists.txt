@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG -D_DEBUG")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -D_DEBUG")
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_CXX_COMPILER_ID})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_CXX_COMPILER_ID})
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D _CRT_SECURE_NO_WARNINGS /MP")
@@ -57,7 +57,14 @@ add_subdirectory(${CT_EXTERNAL_DIR}/glslang)
 include_directories(${CT_EXTERNAL_DIR}/glslang)
 
 # assimp
-find_package(ASSIMP REQUIRED) # msys2 installation: pacman -S mingw-w64-x86_64-assimp
 include_directories(${CT_EXTERNAL_DIR}/assimp/include)
+if (MSVC)
+    include_directories(${CT_EXTERNAL_DIR}/assimp/build/include)
+
+    #use precompiled dll
+    find_library(ASSIMP_LIBRARIES NAMES assimp assimp-vc142-mt PATHS ${CT_EXTERNAL_DIR}/assimp/lib)
+else()
+    find_package(ASSIMP REQUIRED) # msys2 installation: pacman -S mingw-w64-x86_64-assimp
+endif()
 
 add_subdirectory(Source)

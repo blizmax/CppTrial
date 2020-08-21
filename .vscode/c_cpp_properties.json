@@ -4,8 +4,16 @@
             "name": "MinGW64",
             "intelliSenseMode": "gcc-x64",
             "includePath": [
-                "${workspaceFolder}/"
+                "${workspaceFolder}/Source",
+                "${workspaceFolder}/External"
             ],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/Source",
+                    "${workspaceFolder}/External"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            },
             "compilerPath": "C:/msys64/mingw64/bin/gcc.exe",
             "cppStandard": "c++20",
             "configurationProvider": "vector-of-bool.cmake-tools",
