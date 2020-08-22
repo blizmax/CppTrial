@@ -11,9 +11,9 @@ public:
     virtual void Shutdown() override;
     virtual void Tick() override;
 
-    ThreadPool::Handle RunThread(const String &name, Runnable func);
+    ThreadPool::Handle RunThread(const String &name, Runnable<> func);
 
-    void RunAsync(Runnable func)
+    void RunAsync(Runnable<> func)
     {
         auto task = AsyncTask::Create(CT_TEXT("Temp"), std::move(func));
         RunAsync(task);

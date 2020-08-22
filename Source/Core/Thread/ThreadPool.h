@@ -43,7 +43,7 @@ public:
         return workID;
     }
 
-    void Start(const String &newName, int32 id, Runnable func)
+    void Start(const String &newName, int32 id, Runnable<> func)
     {
         {
             std::unique_lock<std::mutex> lock(mutex);
@@ -75,7 +75,7 @@ private:
     {
         while (true)
         {
-            Runnable func = nullptr;
+            Runnable<> func = nullptr;
 
             {
                 std::unique_lock<std::mutex> lock(mutex);
@@ -100,7 +100,7 @@ private:
 
 private:
     String name;
-    Runnable worker = nullptr;
+    Runnable<> worker = nullptr;
     UPtr<std::thread> thread;
     mutable std::mutex mutex;
     std::condition_variable startedCond;
@@ -200,7 +200,7 @@ public:
         return proxies.Count();
     }
 
-    Handle Run(const String &name, Runnable func)
+    Handle Run(const String &name, Runnable<> func)
     {
         CT_CHECK(func != nullptr);
 

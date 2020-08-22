@@ -22,7 +22,7 @@ void AssetManager::Tick()
     assetSyncTasks.Clear();
 }
 
-void AssetManager::RunMainthread(Runnable func)
+void AssetManager::RunMainthread(Runnable<> func)
 {
     if (Thread::IsMainThread())
     {
@@ -35,7 +35,7 @@ void AssetManager::RunMainthread(Runnable func)
     }
 }
 
-void AssetManager::RunMultithread(Runnable func)
+void AssetManager::RunMultithread(Runnable<> func)
 {
     gThreadManager->RunAsync(std::move(func));
 }

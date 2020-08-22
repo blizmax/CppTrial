@@ -84,7 +84,8 @@ typedef wchar CharType;
 typedef size_t SizeType;
 typedef uint32 HashType;
 
-using Runnable = std::function<void(void)>;
+template<typename... Args> 
+using Runnable = std::function<void(Args...)>;
 
 template <typename T>
 CT_INLINE std::type_index TypeIndexOf()

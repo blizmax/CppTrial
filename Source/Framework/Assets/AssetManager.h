@@ -13,8 +13,8 @@ public:
     void Shutdown() override;
     void Tick() override;
 
-    void RunMultithread(Runnable func);
-    void RunMainthread(Runnable func);
+    void RunMultithread(Runnable<> func);
+    void RunMainthread(Runnable<> func);
 
     template <typename T>
     void RegisterImporter(IAssetImporter *importer)
@@ -69,7 +69,7 @@ public:
     }
 
 private:
-    Array<Runnable> assetSyncTasks;
+    Array<Runnable<>> assetSyncTasks;
     std::mutex assetSyncMutex;
 
     HashMap<std::type_index, IAssetImporter *> importers;

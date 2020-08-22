@@ -14,10 +14,10 @@ public:
     struct ReleaseData
     {
         uint64 fenceValue;
-        Runnable releaseFunc;
+        Runnable<> releaseFunc;
     };
 
-    void AddReleaseData(Runnable func, uint64 fenceValue)
+    void AddReleaseData(Runnable<> func, uint64 fenceValue)
     {
         releaseDatas.Add({ fenceValue, std::move(func) });
     }
@@ -81,7 +81,7 @@ public:
         return renderContext.get();
     }
 
-    void Release(Runnable func)
+    void Release(Runnable<> func)
     {
         deferredReleaser.AddReleaseData(std::move(func), frameFence->GetCpuValue());
     }

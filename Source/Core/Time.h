@@ -7,9 +7,12 @@
 namespace Time
 {
 
-constexpr int32 MILLIS_PER_SECOND = 1000;
-constexpr int32 MICROS_PER_SECOND = 1000000;
-constexpr int32 NANOS_PER_SECOND = 1000000000;
+constexpr int32 SEC_TO_MILLI = 1000;
+constexpr int32 SEC_TO_MICRO = 1000000;
+constexpr int32 SEC_TO_NANO = 1000000000;
+constexpr int32 MILLI_TO_MICRO = SEC_TO_MICRO / SEC_TO_MILLI;
+constexpr int32 MILLI_TO_NANO = SEC_TO_NANO / SEC_TO_MILLI;
+constexpr int32 MICRO_TO_NANO = SEC_TO_NANO / SEC_TO_MICRO;
 
 using Clock = std::chrono::high_resolution_clock;
 using TimePoint = std::chrono::time_point<Clock>;
@@ -55,9 +58,9 @@ CT_INLINE int64 MilliTime()
 
 CT_INLINE String ToString(const String &format, std::time_t value)
 {
-    wchar str[100];
-    auto count = (int32)std::wcsftime(str, 100, format.CStr(), std::localtime(&value));
-    return String(str, count);
+    wchar buffer[128];
+    auto count = (int32)std::wcsftime(buffer, 100, format.CStr(), std::localtime(&value));
+    return String(buffer, count);
 }
 
 CT_INLINE String ToString(const String &format)

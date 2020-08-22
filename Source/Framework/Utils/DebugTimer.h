@@ -1,33 +1,15 @@
 #pragma once
 
+#include "Core/Timer.h"
 #include "Utils/.Package.h"
 
-class DebugTimer
+class DebugTimer : public Timer
 {
 public:
     DebugTimer(const String &name)
-        : name(name)
+        : Timer(name, [](Timer &t) {
+              CT_LOG(Info, CT_TEXT("{0} total cost ms: {1}."), t.GetName(), t.GetElapsedMs());
+          })
     {
-        startTime = Time::MilliTime();
     }
-
-    ~DebugTimer()
-    {
-        Stop();
-    }
-
-    void Stop()
-    {
-        if (running)
-        {
-            running = false;
-            float t = (Time::MilliTime() - startTime) / (float)Time::MILLIS_PER_SECOND;
-            CT_LOG(Info, CT_TEXT("{0} total cost sec: {1}."), name, t);
-        }
-    }
-
-private:
-    String name;
-    int64 startTime;
-    bool running = true;
 };
