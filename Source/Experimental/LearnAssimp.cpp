@@ -215,6 +215,10 @@ private:
         }
     }
 
+    void DumpMesh(int32 index, const aiMesh *aMesh)
+    {
+        
+    }
 
 public:
     virtual void Startup() override
@@ -259,6 +263,11 @@ public:
         for (uint32 i = 0; i < aScene->mNumMaterials; ++i)
         {
             DumpMaterial(i, aScene->mMaterials[i]);
+        }
+
+        for (uint32 i = 0; i < aScene->mNumMeshes; ++i)
+        {
+            DumpMesh(i, aScene->mMeshes[i]);
         }
 
         CT_LOG(Info, CT_TEXT("Dump assimp end========================================"));

@@ -3,7 +3,81 @@
 #include "Core/Delegate.h"
 #include "Core/Thread.h"
 #include "Core/Time.h"
+#include "Core/HashMap.h"
 #include "Utils/.Package.h"
+
+struct ProfileEntry
+{
+    String name;
+    int32 callNum = 0;
+    float elapsedMs = 0.0f;
+
+    Array<ProfileEntry> children;
+};
+
+class ProfileEntryBuilder
+{
+public:
+    ProfileEntryBuilder(ProfileEntry &root)
+        : root(root)
+    {
+    }
+
+    int32 GetDepth() const
+    {
+        return callStack.Count();
+    }
+
+    int32 GetIndex() const
+    {
+        return callStack.Last();
+    }
+
+    ProfileEntry &GetCurrent()
+    {
+        ProfileEntry *e = &root;
+        for (int32 d = 0; d < GetDepth(); ++d)
+        {
+            e = &(e->children[callStack[d]]);
+        }
+        return *e;
+    }
+
+    ProfileEntry &GetParent()
+    {
+        ProfileEntry *e = &root;
+        for (int32 d = 0; d < GetDepth() - 1; ++d)
+        {
+            e = &(e->children[callStack[d]]);
+        }
+        return *e;
+    }
+    
+    void AddEntry(const ProfileEntry &entry)
+    {
+        ProfileEntry &p = GetParent();
+        p.children.Add(entry);
+    }
+
+    void Push(int32 index)
+    {
+        ProfileEntry &p = GetParent();
+        CT_CHECK(index < p.children.Count());
+        callStack.Add(index);
+    }
+
+    void Pop()
+    {
+        if (!callStack.IsEmpty())
+        {
+            callStack.RemoveLast();
+        }
+    }
+
+private:
+    ProfileEntry &root;
+    Array<int32> callStack;
+};
 
 class Profiler
 {
@@ -12,14 +86,14 @@ public:
     {
         String name;
         int64 startTime;
-        float elapsedTime;
+        float elapsedMs;
     };
 
     struct ScopeData
     {
         String name;
         int64 startTime;
-        float elapsedTime;
+        float elapsedMs;
     };
 
     class Scope
@@ -36,7 +110,7 @@ public:
 
         ~Scope()
         {
-            data.elapsedTime = (Time::NanoTime() - data.startTime) / 1000000.0f;
+            data.elapsedMs = (Time::NanoTime() - data.startTime) / (float)Time::MILLI_TO_NANO;
 
             profiler.scopeEndEventHandler(data);
         }
@@ -109,7 +183,7 @@ private:
 
         sessionData.name = name;
         sessionData.startTime = Time::NanoTime();
-        sessionData.elapsedTime = 0.0f;
+        sessionData.elapsedMs = 0.0f;
 
         sessionBeginEventHandler(sessionData);
     }
@@ -120,7 +194,7 @@ private:
         {
             sessionOpen = false;
 
-            sessionData.elapsedTime = (Time::NanoTime() - sessionData.startTime) / 1000000.0f;
+            sessionData.elapsedMs = (Time::NanoTime() - sessionData.startTime) / (float)Time::MILLI_TO_NANO;
 
             sessionEndEventHandler(sessionData);
         }

@@ -5,7 +5,10 @@
 class GpuTimer
 {
 public:
+    virtual ~GpuTimer() = default;
 
-private:
-    String int64 startTime;    
+    virtual void Begin() = 0;
+    virtual void End() = 0;
+
+    static SPtr<GpuTimer> Create();
 };

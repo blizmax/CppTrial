@@ -6,12 +6,8 @@
 #include "Render/Importers/SceneImporter.h"
 #include "Render/Importers/TextureImporter.h"
 #include "Render/Exporters/TextureExporter.h"
-
 #include "Application/ImGuiLab.h"
-
-#if CT_DEBUG
 #include "Application/DebugManager.h"
-#endif
 
 void Application::PreInit(const WindowDesc &desc)
 {
@@ -19,10 +15,8 @@ void Application::PreInit(const WindowDesc &desc)
     startTime = time;
     frameCountTime = time;
 
-#if CT_DEBUG
     gDebugManager->Startup();
     CT_LOG(Info, CT_TEXT("DebugManager startup."));
-#endif
 
     gThreadManager->Startup();
     CT_LOG(Info, CT_TEXT("ThreadManager startup."));
@@ -115,6 +109,7 @@ void Application::Run()
         ++frames;
         ++totalFrames;
 
+        //CT_PROFILE_SESSION_BEGIN(CT_TEXT("ThreadManager"));
         gThreadManager->Tick();
 
         CT_PROFILE_SESSION_BEGIN(CT_TEXT("AssetManager"));
@@ -123,18 +118,20 @@ void Application::Run()
         CT_PROFILE_SESSION_BEGIN(CT_TEXT("Logic"));
         gLogic->Tick();
 
+        CT_PROFILE_SESSION_BEGIN(CT_TEXT("RenderManager"));
         gRenderManager->Tick();
 
         CT_PROFILE_SESSION_BEGIN(CT_TEXT("ImGuiLab"));
         gImGuiLab->Tick();
 
-#if CT_DEBUG
-        gDebugManager->Tick();
-#endif
+        CT_PROFILE_SESSION_BEGIN(CT_TEXT("Window"));
         window->Tick();
 
         CT_PROFILE_SESSION_BEGIN(CT_TEXT("RenderManager"));
         gRenderManager->Present();
+
+        //CT_PROFILE_SESSION_BEGIN(CT_TEXT("DebugManager"));
+        gDebugManager->Tick();
 
         if (window->ShouldClose())
             RequestQuit();
@@ -158,10 +155,8 @@ void Application::Exit()
     gThreadManager->Shutdown();
     CT_LOG(Info, CT_TEXT("ThreadManager shutdown."));
 
-#if CT_DEBUG
     gDebugManager->Shutdown();
     CT_LOG(Info, CT_TEXT("DebugManager shutdown."));
-#endif
 }
 
 Input &Application::GetInput()

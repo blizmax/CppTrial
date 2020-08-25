@@ -72,8 +72,8 @@ private:
             {
                 auto &s = frame.sessions[i];
                 auto &stats = statsDatas[frame.statsIndices[i]];
-                stats.maxTime = Math::Max(stats.maxTime, s.elapsedTime);
-                frameTime += s.elapsedTime;
+                stats.maxTime = Math::Max(stats.maxTime, s.elapsedMs);
+                frameTime += s.elapsedMs;
             }
             frame.time = frameTime;
             maxFrameTime = Math::Max(maxFrameTime, frameTime);
@@ -127,7 +127,7 @@ private:
             Vector2 elePos = framePos;
             for (auto &e : frameDatas[frameIndex].sessions)
             {
-                float h = e.elapsedTime * deltaHeight;
+                float h = e.elapsedMs * deltaHeight;
                 drawList->AddRect(ImVec2(elePos.x, elePos.y), ImVec2(elePos.x + frameWidth, elePos.y - h), GetColor(e.name));
                 elePos.y -= h;
             }
@@ -166,7 +166,7 @@ private:
             Vector2 rectMax = rectMin + Vector2(rectWidth, -rectHeight);
             drawList->AddRectFilled(ImVec2(rectMin.x, rectMin.y), ImVec2(rectMax.x, rectMax.y), color);
 
-            int32 microSec = (int32)(e.elapsedTime * 1000);
+            int32 microSec = (int32)(e.elapsedMs * 1000);
             int32 iv = (int32)(microSec / 1000);
             int32 fv = fv = (int32)((microSec - iv * 1000) / 10);
             String timeFormat = iv < 10 ? CT_TEXT("[0{0}.") : CT_TEXT("[{0}.");

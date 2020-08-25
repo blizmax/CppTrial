@@ -1,5 +1,6 @@
 #include "Application/Application.h"
 #include "Application/ImGuiLab.h"
+#include "Application/DebugManager.h"
 #include "Experimental/Widgets/CameraView.h"
 #include "Experimental/Widgets/ImageWindow.h"
 #include "Experimental/Widgets/MaterialView.h"
@@ -136,7 +137,6 @@ private:
     LightView lightView;
     //AnimationView animationView;
 
-    Array<Profiler::SessionData> sessions;
     ProfileWindow profileWindow;
 
     bool wireframe = false;
@@ -243,15 +243,9 @@ public:
 
             imageWindow.OnGui();
 
-            profileWindow.AddFrameData(sessions);
-            sessions.Clear();
+            profileWindow.AddFrameData(gDebugManager->GetCpuProfileSessions());
+            gDebugManager->ResetProfile();
             profileWindow.OnGui();
-        });
-
-        auto &gProfiler = Profiler::GetGlobalProfiler();
-        gProfiler.sessionEndEventHandler.On([this](const auto &data) {
-            sessions.Add(data);
-            //CT_LOG(Debug, CT_TEXT("Session end, name:{0}, elapsed:{1}, frameID:{2}"), data.name, data.elapsedTime, gApp->GetTotalFrames());
         });
     }
 

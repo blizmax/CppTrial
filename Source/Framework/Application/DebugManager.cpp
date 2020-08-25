@@ -1,7 +1,4 @@
 #include "Application/DebugManager.h"
-
-#if CT_DEBUG
-
 #include "Application/Application.h"
 
 DebugManager debugManager;
@@ -44,15 +41,10 @@ void DebugManager::Startup()
 #endif
 
     auto &gProfiler = Profiler::GetGlobalProfiler();
-    // gProfiler.sessionBeginEventHandler.On([](const auto& data){
-    //     CT_LOG(Debug, CT_TEXT("SessionBegin, name:{0}"), data.name);
-    // });
-    // gProfiler.sessionEndEventHandler.On([](const auto& data){
-    //     CT_LOG(Debug, CT_TEXT("SessionEnd, name:{0}"), data.name);
-    // });
-    // gProfiler.scopeEndEventHandler.On([](const auto& data){
-    //     CT_LOG(Debug, CT_TEXT("ScopeEnd, name:{0}, elapsed:{1}, frameID:{2}"), data.name, data.elapsedTime, gApp->GetTotalFrames());
-    // });
+
+    gProfiler.sessionEndEventHandler.On([this](const auto &data) {
+        cpuProfile.AddSession(data);
+    });
 }
 
 void DebugManager::Shutdown()
@@ -63,4 +55,12 @@ void DebugManager::Tick()
 {
 }
 
-#endif
+const Array<Profiler::SessionData> &DebugManager::GetCpuProfileSessions() const
+{
+    return cpuProfile.sessions;
+}
+
+void DebugManager::ResetProfile()
+{
+    cpuProfile.Clear();
+}
