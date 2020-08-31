@@ -7,8 +7,6 @@
 class ProfileGraph
 {
 public:
-    using Session = Profiler::SessionData;
-
     int32 frameWidth = 3;
     int32 frameSpacing = 1;
 
@@ -17,26 +15,27 @@ public:
         frameDatas.SetCount(frameCount);
     }
 
-    void AddFrameData(const Array<Session> &sessions)
+    void AddFrameData(const ProfileEntry &root)
     {
+        auto &entries = root.children;
         auto &frame = frameDatas[currentFrameIndex];
 
-        frame.sessions.Clear();
-        for (int32 i = 0; i < sessions.Count(); ++i)
+        frame.entries.Clear();
+        for (int32 i = 0; i < entries.Count(); ++i)
         {
-            frame.sessions.Add(sessions[i]);
+            frame.entries.Add(entries[i]);
         }
 
-        frame.statsIndices.SetCount(frame.sessions.Count());
-        for (int32 i = 0; i < frame.sessions.Count(); ++i)
+        frame.statsIndices.SetCount(frame.entries.Count());
+        for (int32 i = 0; i < frame.entries.Count(); ++i)
         {
-            auto &s = frame.sessions[i];
-            if (!nameToStatsIndex.Contains(s.name))
+            auto &e = frame.entries[i];
+            if (!nameToStatsIndex.Contains(e.name))
             {
-                nameToStatsIndex.Put(s.name, statsDatas.Count());
+                nameToStatsIndex.Put(e.name, statsDatas.Count());
                 statsDatas.Add({});
             }
-            frame.statsIndices[i] = nameToStatsIndex[s.name];
+            frame.statsIndices[i] = nameToStatsIndex[e.name];
         }
 
         currentFrameIndex = (currentFrameIndex + 1) % frameDatas.Count();
@@ -68,12 +67,12 @@ private:
             int32 frameIndex = (endFrame - 1 - f + frameCount) % frameCount;
             auto &frame = frameDatas[frameIndex];
             float frameTime = 0.0f;
-            for (int32 i = 0; i < frame.sessions.Count(); ++i)
+            for (int32 i = 0; i < frame.entries.Count(); ++i)
             {
-                auto &s = frame.sessions[i];
+                auto &e = frame.entries[i];
                 auto &stats = statsDatas[frame.statsIndices[i]];
-                stats.maxTime = Math::Max(stats.maxTime, s.elapsedMs);
-                frameTime += s.elapsedMs;
+                stats.maxTime = Math::Max(stats.maxTime, e.elapsedMs);
+                frameTime += e.elapsedMs;
             }
             frame.time = frameTime;
             maxFrameTime = Math::Max(maxFrameTime, frameTime);
@@ -125,7 +124,7 @@ private:
                 break;
 
             Vector2 elePos = framePos;
-            for (auto &e : frameDatas[frameIndex].sessions)
+            for (auto &e : frameDatas[frameIndex].entries)
             {
                 float h = e.elapsedMs * deltaHeight;
                 drawList->AddRect(ImVec2(elePos.x, elePos.y), ImVec2(elePos.x + frameWidth, elePos.y - h), GetColor(e.name));
@@ -153,9 +152,9 @@ private:
         int32 showElementCount = Math::Min(maxElementCount, statsCount);
 
         int32 showOrder = 0;
-        for (int32 i = 0; i < frame.sessions.Count(); ++i)
+        for (int32 i = 0; i < frame.entries.Count(); ++i)
         {
-            auto &e = frame.sessions[i];
+            auto &e = frame.entries[i];
             auto &stats = statsDatas[frame.statsIndices[i]];
             uint32 color = GetColor(e.name);
 
@@ -189,7 +188,7 @@ private:
 
     struct FrameData
     {
-        Array<Session> sessions;
+        Array<ProfileEntry> entries;
         Array<int32> statsIndices;
         float time;
     };
@@ -227,8 +226,8 @@ public:
         ImGui::End();
     }
 
-    void AddFrameData(const Array<ProfileGraph::Session> &sessions)
+    void AddFrameData(const ProfileEntry &root)
     {
-        graph.AddFrameData(sessions);
+        graph.AddFrameData(root);
     }
 };

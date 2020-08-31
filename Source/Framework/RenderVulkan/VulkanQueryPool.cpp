@@ -1,6 +1,11 @@
 #include "RenderVulkan/VulkanQueryPool.h"
 #include "RenderVulkan/VulkanDevice.h"
 
+SPtr<QueryPool> QueryPool::Create(const QueryPoolDesc &desc)
+{
+    return Memory::MakeShared<VulkanQueryPool>(desc);
+}
+
 VulkanQueryPool::VulkanQueryPool(const QueryPoolDesc &desc)
     : QueryPool(desc)
 {

@@ -7,6 +7,7 @@
 #include "RenderCore/RenderContext.h"
 #include "RenderCore/RenderWindow.h"
 #include "RenderCore/Resource.h"
+#include "RenderCore/QueryPool.h"
 
 class DeferredReleaser
 {
@@ -71,6 +72,16 @@ public:
         return gpuDescriptorPool;
     }
 
+    const SPtr<QueryPool> &GetQueryPool(QueryType queryType) const
+    {
+        return queryPools[(int32)queryType];
+    }
+
+    float GetTimestampPeriod() const
+    {
+        return timestampPeriod;
+    }
+
     SPtr<FrameBuffer> GetSwapChainFrameBuffer() const
     {
         return swapChainFrameBuffers[curBackBufferIndex];
@@ -104,6 +115,9 @@ protected:
 
     SPtr<DescriptorPool> cpuDescriptorPool;
     SPtr<DescriptorPool> gpuDescriptorPool;
+
+    SPtr<QueryPool> queryPools[(int32)QueryType::Count];
+    float timestampPeriod;
 
     int32 backBufferCount;
     Array<SPtr<FrameBuffer>> swapChainFrameBuffers;

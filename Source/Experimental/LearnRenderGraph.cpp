@@ -361,9 +361,9 @@ public:
         gImGuiLab->drawHandler.On([this]() {
             OnGuiNodeEditor();
 
-            profileWindow.AddFrameData(sessions);
-            sessions.Clear();
-            profileWindow.OnGui();
+            // profileWindow.AddFrameData(sessions);
+            // sessions.Clear();
+            // profileWindow.OnGui();
         });
 
         auto &gProfiler = Profiler::GetGlobalProfiler();

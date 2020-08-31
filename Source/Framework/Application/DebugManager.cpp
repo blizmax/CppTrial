@@ -43,7 +43,7 @@ void DebugManager::Startup()
     auto &gProfiler = Profiler::GetGlobalProfiler();
 
     gProfiler.sessionEndEventHandler.On([this](const auto &data) {
-        cpuProfile.AddSession(data);
+        cpuProfileData.AddSession(data);
     });
 }
 
@@ -53,14 +53,16 @@ void DebugManager::Shutdown()
 
 void DebugManager::Tick()
 {
+    ProfileEntryCollection collection;
+    for (auto &e : cpuProfileData.entries)
+    {
+        collection.AddEntry(e);
+    }
+    cpuProfileData.Clear();
+    cpuProfileRootEntry = std::move(collection.root);
 }
 
-const Array<Profiler::SessionData> &DebugManager::GetCpuProfileSessions() const
+const ProfileEntry &DebugManager::GetCpuProfileRootEntry() const
 {
-    return cpuProfile.sessions;
-}
-
-void DebugManager::ResetProfile()
-{
-    cpuProfile.Clear();
+    return cpuProfileRootEntry;
 }

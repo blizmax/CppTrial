@@ -15,13 +15,13 @@ public:
     Timer(Runnable<Timer &> callback)
         : callback(std::move(callback))
     {
-        Reset();
+        Start();
     }
 
     Timer(const String &name, Runnable<Timer &> callback)
         : name(name), callback(std::move(callback))
     {
-        Reset();
+        Start();
     }
 
     ~Timer()
@@ -29,7 +29,7 @@ public:
         Stop();
     }
 
-    void Reset()
+    void Start()
     {
         running = true;
         startTime = Time::NanoTime();
@@ -77,5 +77,5 @@ private:
     Runnable<Timer &> callback;
     int64 startTime;
     int64 endTime;
-    bool running = true;
+    bool running = false;
 };

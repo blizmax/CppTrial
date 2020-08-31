@@ -146,6 +146,8 @@ enum class QueryType
     Timestamp,
     Occlusion,
     PipelineStats,
+
+    Count,
 };
 
 enum class TextureFilter

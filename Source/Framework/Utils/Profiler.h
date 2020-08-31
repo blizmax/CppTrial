@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Core/Delegate.h"
+#include "Core/HashMap.h"
 #include "Core/Thread.h"
 #include "Core/Time.h"
-#include "Core/HashMap.h"
 #include "Utils/.Package.h"
 
 struct ProfileEntry
@@ -15,14 +15,8 @@ struct ProfileEntry
     Array<ProfileEntry> children;
 };
 
-class ProfileEntryBuilder
+struct ProfileEntryCollection
 {
-public:
-    ProfileEntryBuilder(ProfileEntry &root)
-        : root(root)
-    {
-    }
-
     int32 GetDepth() const
     {
         return callStack.Count();
@@ -52,7 +46,7 @@ public:
         }
         return *e;
     }
-    
+
     void AddEntry(const ProfileEntry &entry)
     {
         ProfileEntry &p = GetParent();
@@ -74,8 +68,7 @@ public:
         }
     }
 
-private:
-    ProfileEntry &root;
+    ProfileEntry root;
     Array<int32> callStack;
 };
 

@@ -243,8 +243,7 @@ public:
 
             imageWindow.OnGui();
 
-            profileWindow.AddFrameData(gDebugManager->GetCpuProfileSessions());
-            gDebugManager->ResetProfile();
+            profileWindow.AddFrameData(gDebugManager->GetCpuProfileRootEntry());
             profileWindow.OnGui();
         });
     }

@@ -15,8 +15,7 @@ public:
     virtual void Shutdown() override;
     virtual void Tick() override;
 
-    const Array<Profiler::SessionData> &GetCpuProfileSessions() const;
-    void ResetProfile();
+    const ProfileEntry &GetCpuProfileRootEntry() const;
 
     virtual String GetName() const override
     {
@@ -26,12 +25,12 @@ public:
 private:
     struct ProfileData
     {
-        Array<Profiler::SessionData> sessions;
+        Array<ProfileEntry> entries;
         HashMap<String, int32> nameToIndex;
 
         void Clear()
         {
-            sessions.Clear();
+            entries.Clear();
             nameToIndex.Clear();
         }
 
@@ -41,18 +40,23 @@ private:
             int32 index = ptr ? *ptr : -1;
             if (index == -1)
             {
-                sessions.Add(s);
-                nameToIndex.Put(s.name, sessions.Count() - 1);
+                ProfileEntry e;
+                e.name = s.name;
+                e.callNum = 1;
+                e.elapsedMs = s.elapsedMs;
+                entries.Add(e);
+                nameToIndex.Put(s.name, entries.Count() - 1);
             }
             else
             {
-                sessions[index].startTime = Math::Min(sessions[index].startTime, s.startTime);
-                sessions[index].elapsedMs += s.elapsedMs;
+                entries[index].elapsedMs += s.elapsedMs;
+                entries[index].callNum++;
             }
         }
     };
 
-    ProfileData cpuProfile;
+    ProfileData cpuProfileData;
+    ProfileEntry cpuProfileRootEntry;
 };
 
 extern DebugManager *gDebugManager;

@@ -37,6 +37,15 @@ VulkanDevice::VulkanDevice(RenderWindow *window, const DeviceDesc &desc)
         //TODO cpuDescriptorPool
     }
 
+    {
+        QueryPoolDesc poolDesc;
+        poolDesc.queryType = QueryType::Timestamp;
+        poolDesc.count = 16 * 1024;
+        queryPools[(int32)QueryType::Timestamp] = QueryPool::Create(poolDesc);
+    }
+
+    timestampPeriod = GetDeviceLimits().timestampPeriod / Time::MILLI_TO_NANO;
+
     renderContext = RenderContext::Create(GetQueue(GpuQueueType::Graphics));
     renderContext->Flush();
 
